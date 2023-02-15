@@ -1,0 +1,120 @@
+// ------------------------------------------------------------------
+// Common Definition of Device Address and Node Address
+// ------------------------------------------------------------------
+
+syntax = "proto3";
+package siemens.common.address.v1;
+
+//===================================================================
+// Address Message Definitions
+//===================================================================
+
+message ConnectionCredential {
+  // the URI of a Connector schema the credential belongs to
+  string schema_uri = 1;
+  // Connector specific credentials to establish the connection
+  // Could be Token, Username + Password, Certificates, ...
+  string credentials = 2;
+}
+
+message ConnectionParameterSet {
+  // the URI of a specific Connector schema
+  string schema_uri = 1;
+
+  // A json string containing the connection parameters according to the
+  // path $defs/config_connection/parameters in the base schema
+  // 'https://siemens.com/connectivity_suite/schemas/base/1.0.0/config.json'
+  // specialized for the specific schema given above with 'schema_uri'
+  // providing properties like ip address, ...
+  string parameter_json = 2;
+
+  // A json string containing the connection subdriver configuration according to the
+  // path $defs/config_connection/subdriver in the base schema
+  // 'https://siemens.com/connectivity_suite/schemas/base/1.0.0/config.json'
+  string subdriver_json = 3;
+
+  repeated ConnectionCredential credentials = 4;
+}
+
+message DatapointConfiguration {
+  // the name of the datapoint
+  string datapoint_name = 1;
+
+  // The configurations for the datapoints which has to be added
+  DatapointParameterSet datapoint_parameter_set = 2;
+
+  // The access mode for this datapoint "r", "w" or "rw"
+  string access_mode = 3;
+
+  // The owner of this datapoint
+  string owner = 4;
+
+  // A json string containing the datapoint array lower bounds according to the
+  // path $defs/connection_datapoint/array_lower_bounds in the base schema
+  // 'https://siemens.com/connectivity_suite/schemas/base/1.0.0/config.json'
+  // specialized for the specific schema given above with 'schema_uri'
+  repeated int32 array_lower_bounds = 5;
+}
+
+// Benötigt bei generic read/write, bestandteil von configuration
+message DatapointParameterSet {
+  // the URI of a specific Connector schema for the parameter
+  // must be only set, if the schema is different to the schema uri of the connection
+  // string schema_uri = 1;
+
+  // A json string containing the datapoint address according to the
+  // path $defs/connection_datapoint/address in the base schema
+  // 'https://siemens.com/connectivity_suite/schemas/base/1.0.0/config.json'
+  // specialized for the specific schema given by the schema uri of the connection
+  string address_json = 2;
+
+  // A json string containing the datapoint specific parameters according to the
+  // path $defs/connection_datapoint/parameters in the base schema
+  // 'https://siemens.com/connectivity_suite/schemas/base/1.0.0/config.json'
+  // specialized for the specific schema given above with 'schema_uri'
+  string parameter_json = 3;
+
+  // This is the device specific datatype and not the Connectivity Suite datatype.
+  // The types are defined by the driver.
+  string connector_specific_datatype = 4;
+
+  // Size of the array dimension(s)
+  // Examples:
+  // [] ( empty ) - scalar value
+  // [2]          - 1-dim array with size 2
+  // [0]          - 1-dim array with dynamic size, i.e. size is part of payload
+  // [2,3]        - 2-dim array with size 2 x 3
+  // [2,0]        - 2-dim array with dynamic size 2 x n, i.e. size of 2nd dimension is part of payload
+  repeated int32 array_dimensions = 5;
+}
+
+// this is an array of browsenames which together form one browse path
+// to identify one Node during browsing (e.g. starting node)
+message BrowsePath {
+  repeated string names = 1;
+}
+
+// Address of the device / instance you want to communicate with
+message Destination {
+  oneof target {
+    // e.g. PROFINET name, IP-Address, PA-Address, ...
+    ConnectionParameterSet connection_parameter_set = 1;
+
+    // alternative, if a connection exist and can be referenced by name
+    string connection_name = 2;
+  }
+}
+
+// This is a workaround for "repeated oneof" in protobuf. See https://github.com/protocolbuffers/protobuf/issues/2592
+message NodeAddress {
+  oneof type {
+      // A json string containing the datapoint address according to the
+      // path $defs/connection_datapoint/address in the base schema
+      // 'https://siemens.com/connectivity_suite/schemas/base/1.0.0/config.json'
+      // specialized for the specific schema given by the schema uri of the connection
+      string datapoint_json = 1;
+
+      // should work for any browse server
+      BrowsePath browse_path = 2;
+  }
+}

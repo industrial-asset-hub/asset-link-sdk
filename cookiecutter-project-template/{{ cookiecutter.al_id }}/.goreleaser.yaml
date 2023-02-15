@@ -1,0 +1,104 @@
+# SPDX-FileCopyrightText: 2024 Siemens AG
+#
+# SPDX-License-Identifier: MIT
+---
+project_name: {{ cookiecutter.al_name }}
+
+before:
+  hooks:
+    - go generate ./...
+    - go mod vendor
+
+builds:
+  - id: {{ cookiecutter.al_name }}
+    binary: {{ cookiecutter.al_name }}
+    tags:
+      - webserver
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -extldflags '-static'
+{% raw %}
+      - -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.CommitDate}}
+{% endraw %}
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ignore:
+      - goos: windows
+        goarch: arm64
+{% raw %}
+    mod_timestamp: "{{ .CommitTimestamp }}"
+
+archives:
+  - format: tar.gz
+    files:
+      - vendor\
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+    format_overrides:
+      - goos: windows
+        format: zip
+
+{% endraw %}
+
+nfpms:
+  - id: {{ cookiecutter.al_name }}
+    package_name: {{ cookiecutter.al_name }}
+    builds:
+      - {{ cookiecutter.al_name }}
+    vendor: {{cookiecutter.company }}
+    homepage: {{ cookiecutter.company_url }}
+    maintainer: {{ cookiecutter.author_name }} <{{ cookiecutter.author_email }}>
+    description: |-
+      IAH Asset Link {{ cookiecutter.al_name }}
+    license: {{ cookiecutter.company }} {{ cookiecutter.year }}
+    formats:
+      - deb
+    bindir: /usr/bin
+    version_metadata: git
+    section: default
+    priority: extra
+    contents:
+      - src: contrib/{{ cookiecutter.al_name }}.service
+        dst: /lib/systemd/system/{{ cookiecutter.al_name }}.service
+        type: "config"
+    scripts:
+      postinstall: "contrib/postinstall.bash"
+      postremove: "contrib/postremove.bash"
+
+{% raw %}
+checksum:
+  name_template: "{{.ProjectName}}_{{.Version}}.sha256"
+  algorithm: sha256
+
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+  {% endraw %}
+
+changelog:
+  sort: asc
+  groups:
+    - title: Features
+      regexp: "^.*feat[(\\w)]*:+.*$"
+      order: 0
+    - title: "Bug fixes"
+      regexp: "^.*fix[(\\w)]*:+.*$"
+      order: 1
+    - title: Others
+      order: 999
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"

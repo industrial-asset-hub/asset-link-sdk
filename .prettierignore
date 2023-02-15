@@ -1,0 +1,6 @@
+# SPDX-FileCopyrightText: 2024 Siemens AG
+#
+# SPDX-License-Identifier: MIT
+cookiecutter-project-template/{{ cookiecutter.al_id }}/.goreleaser.yaml
+site
+public

@@ -1,0 +1,11 @@
+{
+  "cookiecutter": {
+    "al_name": "AL test",
+    "al_id": "al-test",
+    "author_name": "John Doe",
+    "author_email": "john.doe@siemens.local",
+    "company": "Siemens AG",
+    "company_url": "https://www.siemens.com",
+    "year": "2024"
+  }
+}

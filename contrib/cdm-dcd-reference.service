@@ -1,0 +1,19 @@
+/*
+ * SPDX-FileCopyrightText: 2024 Siemens AG
+ *
+ * SPDX-License-Identifier: MIT
+ *
+ */
+
+[Unit]
+Description=IAH Asset Link Reference
+After=network.target
+
+[Service]
+ExecStartPre=/bin/sh -c "systemctl set-environment IAH_AssetLink_IP=$(hostname -i)"
+ExecStart=/usr/bin/cdm-dcd-reference --grpc-registry-address=localhost:50051 --grpc-server-address=${IAH_AssetLink_IP}:8080 --grpc-server-endpoint-address=${IAH_AssetLink_IP}
+Restart=on-failure
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target

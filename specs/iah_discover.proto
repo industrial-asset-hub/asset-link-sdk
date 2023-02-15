@@ -1,0 +1,59 @@
+// Device Discover Interface
+
+syntax = "proto3";
+
+import "common_address.proto";
+import "common_filters.proto";
+import "common_identifiers.proto";
+
+package siemens.industrialassethub.discover.v1;
+
+service DeviceDiscoverApi {
+    // Get the list of supported Filter Types
+    rpc GetFilterTypes ( siemens.common.filters.v1.FilterTypesRequest ) returns (siemens.common.filters.v1.FilterTypesResponse) {}
+    // Get the list of supported Filter Options
+    rpc GetFilterOptions ( siemens.common.filters.v1.FilterOptionsRequest ) returns (siemens.common.filters.v1.FilterOptionsResponse) {}
+
+    // Start a device discovery with given filters and options.
+    // Returns the discovered devices.
+    rpc DiscoverDevices (DiscoverRequest) returns (stream DiscoverResponse) {}
+}
+
+message DiscoverRequest {
+    /*
+    optional: Filters which are used to filter the discover result, e.g. a special device type
+    values of identical keys are logically "OR" combined
+    values of different keys are logically "AND" combined
+    */
+    repeated siemens.common.filters.v1.ActiveFilter filters = 1;
+    /*
+    optional: Options which are used to perform the discover, e.g. timeout, hircharchie level, ...
+    values of identical keys are logically "OR" combined
+    values of different keys are logically "AND" combined
+    */
+    repeated siemens.common.filters.v1.ActiveOption options = 2;
+    /*
+    optional: Specify the target where the discovery should be performed
+    If it's not specified, the whole system is scanned
+    */
+    repeated siemens.common.address.v1.Destination target = 3;
+}
+
+message DiscoverResponse {
+    // Holds information on one or more discovered devices
+    repeated DiscoveredDevice devices = 1;
+}
+
+message DiscoveredDevice {
+    // List of default device identifiers of a device supported by the protocol
+    repeated siemens.common.identifiers.v1.DeviceIdentifier identifiers = 1;
+
+    // The whole connection parameters, to establish the communciation with
+    // the discovered device, including the schema and subdriver configuration
+    siemens.common.address.v1.ConnectionParameterSet connection_parameter_set = 2;
+
+    // Timestamp when device was last seen
+    // 64 bit unsigned integer which represents the number
+    // of 100 nano-second [0.1 microsec] intervals since January 1, 1601 (UTC).
+    fixed64 timestamp = 3;
+}
