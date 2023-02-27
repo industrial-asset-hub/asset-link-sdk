@@ -1,14 +1,14 @@
 # Maintainers Guide
 
 This guide is intended for anybody with maintainer rights in the project.
-The term *project* refers within this document to the code.siemens.com project
+The term _project_ refers within this document to the code.siemens.com project
 where this document can be found.
 
 Some of the configurations are automatically applied if you create the project
 by importing the "project template".
 
 Those configurations automatically provided by the template start with the text
-"*Automatically applied by the* **project template**" in the corresponding
+"_Automatically applied by the_ **project template**" in the corresponding
 section.
 
 Some tooling might exist to automatically check conformance of a project
@@ -21,9 +21,9 @@ contributors and they should be aware of the rationals behind the configuration.
 
 ## Merge Configuration
 
-*Automatically applied by the* **project template**
+_Automatically applied by the_ **project template**
 
-*Manual configuration:*
+_Manual configuration:_
 
 Go to the merge requests configuration (`Settings` ->
 `General` -> `Merge requests`) and ensure that `Merge commit with semi-linear
@@ -33,25 +33,25 @@ accordingly updated.
 
 ## Default Branch
 
-*Automatically applied by the* **project template**
+_Automatically applied by the_ **project template**
 
-*Manual configuration:*
+_Manual configuration:_
 
 The default branch (`Settings` -> `Repository` ->
 `Default branch`) is called `main`.
 
 ## Branches and Tags Protection
 
-*Automatically applied by the* **project template**
+_Automatically applied by the_ **project template**
 
-*Manual configuration:*
+_Manual configuration:_
 
 The default branch should be protected (`Settings` -> `Repository` ->
 `Protected branches`) and configured so:
 
-* `Allowed to merge` -> `Maintainers`
-* `Allowed to push` -> `No one`
-* `Allowed to force push` -> *disabled*
+- `Allowed to merge` -> `Maintainers`
+- `Allowed to push` -> `No one`
+- `Allowed to force push` -> _disabled_
 
 This way no commit get into the main branch without a merge request, what
 implies a review process (see [below](#review-merge-requests-to-main).
@@ -73,31 +73,31 @@ should also review the merge request.
 
 ## Merging Branches
 
-*Automatically applied by the* **project template**
+_Automatically applied by the_ **project template**
 
-*Manual configuration:*
+_Manual configuration:_
 
 Go to the merge requests configuration (`Settings` ->
 `General` -> `Merge requests`) and ensure that following options are active in
 the `Merge checks` section:
 
-* `Pipelines must succeed` (must be disabled if the project doesn't have any
+- `Pipelines must succeed` (must be disabled if the project doesn't have any
   pipelines)
-* `All threads must be resolved`
+- `All threads must be resolved`
 
 ## Merge Commit Message
 
-*Automatically applied by the* **project template**
+_Automatically applied by the_ **project template**
 
-*Manual configuration:*
+_Manual configuration:_
 
 The message of the commit being added by a merge request should contain
 following information:
 
-* A reference to the JIRA issue that requires the changes (no merge request
-    without its corresponding JIRA issue).
-* A `Merged-by: <maintainer name and e-mail>` footer.
-* One or more `Approved-by: <reviewer name and e-mail>` footers (optional if
+- A reference to the JIRA issue that requires the changes (no merge request
+  without its corresponding JIRA issue).
+- A `Merged-by: <maintainer name and e-mail>` footer.
+- One or more `Approved-by: <reviewer name and e-mail>` footers (optional if
   maintainer merging is also reviewer).
 
 ## README.md
@@ -105,13 +105,13 @@ following information:
 The maintainers are responsible for ensuring that a README.md file providing
 following information:
 
-* It has to contain an `Introduction` section which briefly explains what the
+- It has to contain an `Introduction` section which briefly explains what the
   repository provides.
-* The `Introduction` has to be written in a language that can be easily
+- The `Introduction` has to be written in a language that can be easily
   understood by all potential stakeholders.
-* It has to be kept up-to-date. Move to other files sections that are hard to
+- It has to be kept up-to-date. Move to other files sections that are hard to
   be kept up-to-date.
-* It should refer to any other files relevant to any potential stakeholders
+- It should refer to any other files relevant to any potential stakeholders
   (for example to `CONTRIBUTING.md` for developers and to `MAINTAINERS.md` for
   maintainers and quality assurance).
 
@@ -121,8 +121,7 @@ Should it be needed to license the reuse of the content of this repository, add
 to the repository the file `LICENSE` and replace the content of the
 [License section of the file README.md](README.md#license) with following text:
 
-``` markdown
+```markdown
 Reuse of the content of this repository has been licensed under the conditions
 described in the file [LICENSE](LICENSE).
 ```
-

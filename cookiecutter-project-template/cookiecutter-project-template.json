@@ -1,0 +1,10 @@
+{
+  "cookiecutter": {
+    "dcd_name": "dcd-test",
+    "author_name": "John Doe",
+    "author_email": "john.doe@siemens.local",
+    "company": "Siemens AG",
+    "company_url": "https://www.siemens.com",
+    "year": "2023"
+  }
+}
