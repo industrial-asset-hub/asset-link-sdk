@@ -1,0 +1,100 @@
+# SPDX-FileCopyrightText: 2023 Siemens AG
+#
+# SPDX-License-Identifier:
+---
+project_name: cdm-dcd-sdk
+
+before:
+  hooks:
+    - go generate ./...
+    - go mod download
+
+builds:
+  - id: cdm-dcd-reference
+    binary: cdm-dcd-reference
+    main: ./cdm-dcd-reference/main.go
+    flags:
+      - -trimpath
+      - -mod=readonly
+    ldflags:
+      - -s -w -extldflags '-static'
+      - -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.CommitDate}}
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ignore:
+      - goos: windows
+        goarch: arm64
+    mod_timestamp: "{{ .CommitTimestamp }}"
+
+archives:
+  - format: tar.gz
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+    format_overrides:
+      - goos: windows
+        format: zip
+
+nfpms:
+  - id: cdm-dcd-reference
+    package_name: cdm-dcd-reference
+    builds:
+      - cdm-dcd-reference
+    vendor: Siemens AG
+    homepage: https://www.siemens.com/
+    maintainer: Heiko Schabert <heiko.schabert@siemens.com>
+    description: |-
+      CDM Device Class Driver Reference Implementation.
+    license: Siemens AG 2023
+    formats:
+      - deb
+    bindir: /usr/bin
+    version_metadata: git
+    section: default
+    priority: extra
+    contents:
+      - src: contrib/cdm-dcd-reference.service
+        dst: /lib/systemd/system/cdm-dcd-reference.service
+        type: "config"
+    scripts:
+      postinstall: "contrib/postinstall.bash"
+      postremove: "contrib/postremove.bash"
+
+checksum:
+  name_template: "{{.ProjectName}}_{{.Version}}.sha256"
+  algorithm: sha256
+
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+
+changelog:
+  sort: asc
+  groups:
+    - title: Features
+      regexp: "^.*feat[(\\w)]*:+.*$"
+      order: 0
+    - title: "Bug fixes"
+      regexp: "^.*fix[(\\w)]*:+.*$"
+      order: 1
+    - title: Others
+      order: 999
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+
+gitlab_urls:
+  api: https://code.siemens.com/api/v4/
+  download: https://code.siemens.com
+  skip_tls_verify: false
+  use_package_registry: true

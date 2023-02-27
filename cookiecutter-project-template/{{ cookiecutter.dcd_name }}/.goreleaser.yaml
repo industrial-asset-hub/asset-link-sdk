@@ -1,0 +1,97 @@
+---
+project_name: {{ cookiecutter.dcd_name }}
+
+before:
+  hooks:
+    - go mod tidy
+    - go generate ./...
+    - go mod download
+
+builds:
+  - id: {{ cookiecutter.dcd_name }}
+    binary: {{ cookiecutter.dcd_name }}
+    flags:
+      - -trimpath
+      - -mod=readonly
+    ldflags:
+      - -s -w -extldflags '-static'
+{% raw %}
+      - -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.CommitDate}}
+{% endraw %}
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ignore:
+      - goos: windows
+        goarch: arm64
+{% raw %}
+    mod_timestamp: "{{ .CommitTimestamp }}"
+
+archives:
+  - format: tar.gz
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+    format_overrides:
+      - goos: windows
+        format: zip
+{% endraw %}
+
+nfpms:
+  - id: {{ cookiecutter.dcd_name }}
+    package_name: {{ cookiecutter.dcd_name }}
+    builds:
+      - {{ cookiecutter.dcd_name }}
+    vendor: {{cookiecutter.company }}
+    homepage: {{ cookiecutter.company_url }}
+    maintainer: {{ cookiecutter.author_name }} <{{ cookiecutter.author_email }}>
+    description: |-
+      CDM Device Class Driver {{ cookiecutter.dcd_name }}
+    license: {{ cookiecutter.company }} {{ cookiecutter.year }}
+    formats:
+      - deb
+    bindir: /usr/bin
+    version_metadata: git
+    section: default
+    priority: extra
+    contents:
+      - src: contrib/{{ cookiecutter.dcd_name }}.service
+        dst: /lib/systemd/system/{{ cookiecutter.dcd_name }}.service
+        type: "config"
+    scripts:
+      postinstall: "contrib/postinstall.bash"
+      postremove: "contrib/postremove.bash"
+
+{% raw %}
+checksum:
+  name_template: "{{.ProjectName}}_{{.Version}}.sha256"
+  algorithm: sha256
+
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+  {% endraw %}
+
+changelog:
+  sort: asc
+  groups:
+    - title: Features
+      regexp: "^.*feat[(\\w)]*:+.*$"
+      order: 0
+    - title: "Bug fixes"
+      regexp: "^.*fix[(\\w)]*:+.*$"
+      order: 1
+    - title: Others
+      order: 999
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"

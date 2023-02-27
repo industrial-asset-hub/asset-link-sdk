@@ -80,13 +80,13 @@ Use the imperative mood. For example: "clean ..." instead of "we have cleaned
 
 We use git commit as per [Conventional Changelog](https://github.com/ajoslin/conventional-changelog):
 
-``` text
+```text
 <type>(<scope>): <subject>
 ```
 
 Example:
 
-``` text
+```text
 docs(CONTRIBUTING.md): add commit message guidelines
 ```
 
@@ -142,20 +142,20 @@ Siemens has the copyright on the created files.
 In order to explicitly declare it, following notice must be provided in the
 header!
 
-``` text
+```text
 (c) Siemens <year-of-creation>
 ```
 
 or
 
-``` text
+```text
 (c) Siemens <year-of-creation>-<year-of-last-modification>
 ```
 
 For example for a Python file created 2022 and modified lastly 2023, this must
 be the notice:
 
-``` Python
+```Python
 # (c) Siemens 2022-2023
 ```
 
@@ -171,7 +171,6 @@ Authorship notices aren't mandatory, but recommended.
 
 An Authorship notice in Python would look like this:
 
-``` Python
+```Python
 # Author: John Doe <john.doe@siemens.com>
 ```
-

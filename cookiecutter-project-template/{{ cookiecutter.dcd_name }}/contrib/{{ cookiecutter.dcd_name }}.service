@@ -1,0 +1,12 @@
+[Unit]
+Description=CDM Device Class Driver {{ cookiecutter.dcd_name }}
+After=network.target
+
+[Service]
+ExecStartPre=/bin/sh -c "systemctl set-environment CDM_DCD_IP=$(hostname -i)"
+ExecStart=/usr/bin/{{ cookiecutter.dcd_name }} --grpc-registry-address=localhost:50051 --grpc-address=${CDM_DCD_IP}:8080
+Restart=on-failure
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target
