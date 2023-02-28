@@ -4,6 +4,6 @@
 # SPDX-License-Identifier:
 
 set -xeu
-systemctl stop cdm-dcd
+systemctl stop cdm-dcd-reference
 
 systemctl daemon-reload
