@@ -125,7 +125,6 @@ Execute the following command, which provides a text-based questionnaire to setu
 $ cookiecutter https://code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk.git
 --directory cookiecutter-project-template [optional -c "branch"]
 
-cookiecutter ~/development/common-device-management/cdm-dcd-sdk/cookiecutter-project-template/
 dcd_name [mydcd]: my-fancy-dcd
 author_name [John Doe]: Otto Device Builder
 author_email [otto@device-builder.local]: otto@device-builder.local
