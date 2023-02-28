@@ -75,7 +75,7 @@ type DeviceInfo struct {
 	Modules []Module `json:"modules,omitempty"`
 
 	// Nics corresponds to the JSON schema field "nics".
-	Nics []DeviceInfoNicsElem `json:"nics"`
+	Nics []DeviceInfoNicsElem `json:"nics,omitempty"`
 
 	// PasswordProtected corresponds to the JSON schema field "password_protected".
 	PasswordProtected PasswordProtected `json:"password_protected"`
@@ -518,9 +518,6 @@ func (j *DeviceInfo) UnmarshalJSON(b []byte) error {
 	}
 	if v, ok := raw["device_sw_version"]; !ok || v == nil {
 		return fmt.Errorf("field device_sw_version: required")
-	}
-	if v, ok := raw["nics"]; !ok || v == nil {
-		return fmt.Errorf("field nics: required")
 	}
 	if v, ok := raw["password_protected"]; !ok || v == nil {
 		return fmt.Errorf("field password_protected: required")
