@@ -1,18 +1,12 @@
 ---
 project_name: {{ cookiecutter.dcd_name }}
 
-before:
-  hooks:
-    - go mod tidy
-    - go generate ./...
-    - go mod download
-
 builds:
   - id: {{ cookiecutter.dcd_name }}
     binary: {{ cookiecutter.dcd_name }}
     flags:
       - -trimpath
-      - -mod=readonly
+      - -mod=vendor
     ldflags:
       - -s -w -extldflags '-static'
 {% raw %}
@@ -35,6 +29,8 @@ builds:
 
 archives:
   - format: tar.gz
+    files:
+      - vendor\
     name_template: >-
       {{ .ProjectName }}_
       {{- title .Os }}_
@@ -45,6 +41,7 @@ archives:
     format_overrides:
       - goos: windows
         format: zip
+
 {% endraw %}
 
 nfpms:

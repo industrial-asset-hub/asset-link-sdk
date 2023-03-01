@@ -28,10 +28,14 @@ variables:
   GO_BUILD_IMAGE: golang:1.20.0-alpine
   CGO_ENABLED: 0
   COOKIECUTTER_PROJECT: cookiecutter-test/
+  COOKIECUTTER_PROJECT_NAME: dcd-test
 
 # sets credentials to access private GO modules located in code.siemens.com
 .set_git_https_credentials: &set_git_https_credentials |
   git config --global url."https://gitlab-ci-token:${CI_JOB_TOKEN}@code.siemens.com/".insteadOf https://code.siemens.com/
+
+.set_netrc: &set_netrc |
+  echo -e "machine code.siemens.com\nlogin gitlab-ci-token\npassword ${CI_JOB_TOKEN}" > ~/.netrc
 
 # Lint
 lint:
@@ -102,42 +106,69 @@ cookiecutter-setup:
     - cd ${COOKIECUTTER_PROJECT}
     - cookiecutter ${CI_PROJECT_DIR}/cookiecutter-project-template/ --replay
     # directory to the config.yaml used by cookiecutter
-    - cd dcd-test/
+    - cd ${COOKIECUTTER_PROJECT_NAME}
     - ls
   cache:
-    key: "$CI_PIPELINE_ID-$CI_COMMIT_REF_SLUG"
+    key: "$CI_PIPELINE_ID-$CI_COMMIT_REF_SLUG-COOKIECUTTER"
     paths:
-      - $COOKIECUTTER_PROJECT
+      - $COOKIECUTTER_PROJECT/${COOKIECUTTER_PROJECT_NAME}
     policy: pull-push
 
-cookiecutter-build:
+.go-build:
   stage: build
   image: archlinux:latest
   variables:
-    GIT_STRATEGY: clone
     GONOSUMDB: code.siemens.com
     GOPRIVATE: code.siemens.com
   before_script:
     - pacman -Syu --noconfirm
     - pacman -S --noconfirm go zig goreleaser git
+
+# Vendors the needed Go packages. This vendor/ is used, inside the
+# release job, to include the vendor/ directory, into
+# the generated cdm-dcd-sdk archiv. This also, updates the go.mod file w/
+# the most recent tag of the cdm-dcd-sdk
+# Caution: this removes the cookiecutter specific header of the go.mod file.
+#          This header has to be restored inside the create-release job, to have
+#          and full working released archive.
+cookiecutter-vendor:
+  extends: .go-build
+  variables:
+    GIT_STRATEGY: clone
   script:
-    - echo -e "machine code.siemens.com\nlogin gitlab-ci-token\npassword ${CI_JOB_TOKEN}" > ~/.netrc
-    - cd ${COOKIECUTTER_PROJECT}/dcd-test/
-    - goreleaser build --snapshot --rm-dist --single-target
+    - *set_netrc
+    - cd ${COOKIECUTTER_PROJECT}/${COOKIECUTTER_PROJECT_NAME}/
+    # Prepare
+    - go generate ./...
+    - go mod download
+    - go mod tidy
+    - go mod vendor -o vendor
   cache:
-    key: "$CI_PIPELINE_ID-$CI_COMMIT_REF_SLUG"
+    key: "$CI_PIPELINE_ID-$CI_COMMIT_REF_SLUG-COOKIECUTTER"
     paths:
       - $COOKIECUTTER_PROJECT
-  allow_failure: true
+    policy: pull-push
+
+# Builds the already bootstrapped DCD
+# and uses the vendored files.
+cookiecutter-build:
+  extends: .go-build
+  needs: ["cookiecutter-vendor"]
+  variables:
+    GIT_STRATEGY: clone
+  script:
+    - cd ${COOKIECUTTER_PROJECT}/${COOKIECUTTER_PROJECT_NAME}/
+    - goreleaser build --snapshot --rm-dist --single-target
+  cache:
+    key: "$CI_PIPELINE_ID-$CI_COMMIT_REF_SLUG-COOKIECUTTER"
+    paths:
+      - $COOKIECUTTER_PROJECT
+    policy: pull
 
 build:
-  stage: build
-  image: archlinux:latest
-  before_script:
-    - pacman -Syu --noconfirm
-    - pacman -S --noconfirm go zig goreleaser git
+  extends: .go-build
   script:
-    - *set_git_https_credentials
+    - *set_netrc
     - goreleaser build --snapshot --rm-dist --single-target
   artifacts:
     expire_in: 1 day
@@ -155,9 +186,16 @@ create-release:
     - pacman -Syu --noconfirm
     - pacman -S --noconfirm go zig goreleaser git git-lfs
     - git lfs install
-    - git submodule update
   script:
-    - echo -e "machine code.siemens.com\nlogin gitlab-ci-token\npassword ${CI_JOB_TOKEN}" > ~/.netrc
+    - *set_netrc
+    # Copy go.mod and the vendor dir for the SDK archive to the into the cookiecutter template
+    # the go.mod inside the cookiecutter-project-template does not have to contain the cdm-dcd-sdk. It is updated
+    # inside the cookiecutter-vendor job
+    - cp -a ${COOKIECUTTER_PROJECT}/${COOKIECUTTER_PROJECT_NAME}/go.mod cookiecutter-project-template/\{\{\ cookiecutter.dcd_name\ \}\}/
+    # Replace first line inside go.mod, due to it's specific from the cookiecutter template
+    - sed -i "1s/.*/module {{cookiecutter.dcd_name}}/" cookiecutter-project-template/\{\{\ cookiecutter.dcd_name\ \}\}/go.mod
+    - cp -a ${COOKIECUTTER_PROJECT}/${COOKIECUTTER_PROJECT_NAME}/vendor cookiecutter-project-template/\{\{\ cookiecutter.dcd_name\ \}\}/
+    # Create release
     - |
       if [ "${CI_COMMIT_TAG:-}" != "" ]; then
           export GITLAB_TOKEN="$GITLAB_RELEASE_TOKEN"
@@ -171,3 +209,8 @@ create-release:
     expire_in: 1 day
     paths:
       - dist
+  cache:
+    key: "$CI_PIPELINE_ID-$CI_COMMIT_REF_SLUG-COOKIECUTTER"
+    paths:
+      - $COOKIECUTTER_PROJECT
+    policy: pull
