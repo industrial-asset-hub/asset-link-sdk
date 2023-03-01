@@ -10,7 +10,6 @@ require (
 )
 
 require (
-	code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk v0.0.1 // indirect
 	code.siemens.com/common-device-management/utils/go-modules/discovery.git v0.0.0-20221220174242-7cf186b3ef21 // indirect
 	code.siemens.com/common-device-management/utils/go-modules/grpcserverregistry.git v0.0.0-20230116100700-106405ae176c // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
