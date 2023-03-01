@@ -52,6 +52,7 @@ archives:
     wrap_in_directory: false
     files:
       - none*
+      - README.SDK.md
       - cookiecutter-project-template/
     name_template: >-
       {{ .ProjectName }}
