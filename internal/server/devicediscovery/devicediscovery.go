@@ -47,14 +47,19 @@ func (d *DiscoveryServerEntity) StartDeviceDiscovery(
 	if d.Discovery != nil {
 		// Create a buffered channel with
 		d.deviceInfoReply = make(chan model.DeviceInfo, deviceInfoChannelBufferSize)
-
+		// Channel, which allows to transfer if the startup was executed successfully.
+		// Due to the start as Gouroutine, the d.Start() function can report an error during and can run even longer.
+		startError := make(chan error)
 		// Start custom discovery function
 		go func() {
-			if err := d.Start(jobId, d.deviceInfoReply); err != nil {
-				errMsg := "Error during starting of the discovery job"
-				log.Error().Err(err).Msg(errMsg)
-			}
+			d.Start(jobId, d.deviceInfoReply, startError)
 		}()
+
+		if err := <-startError; err != nil {
+			errMsg := "Error during starting of the discovery job"
+			log.Error().Err(err).Msg(errMsg)
+			return &generated.DiscoveryReply{DiscoveryId: jobId}, err
+		}
 
 	} else {
 		log.Info().
