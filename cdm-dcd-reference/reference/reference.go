@@ -29,7 +29,7 @@ type ReferenceClassDriver struct {
 
 // Start implements the function, which is called, with the
 // grpc method is executed
-func (m *ReferenceClassDriver) Start(jobId uint32, deviceInfoReply chan model.DeviceInfo) error {
+func (m *ReferenceClassDriver) Start(jobId uint32, deviceInfoReply chan model.DeviceInfo, err chan error) {
 	log.Info().
 		Msg("Start Discovery")
 
@@ -42,8 +42,13 @@ func (m *ReferenceClassDriver) Start(jobId uint32, deviceInfoReply chan model.De
 	// We currently support here only one running job
 	if m.discoveryJobRunning {
 		errMsg := "Discovery job is already running"
-		return errors.New(errMsg)
+		err <- errors.New(errMsg)
 	}
+
+	// Thus, this function is executed as Goroutine,
+	// and the gRPC Server methods blocks, until the job is started, we assume at this point,
+	// that the discover job is started successfully
+	err <- nil
 
 	m.discoveryJobRunning = true
 	m.discoveryJobCancelationToken = make(chan uint32)
@@ -55,7 +60,6 @@ func (m *ReferenceClassDriver) Start(jobId uint32, deviceInfoReply chan model.De
 				Uint32("Job Id", cancelationJobId).
 				Msg("Received cancel request")
 			m.discoveryJobRunning = false
-			return nil
 		default:
 
 			// Default Device Information structure
@@ -188,7 +192,6 @@ func (m *ReferenceClassDriver) Start(jobId uint32, deviceInfoReply chan model.De
 	log.Debug().
 		Msg("Start function exiting")
 
-	return nil
 }
 
 func (m *ReferenceClassDriver) Cancel(jobId uint32) error {
