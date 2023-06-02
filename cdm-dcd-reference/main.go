@@ -77,5 +77,4 @@ func main() {
 	if err := dcdImpl.Start(serverAddress, registryAddress); err != nil {
 		log.Fatal().Err(err).Msg("Could not start device class driver instance")
 	}
-
 }
