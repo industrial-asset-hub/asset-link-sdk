@@ -88,7 +88,7 @@ loop:
 
 		deviceInformation := []*generated.DiscoveryDevice{}
 
-		response, err := structpb.NewStruct(deviceInfo.ToJSONMap())
+		response, err := structpb.NewStruct(deviceInfo)
 		if err != nil {
 			errMsg := "Could not generate response structure."
 			log.Warn().Err(err).Msg(errMsg)

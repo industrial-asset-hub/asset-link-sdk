@@ -63,7 +63,7 @@ func (m *ReferenceClassDriver) Start(jobId uint32, deviceInfoReply chan model.De
 		default:
 
 			// Default Device Information structure
-			deviceInfo := model.DeviceInfo{}
+			deviceInfo := DeviceInfo{}
 			deviceInfo.Vendor = "Siemens AG"
 			deviceInfo.DeviceFamily = "cdm-dcd-reference"
 			// Exact Device Type e.g. CPU 1516-3 PN/DP
@@ -72,51 +72,51 @@ func (m *ReferenceClassDriver) Start(jobId uint32, deviceInfoReply chan model.De
 			deviceInfo.DeviceHwVersion = "1.0.1"
 			deviceInfo.DeviceSwVersion = "0.2.0"
 			deviceInfo.PasswordProtected = false
-			deviceInfo.SerialNumber = model.SerialNumber(uuid.NewString())
+			deviceInfo.SerialNumber = SerialNumber(uuid.NewString())
 			stationName := "Device " + strconv.Itoa(i)
 			stationNumber := 12
-			deviceType := model.PropertiesDeviceTypeNative
-			connectivityType := model.PropertiesConnectivityStatusOnline
-			opMode := model.PropertiesOperatingModeRun
+			deviceType := PropertiesDeviceTypeNative
+			connectivityType := PropertiesConnectivityStatusOnline
+			opMode := PropertiesOperatingModeRun
 
 			// Network Interfaces
-			nic1Name := model.NicIdentifier("eth0")
+			nic1Name := NicIdentifier("eth0")
 			nic1MAC := "ab:cd:ef:ab:cd:ef"
 			nic1IP := "192.168.0.99"
 			nic1Netmask := "192.168.0.99"
 			nic1DefaultGateway := ""
-			nic2Name := model.NicIdentifier("eth2")
+			nic2Name := NicIdentifier("eth2")
 			nic2MAC := "ab:cd:ef:ab:cd:ef"
 			nic2IP := "10.0.0.2"
 			nic2Netmask := "255.255.0.0"
 			nic2DefaultGateway := "10.0.0.1"
 
-			nic1 := model.DeviceInfoNicsElem{MacAddress: &nic1MAC, NicIdentifier: &nic1Name}
-			nic2 := model.DeviceInfoNicsElem{MacAddress: &nic2MAC, NicIdentifier: &nic2Name}
+			nic1 := DeviceInfoNicsElem{MacAddress: &nic1MAC, NicIdentifier: &nic1Name}
+			nic2 := DeviceInfoNicsElem{MacAddress: &nic2MAC, NicIdentifier: &nic2Name}
 
 			deviceInfo.Nics = append(deviceInfo.Nics, nic1, nic2)
-			ipSettingsNic1 := model.PropertiesIpConfigurationsElemIpSettingsElem{
+			ipSettingsNic1 := PropertiesIpConfigurationsElemIpSettingsElem{
 				IpAddress:      nic1IP,
 				SubnetMask:     nic1Netmask,
 				DefaultGateway: nic1DefaultGateway}
-			ipSettingsNic2 := model.PropertiesIpConfigurationsElemIpSettingsElem{
+			ipSettingsNic2 := PropertiesIpConfigurationsElemIpSettingsElem{
 				IpAddress:      nic2IP,
 				SubnetMask:     nic2Netmask,
 				DefaultGateway: nic2DefaultGateway}
 
-			var IPSettings1 []model.PropertiesIpConfigurationsElemIpSettingsElem
+			var IPSettings1 []PropertiesIpConfigurationsElemIpSettingsElem
 			IPSettings1 = append(IPSettings1, ipSettingsNic1)
-			var IPSettings2 []model.PropertiesIpConfigurationsElemIpSettingsElem
+			var IPSettings2 []PropertiesIpConfigurationsElemIpSettingsElem
 			IPSettings2 = append(IPSettings2, ipSettingsNic2)
-			IPInfoNic1 := model.PropertiesIpConfigurationsElem{NicIdentifier: &nic1Name, IpSettings: IPSettings1}
-			IPInfoNic2 := model.PropertiesIpConfigurationsElem{NicIdentifier: &nic2Name, IpSettings: IPSettings2}
-			var IPInfo []model.PropertiesIpConfigurationsElem
+			IPInfoNic1 := PropertiesIpConfigurationsElem{NicIdentifier: &nic1Name, IpSettings: IPSettings1}
+			IPInfoNic2 := PropertiesIpConfigurationsElem{NicIdentifier: &nic2Name, IpSettings: IPSettings2}
+			var IPInfo []PropertiesIpConfigurationsElem
 			IPInfo = append(IPInfo, IPInfoNic1, IPInfoNic2)
 
 			// Capabilities of ot the device
 			var ptrTrue bool = true
 			var ptrFalse bool = false
-			cap := model.Capabilities{
+			cap := Capabilities{
 				FirmwareUpdate: &ptrTrue,
 				ProgramUpdate:  &ptrTrue,
 				Backup:         &ptrFalse,
@@ -125,15 +125,15 @@ func (m *ReferenceClassDriver) Start(jobId uint32, deviceInfoReply chan model.De
 			}
 			deviceInfo.Capabilities = &cap
 
-			var connectedTo []model.PropertiesConnectedToElem
-			connectedTo = append(connectedTo, model.PropertiesConnectedToElem{
+			var connectedTo []PropertiesConnectedToElem
+			connectedTo = append(connectedTo, PropertiesConnectedToElem{
 				Name:          "Connection to Profibus",
-				InterfaceType: model.PropertiesConnectedToElemInterfaceTypeProfibus,
+				InterfaceType: PropertiesConnectedToElemInterfaceTypeProfibus,
 				Devices:       []string{"device-1", "device-2"},
 			})
 
 			// Capabilities of ot the device
-			module1Cap := model.Capabilities{
+			module1Cap := Capabilities{
 				FirmwareUpdate: &ptrTrue,
 				ProgramUpdate:  &ptrFalse,
 				Backup:         &ptrFalse,
@@ -141,7 +141,7 @@ func (m *ReferenceClassDriver) Start(jobId uint32, deviceInfoReply chan model.De
 				ResetToFactory: &ptrFalse,
 			}
 
-			module1 := model.Module{
+			module1 := Module{
 				ArticleNumber:   "Module 1 Article number",
 				Capabilities:    module1Cap,
 				Description:     "Module 1 description",
@@ -149,40 +149,40 @@ func (m *ReferenceClassDriver) Start(jobId uint32, deviceInfoReply chan model.De
 				DeviceSwVersion: "Module 1 SW version",
 				Name:            "Module 1 Name",
 				SerialNumber:    "Module 1 Serial Number",
-				StationNumber:   model.StationNumber(stationNumber),
-				Slot:            model.Slot(1),
-				SubSlot:         model.SubSlot(1),
+				StationNumber:   StationNumber(stationNumber),
+				Slot:            Slot(1),
+				SubSlot:         SubSlot(1),
 			}
 
-			module2 := model.Module{
+			module2 := Module{
 				ArticleNumber:   "Module 2 Article number",
 				Description:     "Module 2 description",
 				DeviceHwVersion: "Module 2 HW version",
 				DeviceSwVersion: "Module 2 SW version",
 				Name:            "Module 2 Name",
 				SerialNumber:    "Module 2 Serial Number",
-				StationNumber:   model.StationNumber(stationNumber),
-				Slot:            model.Slot(1),
-				SubSlot:         model.SubSlot(2),
+				StationNumber:   StationNumber(stationNumber),
+				Slot:            Slot(1),
+				SubSlot:         SubSlot(2),
 			}
 
 			// Values located under properties
-			runtimeMode := model.PropertiesRuntimeModeNormal
-			properties := model.Properties{
+			runtimeMode := PropertiesRuntimeModeNormal
+			properties := Properties{
 				ConnectivityStatus: connectivityType,
 				RuntimeMode:        &runtimeMode,
 				IpConfigurations:   IPInfo,
 				ConnectedTo:        connectedTo,
 				StationName:        stationName,
 				ProfinetName:       &stationName,
-				StationNumber:      (*model.StationNumber)(&stationNumber),
+				StationNumber:      (*StationNumber)(&stationNumber),
 				DeviceType:         deviceType,
 				OperatingMode:      &opMode,
 			}
 			deviceInfo.Properties = &properties
 			deviceInfo.Modules = append(deviceInfo.Modules, module1, module2)
 
-			deviceInfoReply <- deviceInfo
+			deviceInfoReply <- deviceInfo.ToJSONMap()
 			time.Sleep(1000 * time.Millisecond)
 		}
 	}
