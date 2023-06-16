@@ -4,9 +4,11 @@
  * SPDX-License-Identifier:
  *
  */
+
 package main
 
 import (
+	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/internal/observability"
 	"flag"
 	"fmt"
 	"os"
@@ -58,7 +60,7 @@ func main() {
 	logging.AdjustLogLevel(logLevel)
 	// Register dcd implementation
 	myDCDImplementation := new(reference.ReferenceClassDriver)
-	dcdImpl := dcd.New("cdm-dcd-reference").
+	dcdImpl := dcd.New("cdm-dcd-reference", observability.Version{version, commit, date}).
 		Discovery(myDCDImplementation).
 		SoftwareUpdate(myDCDImplementation).
 		Build()

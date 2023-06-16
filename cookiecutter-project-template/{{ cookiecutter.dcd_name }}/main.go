@@ -8,7 +8,8 @@
 package main
 
 import (
-	"flag"
+  "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/internal/observability"
+  "flag"
 	"fmt"
 	"os"
 	"os/signal"
@@ -63,7 +64,7 @@ func main() {
 
 	// Register dcd implementation
 	dcdImpl := new(handler.DCDImplementation)
-	dcdInstance := dcd.New(dcdName).
+	dcdInstance := dcd.New(dcdName, observability.Version{Version: version, Commit: commit, Date: date}).).
 		Discovery(dcdImpl).
 		SoftwareUpdate(dcdImpl).
 		Build()

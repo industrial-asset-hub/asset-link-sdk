@@ -8,6 +8,8 @@
 package dcd
 
 import (
+	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/internal/observability"
+	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/internal/server/webserver"
 	"net"
 	"os"
 
@@ -23,10 +25,13 @@ import (
 	"google.golang.org/grpc"
 )
 
+var shouldStartHttpServer = true
+
 // Device class driver feature builder, according to the GoF build pattern
 // The pattern provides methods to register new features in an easy
 type dcdFeatureBuilder struct {
 	driverName     string
+	version        observability.Version
 	discovery      features.Discovery
 	softwareUpdate features.SoftwareUpdate
 }
@@ -43,8 +48,8 @@ func (cb *dcdFeatureBuilder) SoftwareUpdate(f features.SoftwareUpdate) *dcdFeatu
 }
 
 // Builder
-func New(driverName string) *dcdFeatureBuilder {
-	return &dcdFeatureBuilder{driverName: driverName}
+func New(driverName string, version observability.Version) *dcdFeatureBuilder {
+	return &dcdFeatureBuilder{driverName: driverName, version: version}
 }
 
 func (cb *dcdFeatureBuilder) Build() *DCD {
@@ -52,12 +57,14 @@ func (cb *dcdFeatureBuilder) Build() *DCD {
 		discoveryImpl:      cb.discovery,
 		softwareUpdateImpl: cb.softwareUpdate,
 		name:               cb.driverName,
+		version:            cb.version,
 	}
 }
 
 // Structure of the features
 type DCD struct {
 	name               string
+	version            observability.Version
 	discoveryImpl      features.Discovery
 	softwareUpdateImpl features.SoftwareUpdate
 	grpcServer         *grpc.Server
@@ -71,6 +78,17 @@ func (d *DCD) Start(grpcServerAddress string, grpcRegistryAddress string) error 
 		Str("gRPC Address", grpcServerAddress).
 		Msg("Starting device class driver")
 
+	// Webserver for observerability purposes
+	if shouldStartHttpServer {
+		s := webserver.NewServerWithParameters(observability.Version{
+			Version: d.version.Version,
+			Commit:  d.version.Commit,
+			Date:    d.version.Date,
+		})
+
+		go s.Run()
+
+	}
 	// GRPC Server
 	listener, err := net.Listen("tcp", grpcServerAddress)
 	if err != nil {
