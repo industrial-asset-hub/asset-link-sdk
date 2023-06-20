@@ -32,9 +32,8 @@ builds:
       - goos: windows
         goarch: arm64
     mod_timestamp: "{{ .CommitTimestamp }}"
-
-  - id: cdm-ctl
-    binary: cdm-ctl
+  - id: dcd-ctl
+    binary: dcd-ctl
     main: ./cmd/dcd-ctl/dcd-ctl.go
     flags:
       - -trimpath
@@ -43,8 +42,6 @@ builds:
       - -X code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/cmd/dcd-ctl/cmd.version={{.Version}}
         -X code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/cmd/dcd-ctl/cmd.commit={{.Commit}}
         -X code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/cmd/dcd-ctl/cmd.date={{.CommitDate}}
-
-      #- -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.CommitDate}}
     env:
       - CGO_ENABLED=0
     goos:
@@ -60,7 +57,27 @@ builds:
     mod_timestamp: "{{ .CommitTimestamp }}"
 
 archives:
+  - id: dcd-ctl
+    builds:
+      - dcd-ctl
+    format: tar.gz
+    name_template: >-
+      {{  "dcd-ctl" }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+    format_overrides:
+      - goos: windows
+        format: zip
+    rlcp: true
+    files:
+      - none*
+
   - id: cdm-dcd-reference
+    builds:
+      - cdm-dcd-reference
     format: tar.gz
     name_template: >-
       {{  "cdm-dcd-reference" }}_
@@ -72,6 +89,10 @@ archives:
     format_overrides:
       - goos: windows
         format: zip
+    rlcp: true
+    files:
+      - none*
+
   - id: cdm-dcd-sdk
     meta: true
     format: tar.gz
