@@ -64,7 +64,7 @@ func main() {
 
 	// Register dcd implementation
 	dcdImpl := new(handler.DCDImplementation)
-	dcdInstance := dcd.New(dcdName, observability.Version{Version: version, Commit: commit, Date: date}).).
+	dcdInstance := dcd.New(dcdName, observability.Version{Version: version, Commit: commit, Date: date}).
 		Discovery(dcdImpl).
 		SoftwareUpdate(dcdImpl).
 		Build()
