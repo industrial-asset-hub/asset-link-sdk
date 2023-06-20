@@ -1,6 +1,9 @@
 /*
-Copyright © 2023 NAME HERE <EMAIL ADDRESS>
-*/
+ * SPDX-FileCopyrightText: 2023 Siemens AG
+ *
+ * SPDX-License-Identifier:
+ *
+ */
 package cmd
 
 import (

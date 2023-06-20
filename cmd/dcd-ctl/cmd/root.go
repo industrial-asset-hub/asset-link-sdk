@@ -7,9 +7,16 @@
 package cmd
 
 import (
-  "os"
-
+  "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/internal/logging"
+  "fmt"
+  "github.com/rs/zerolog"
   "github.com/spf13/cobra"
+  "os"
+)
+
+var (
+  dcdEndpoint string
+  logLevel    string
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -33,13 +40,20 @@ func Execute() {
 }
 
 func init() {
-  // Here you will define your flags and configuration settings.
-  // Cobra supports persistent flags, which, if defined here,
-  // will be global for your application.
+  cobra.OnInitialize(initHandlers)
+  rootCmd.PersistentFlags().StringVarP(&dcdEndpoint, "endpoint", "e", "localhost:8081", "DCD gRPC Server Address")
+  rootCmd.PersistentFlags().StringVarP(&logLevel, "log-level", "", "info",
+    fmt.Sprintf("set log level. one of: %s,%s,%s,%s,%s,%s,%s",
+      zerolog.TraceLevel.String(),
+      zerolog.DebugLevel.String(),
+      zerolog.InfoLevel.String(),
+      zerolog.WarnLevel.String(),
+      zerolog.ErrorLevel.String(),
+      zerolog.FatalLevel.String(),
+      zerolog.PanicLevel.String()))
 
-  // rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.cmd.yaml)")
-
-  // Cobra also supports local flags, which will only run
-  // when this action is called directly.
-  rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+}
+func initHandlers() {
+  logging.SetupLogging()
+  logging.AdjustLogLevel(logLevel)
 }
