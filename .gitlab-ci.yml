@@ -147,6 +147,8 @@ cookiecutter-vendor:
       if [ -z $CI_COMMIT_TAG ]; then
         echo "detected non-tag build"
         go get code.siemens.com/${CI_PROJECT_PATH}@${CI_COMMIT_SHA}
+      else
+        go get code.siemens.com/${CI_PROJECT_PATH}@${CI_COMMIT_TAG}
       fi
     - cat go.mod
     # Prepare
