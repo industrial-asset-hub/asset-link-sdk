@@ -143,6 +143,12 @@ cookiecutter-vendor:
     - *set_netrc
     - cd ${COOKIECUTTER_PROJECT}/${COOKIECUTTER_PROJECT_NAME}/
     - cp go.mod.tmpl go.mod
+    - >
+      if [ -z $CI_COMMIT_TAG ]; then
+        echo "detected non-tag build"
+        go get code.siemens.com/${CI_PROJECT_PATH}@${CI_COMMIT_SHA}
+      fi
+    - cat go.mod
     # Prepare
     - go generate ./...
     - go mod download
