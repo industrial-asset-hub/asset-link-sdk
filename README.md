@@ -109,9 +109,7 @@ It is recommended to use an ~/.netrc file, with https access tokens for code.sie
 See [netrc-file](https://www.gnu.org/software/inetutils/manual/html_node/The-_002enetrc-file.html#:~:text=The%20.netrc%20file%20contains%20login%20and%20initialization%20information,be%20set%20using%20the%20environment%20variable%20NETRC%20.)
 
 ```bash
-echo "machine gitlab.com
-login gitlab-ci-token
-password $PERSONAL_ACCCESS_TOKEN" >> ~/.netrc
+echo "machine code.siemens.com login gitlab-ci-token password $PERSONAL_ACCCESS_TOKEN" >> ~/.netrc
 ```
 
 ### Bootstrapping our own DCD
