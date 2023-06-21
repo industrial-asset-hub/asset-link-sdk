@@ -4,10 +4,11 @@
  * SPDX-License-Identifier:
  *
  */
-package cmd
+package discovery
 
 import (
   "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/cmd/dcd-ctl/internal/dcdconnection"
+  "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/cmd/dcd-ctl/internal/shared"
   "github.com/spf13/cobra"
 )
 
@@ -17,10 +18,10 @@ var startCmd = &cobra.Command{
   Short: "Start Discovery job",
   Long:  `This command starts an discovery job.`,
   Run: func(cmd *cobra.Command, args []string) {
-    dcdconnection.StartDiscovery(dcdEndpoint)
+    dcdconnection.StartDiscovery(shared.DcdEndpoint)
   },
 }
 
 func init() {
-  discoveryCmd.AddCommand(startCmd)
+  DiscoveryCmd.AddCommand(startCmd)
 }

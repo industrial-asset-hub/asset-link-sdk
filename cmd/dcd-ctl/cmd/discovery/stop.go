@@ -2,10 +2,11 @@
 Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 
 */
-package cmd
+package discovery
 
 import (
   "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/cmd/dcd-ctl/internal/dcdconnection"
+  "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/cmd/dcd-ctl/internal/shared"
   "github.com/spf13/cobra"
 )
 
@@ -15,10 +16,10 @@ var stopCmd = &cobra.Command{
   Short: "Stop discovery job",
   Long:  `This command stops an discovery job.`,
   Run: func(cmd *cobra.Command, args []string) {
-    dcdconnection.StopDiscovery(dcdEndpoint)
+    dcdconnection.StopDiscovery(shared.DcdEndpoint)
   },
 }
 
 func init() {
-  discoveryCmd.AddCommand(stopCmd)
+  DiscoveryCmd.AddCommand(stopCmd)
 }

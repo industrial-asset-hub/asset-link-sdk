@@ -4,10 +4,11 @@
  * SPDX-License-Identifier:
  *
  */
-package cmd
+package discovery
 
 import (
   "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/cmd/dcd-ctl/internal/dcdconnection"
+  "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/cmd/dcd-ctl/internal/shared"
   "encoding/json"
   "github.com/rs/zerolog/log"
   "github.com/spf13/cobra"
@@ -24,7 +25,7 @@ var subscribeCmd = &cobra.Command{
   Short: "Subscribe to discovery results",
   Long:  `This commands subscribes to the results of an discovery job.`,
   Run: func(cmd *cobra.Command, args []string) {
-    resp := dcdconnection.Subscribe(dcdEndpoint)
+    resp := dcdconnection.Subscribe(shared.DcdEndpoint)
 
     log.Trace().Str("File", outputFile).Msg("Saving to file")
     f, _ := os.Create(outputFile)
@@ -39,6 +40,6 @@ var subscribeCmd = &cobra.Command{
 }
 
 func init() {
-  discoveryCmd.AddCommand(subscribeCmd)
+  DiscoveryCmd.AddCommand(subscribeCmd)
   subscribeCmd.Flags().StringVarP(&outputFile, "output-file", "o", "result.json", "output format")
 }

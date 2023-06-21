@@ -7,6 +7,9 @@
 package cmd
 
 import (
+  "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/cmd/dcd-ctl/cmd/discovery"
+  "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/cmd/dcd-ctl/cmd/status"
+  "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/cmd/dcd-ctl/internal/shared"
   "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/internal/logging"
   "fmt"
   "github.com/rs/zerolog"
@@ -15,8 +18,7 @@ import (
 )
 
 var (
-  dcdEndpoint string
-  logLevel    string
+  logLevel string
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -41,7 +43,7 @@ func Execute() {
 
 func init() {
   cobra.OnInitialize(initHandlers)
-  rootCmd.PersistentFlags().StringVarP(&dcdEndpoint, "endpoint", "e", "localhost:8081", "DCD gRPC Server Address")
+  rootCmd.PersistentFlags().StringVarP(&shared.DcdEndpoint, "endpoint", "e", "localhost:8081", "DCD gRPC Server Address")
   rootCmd.PersistentFlags().StringVarP(&logLevel, "log-level", "", "info",
     fmt.Sprintf("set log level. one of: %s,%s,%s,%s,%s,%s,%s",
       zerolog.TraceLevel.String(),
@@ -51,6 +53,9 @@ func init() {
       zerolog.ErrorLevel.String(),
       zerolog.FatalLevel.String(),
       zerolog.PanicLevel.String()))
+
+  rootCmd.AddCommand(discovery.DiscoveryCmd)
+  rootCmd.AddCommand(status.StatusCmd)
 
 }
 func initHandlers() {

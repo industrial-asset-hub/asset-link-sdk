@@ -37,6 +37,12 @@ variables:
 .set_netrc: &set_netrc |
   echo -e "machine code.siemens.com\nlogin gitlab-ci-token\npassword ${CI_JOB_TOKEN}" > ~/.netrc
 
+.protoc-go: &protoc-go
+  - export GOPATH=$HOME/go
+  - export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
+  - go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+  - go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+
 # Place temporary go.mod file, inside cookiecutter  project dir to make go test happy
 .cookiecutter_gomod-quirk: &cookiecutter_gomod-quirk ( cd cookiecutter-project-template/*/ && cp go.mod.tmpl go.mod)
 # Lint
@@ -46,13 +52,15 @@ lint:
   variables:
     GOLANGCILINT_VERSION: "v1.51.2"
   before_script:
-    - apk add --no-cache ca-certificates git jq bash curl
+    - apk add --no-cache ca-certificates git jq bash curl protobuf-dev
     - echo -e "machine code.siemens.com\nlogin gitlab-ci-token\npassword ${CI_JOB_TOKEN}" > ~/.netrc
     - UPSTREAM_URL=https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh
     - export BINDIR=/usr/local/bin
     - go install github.com/golangci/golangci-lint/cmd/golangci-lint@$GOLANGCILINT_VERSION
+    - *protoc-go
   script:
     - *cookiecutter_gomod-quirk
+    - go generate
     - golangci-lint run --out-format code-climate | tee code-quality-report.json | jq -r '.[] | "\(.location.path):\(.location.lines.begin) \(.description)"'
   artifacts:
     reports:
@@ -78,9 +86,11 @@ unit-tests:
   variables:
     CGO_ENABLED: 1
   script:
-    - apk add --no-cache git curl gcc libc-dev
+    - apk add --no-cache git curl gcc libc-dev protobuf-dev
     - *set_git_https_credentials
     - *cookiecutter_gomod-quirk
+    - *protoc-go
+    - go generate
     - go test --race ./... -covermode=atomic -coverprofile=coverage.txt -v
     - go tool cover -func=coverage.txt
     - go tool cover -html=coverage.txt -o coverage.html
@@ -126,7 +136,8 @@ cookiecutter-setup:
     GOPRIVATE: code.siemens.com
   before_script:
     - pacman -Syu --noconfirm
-    - pacman -S --noconfirm go zig goreleaser git
+    - pacman -S --noconfirm go zig goreleaser git protobuf
+    - *protoc-go
 
 # Vendors the needed Go packages. This vendor/ is used, inside the
 # release job, to include the vendor/ directory, into
@@ -197,8 +208,9 @@ create-release:
     GIT_DEPTH: 0
   before_script:
     - pacman -Syu --noconfirm
-    - pacman -S --noconfirm go zig goreleaser git git-lfs
+    - pacman -S --noconfirm go zig goreleaser git git-lfs protobuf
     - git lfs install
+    - *protoc-go
   script:
     - *set_netrc
     # Copy go.mod and the vendor dir for the SDK archive to the into the cookiecutter template

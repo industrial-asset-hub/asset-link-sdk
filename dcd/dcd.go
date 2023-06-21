@@ -8,6 +8,7 @@
 package dcd
 
 import (
+  generated "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/generated/status"
   "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/internal/server/webserver"
   "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/metadata"
   "net"
@@ -17,7 +18,7 @@ import (
   "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/internal/registryclient"
   "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/internal/server/devicediscovery"
   "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/internal/server/firmwareupdate"
-
+  "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/internal/server/status"
   generatedDiscoveryServer "code.siemens.com/common-device-management/utils/go-modules/discovery.git/pkg/device"
   generatedFirmwareUpdate "code.siemens.com/common-device-management/utils/go-modules/firmwareupdate.git/pkg/firmware-update"
 
@@ -25,7 +26,8 @@ import (
   "google.golang.org/grpc"
 )
 
-var shouldStartHttpServer = true
+var shouldStartHttpServer = false
+var shouldRegisterGrpcObservabilityServer = true
 
 // Device class driver feature builder, according to the GoF build pattern
 // The pattern provides methods to register new features in an easy
@@ -69,6 +71,7 @@ type DCD struct {
   softwareUpdateImpl features.SoftwareUpdate
   grpcServer         *grpc.Server
   registryClient     *registryclient.GrpcServerRegistry
+  statusServer       *status.StatusServerEntity
 }
 
 // Method to start the device class driver
@@ -101,6 +104,17 @@ func (d *DCD) Start(grpcServerAddress string, grpcRegistryAddress string) error 
 
   // Start GRPC server
   d.grpcServer = grpc.NewServer()
+  // ObservabilityServer
+  if shouldRegisterGrpcObservabilityServer {
+    log.Trace().Msg("Registering gRPC Observability Endpoint")
+    d.statusServer = &status.StatusServerEntity{Version: metadata.Version{
+      Version: d.version.Version,
+      Commit:  d.version.Commit,
+      Date:    d.version.Date,
+    }}
+    generated.RegisterDcdStatusServer(d.grpcServer, d.statusServer)
+  }
+
   // Select according to selected features
   if d.discoveryImpl == nil {
     log.Info().
