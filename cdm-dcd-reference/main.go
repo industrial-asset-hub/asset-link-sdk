@@ -60,7 +60,7 @@ func main() {
   logging.AdjustLogLevel(logLevel)
   // Register dcd implementation
   myDCDImplementation := new(reference.ReferenceClassDriver)
-  dcdImpl := dcd.New("cdm-dcd-reference", metadata.Version{version, commit, date}).
+  dcdImpl := dcd.New("cdm-dcd-reference", metadata.Version{Version: version, Commit: commit, Date: date}).
     Discovery(myDCDImplementation).
     SoftwareUpdate(myDCDImplementation).
     Build()

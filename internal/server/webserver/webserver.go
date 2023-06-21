@@ -46,7 +46,9 @@ func NewServerWithParameters(version metadata.Version) *Server {
 
 func (s *Server) Run() {
   log.Printf("Listening on %s", s.endpoint)
-  s.router.Run(s.endpoint)
+  if err := s.router.Run(s.endpoint); err != nil {
+    log.Fatal().Err(err).Msg("could not start webserver")
+  }
 }
 
 func (s *Server) configureRoutes(r *gin.Engine) {
