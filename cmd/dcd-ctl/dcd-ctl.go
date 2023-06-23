@@ -7,12 +7,12 @@
 package main
 
 import (
-  "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/cmd/dcd-ctl/cmd"
-  "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/internal/logging"
+	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/cmd/dcd-ctl/cmd"
+	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/logging"
 )
 
 func main() {
-  logging.SetupLogging()
-  cmd.SetVersionInfo()
-  cmd.Execute()
+	logging.SetupLogging()
+	cmd.SetVersionInfo()
+	cmd.Execute()
 }
