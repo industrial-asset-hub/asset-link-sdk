@@ -26,7 +26,10 @@ import (
   "google.golang.org/grpc"
 )
 
-var shouldStartHttpServer = false
+var shouldStartHttpObservabilityServer = true
+
+const httpServeraddress = ":8091"
+
 var shouldRegisterGrpcObservabilityServer = true
 
 // Device class driver feature builder, according to the GoF build pattern
@@ -82,12 +85,15 @@ func (d *DCD) Start(grpcServerAddress string, grpcRegistryAddress string) error 
     Msg("Starting device class driver")
 
   // Webserver for observerability purposes
-  if shouldStartHttpServer {
-    s := webserver.NewServerWithParameters(metadata.Version{
-      Version: d.version.Version,
-      Commit:  d.version.Commit,
-      Date:    d.version.Date,
-    })
+  if shouldStartHttpObservabilityServer {
+    log.Info().Str("HTTP address", httpServeraddress).Msg("Starting RestAPI Observability Endpoint")
+
+    s := webserver.NewServerWithParameters(httpServeraddress,
+      metadata.Version{
+        Version: d.version.Version,
+        Commit:  d.version.Commit,
+        Date:    d.version.Date,
+      })
 
     go s.Run()
 
@@ -106,7 +112,7 @@ func (d *DCD) Start(grpcServerAddress string, grpcRegistryAddress string) error 
   d.grpcServer = grpc.NewServer()
   // ObservabilityServer
   if shouldRegisterGrpcObservabilityServer {
-    log.Trace().Msg("Registering gRPC Observability Endpoint")
+    log.Info().Msg("Registered gRPC Observability Endpoint")
     d.statusServer = &status.StatusServerEntity{Version: metadata.Version{
       Version: d.version.Version,
       Commit:  d.version.Commit,

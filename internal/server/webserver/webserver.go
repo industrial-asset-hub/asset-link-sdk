@@ -8,8 +8,8 @@
 package webserver
 
 import (
+  "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/internal/observability"
   "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/metadata"
-  "fmt"
   "net/http"
   "os"
 
@@ -24,20 +24,12 @@ type Server struct {
   version  metadata.Version
 }
 
-func NewServer() *Server {
-  return NewServerWithParameters(metadata.Version{
-    Version: "unknown",
-    Commit:  "unknown",
-    Date:    "unknown",
-  })
-}
-
-func NewServerWithParameters(version metadata.Version) *Server {
+func NewServerWithParameters(address string, version metadata.Version) *Server {
   r := gin.Default()
   s := &Server{
     router:   r,
     version:  version,
-    endpoint: fmt.Sprintf(":%s", getPORT()),
+    endpoint: address,
   }
   s.configureRoutes(r)
 
@@ -45,7 +37,6 @@ func NewServerWithParameters(version metadata.Version) *Server {
 }
 
 func (s *Server) Run() {
-  log.Printf("Listening on %s", s.endpoint)
   if err := s.router.Run(s.endpoint); err != nil {
     log.Fatal().Err(err).Msg("could not start webserver")
   }
@@ -61,6 +52,14 @@ func (s *Server) configureRoutes(r *gin.Engine) {
   r.GET("version", func(context *gin.Context) {
     context.JSON(http.StatusOK, s.version)
   })
+
+  discovery := r.Group("discovery")
+  discovery.GET("started", func(context *gin.Context) {
+    context.JSON(http.StatusOK, gin.H{
+      "jobs": observability.GlobalEvents().GetDiscoveryJobs(),
+    })
+  })
+
 }
 
 func getPORT() string {
