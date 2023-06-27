@@ -12,7 +12,7 @@ import (
   "time"
 )
 
-const maxItemToKeep = 20
+const maxItemsToKeep = 20
 
 func timestampNow() string {
   currentTime := time.Now().UTC()
@@ -22,12 +22,13 @@ func timestampNow() string {
 
 type Events struct {
   sync.RWMutex
+  DiscoveryCount     int
   StartedDiscoveries []DiscoveryEvent
 }
 
-var globalEvents = New()
+var globalEvents = newEventState()
 
-func New() *Events {
+func newEventState() *Events {
   return &Events{
     StartedDiscoveries: []DiscoveryEvent{},
   }
@@ -37,14 +38,22 @@ func GlobalEvents() *Events {
   return globalEvents
 }
 
-func Reset() {
-  globalEvents = New()
+func ResetGlobalEvents() {
+  globalEvents = newEventState()
 }
 
 // Discovery Events
 type DiscoveryEvent struct {
   Timestamp string `json:"timestamp"`
   JobId     uint32 `json:"job_id"`
+}
+
+func (e *Events) GetDiscoveryJobsCount() int {
+  e.Lock()
+  defer e.Unlock()
+
+  return e.DiscoveryCount
+
 }
 
 func (e *Events) StartedDiscoveryJob(id uint32) {
@@ -54,6 +63,7 @@ func (e *Events) StartedDiscoveryJob(id uint32) {
     Timestamp: timestampNow(),
     JobId:     id,
   })
+  e.DiscoveryCount++
   e.StartedDiscoveries = keepMaxSize(e.StartedDiscoveries)
 
 }
@@ -68,8 +78,8 @@ func (e *Events) GetDiscoveryJobs() []DiscoveryEvent {
 // Keep only a certain amount of events as history
 func keepMaxSize(items []DiscoveryEvent) []DiscoveryEvent {
   count := len(items)
-  if count > maxItemToKeep {
-    items = items[count-maxItemToKeep:]
+  if count > maxItemsToKeep {
+    items = items[count-maxItemsToKeep:]
   }
   return items
 }

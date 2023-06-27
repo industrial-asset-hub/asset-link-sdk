@@ -54,6 +54,11 @@ func (s *Server) configureRoutes(r *gin.Engine) {
   })
 
   discovery := r.Group("discovery")
+  discovery.GET("count", func(context *gin.Context) {
+    context.JSON(http.StatusOK, gin.H{
+      "jobs": observability.GlobalEvents().GetDiscoveryJobsCount(),
+    })
+  })
   discovery.GET("started", func(context *gin.Context) {
     context.JSON(http.StatusOK, gin.H{
       "jobs": observability.GlobalEvents().GetDiscoveryJobs(),
