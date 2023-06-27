@@ -25,7 +25,7 @@ var subscribeCmd = &cobra.Command{
   Short: "Subscribe to discovery results",
   Long:  `This commands subscribes to the results of an discovery job.`,
   Run: func(cmd *cobra.Command, args []string) {
-    resp := dcdconnection.Subscribe(shared.DcdEndpoint)
+    resp := dcdconnection.Subscribe(shared.DcdEndpoint, jobId)
 
     log.Trace().Str("File", outputFile).Msg("Saving to file")
     f, _ := os.Create(outputFile)
@@ -42,4 +42,5 @@ var subscribeCmd = &cobra.Command{
 func init() {
   DiscoveryCmd.AddCommand(subscribeCmd)
   subscribeCmd.Flags().StringVarP(&outputFile, "output-file", "o", "result.json", "output format")
+  subscribeCmd.Flags().Uint32VarP(&jobId, "job-id", "j", jobId, "Job ID")
 }

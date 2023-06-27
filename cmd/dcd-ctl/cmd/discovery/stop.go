@@ -16,10 +16,11 @@ var stopCmd = &cobra.Command{
   Short: "Stop discovery job",
   Long:  `This command stops an discovery job.`,
   Run: func(cmd *cobra.Command, args []string) {
-    dcdconnection.StopDiscovery(shared.DcdEndpoint)
+    dcdconnection.StopDiscovery(shared.DcdEndpoint, jobId)
   },
 }
 
 func init() {
   DiscoveryCmd.AddCommand(stopCmd)
+  stopCmd.Flags().Uint32VarP(&jobId, "job-id", "j", jobId, "Job ID")
 }

@@ -34,7 +34,7 @@ func StartDiscovery(endpoint string) {
 
 }
 
-func Subscribe(endpoint string) []map[string]interface{} {
+func Subscribe(endpoint string, jobid uint32) []map[string]interface{} {
   log.Trace().Str("Endpoint", endpoint).Msg("Subscribing to discovery job")
 
   conn := grpcConnection(endpoint)
@@ -42,7 +42,7 @@ func Subscribe(endpoint string) []map[string]interface{} {
 
   client := generated.NewDeviceDiscoveryApiClient(conn)
 
-  stream, err := client.SubscribeDiscoveryResults(context.Background(), &generated.DiscoveryResultsRequest{DiscoveryId: 1})
+  stream, err := client.SubscribeDiscoveryResults(context.Background(), &generated.DiscoveryResultsRequest{DiscoveryId: jobid})
   if err != nil {
     log.Err(err).Msg("open stream error")
     return nil
@@ -71,7 +71,7 @@ func Subscribe(endpoint string) []map[string]interface{} {
   return devices
 }
 
-func StopDiscovery(endpoint string) {
+func StopDiscovery(endpoint string, jobid uint32) {
   log.Trace().Str("Endpoint", endpoint).Msg("Stop discovery job")
 
   conn := grpcConnection(endpoint)
@@ -80,7 +80,7 @@ func StopDiscovery(endpoint string) {
   client := generated.NewDeviceDiscoveryApiClient(conn)
 
   resp, err := client.StopDeviceDiscovery(context.Background(), &generated.StopDiscoveryRequest{
-    DiscoveryId: 0})
+    DiscoveryId: jobid})
 
   if err != nil {
     log.Err(err).Msg("StopDeviceDiscovery request returned an error")

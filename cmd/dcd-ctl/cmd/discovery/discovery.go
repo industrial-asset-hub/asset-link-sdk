@@ -10,6 +10,10 @@ import (
   "github.com/spf13/cobra"
 )
 
+var (
+  jobId uint32 = 1
+)
+
 // discoveryCmd represents the discovery command
 var DiscoveryCmd = &cobra.Command{
   Use:   "discovery",
