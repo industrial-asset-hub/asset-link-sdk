@@ -20,7 +20,11 @@ import (
 )
 
 func TestServer(t *testing.T) {
-  s := NewServer()
+  s := NewServerWithParameters("localhost:8080", metadata.Version{
+    Version: "v",
+    Commit:  "c",
+    Date:    "d",
+  })
   t.Run("health endpoint should be available", func(t *testing.T) {
     r := request(t, s.router, "GET", "/health", "")
     assert.Equal(t, http.StatusOK, r.Code)
@@ -28,7 +32,7 @@ func TestServer(t *testing.T) {
 }
 
 func TestServerVersion(t *testing.T) {
-  s := NewServerWithParameters(metadata.Version{
+  s := NewServerWithParameters("localhost:8080", metadata.Version{
     Version: "v",
     Commit:  "c",
     Date:    "d",
