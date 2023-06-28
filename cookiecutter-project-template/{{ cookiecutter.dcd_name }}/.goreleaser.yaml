@@ -1,6 +1,11 @@
 ---
 project_name: {{ cookiecutter.dcd_name }}
 
+before:
+  hooks:
+    - go generate ./...
+    - go mod vendor
+
 builds:
   - id: {{ cookiecutter.dcd_name }}
     binary: {{ cookiecutter.dcd_name }}
