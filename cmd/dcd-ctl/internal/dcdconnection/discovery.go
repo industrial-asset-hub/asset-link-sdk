@@ -8,7 +8,7 @@
 package dcdconnection
 
 import (
-  generated "code.siemens.com/common-device-management/utils/go-modules/discovery.git/pkg/device"
+  generated "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/generated/device_discovery"
   "github.com/rs/zerolog/log"
   "golang.org/x/net/context"
   "io"
