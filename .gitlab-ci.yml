@@ -181,6 +181,7 @@ cookiecutter-build:
   variables:
     GIT_STRATEGY: clone
   script:
+    - *set_git_https_credentials
     - cd ${COOKIECUTTER_PROJECT}/${COOKIECUTTER_PROJECT_NAME}/
     - goreleaser build --snapshot --rm-dist --single-target
   cache:
