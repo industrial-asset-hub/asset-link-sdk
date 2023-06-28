@@ -183,6 +183,15 @@ $ journalctl logs -f -u my-fancy-dcd
 [...]
 ```
 
+### Commandline Tool
+
+To ease development or testing, with help of a commandline tool the DCD can be triggered interactively. For
+example, a discovery can be started/stopped or even the results are fetched.
+
+```bash
+go install code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/cmd/dcd-ctl@main
+```
+
 ### Contributing
 
 Please read the [Contribution Guidelines](CONTRIBUTING.md) before trying to

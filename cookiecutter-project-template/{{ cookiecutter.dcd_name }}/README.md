@@ -2,7 +2,12 @@
 
 This is a automatically created CDM Device Class Driver project.
 
-The project contains a folder with all required packages, see [Go Vendoring](https://go.dev/ref/mod#vendoring).
+Before starting, you should synchronize the Go modules. This can be done by:
+
+```bash
+$ go mod tidy
+[...]
+```
 
 ## Run && Building
 
