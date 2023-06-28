@@ -17,7 +17,7 @@ import (
 
   "github.com/rs/zerolog/log"
 
-  generated "code.siemens.com/common-device-management/utils/go-modules/discovery.git/pkg/device"
+  generated "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/generated/device_discovery"
   "google.golang.org/grpc/codes"
   "google.golang.org/grpc/status"
   "google.golang.org/protobuf/types/known/structpb"

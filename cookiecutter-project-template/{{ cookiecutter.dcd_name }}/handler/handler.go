@@ -13,8 +13,8 @@ import (
   "strconv"
   "time"
 
+  softwareUpdate "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/generated/firmware_update"
   "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/generated/model"
-  softwareUpdate "code.siemens.com/common-device-management/utils/go-modules/firmwareupdate.git/pkg/firmware-update"
   "github.com/rs/zerolog/log"
 )
 

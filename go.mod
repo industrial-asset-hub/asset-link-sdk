@@ -3,9 +3,6 @@ module code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sd
 go 1.19
 
 require (
-	code.siemens.com/common-device-management/utils/go-modules/discovery.git v0.0.0-20221220174242-7cf186b3ef21
-	code.siemens.com/common-device-management/utils/go-modules/firmwareupdate.git v0.0.0-20221220094135-afe604444192
-	code.siemens.com/common-device-management/utils/go-modules/grpcserverregistry.git v0.0.0-20230116100700-106405ae176c
 	github.com/gin-gonic/gin v1.9.1
 	github.com/google/uuid v1.3.0
 	github.com/rs/zerolog v1.29.0

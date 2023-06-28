@@ -14,13 +14,13 @@ import (
   "net"
   "os"
 
+  generatedDiscoveryServer "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/generated/device_discovery"
+  generatedFirmwareUpdate "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/generated/firmware_update"
   "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/internal/features"
   "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/internal/registryclient"
   "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/internal/server/devicediscovery"
   "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/internal/server/firmwareupdate"
   "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/internal/server/status"
-  generatedDiscoveryServer "code.siemens.com/common-device-management/utils/go-modules/discovery.git/pkg/device"
-  generatedFirmwareUpdate "code.siemens.com/common-device-management/utils/go-modules/firmwareupdate.git/pkg/firmware-update"
 
   "github.com/rs/zerolog/log"
   "google.golang.org/grpc"
