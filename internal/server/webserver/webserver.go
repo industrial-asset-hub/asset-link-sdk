@@ -10,11 +10,9 @@ package webserver
 import (
   "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/internal/observability"
   "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/metadata"
-  "net/http"
-  "os"
-
   "github.com/gin-gonic/gin"
   "github.com/rs/zerolog/log"
+  "net/http"
 )
 
 // Server for the agent
@@ -65,12 +63,4 @@ func (s *Server) configureRoutes(r *gin.Engine) {
     })
   })
 
-}
-
-func getPORT() string {
-  port := os.Getenv("PORT")
-  if port == "" {
-    port = "8090"
-  }
-  return port
 }
