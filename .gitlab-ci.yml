@@ -50,7 +50,7 @@ lint:
   image: $GO_BUILD_IMAGE
   stage: lint
   variables:
-    GOLANGCILINT_VERSION: "v1.51.2"
+    GOLANGCILINT_VERSION: "v1.53.3"
   before_script:
     - apk add --no-cache ca-certificates git jq bash curl protobuf-dev
     - echo -e "machine code.siemens.com\nlogin gitlab-ci-token\npassword ${CI_JOB_TOKEN}" > ~/.netrc
