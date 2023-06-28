@@ -6,7 +6,6 @@ builds:
     binary: {{ cookiecutter.dcd_name }}
     flags:
       - -trimpath
-      - -mod=vendor
     ldflags:
       - -s -w -extldflags '-static'
 {% raw %}

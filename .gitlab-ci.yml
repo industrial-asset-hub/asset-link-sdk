@@ -161,12 +161,11 @@ cookiecutter-vendor:
       else
         go get code.siemens.com/${CI_PROJECT_PATH}@${CI_COMMIT_TAG}
       fi
-    - cat go.mod
     # Prepare
     - go generate ./...
     - go mod download
     - go mod tidy
-    - go mod vendor -o vendor
+    - cat go.mod
   cache:
     key: "$CI_PIPELINE_ID-$CI_COMMIT_REF_SLUG-COOKIECUTTER"
     paths:
@@ -219,7 +218,6 @@ create-release:
     - cp -a ${COOKIECUTTER_PROJECT}/${COOKIECUTTER_PROJECT_NAME}/go.mod cookiecutter-project-template/\{\{\ cookiecutter.dcd_name\ \}\}/
     # Replace first line inside go.mod, due to it's specific from the cookiecutter template
     - sed -i "1s/.*/module {{cookiecutter.dcd_name}}/" cookiecutter-project-template/\{\{\ cookiecutter.dcd_name\ \}\}/go.mod
-    - cp -a ${COOKIECUTTER_PROJECT}/${COOKIECUTTER_PROJECT_NAME}/vendor cookiecutter-project-template/\{\{\ cookiecutter.dcd_name\ \}\}/
     # Create release
     - |
       if [ "${CI_COMMIT_TAG:-}" != "" ]; then
