@@ -1,0 +1,128 @@
+// ------------------------------------------------------------------
+// Connectivity Suite Registry
+// ------------------------------------------------------------------
+//
+// Naming convention according:
+// https://cloud.google.com/apis/design/naming_convention
+//
+// ------------------------------------------------------------------
+
+syntax = "proto3";
+
+package siemens.connectivitysuite.registry.v1;
+
+
+//===================================================================
+// Discovery (Registry) Interface Definitions
+//===================================================================
+
+
+// ===========================================
+// The Services Definition
+//
+service RegistryApi
+{
+    // Possible return values
+    // - OK
+    rpc RegisterService( RegisterServiceRequest ) returns( RegisterServiceResponse ) {}
+
+    // Possible return values
+    // - OK
+    // - NOT_FOUND - service with the provided key was not registered
+    rpc UnregisterService( UnregisterServiceRequest ) returns( UnregisterServiceResponse ) {}
+
+    // Possible return values
+    // - OK
+    rpc QueryRegisteredServices( QueryRegisteredServicesRequest ) returns( QueryRegisteredServicesResponse ) {}
+}
+
+
+// The key of ServiceInfo is the app_instance_id:
+message ServiceInfo {
+    // Mandatory: unique ID of the application
+    // Examples: "s7p1", "pnioc1"
+    string app_instance_id = 7;
+
+    // Mandatory: Either 'dns_domainname' or 'ipv4_address' needs to be provided.
+    // Intentionally there is no 'ipv6_address', because ipv6 without DNS will not really work.
+    oneof grpc_ip {
+         // DNS host name of the driver
+        string dns_domainname = 1;
+        // ipv4 address of the driver
+        string ipv4_address = 2;
+    }
+
+    // Mandatory: port number of gRPC interface
+    uint32 grpc_ip_port_number = 3;
+
+    // Mandatory: application type
+    // +----------------------------------------------------
+    // | Examples
+    // +-----------------------+----------------------------
+    // | "cs-driver"           | Connectivity Suite Driver
+    // | "cs-gateway"          | Connectivity Suite Gateway which is configured
+    // |                       | by the IIH Configurator
+    // | "noncs-driver"        | Driver which supports all interfaces to be configurable
+    // |                       | via IIH Configurator, but doesn't support DataApi
+    // | "cs-import-converter" | Service which can convert a device-specific configuration
+    // |                       | file to a 'Connectivity Suite compatible' configuration file.
+    // |                       | This app is e.g. used by the IIH Configurator to let convert
+    // |                       | specific config files provided by the user to compatible format
+    repeated string app_types = 4;
+
+    // Mandatory: the schema identification(s) of the driver
+    repeated string driver_schema_uris = 5;
+}
+
+// RegisterService
+message RegisterServiceRequest {
+    ServiceInfo info = 1;
+}
+message RegisterServiceResponse {
+    // maximum time between ServiceInfo refresh in [sec]
+    uint32 expire_time = 2;
+}
+
+// UnregisterService
+// Only the following fields of 'info' are considered, the rest is ignored:
+//   app_instance_id
+message UnregisterServiceRequest {
+    ServiceInfo info = 1;
+}
+message UnregisterServiceResponse {
+}
+
+
+// QueryRegisteredServices
+// Any property which is not set, is ignored
+// When a property has multiple values, any entry which matches at least one of the fields matches
+// When multiple properties are set, all have to match
+//
+// Example1: return all apps which have either app_type "cs-driver" or "cs-gateway":
+//   .app_types = ["cs-driver", "cs-gateway"]
+//
+// Example2: return all apps which have app_type "cs-import-converter"
+//  and uri="https://siemens.com/connectivity_suite/schemas/s7plus/1.0.0/config.json":
+//   .app_types = ["cs-import-converter"]
+//   .driver_schema_uris = ["https://siemens.com/connectivity_suite/schemas/s7plus/1.0.0/config.json"]
+//
+message ServiceInfoFilter {
+    // unique ID(s) of the application
+    // Examples: "s7p1", "pnioc1"
+    repeated string app_instance_ids = 2;
+
+    // application types
+    // Examples "cs-driver" or "cs-gateway"
+    // (see 'ServiceInfo.app_types')
+    repeated string app_types = 3;
+
+    // the schema identification(s) of the driver
+    repeated string driver_schema_uris = 4;
+}
+message QueryRegisteredServicesRequest {
+    ServiceInfoFilter filter = 1;
+}
+message QueryRegisteredServicesResponse {
+    repeated ServiceInfo infos = 1;
+}
+
