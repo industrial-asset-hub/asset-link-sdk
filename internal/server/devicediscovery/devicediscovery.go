@@ -8,13 +8,12 @@
 package devicediscovery
 
 import (
+  "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/deviceinfo"
   "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/internal/observability"
   "context"
   "fmt"
 
-  "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/generated/model"
   "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/internal/features"
-
   "github.com/rs/zerolog/log"
 
   generated "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/generated/device_discovery"
@@ -31,7 +30,7 @@ const (
 type DiscoveryServerEntity struct {
   generated.UnimplementedDeviceDiscoveryApiServer
   features.Discovery
-  deviceInfoReply chan model.DeviceInfo
+  deviceInfoReply chan deviceinfo.DeviceInfo
 }
 
 func (d *DiscoveryServerEntity) StartDeviceDiscovery(
@@ -50,7 +49,7 @@ func (d *DiscoveryServerEntity) StartDeviceDiscovery(
   // Check if discovery feature implementation is available
   if d.Discovery != nil {
     // Create a buffered channel with
-    d.deviceInfoReply = make(chan model.DeviceInfo, deviceInfoChannelBufferSize)
+    d.deviceInfoReply = make(chan deviceinfo.DeviceInfo, deviceInfoChannelBufferSize)
     // Channel, which allows to transfer if the startup was executed successfully.
     // Due to the start as Gouroutine, the d.Start() function can report an error during and can run even longer.
     startError := make(chan error)

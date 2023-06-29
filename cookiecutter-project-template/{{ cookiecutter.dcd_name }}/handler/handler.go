@@ -8,13 +8,13 @@
 package handler
 
 import (
+  "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/deviceinfo"
   "errors"
   "github.com/google/uuid"
   "strconv"
   "time"
 
   softwareUpdate "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/generated/firmware_update"
-  "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/generated/model"
   "github.com/rs/zerolog/log"
 )
 
@@ -29,7 +29,7 @@ type DCDImplementation struct {
 
 // Start implements the function, which is called, with the
 // dcdconnection method is executed
-func (m *DCDImplementation) Start(jobId uint32, deviceInfoReply chan model.DeviceInfo, err chan error) {
+func (m *DCDImplementation) Start(jobId uint32, deviceInfoReply chan deviceinfo.DeviceInfo, err chan error) {
   log.Info().
     Msg("Start Discovery")
 
