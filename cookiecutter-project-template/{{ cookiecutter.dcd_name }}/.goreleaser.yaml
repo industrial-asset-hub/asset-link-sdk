@@ -9,6 +9,8 @@ before:
 builds:
   - id: {{ cookiecutter.dcd_name }}
     binary: {{ cookiecutter.dcd_name }}
+    tags:
+      - webserver
     flags:
       - -trimpath
     ldflags:

@@ -26,12 +26,6 @@ import (
   "google.golang.org/grpc"
 )
 
-var shouldStartHttpObservabilityServer = true
-
-const httpServeraddress = ":8091"
-
-var shouldRegisterGrpcObservabilityServer = true
-
 // Device class driver feature builder, according to the GoF build pattern
 // The pattern provides methods to register new features in an easy
 type dcdFeatureBuilder struct {
@@ -78,17 +72,17 @@ type DCD struct {
 }
 
 // Method to start the device class driver
-func (d *DCD) Start(grpcServerAddress string, grpcRegistryAddress string) error {
+func (d *DCD) Start(grpcServerAddress string, grpcRegistryAddress string, httpServerAddress string) error {
   log.Info().
     Str("Name", d.name).
     Str("gRPC Address", grpcServerAddress).
     Msg("Starting device class driver")
 
   // Webserver for observerability purposes
-  if shouldStartHttpObservabilityServer {
-    log.Info().Str("HTTP address", httpServeraddress).Msg("Starting RestAPI Observability Endpoint")
+  if features.ObservabilityFeatures().HttpObservabilityServer {
+    log.Info().Str("HTTP address", httpServerAddress).Msg("Starting RestAPI Observability Endpoint")
 
-    s := webserver.NewServerWithParameters(httpServeraddress,
+    s := webserver.NewServerWithParameters(httpServerAddress,
       metadata.Version{
         Version: d.version.Version,
         Commit:  d.version.Commit,
@@ -111,8 +105,8 @@ func (d *DCD) Start(grpcServerAddress string, grpcRegistryAddress string) error 
   // Start GRPC server
   d.grpcServer = grpc.NewServer()
   // ObservabilityServer
-  if shouldRegisterGrpcObservabilityServer {
-    log.Info().Msg("Registered gRPC Observability Endpoint")
+  if features.ObservabilityFeatures().GrpcObservabilityServer {
+    log.Info().Msg("Registered status endpoint")
     d.statusServer = &status.StatusServerEntity{Version: metadata.Version{
       Version: d.version.Version,
       Commit:  d.version.Commit,

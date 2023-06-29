@@ -13,6 +13,8 @@ builds:
   - id: cdm-dcd-reference
     binary: cdm-dcd-reference
     main: ./cdm-dcd-reference/main.go
+    tags:
+      - webserver
     flags:
       - -trimpath
       - -mod=readonly
