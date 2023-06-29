@@ -15,7 +15,7 @@ import (
 // startCmd represents the start command
 var startCmd = &cobra.Command{
   Use:   "start",
-  Short: "Start Discovery job",
+  Short: "Start discovery job",
   Long:  `This command starts an discovery job.`,
   Run: func(cmd *cobra.Command, args []string) {
     dcdconnection.StartDiscovery(shared.DcdEndpoint)
