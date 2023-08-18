@@ -116,7 +116,7 @@ cookiecutter-setup:
     - python -m pip install pipx
     - python -m pipx ensurepath
     - pipx install cookiecutter
-    - source ~/.bashrc
+    - export PATH="$PATH:/root/.local/bin"
     - cookiecutter --version
   script:
     # Copy pre-defined cookiecutter replay template
