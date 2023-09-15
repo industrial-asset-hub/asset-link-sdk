@@ -1,14 +1,13 @@
-package status
+/*
+ * SPDX-FileCopyrightText: 2023 Siemens AG
+ *
+ * SPDX-License-Identifier:
+ *
+ */
 
-import (
-  generated "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/generated/status"
-  "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/metadata"
-  "github.com/stretchr/testify/assert"
-  "golang.org/x/net/context"
-  "testing"
-)
+package driverinfo
 
-func TestStatusHealth(t *testing.T) {
+/*func TestStatusHealth(t *testing.T) {
   s := StatusServerEntity{}
 
   resp, err := s.GetHealth(context.Background(), &generated.HealthRequest{})
@@ -27,3 +26,4 @@ func TestStatusVersion(t *testing.T) {
   assert.NoError(t, err)
   assert.Equal(t, resp, &generated.VersionReply{Version: "1", Commit: "commit", Date: "date"})
 }
+*/

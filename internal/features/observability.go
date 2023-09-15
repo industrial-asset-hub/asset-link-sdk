@@ -8,23 +8,21 @@
 package features
 
 type observabilityFeatures struct {
-  HttpObservabilityServer bool
-  GrpcObservabilityServer bool
+	HttpObservabilityServer bool
 }
 
 var config = ObservabilityFeaturesNew()
 
 func ObservabilityFeatures() *observabilityFeatures {
-  return config
+	return config
 }
 
 func ObservabilityFeaturesNew() *observabilityFeatures {
-  return &observabilityFeatures{
-    HttpObservabilityServer: false,
-    GrpcObservabilityServer: true,
-  }
+	return &observabilityFeatures{
+		HttpObservabilityServer: false,
+	}
 }
 
 func (o *observabilityFeatures) Get() *observabilityFeatures {
-  return o
+	return o
 }
