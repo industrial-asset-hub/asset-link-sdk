@@ -57,16 +57,10 @@ func (s *Server) configureRoutes(r *gin.Engine) {
 		context.JSON(http.StatusOK, s.version)
 	})
 
-	discovery := r.Group("discovery")
-	discovery.GET("count", func(context *gin.Context) {
+	r.GET("stats", func(context *gin.Context) {
 		context.JSON(http.StatusOK, gin.H{
-			"jobs": observability.GlobalEvents().GetDiscoveryJobsCount(),
+			"discovery_jobs":         observability.GlobalEvents().GetDiscoveryJobsCount(),
+			"discovery_jobs_started": observability.GlobalEvents().GetDiscoveryJobs(),
 		})
 	})
-	discovery.GET("started", func(context *gin.Context) {
-		context.JSON(http.StatusOK, gin.H{
-			"jobs": observability.GlobalEvents().GetDiscoveryJobs(),
-		})
-	})
-
 }
