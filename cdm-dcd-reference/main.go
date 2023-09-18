@@ -29,7 +29,6 @@ var (
 	version = "dev"
 	commit  = "unknown"
 	date    = "unknown"
-	vendor  = "{{cookiecutter.company}}"
 )
 
 func main() {
