@@ -4,6 +4,8 @@ code.siemens.com/common-device-management/utils/go-modules/firmwareupdate.git v0
 code.siemens.com/common-device-management/utils/go-modules/firmwareupdate.git v0.0.0-20221220094135-afe604444192/go.mod h1:3Uoruh5mat41hByI6eV9/YBNKrNGeA76Iu2tf9jS3rQ=
 code.siemens.com/common-device-management/utils/go-modules/grpcserverregistry.git v0.0.0-20230116100700-106405ae176c h1:MLfJnRdMOGP6zTfAzWv3tcFHEyaUlADnlpMsGiaHVlM=
 code.siemens.com/common-device-management/utils/go-modules/grpcserverregistry.git v0.0.0-20230116100700-106405ae176c/go.mod h1:60MM7CtUAQA2ceq7TmOSVvrRzJkXU3K9pIIhlkpM9dE=
+github.com/Masterminds/semver/v3 v3.2.1 h1:RN9w6+7QoMeJVGyfmbcgs28Br8cvmnucEXnY0rYXWg0=
+github.com/Masterminds/semver/v3 v3.2.1/go.mod h1:qvl/7zhW3nngYb5+80sSMF+FG2BjYrf8m9wsX0PNOMQ=
 github.com/bytedance/sonic v1.5.0/go.mod h1:ED5hyg4y6t3/9Ku1R6dU/4KyJ48DZ4jPhfY1O2AihPM=
 github.com/bytedance/sonic v1.9.1 h1:6iJ6NqdoxCDr6mbY8h18oSO+cShGSMRGCEo7F2h0x8s=
 github.com/bytedance/sonic v1.9.1/go.mod h1:i736AoUSYt75HyZLoJW9ERYxcy6eaN6h4BZXU064P/U=
