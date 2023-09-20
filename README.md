@@ -207,16 +207,18 @@ The DCD also starts an Webserver which contains an RestAPI for observability rea
 Currently, the following endpoints are available. The Webserver is enabled
 for the **GoReleaser** builds by default.
 
-To enable the Webserver
-the Go build constraint `webserver` is used [Go build contraints](https://pkg.go.dev/cmd/go#hdr-Build_constraints). The
-tag can be enabled by adding `-tags webserver` to an`go run` command. For example `go run -tags webserver main.go`
+To enable the Webserver the Go build
+constraint `webserver` is used [Go build contraints](https://pkg.go.dev/cmd/go#hdr-Build_constraints). The
+tag can be enabled by adding `-tags webserver` to the `go run` command. For example `go run -tags webserver main.go`
 
-| Path               | comment                        |
-| ------------------ | ------------------------------ |
-| /health            | Health state of the DCD        |
-| /version           | Version                        |
-| /discovery/count   | Amount of discovery jobs       |
-| /discovery/started | Last 20 started Discovery jobs |
+The webserver listening port defaults to localhost:8082. The following
+HTTP paths are currently available.
+
+| Path     | comment                 |
+| -------- | ----------------------- |
+| /health  | Health state of the DCD |
+| /version | Version                 |
+| /stats   | observability endpoint  |
 
 ### Contributing
 
