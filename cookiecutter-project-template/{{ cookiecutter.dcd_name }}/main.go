@@ -14,11 +14,13 @@ import (
 	"os/signal"
 	"syscall"
 
+	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/metadata"
+
 	"{{cookiecutter.dcd_name}}/handler"
 
 	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/dcd"
 
-	"{{cookiecutter.dcd_name}}/internal/logging"
+	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/logging"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -30,6 +32,7 @@ var (
 	commit  = "unknown"
 	date    = "unknown"
 	dcdName = "{{cookiecutter.dcd_name}}"
+	vendor  = "{{cookiecutter.company}}"
 )
 
 func main() {
@@ -42,8 +45,9 @@ func main() {
 
 	// Setup log of log infrastructure
 	var logLevel string
-	var serverAddress string
+	var grpcServerAddress string
 	var registryAddress string
+	var httpServerAddress string
 	flag.StringVar(&logLevel, "log-level", "info", fmt.Sprintf("set log level. one of: %s,%s,%s,%s,%s,%s,%s",
 		zerolog.TraceLevel.String(),
 		zerolog.DebugLevel.String(),
@@ -52,8 +56,9 @@ func main() {
 		zerolog.ErrorLevel.String(),
 		zerolog.FatalLevel.String(),
 		zerolog.PanicLevel.String()))
-	flag.StringVar(&serverAddress, "grpc-address", "localhost:8081", "gRPC server address")
-	flag.StringVar(&registryAddress, "grpc-registry-address", "grpc-server-registry:50051", "gRPC server address")
+	flag.StringVar(&grpcServerAddress, "grpc-address", "localhost:8081", "gRPC server endpoint")
+	flag.StringVar(&httpServerAddress, "http-address", "localhost:8082", "HTTP server endpoint")
+	flag.StringVar(&registryAddress, "grpc-registry-address", "grpc-server-registry:50051", "gRPC registry address")
 
 	// Parse the CLI flags
 	flag.Parse()
@@ -63,7 +68,11 @@ func main() {
 
 	// Register dcd implementation
 	dcdImpl := new(handler.DCDImplementation)
-	dcdInstance := dcd.New(dcdName).
+	dcdInstance := dcd.New(metadata.Metadata{
+		Version: metadata.Version{Version: version, Commit: commit, Date: date},
+		DcdName: dcdName,
+		Vendor:  vendor,
+	}).
 		Discovery(dcdImpl).
 		SoftwareUpdate(dcdImpl).
 		Build()
@@ -79,7 +88,7 @@ func main() {
 	}(dcdInstance)
 
 	// Start device class driver
-	if err := dcdInstance.Start(serverAddress, registryAddress); err != nil {
+	if err := dcdInstance.Start(grpcServerAddress, registryAddress, httpServerAddress); err != nil {
 		log.Fatal().Err(err).Msg("Could not start device class driver instance")
 	}
 

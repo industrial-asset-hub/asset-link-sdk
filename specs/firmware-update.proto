@@ -1,0 +1,122 @@
+syntax = "proto3";
+
+package siemens.commondevicemanagement.firmwareupdateApi.v1;
+
+//service which serves firmware update
+service FirmwareupdateApi {
+
+  // firmware(s) will be downloaded in to the device
+  rpc FirmwareDownload(FirmwareRequest) returns (stream FirmwareReply) {}
+
+  //downloaded firmware(s) installed in the device
+  rpc FirmwareInstall(FirmwareRequest) returns (stream FirmwareReply) {}
+
+  //downloaded fimrware(s) activated in the device
+  rpc FirmwareActivate(FirmwareRequest) returns (stream FirmwareReply) {}
+
+  //fimrware(s) downloaded/installed/activated in the device
+  rpc FirmwareUpdate(FirmwareRequest) returns (stream FirmwareReply) {}
+
+  //firmware operation cancelled in the device
+  rpc FirmwareCancel(FirmwareRequest) returns (FirmwareReply) {}
+
+}
+
+message FirmwareRequest {
+
+  //id of the device used to uniquely identify the device
+  string device_id = 1;
+
+  //unique job_id (kind of request identifier)
+  string job_id = 2;
+
+  //time to wait in seconds
+  sint32 timeout = 3;
+
+  //retry count
+  sint32 retry = 4;
+
+  //meta data of firmware(s)
+  repeated FirmwareMetaData meta_data = 5;
+
+}
+
+message FirmwareReply {
+
+  //id of the device used to uniquely identify the device
+  string device_id = 1;
+
+  //unique job_id (kind of request identifier)
+  string job_id = 2;
+
+  //firmware operation progress information
+  ProgressInfo progress_status = 3;
+
+  //firmware operation status
+  FirmwareStatus status = 4;
+
+  //error message in case of any error
+  string error_msg = 5;
+
+}
+
+message ProgressInfo {
+
+  //type of firmware operation
+  FirmwareOperation operation = 1;
+
+  //percentage of progress
+  string percentage = 2;
+
+}
+
+message FirmwareMetaData {
+
+  //firmware file name(path)
+  string firmware_file = 1;
+
+  //firmware version
+  string version = 2;
+
+  //compatible version in device
+  repeated string compatible_version = 3;
+
+  //firmware update mode
+  FirmwareUpdateMode mode = 4;
+
+  //additional details or properties of meta data (like snmp profile name)
+  map<string, string> properties = 5;
+
+}
+
+enum FirmwareOperation {
+
+  DOWNLOAD = 0;
+
+  INSTALL = 1;
+
+  ACTIVATE = 2;
+
+}
+enum FirmwareUpdateMode {
+
+  IF_DIFFERENT = 0;
+
+  ALWAYS = 1;
+
+  UPGRADE = 2;
+
+}
+enum FirmwareStatus {
+
+  SUCCESS = 0;
+
+  TIMEDOUT = 1;
+
+  IN_PROGRESS = 2;
+
+  ABORTED = 3;
+
+  FAILED = 4;
+
+}

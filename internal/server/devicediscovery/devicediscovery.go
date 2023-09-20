@@ -8,15 +8,15 @@
 package devicediscovery
 
 import (
+	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/deviceinfo"
+	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/internal/observability"
 	"context"
 	"fmt"
 
-	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/generated/model"
 	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/internal/features"
-
 	"github.com/rs/zerolog/log"
 
-	generated "code.siemens.com/common-device-management/utils/go-modules/discovery.git/pkg/device"
+	generated "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/generated/device_discovery"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/structpb"
@@ -30,7 +30,7 @@ const (
 type DiscoveryServerEntity struct {
 	generated.UnimplementedDeviceDiscoveryApiServer
 	features.Discovery
-	deviceInfoReply chan model.DeviceInfo
+	deviceInfoReply chan deviceinfo.DeviceInfo
 }
 
 func (d *DiscoveryServerEntity) StartDeviceDiscovery(
@@ -43,11 +43,14 @@ func (d *DiscoveryServerEntity) StartDeviceDiscovery(
 
 	var jobId uint32 = 1
 
+	// Observability
+	observability.GlobalEvents().StartedDiscoveryJob(jobId)
+
 	// Check if discovery feature implementation is available
 	if d.Discovery != nil {
 		// Create a buffered channel with
-		d.deviceInfoReply = make(chan model.DeviceInfo, deviceInfoChannelBufferSize)
-		// Channel, which allows to transfer if the startup was executed successfully.
+		d.deviceInfoReply = make(chan deviceinfo.DeviceInfo, deviceInfoChannelBufferSize)
+		// Channel, which allows to transfer if the stƒartup was executed successfully.
 		// Due to the start as Gouroutine, the d.Start() function can report an error during and can run even longer.
 		startError := make(chan error)
 		// Start custom discovery function
@@ -88,7 +91,7 @@ loop:
 
 		deviceInformation := []*generated.DiscoveryDevice{}
 
-		response, err := structpb.NewStruct(deviceInfo.ToJSONMap())
+		response, err := structpb.NewStruct(deviceInfo)
 		if err != nil {
 			errMsg := "Could not generate response structure."
 			log.Warn().Err(err).Msg(errMsg)

@@ -8,17 +8,19 @@
 package dcd
 
 import (
+	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/internal/server/webserver"
+	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/metadata"
 	"net"
 	"os"
 
+	generatedDriverInfoServer "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/generated/conn_suite_drv_info"
+	generatedDiscoveryServer "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/generated/device_discovery"
+	generatedFirmwareUpdate "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/generated/firmware_update"
 	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/internal/features"
 	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/internal/registryclient"
 	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/internal/server/devicediscovery"
+	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/internal/server/driverinfo"
 	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/internal/server/firmwareupdate"
-
-	generatedDiscoveryServer "code.siemens.com/common-device-management/utils/go-modules/discovery.git/pkg/device"
-	generatedFirmwareUpdate "code.siemens.com/common-device-management/utils/go-modules/firmwareupdate.git/pkg/firmware-update"
-
 	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
 )
@@ -26,7 +28,7 @@ import (
 // Device class driver feature builder, according to the GoF build pattern
 // The pattern provides methods to register new features in an easy
 type dcdFeatureBuilder struct {
-	driverName     string
+	metadata       metadata.Metadata
 	discovery      features.Discovery
 	softwareUpdate features.SoftwareUpdate
 }
@@ -43,34 +45,49 @@ func (cb *dcdFeatureBuilder) SoftwareUpdate(f features.SoftwareUpdate) *dcdFeatu
 }
 
 // Builder
-func New(driverName string) *dcdFeatureBuilder {
-	return &dcdFeatureBuilder{driverName: driverName}
+func New(metadata metadata.Metadata) *dcdFeatureBuilder {
+	return &dcdFeatureBuilder{metadata: metadata}
 }
 
 func (cb *dcdFeatureBuilder) Build() *DCD {
 	return &DCD{
 		discoveryImpl:      cb.discovery,
 		softwareUpdateImpl: cb.softwareUpdate,
-		name:               cb.driverName,
+		metadata:           cb.metadata,
 	}
 }
 
 // Structure of the features
 type DCD struct {
-	name               string
+	metadata           metadata.Metadata
 	discoveryImpl      features.Discovery
 	softwareUpdateImpl features.SoftwareUpdate
 	grpcServer         *grpc.Server
 	registryClient     *registryclient.GrpcServerRegistry
+	driverInfoServer   *driverinfo.DriverInfoServerEntity
 }
 
 // Method to start the device class driver
-func (d *DCD) Start(grpcServerAddress string, grpcRegistryAddress string) error {
+func (d *DCD) Start(grpcServerAddress string, grpcRegistryAddress string, httpServerAddress string) error {
 	log.Info().
-		Str("Name", d.name).
+		Str("Name", d.metadata.DcdName).
 		Str("gRPC Address", grpcServerAddress).
 		Msg("Starting device class driver")
 
+	// Webserver for observerability purposes
+	if features.ObservabilityFeatures().HttpObservabilityServer {
+		log.Info().Str("HTTP address", httpServerAddress).Msg("Starting RestAPI Observability Endpoint")
+
+		s := webserver.NewServerWithParameters(httpServerAddress,
+			metadata.Version{
+				Version: d.metadata.Version.Version,
+				Commit:  d.metadata.Version.Commit,
+				Date:    d.metadata.Version.Date,
+			})
+
+		go s.Run()
+
+	}
 	// GRPC Server
 	listener, err := net.Listen("tcp", grpcServerAddress)
 	if err != nil {
@@ -78,11 +95,17 @@ func (d *DCD) Start(grpcServerAddress string, grpcRegistryAddress string) error 
 	}
 
 	// Register at the grpc server registry
-	d.registryClient = registryclient.New(grpcRegistryAddress, d.name, grpcServerAddress)
+	d.registryClient = registryclient.New(grpcRegistryAddress, d.metadata.DcdName, grpcServerAddress)
 	d.registryClient.Register()
 
 	// Start GRPC server
 	d.grpcServer = grpc.NewServer()
+	// CS Suite Drv Info
+	log.Info().Msg("Registered Driver Info endpoint")
+	d.driverInfoServer = &driverinfo.DriverInfoServerEntity{
+		Metadata: d.metadata}
+	generatedDriverInfoServer.RegisterDriverInfoApiServer(d.grpcServer, d.driverInfoServer)
+
 	// Select according to selected features
 	if d.discoveryImpl == nil {
 		log.Info().

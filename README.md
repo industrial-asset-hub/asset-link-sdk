@@ -24,17 +24,26 @@ Softwareupdate :  Update(jobId, \n\t deviceId, metaData, progress) error
 
 }
 
+package "logging" {
+class zerolog
+
+}
+
 package "internals" {
 package "registry" {
 class grpcRegistry
 }
 
-package "logging" {
-class zerolog
+package "server" {
+class devicediscovery
+class firmwareupdate
+class status
+class webserver
+
 }
 
-package "server" {
-class grpcServer
+package "observability" {
+class observability
 
 }
 }
@@ -56,7 +65,7 @@ DCD : discoveryImpl features.Discovery
 DCD : softwareUpdateImpl features.SoftwareUpdate
 DCD : grpcServer *grpc.Server
 DCD : registryClient *registryclient.GrpcServerRegistry
-DCD : Start(grpcServerAddr, grpcRegistryAddr)
+DCD : Start(grpcServerAddr, grpcRegistryAddr,)
 DCD : Stop()
 
 
@@ -109,9 +118,7 @@ It is recommended to use an ~/.netrc file, with https access tokens for code.sie
 See [netrc-file](https://www.gnu.org/software/inetutils/manual/html_node/The-_002enetrc-file.html#:~:text=The%20.netrc%20file%20contains%20login%20and%20initialization%20information,be%20set%20using%20the%20environment%20variable%20NETRC%20.)
 
 ```bash
-echo "machine gitlab.com
-login gitlab-ci-token
-password $PERSONAL_ACCCESS_TOKEN" >> ~/.netrc
+echo "machine code.siemens.com login gitlab-ci-token password $PERSONAL_ACCCESS_TOKEN" >> ~/.netrc
 ```
 
 ### Bootstrapping our own DCD
@@ -184,6 +191,32 @@ $ systemctl status my-fancy-dcd
 $ journalctl logs -f -u my-fancy-dcd
 [...]
 ```
+
+### Commandline Tool
+
+To ease development or testing, with help of a commandline tool the DCD can be triggered interactively. For
+example, a discovery can be started/stopped or even the results are fetched.
+
+```bash
+go install code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/cmd/dcd-ctl@main
+```
+
+### Observability Webserver
+
+The DCD also starts an Webserver which contains an RestAPI for observability reasons.
+Currently, the following endpoints are available. The Webserver is enabled
+for the **GoReleaser** builds by default.
+
+To enable the Webserver
+the Go build constraint `webserver` is used [Go build contraints](https://pkg.go.dev/cmd/go#hdr-Build_constraints). The
+tag can be enabled by adding `-tags webserver` to an`go run` command. For example `go run -tags webserver main.go`
+
+| Path               | comment                        |
+| ------------------ | ------------------------------ |
+| /health            | Health state of the DCD        |
+| /version           | Version                        |
+| /discovery/count   | Amount of discovery jobs       |
+| /discovery/started | Last 20 started Discovery jobs |
 
 ### Contributing
 

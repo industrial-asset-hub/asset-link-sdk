@@ -4,6 +4,7 @@
  * SPDX-License-Identifier:
  *
  */
+
 package main
 
 import (
@@ -13,9 +14,11 @@ import (
 	"os/signal"
 	"syscall"
 
+	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/metadata"
+
 	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/cdm-dcd-reference/reference"
 	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/dcd"
-	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/internal/logging"
+	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/logging"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -38,7 +41,8 @@ func main() {
 
 	// Setup log of log infrastructure
 	var logLevel string
-	var serverAddress string
+	var grpcServerAddress string
+	var httpServerAddress string
 	var registryAddress string
 	flag.StringVar(&logLevel, "log-level", "info", fmt.Sprintf("set log level. one of: %s,%s,%s,%s,%s,%s,%s",
 		zerolog.TraceLevel.String(),
@@ -48,8 +52,9 @@ func main() {
 		zerolog.ErrorLevel.String(),
 		zerolog.FatalLevel.String(),
 		zerolog.PanicLevel.String()))
-	flag.StringVar(&serverAddress, "grpc-address", "mydcd:8081", "gRPC server address")
-	flag.StringVar(&registryAddress, "grpc-registry-address", "grpc-server-registry:50051", "gRPC server address")
+	flag.StringVar(&grpcServerAddress, "grpc-address", "localhost:8081", "gRPC server endpoint")
+	flag.StringVar(&httpServerAddress, "http-address", "localhost:8082", "HTTP server endpoint")
+	flag.StringVar(&registryAddress, "grpc-registry-address", "grpc-server-registry:50051", "gRPC registry address")
 
 	// Parse the CLI flags
 	flag.Parse()
@@ -58,7 +63,11 @@ func main() {
 	logging.AdjustLogLevel(logLevel)
 	// Register dcd implementation
 	myDCDImplementation := new(reference.ReferenceClassDriver)
-	dcdImpl := dcd.New("cdm-dcd-reference").
+	dcdImpl := dcd.New(metadata.Metadata{
+		Version: metadata.Version{Version: version, Commit: commit, Date: date},
+		DcdName: "cdm-dcd-reference",
+		Vendor:  "Siemens AG",
+	}).
 		Discovery(myDCDImplementation).
 		SoftwareUpdate(myDCDImplementation).
 		Build()
@@ -74,8 +83,7 @@ func main() {
 	}(dcdImpl)
 
 	// Start device class driver
-	if err := dcdImpl.Start(serverAddress, registryAddress); err != nil {
+	if err := dcdImpl.Start(grpcServerAddress, registryAddress, httpServerAddress); err != nil {
 		log.Fatal().Err(err).Msg("Could not start device class driver instance")
 	}
-
 }

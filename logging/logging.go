@@ -8,7 +8,7 @@
 package logging
 
 import (
-	"io"
+	"fmt"
 	"os"
 	"time"
 
@@ -18,19 +18,29 @@ import (
 )
 
 func SetupLogging() {
-	var writer io.Writer = os.Stdout
-	if term.IsTerminal(int(os.Stdout.Fd())) {
-		writer = zerolog.ConsoleWriter{
-			Out:        os.Stdout,
-			TimeFormat: time.Stamp,
+	var out *os.File = os.Stdout
+	var format = "auto"
+
+	var logger zerolog.Logger
+	if format == "auto" {
+		if term.IsTerminal(int(out.Fd())) {
+			format = "pretty"
+		} else {
+			format = "json"
 		}
 	}
-	log.Logger = zerolog.New(writer).With().
-		Timestamp().
-		Caller().
-		Logger()
-
-	zerolog.SetGlobalLevel(zerolog.InfoLevel)
+	switch format {
+	case "json":
+		logger = zerolog.New(out).With().Caller().Logger()
+	case "pretty":
+		logger = zerolog.New(zerolog.ConsoleWriter{
+			Out:        out,
+			TimeFormat: time.Stamp,
+		})
+	default:
+		fmt.Fprintf(os.Stderr, "Invalid log format: %s\n", format)
+	}
+	log.Logger = logger.With().Timestamp().Caller().Logger()
 }
 
 func AdjustLogLevel(logLevelRaw string) {

@@ -5,7 +5,7 @@
  *
  */
 
-package model
+package reference
 
 import (
 	"encoding/json"
