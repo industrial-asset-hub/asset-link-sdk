@@ -105,8 +105,8 @@ On `DCD.Start()` the dcd will start the grpc server allowing common device manag
 
 IDM:
 
-- [cdm-agent](https://code.siemens.com/common-device-management/gateway/cdm-agent)
-- and of course access to an CDM tenant, with an on-boarded CDM Field Agent.
+- [Asset Gateway](https://code.siemens.com/common-device-management/gateway/cdm-agent)
+- and of course access to an CDM tenant, with an on-boarded Asset Gateway.
 
 Tooling:
 
