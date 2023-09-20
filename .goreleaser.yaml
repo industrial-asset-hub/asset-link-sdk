@@ -91,7 +91,6 @@ archives:
     format_overrides:
       - goos: windows
         format: zip
-    rlcp: true
     files:
       - none*
 
