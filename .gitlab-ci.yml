@@ -43,6 +43,9 @@ variables:
   - go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
   - go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 
+.go-jsonschema: &go-jsonschema
+  - go install github.com/atombender/go-jsonschema/cmd/gojsonschema@latest
+
 # Place temporary go.mod file, inside cookiecutter  project dir to make go test happy
 .cookiecutter_gomod-quirk: &cookiecutter_gomod-quirk ( cd cookiecutter-project-template/*/ && cp ../../go.mod go.mod)
 # Lint
@@ -58,6 +61,7 @@ lint:
     - export BINDIR=/usr/local/bin
     - go install github.com/golangci/golangci-lint/cmd/golangci-lint@$GOLANGCILINT_VERSION
     - *protoc-go
+    - *go-jsonschema
   script:
     - *cookiecutter_gomod-quirk
     - go generate
@@ -93,6 +97,7 @@ unit-tests:
     - *set_git_https_credentials
     - *cookiecutter_gomod-quirk
     - *protoc-go
+    - *go-jsonschema
     - go generate
     - go test --race ./... -covermode=atomic -coverprofile=coverage.txt -v 2>&1 | go-junit-report -iocopy -set-exit-code -out report.xml
     - go tool cover -func=coverage.txt
@@ -144,6 +149,7 @@ cookiecutter-setup:
     - pacman -Syu --noconfirm
     - pacman -S --noconfirm go zig goreleaser git protobuf
     - *protoc-go
+    - *go-jsonschema
 
 # Vendors the needed Go packages. This vendor/ is used, inside the
 # release job, to include the vendor/ directory, into
@@ -228,6 +234,7 @@ create-release:
     - pacman -S --noconfirm go zig goreleaser git git-lfs protobuf
     - git lfs install
     - *protoc-go
+    - *go-jsonschema
   script:
     - *set_netrc
     # Copy go.mod and the vendor dir for the SDK archive to the into the cookiecutter template

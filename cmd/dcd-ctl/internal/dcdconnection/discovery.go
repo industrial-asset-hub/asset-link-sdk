@@ -48,7 +48,7 @@ func StartDiscovery(endpoint string, option string, filter string) {
 		log.Err(err).Msg("StartDeviceDiscovery request returned an error")
 		return
 	}
-	log.Info().Str("response", resp.String()).Msg("Recevied response")
+	log.Info().Str("response", resp.String()).Msg("Received response")
 
 }
 
@@ -77,6 +77,7 @@ func Subscribe(endpoint string, jobid uint32) []map[string]interface{} {
 		if err != nil {
 			log.Err(err).Msg("SubscribeDiscovery request returned an error")
 			return nil
+
 		}
 		log.Info().Interface("response", resp.Devices).Msg("Received Response")
 

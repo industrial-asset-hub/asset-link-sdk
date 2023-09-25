@@ -8,13 +8,13 @@ package reference
 
 import (
   "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/deviceinfo"
+  "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/model"
   "errors"
   "strconv"
   "time"
 
   softwareUpdate "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/generated/firmware_update"
 
-  "github.com/google/uuid"
   "github.com/rs/zerolog/log"
 )
 
@@ -61,128 +61,68 @@ func (m *ReferenceClassDriver) Start(jobId uint32, deviceInfoReply chan devicein
         Msg("Received cancel request")
       m.discoveryJobRunning = false
     default:
+      device := model.New()
+      timestamp := model.CreateTimestamp()
 
-      // Default Device Information structure
-      deviceInfo := DeviceInfo{}
-      deviceInfo.Vendor = "Siemens AG"
-      deviceInfo.DeviceFamily = "cdm-dcd-reference"
-      // Exact Device Type e.g. CPU 1516-3 PN/DP
-      deviceInfo.DeviceDescription = "Device"
-      deviceInfo.ArticleNumber = "cdm-dcd-reference"
-      deviceInfo.DeviceHwVersion = "1.0.1"
-      deviceInfo.DeviceSwVersion = "0.2.0"
-      deviceInfo.PasswordProtected = false
-      deviceInfo.SerialNumber = SerialNumber(uuid.NewString())
-      stationName := "Device " + strconv.Itoa(i)
-      stationNumber := 12
-      deviceType := PropertiesDeviceTypeNative
-      connectivityType := PropertiesConnectivityStatusOnline
-      opMode := PropertiesOperatingModeRun
-
-      // Network Interfaces
-      nic1Name := NicIdentifier("eth0")
-      nic1MAC := "ab:cd:ef:ab:cd:ef"
-      nic1IP := "192.168.0.99"
-      nic1Netmask := "192.168.0.99"
-      nic1DefaultGateway := ""
-      nic2Name := NicIdentifier("eth2")
-      nic2MAC := "ab:cd:ef:ab:cd:ef"
-      nic2IP := "10.0.0.2"
-      nic2Netmask := "255.255.0.0"
-      nic2DefaultGateway := "10.0.0.1"
-
-      nic1 := DeviceInfoNicsElem{MacAddress: &nic1MAC, NicIdentifier: &nic1Name}
-      nic2 := DeviceInfoNicsElem{MacAddress: &nic2MAC, NicIdentifier: &nic2Name}
-
-      deviceInfo.Nics = append(deviceInfo.Nics, nic1, nic2)
-      ipSettingsNic1 := PropertiesIpConfigurationsElemIpSettingsElem{
-        IpAddress:      nic1IP,
-        SubnetMask:     nic1Netmask,
-        DefaultGateway: nic1DefaultGateway}
-      ipSettingsNic2 := PropertiesIpConfigurationsElemIpSettingsElem{
-        IpAddress:      nic2IP,
-        SubnetMask:     nic2Netmask,
-        DefaultGateway: nic2DefaultGateway}
-
-      var IPSettings1 []PropertiesIpConfigurationsElemIpSettingsElem
-      IPSettings1 = append(IPSettings1, ipSettingsNic1)
-      var IPSettings2 []PropertiesIpConfigurationsElemIpSettingsElem
-      IPSettings2 = append(IPSettings2, ipSettingsNic2)
-      IPInfoNic1 := PropertiesIpConfigurationsElem{NicIdentifier: &nic1Name, IpSettings: IPSettings1}
-      IPInfoNic2 := PropertiesIpConfigurationsElem{NicIdentifier: &nic2Name, IpSettings: IPSettings2}
-      var IPInfo []PropertiesIpConfigurationsElem
-      IPInfo = append(IPInfo, IPInfoNic1, IPInfoNic2)
-
-      // Capabilities of ot the device
-      var ptrTrue bool = true
-      var ptrFalse bool = false
-      cap := Capabilities{
-        FirmwareUpdate: &ptrTrue,
-        ProgramUpdate:  &ptrTrue,
-        Backup:         &ptrFalse,
-        Restore:        &ptrFalse,
-        ResetToFactory: &ptrTrue,
+      Name := "Device"
+      device.Name = &Name
+      product := "cdm-reference-dcd"
+      version := "1.0.0"
+      vendorName := "Siemens AG"
+      //serialNumber := uuid.NewString()
+      serialNumber := "sn"
+      vendor := model.Organization{
+        Address:        nil,
+        AlternateNames: nil,
+        ContactPoint:   nil,
+        Id:             "",
+        Name:           &vendorName,
       }
-      deviceInfo.Capabilities = &cap
-
-      var connectedTo []PropertiesConnectedToElem
-      connectedTo = append(connectedTo, PropertiesConnectedToElem{
-        Name:          "Connection to Profibus",
-        InterfaceType: PropertiesConnectedToElemInterfaceTypeProfibus,
-        Devices:       []string{"device-1", "device-2"},
-      })
-
-      // Capabilities of ot the device
-      module1Cap := Capabilities{
-        FirmwareUpdate: &ptrTrue,
-        ProgramUpdate:  &ptrFalse,
-        Backup:         &ptrFalse,
-        Restore:        &ptrFalse,
-        ResetToFactory: &ptrFalse,
+      productSerialidentifier := model.ProductSerialIdentifier{
+        IdentifierType:        nil,
+        IdentifierUncertainty: nil,
+        ManufacturerProduct: &model.Product{
+          Id:             "",
+          Manufacturer:   &vendor,
+          Name:           nil,
+          ProductId:      &product,
+          ProductVersion: &version,
+        },
+        SerialNumber: &serialNumber,
       }
+      device.ProductInstanceIdentifier = &productSerialidentifier
 
-      module1 := Module{
-        ArticleNumber:   "Module 1 Article number",
-        Capabilities:    module1Cap,
-        Description:     "Module 1 description",
-        DeviceHwVersion: "Module 1 HW version",
-        DeviceSwVersion: "Module 1 SW version",
-        Name:            "Module 1 Name",
-        SerialNumber:    "Module 1 Serial Number",
-        StationNumber:   StationNumber(stationNumber),
-        Slot:            Slot(1),
-        SubSlot:         SubSlot(1),
+      connectionPointType := "Ipv4Connectivity"
+      Ipv4Address := "192.168.0.1"
+      Ipv4NetMask := "255.255.255.0"
+      Ipv4Connectivity := model.Ipv4Connectivity{
+        ConnectionPointType:     &connectionPointType,
+        Id:                      "1",
+        InstanceAnnotations:     nil,
+        Ipv4Address:             &Ipv4Address,
+        NetworkMask:             &Ipv4NetMask,
+        RelatedConnectionPoints: nil,
+        RouterIpv4Address:       nil,
       }
+      device.ConnectionPoints = append(device.ConnectionPoints, Ipv4Connectivity)
 
-      module2 := Module{
-        ArticleNumber:   "Module 2 Article number",
-        Description:     "Module 2 description",
-        DeviceHwVersion: "Module 2 HW version",
-        DeviceSwVersion: "Module 2 SW version",
-        Name:            "Module 2 Name",
-        SerialNumber:    "Module 2 Serial Number",
-        StationNumber:   StationNumber(stationNumber),
-        Slot:            Slot(1),
-        SubSlot:         SubSlot(2),
+      state := model.ManagementStateValuesUnknown
+      State := model.ManagementState{
+        StateTimestamp: &timestamp,
+        StateValue:     &state,
       }
+      device.ManagementState = State
 
-      // Values located under properties
-      runtimeMode := PropertiesRuntimeModeNormal
-      properties := Properties{
-        ConnectivityStatus: connectivityType,
-        RuntimeMode:        &runtimeMode,
-        IpConfigurations:   IPInfo,
-        ConnectedTo:        connectedTo,
-        StationName:        stationName,
-        ProfinetName:       &stationName,
-        StationNumber:      (*StationNumber)(&stationNumber),
-        DeviceType:         deviceType,
-        OperatingMode:      &opMode,
+      reachabilityStateValue := model.ReachabilityStateValuesReached
+      reachabilityState := model.ReachabilityState{
+        StateTimestamp: &timestamp,
+        StateValue:     &reachabilityStateValue,
       }
-      deviceInfo.Properties = &properties
-      deviceInfo.Modules = append(deviceInfo.Modules, module1, module2)
+      device.ReachabilityState = &reachabilityState
+      d := device.ToJSONMap()
+      delete(d, "id")
 
-      deviceInfoReply <- deviceInfo.ToJSONMap()
+      deviceInfoReply <- d
       time.Sleep(1000 * time.Millisecond)
     }
   }

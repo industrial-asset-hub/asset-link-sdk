@@ -74,7 +74,7 @@ func main() {
 		Vendor:  vendor,
 	}).
 		Discovery(dcdImpl).
-		SoftwareUpdate(dcdImpl).
+		//SoftwareUpdate(dcdImpl).
 		Build()
 
 	// Signal handler for a proper shutdown
