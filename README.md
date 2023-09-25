@@ -105,8 +105,8 @@ On `DCD.Start()` the dcd will start the grpc server allowing common device manag
 
 IDM:
 
-- [cdm-agent](https://code.siemens.com/common-device-management/gateway/cdm-agent)
-- and of course access to an CDM tenant, with an on-boarded CDM Field Agent.
+- [Asset Gateway](https://code.siemens.com/common-device-management/gateway/cdm-agent)
+- and of course access to an CDM tenant, with an on-boarded Asset Gateway.
 
 Tooling:
 
@@ -207,38 +207,15 @@ The DCD also starts an Webserver which contains an RestAPI for observability rea
 Currently, the following endpoints are available. The Webserver is enabled
 for the **GoReleaser** builds by default.
 
-To enable the Webserver
-the Go build constraint `webserver` is used [Go build contraints](https://pkg.go.dev/cmd/go#hdr-Build_constraints). The
-tag can be enabled by adding `-tags webserver` to an`go run` command. For example `go run -tags webserver main.go`
+To enable the Webserver the Go build
+constraint `webserver` is used [Go build contraints](https://pkg.go.dev/cmd/go#hdr-Build_constraints). The
+tag can be enabled by adding `-tags webserver` to the `go run` command. For example `go run -tags webserver main.go`
 
-| Path               | comment                        |
-| ------------------ | ------------------------------ |
-| /health            | Health state of the DCD        |
-| /version           | Version                        |
-| /discovery/count   | Amount of discovery jobs       |
-| /discovery/started | Last 20 started Discovery jobs |
+The webserver listening port defaults to localhost:8082. The following
+HTTP paths are currently available.
 
-### Contributing
-
-Please read the [Contribution Guidelines](CONTRIBUTING.md) before trying to
-contribute in any way to this repository.
-
-### License
-
-This project currently doesn't offer any license for reusing it outside Siemens
-DI.
-
-Please contact the [Maintainers](#maintainers) if you want to request a license
-to reuse it.
-The usage of an Inner-Source license that allows the reuse Siemens-wide might
-be considered.
-
-### Maintainers
-
-Please read the [Maintainers Guidelines](MAINTAINERS.md) to get further details
-about the contiguration of this project.
-
-These are the maintainers of this project:
-
-- Dominik Tacke <dominik.tacke@siemens.com>
-- Heiko Schabert <heiko.schabert@siemens.com>
+| Path     | comment                 |
+| -------- | ----------------------- |
+| /health  | Health state of the DCD |
+| /version | Version                 |
+| /stats   | observability endpoint  |
