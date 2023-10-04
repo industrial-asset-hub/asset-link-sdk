@@ -43,8 +43,10 @@ variables:
   - go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
   - go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 
+# latest is currently broken, there set the last working version
+# https://github.com/omissis/go-jsonschema/issues/131
 .go-jsonschema: &go-jsonschema
-  - go install github.com/atombender/go-jsonschema/cmd/gojsonschema@latest
+  - go install github.com/atombender/go-jsonschema/cmd/gojsonschema@v0.12.1
 
 # Place temporary go.mod file, inside cookiecutter  project dir to make go test happy
 .cookiecutter_gomod-quirk: &cookiecutter_gomod-quirk ( cd cookiecutter-project-template/*/ && cp ../../go.mod go.mod)
