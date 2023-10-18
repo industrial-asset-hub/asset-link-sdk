@@ -8,13 +8,12 @@
 package handler
 
 import (
-	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/deviceinfo"
-	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/model"
 	"errors"
-	"strconv"
 	"time"
 
-	softwareUpdate "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/generated/firmware_update"
+	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/deviceinfo"
+	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/model"
+
 	"github.com/rs/zerolog/log"
 )
 
@@ -148,52 +147,6 @@ func (m *DCDImplementation) Cancel(jobId uint32) error {
 	}
 	log.Debug().
 		Msg("Cancel function exiting")
-	return nil
-
-}
-
-// Implementation of the Software Update feature
-func (m *DCDImplementation) Update(jobId string, deviceId string, metaData []*softwareUpdate.FirmwareMetaData, statusChannel chan *softwareUpdate.FirmwareReply) error {
-
-	log.Info().
-		Str("Job Id", jobId).
-		Str("Device Id", deviceId).
-		Msg("Firmware Update Implementation")
-
-	for _, d := range metaData {
-		log.Debug().
-			Str("Metadata", d.String()).
-			Msg("Metadata received")
-	}
-
-	// Emulate an Software Update
-	for i := 0; i <= 100; i += 25 {
-		progressInfo := softwareUpdate.ProgressInfo{
-			Operation:  softwareUpdate.FirmwareOperation_DOWNLOAD,
-			Percentage: strconv.Itoa(i)}
-
-		UpdateStatus := softwareUpdate.FirmwareReply{
-			DeviceId:       deviceId,
-			JobId:          jobId,
-			ProgressStatus: &progressInfo,
-			Status:         softwareUpdate.FirmwareStatus_IN_PROGRESS,
-			ErrorMsg:       ""}
-
-		// Report success after the last iteration
-		if i >= 100 {
-			progressInfo.Percentage = "100"
-			progressInfo.Operation = softwareUpdate.FirmwareOperation_INSTALL
-			UpdateStatus.Status = softwareUpdate.FirmwareStatus_SUCCESS
-		}
-
-		statusChannel <- &UpdateStatus
-
-		// Wait until next iteration
-		time.Sleep(1 * time.Second)
-	}
-	defer close(statusChannel)
-	log.Debug().
-		Msg("Update function exiting")
 	return nil
 
 }

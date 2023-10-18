@@ -69,7 +69,6 @@ func main() {
 		Vendor:  "Siemens AG",
 	}).
 		Discovery(myDCDImplementation).
-		SoftwareUpdate(myDCDImplementation).
 		Build()
 
 	// Signal handler for a proper shutdown

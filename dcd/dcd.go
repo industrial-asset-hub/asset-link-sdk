@@ -15,12 +15,10 @@ import (
 
 	generatedDriverInfoServer "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/generated/conn_suite_drv_info"
 	generatedDiscoveryServer "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/generated/device_discovery"
-	generatedFirmwareUpdate "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/generated/firmware_update"
 	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/internal/features"
 	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/internal/registryclient"
 	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/internal/server/devicediscovery"
 	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/internal/server/driverinfo"
-	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/internal/server/firmwareupdate"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
 )
@@ -30,17 +28,11 @@ import (
 type dcdFeatureBuilder struct {
 	metadata       metadata.Metadata
 	discovery      features.Discovery
-	softwareUpdate features.SoftwareUpdate
 }
 
 // Methods to register new features
 func (cb *dcdFeatureBuilder) Discovery(f features.Discovery) *dcdFeatureBuilder {
 	cb.discovery = f
-	return cb
-}
-
-func (cb *dcdFeatureBuilder) SoftwareUpdate(f features.SoftwareUpdate) *dcdFeatureBuilder {
-	cb.softwareUpdate = f
 	return cb
 }
 
@@ -52,7 +44,6 @@ func New(metadata metadata.Metadata) *dcdFeatureBuilder {
 func (cb *dcdFeatureBuilder) Build() *DCD {
 	return &DCD{
 		discoveryImpl:      cb.discovery,
-		softwareUpdateImpl: cb.softwareUpdate,
 		metadata:           cb.metadata,
 	}
 }
@@ -61,7 +52,6 @@ func (cb *dcdFeatureBuilder) Build() *DCD {
 type DCD struct {
 	metadata           metadata.Metadata
 	discoveryImpl      features.Discovery
-	softwareUpdateImpl features.SoftwareUpdate
 	grpcServer         *grpc.Server
 	registryClient     *registryclient.GrpcServerRegistry
 	driverInfoServer   *driverinfo.DriverInfoServerEntity
@@ -115,16 +105,6 @@ func (d *DCD) Start(grpcServerAddress string, grpcRegistryAddress string, httpSe
 			Msg("Registered Discovery feature implementation")
 		discoveryServer := &devicediscovery.DiscoveryServerEntity{Discovery: d.discoveryImpl}
 		generatedDiscoveryServer.RegisterDeviceDiscoveryApiServer(d.grpcServer, discoveryServer)
-	}
-
-	if d.softwareUpdateImpl == nil {
-		log.Info().
-			Msg("Software Update feature implementation not found")
-	} else {
-		log.Info().
-			Msg("Registered feature Software Update feature implementation")
-		firmwareUpdateServer := &firmwareupdate.FirmwareUpdateServerEntity{SoftwareUpdate: d.softwareUpdateImpl}
-		generatedFirmwareUpdate.RegisterFirmwareupdateApiServer(d.grpcServer, firmwareUpdateServer)
 	}
 
 	log.Info().
