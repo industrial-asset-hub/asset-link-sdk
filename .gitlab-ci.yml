@@ -207,7 +207,7 @@ cookiecutter-build:
   script:
     - *set_netrc
     - cd ${COOKIECUTTER_PROJECT}/${COOKIECUTTER_PROJECT_NAME}/
-    - goreleaser build --snapshot --rm-dist --single-target
+    - goreleaser build --snapshot --clean --single-target
   cache:
     key: "$CI_PIPELINE_ID-$CI_COMMIT_REF_SLUG-COOKIECUTTER"
     paths:
@@ -218,7 +218,7 @@ build:
   extends: .go-build
   script:
     - *set_netrc
-    - goreleaser build --snapshot --rm-dist --single-target
+    - goreleaser build --snapshot --clean --single-target
   artifacts:
     expire_in: 1 day
     paths: [dist]

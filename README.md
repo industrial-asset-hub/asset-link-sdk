@@ -171,7 +171,7 @@ different architectures directly an Debian package. This package contains the bi
 which starts the driver right after the name. The systemd service name, is the same as the device class driver.
 
 ```bash
-$ goreleaser release --snapshot --rm-dist
+$ goreleaser release --snapshot --clean
 $ ls dist/
 # Contains statically linked binarys
 my-fancy-dcd_$OS_$ARCHITECTURE/[...]

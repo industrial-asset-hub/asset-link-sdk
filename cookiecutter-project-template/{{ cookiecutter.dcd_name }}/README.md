@@ -23,7 +23,7 @@ $ go run -tags webserver main.go --grpc-address=$(hostname -i):8080 --grpc-regis
 To create a release:
 
 ```bash
-$ goreleaser release --snapshot --rm-dist
+$ goreleaser release --snapshot --clean
 $ ls -al dist/
 [...]
 ```
