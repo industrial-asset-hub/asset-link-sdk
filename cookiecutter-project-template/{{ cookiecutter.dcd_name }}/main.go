@@ -74,10 +74,6 @@ func main() {
 		Vendor:  vendor,
 	}).
 		Discovery(dcdImpl).
-<<<<<<< HEAD
-		//SoftwareUpdate(dcdImpl).
-=======
->>>>>>> 8171daf (feat: remove software update)
 		Build()
 
 	// Signal handler for a proper shutdown
