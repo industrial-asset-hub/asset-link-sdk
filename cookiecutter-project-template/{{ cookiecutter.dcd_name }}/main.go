@@ -45,9 +45,7 @@ func main() {
 
 	// Setup log of log infrastructure
 	var logLevel string
-	var grpcServerAddress string
-	var registryAddress string
-	var httpServerAddress string
+	var grpcServerAddress, grpcServerEndpointAddress, httpServerAddress, registryAddress string
 	flag.StringVar(&logLevel, "log-level", "info", fmt.Sprintf("set log level. one of: %s,%s,%s,%s,%s,%s,%s",
 		zerolog.TraceLevel.String(),
 		zerolog.DebugLevel.String(),
@@ -56,7 +54,8 @@ func main() {
 		zerolog.ErrorLevel.String(),
 		zerolog.FatalLevel.String(),
 		zerolog.PanicLevel.String()))
-	flag.StringVar(&grpcServerAddress, "grpc-address", "localhost:8081", "gRPC server endpoint")
+	flag.StringVar(&grpcServerAddress, "grpc-server-address", "localhost:8081", "gRPC server endpoint")
+	flag.StringVar(&grpcServerEndpointAddress, "grpc-server-endpoint-address", "localhost", "Address which is registered")
 	flag.StringVar(&httpServerAddress, "http-address", "localhost:8082", "HTTP server endpoint")
 	flag.StringVar(&registryAddress, "grpc-registry-address", "grpc-server-registry:50051", "gRPC registry address")
 
@@ -87,7 +86,7 @@ func main() {
 	}(dcdInstance)
 
 	// Start device class driver
-	if err := dcdInstance.Start(grpcServerAddress, registryAddress, httpServerAddress); err != nil {
+	if err := dcdInstance.Start(grpcServerAddress, grpcServerEndpointAddress, registryAddress, httpServerAddress); err != nil {
 		log.Fatal().Err(err).Msg("Could not start device class driver instance")
 	}
 

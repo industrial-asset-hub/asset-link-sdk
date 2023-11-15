@@ -151,7 +151,7 @@ To start the DCD execute:
 $ go mod tidy
 
 # Execute
-$ go run main.go --grpc-address=$(hostname -i):8080 --grpc-registry-address=localhost:50051
+$ go run main.go --grpc-server-address=$(hostname -i):8080 --grpc-server-endpoint-address --grpc-registry-address=localhost:50051
 [...]
 ```
 

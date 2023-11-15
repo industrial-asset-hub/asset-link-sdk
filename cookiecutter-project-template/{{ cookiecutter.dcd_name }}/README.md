@@ -15,7 +15,8 @@ To start the DCD execute:
 
 ```bash
 # Execute
-$ go run -tags webserver main.go --grpc-address=$(hostname -i):8080 --grpc-registry-address=localhost:50051
+$ go run -tags webserver main.go --grpc-server-address=$(hostname -i):8080 \
+--grpc-server-endpoint-address=$(hostname -i) --grpc-registry-address=localhost:50051 \
 --http-address=$(hostname -i):8081
 [...]
 ```

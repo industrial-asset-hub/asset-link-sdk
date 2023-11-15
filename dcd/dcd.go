@@ -8,10 +8,12 @@
 package dcd
 
 import (
-	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/internal/server/webserver"
-	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/metadata"
+	"fmt"
 	"net"
 	"os"
+
+	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/internal/server/webserver"
+	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/metadata"
 
 	generatedDriverInfoServer "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/generated/conn_suite_drv_info"
 	generatedDiscoveryServer "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/generated/device_discovery"
@@ -26,8 +28,8 @@ import (
 // Device class driver feature builder, according to the GoF build pattern
 // The pattern provides methods to register new features in an easy
 type dcdFeatureBuilder struct {
-	metadata       metadata.Metadata
-	discovery      features.Discovery
+	metadata  metadata.Metadata
+	discovery features.Discovery
 }
 
 // Methods to register new features
@@ -43,25 +45,27 @@ func New(metadata metadata.Metadata) *dcdFeatureBuilder {
 
 func (cb *dcdFeatureBuilder) Build() *DCD {
 	return &DCD{
-		discoveryImpl:      cb.discovery,
-		metadata:           cb.metadata,
+		discoveryImpl: cb.discovery,
+		metadata:      cb.metadata,
 	}
 }
 
 // Structure of the features
 type DCD struct {
-	metadata           metadata.Metadata
-	discoveryImpl      features.Discovery
-	grpcServer         *grpc.Server
-	registryClient     *registryclient.GrpcServerRegistry
-	driverInfoServer   *driverinfo.DriverInfoServerEntity
+	metadata         metadata.Metadata
+	discoveryImpl    features.Discovery
+	grpcServer       *grpc.Server
+	registryClient   *registryclient.GrpcServerRegistry
+	driverInfoServer *driverinfo.DriverInfoServerEntity
 }
 
 // Method to start the device class driver
-func (d *DCD) Start(grpcServerAddress string, grpcRegistryAddress string, httpServerAddress string) error {
+func (d *DCD) Start(grpcServerAddress, registrationAddress, grpcRegistryAddress, httpServerAddress string) error {
 	log.Info().
 		Str("Name", d.metadata.DcdName).
 		Str("gRPC Address", grpcServerAddress).
+		Str("grpcRegistryAddress", grpcRegistryAddress).
+		Str("registrationName", registrationAddress).
 		Msg("Starting device class driver")
 
 	// Webserver for observerability purposes
@@ -85,7 +89,11 @@ func (d *DCD) Start(grpcServerAddress string, grpcRegistryAddress string, httpSe
 	}
 
 	// Register at the grpc server registry
-	d.registryClient = registryclient.New(grpcRegistryAddress, d.metadata.DcdName, grpcServerAddress)
+	// Split into host and port. The registered endpoint is assembled by an dedicated flag and the grpc server endpoint.
+	// Since, a grpc endpoint can also be ":8081" which listens on all ports, the endpoint needs to be explicitly set.
+	_, portNumberString, err := net.SplitHostPort(grpcServerAddress)
+
+	d.registryClient = registryclient.New(grpcRegistryAddress, d.metadata.DcdName, fmt.Sprintf("%s:%s", registrationAddress, portNumberString))
 	d.registryClient.Register()
 
 	// Start GRPC server

@@ -11,7 +11,7 @@ After=network.target
 
 [Service]
 ExecStartPre=/bin/sh -c "systemctl set-environment CDM_DCD_IP=$(hostname -i)"
-ExecStart=/usr/bin/cdm-dcd-reference --grpc-registry-address=localhost:50051 --grpc-address=${CDM_DCD_IP}:8080
+ExecStart=/usr/bin/cdm-dcd-reference --grpc-registry-address=localhost:50051 --grpc-server-address=${CDM_DCD_IP}:8080 --grpc-server-endpoint-address=${CDM_DCD_IP}
 Restart=on-failure
 KillMode=process
 
