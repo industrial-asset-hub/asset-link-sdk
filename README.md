@@ -117,6 +117,8 @@ Tooling:
 It is recommended to use an ~/.netrc file, with https access tokens for code.siemens.com.
 See [netrc-file](https://www.gnu.org/software/inetutils/manual/html_node/The-_002enetrc-file.html#:~:text=The%20.netrc%20file%20contains%20login%20and%20initialization%20information,be%20set%20using%20the%20environment%20variable%20NETRC%20.)
 
+On a Windows machine, the netrc file must be named as **\_netrc** instead of **.netrc**.
+
 ```bash
 echo "machine code.siemens.com login gitlab-ci-token password $PERSONAL_ACCCESS_TOKEN" >> ~/.netrc
 ```
