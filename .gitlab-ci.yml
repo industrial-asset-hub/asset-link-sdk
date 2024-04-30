@@ -128,6 +128,7 @@ cookiecutter-setup:
   script:
     # Copy pre-defined cookiecutter replay template
     - mkdir -p ~/.cookiecutter_replay/
+    - mv cookiecutter-project-template/cookiecutter.dcd_name/ "cookiecutter-project-template/{{ cookiecutter.dcd_name }}/"
     - cp ${CI_PROJECT_DIR}/cookiecutter-project-template/cookiecutter-project-template.json ~/.cookiecutter_replay/cookiecutter-project-template.json
     - mkdir ${COOKIECUTTER_PROJECT}
     - cd ${COOKIECUTTER_PROJECT}
