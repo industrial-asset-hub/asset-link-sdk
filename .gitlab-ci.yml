@@ -25,7 +25,7 @@ variables:
   HTTP_PROXY: "$CODE_PROXY"
   HTTPS_PROXY: "$CODE_PROXY"
   NO_PROXY: $CODE_NO_PROXY
-  GO_BUILD_IMAGE: golang:1.20.0-alpine
+  GO_BUILD_IMAGE: golang:1.22.2-alpine
   CGO_ENABLED: 0
   COOKIECUTTER_PROJECT: cookiecutter-test/
   COOKIECUTTER_PROJECT_NAME: dcd-test
