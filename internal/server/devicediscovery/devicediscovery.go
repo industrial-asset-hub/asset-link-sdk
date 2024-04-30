@@ -41,6 +41,13 @@ func (d *DiscoveryServerEntity) StartDeviceDiscovery(
 		Str("string", req.String()).
 		Msg("Start discovery request called")
 
+		// TODO: Think about making the interface more explicit
+
+		filter :=  map[string]string{
+			"option":fmt.Sprintf("%s", req.GetOptions()),
+			"filter": fmt.Sprintf("%s", req.GetFilters()),
+		}
+
 	var jobId uint32 = 1
 
 	// Observability
@@ -55,7 +62,7 @@ func (d *DiscoveryServerEntity) StartDeviceDiscovery(
 		startError := make(chan error)
 		// Start custom discovery function
 		go func() {
-			d.Start(jobId, d.deviceInfoReply, startError)
+			d.Start(jobId, d.deviceInfoReply, startError, filter)
 		}()
 
 		if err := <-startError; err != nil {

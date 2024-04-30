@@ -9,7 +9,6 @@ package reference
 import (
 	"errors"
 	"time"
-
 	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/deviceinfo"
 	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/model"
 
@@ -27,14 +26,16 @@ type ReferenceClassDriver struct {
 
 // Start implements the function, which is called, with the
 // grpc method is executed
-func (m *ReferenceClassDriver) Start(jobId uint32, deviceInfoReply chan deviceinfo.DeviceInfo, err chan error) {
+func (m *ReferenceClassDriver) Start(jobId uint32, deviceInfoReply chan deviceinfo.DeviceInfo, err chan error, filter map[string]string) {
 	log.Info().
 		Msg("Start Discovery")
 
 	log.Debug().
 		Bool("running", m.discoveryJobRunning).
+		Interface("Filter", filter).
 		Msg("Discovery running?")
 	defer close(deviceInfoReply)
+
 
 	// Check if job is already running
 	// We currently support here only one running job

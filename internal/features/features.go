@@ -15,6 +15,6 @@ import (
 
 // Interface Discovery provides the methods used the discovery feature
 type Discovery interface {
-  Start(jobId uint32, deviceInfoReply chan deviceinfo.DeviceInfo, err chan error)
+  Start(jobId uint32, deviceInfoReply chan deviceinfo.DeviceInfo, err chan error, filter map[string]string)
   Cancel(jobId uint32) error
 }
