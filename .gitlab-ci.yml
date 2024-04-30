@@ -243,6 +243,7 @@ create-release:
     # Copy go.mod and the vendor dir for the SDK archive to the into the cookiecutter template
     # the go.mod inside the cookiecutter-project-template does not have to contain the cdm-dcd-sdk. It is updated
     # inside the cookiecutter-vendor job
+    - mv cookiecutter-project-template/cookiecutter.dcd_name/ "cookiecutter-project-template/{{ cookiecutter.dcd_name }}/"
     - cp -a ${COOKIECUTTER_PROJECT}/${COOKIECUTTER_PROJECT_NAME}/go.mod cookiecutter-project-template/\{\{\ cookiecutter.dcd_name\ \}\}/
     # Replace first line inside go.mod, due to it's specific from the cookiecutter template
     - sed -i "1s/.*/module {{cookiecutter.dcd_name}}/" cookiecutter-project-template/\{\{\ cookiecutter.dcd_name\ \}\}/go.mod
