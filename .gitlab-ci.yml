@@ -25,7 +25,7 @@ variables:
   HTTP_PROXY: "$CODE_PROXY"
   HTTPS_PROXY: "$CODE_PROXY"
   NO_PROXY: $CODE_NO_PROXY
-  GO_BUILD_IMAGE: golang:1.20.0-alpine
+  GO_BUILD_IMAGE: golang:1.22.2-alpine
   CGO_ENABLED: 0
   COOKIECUTTER_PROJECT: cookiecutter-test/
   COOKIECUTTER_PROJECT_NAME: dcd-test
@@ -128,6 +128,7 @@ cookiecutter-setup:
   script:
     # Copy pre-defined cookiecutter replay template
     - mkdir -p ~/.cookiecutter_replay/
+    - mv cookiecutter-project-template/cookiecutter.dcd_name/ "cookiecutter-project-template/{{ cookiecutter.dcd_name }}/"
     - cp ${CI_PROJECT_DIR}/cookiecutter-project-template/cookiecutter-project-template.json ~/.cookiecutter_replay/cookiecutter-project-template.json
     - mkdir ${COOKIECUTTER_PROJECT}
     - cd ${COOKIECUTTER_PROJECT}
@@ -242,6 +243,7 @@ create-release:
     # Copy go.mod and the vendor dir for the SDK archive to the into the cookiecutter template
     # the go.mod inside the cookiecutter-project-template does not have to contain the cdm-dcd-sdk. It is updated
     # inside the cookiecutter-vendor job
+    - mv cookiecutter-project-template/cookiecutter.dcd_name/ "cookiecutter-project-template/{{ cookiecutter.dcd_name }}/"
     - cp -a ${COOKIECUTTER_PROJECT}/${COOKIECUTTER_PROJECT_NAME}/go.mod cookiecutter-project-template/\{\{\ cookiecutter.dcd_name\ \}\}/
     # Replace first line inside go.mod, due to it's specific from the cookiecutter template
     - sed -i "1s/.*/module {{cookiecutter.dcd_name}}/" cookiecutter-project-template/\{\{\ cookiecutter.dcd_name\ \}\}/go.mod

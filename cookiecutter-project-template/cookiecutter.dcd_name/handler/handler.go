@@ -28,12 +28,13 @@ type DCDImplementation struct {
 
 // Start implements the function, which is called, with the
 // dcdconnection method is executed
-func (m *DCDImplementation) Start(jobId uint32, deviceInfoReply chan deviceinfo.DeviceInfo, err chan error) {
+func (m *DCDImplementation) Start(jobId uint32, deviceInfoReply chan deviceinfo.DeviceInfo, err chan error, filter map[string]string) {
 	log.Info().
 		Msg("Start Discovery")
 
 	log.Debug().
 		Bool("running", m.discoveryJobRunning).
+		Interface("Filter", filter).
 		Msg("Discovery running?")
 	defer close(deviceInfoReply)
 
