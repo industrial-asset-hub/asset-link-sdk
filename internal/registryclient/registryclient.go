@@ -23,8 +23,9 @@ import (
 type appTypes int
 
 const (
-	CDM_AGENT               appTypes = 0
-	CDM_DEVICE_CLASS_DRIVER appTypes = 1
+	CDM_AGENT                   appTypes = 0
+	CDM_DEVICE_CLASS_DRIVER     appTypes = 1
+	APP_TYPE_CS_IAH_DISCOVER_V1          = "siemens.industrialassethub.discover.v1"
 )
 
 func (apptypes appTypes) String() string {
@@ -168,7 +169,7 @@ func (r *GrpcServerRegistry) register() (error, uint32) {
 
 	r.appInstanceId = CDM_DEVICE_CLASS_DRIVER.String() + "-" + r.dcdName
 	register := pb.RegisterServiceRequest{Info: &pb.ServiceInfo{
-		AppTypes:         []string{CDM_DEVICE_CLASS_DRIVER.String()},
+		AppTypes:         []string{APP_TYPE_CS_IAH_DISCOVER_V1},
 		AppInstanceId:    r.appInstanceId,
 		DriverSchemaUris: []string{generateDriverSchemaUri(r.dcdName)},
 		GrpcIpPortNumber: uint32(portNumber),

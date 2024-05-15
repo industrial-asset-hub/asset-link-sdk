@@ -1,0 +1,171 @@
+// ------------------------------------------------------------------
+// Connectivity Suite Browsing
+// ------------------------------------------------------------------
+//
+// Naming convention according:
+// https://cloud.google.com/apis/design/naming_convention
+//
+// ------------------------------------------------------------------
+
+syntax = "proto3";
+
+import "common_filters.proto";
+import "common_properties.proto";
+import "common_address.proto";
+
+package siemens.connectivitysuite.browsing.v1;
+
+
+//===================================================================
+// Browsing Interface Definitions
+//===================================================================
+
+
+// ===========================================
+// The Services Definition
+//
+service BrowsingApi {
+    // Possible return values
+    // - OK
+    // - NOT_FOUND - device with the provided key was not registered
+    rpc BrowseNodes ( BrowseNodesRequest ) returns ( stream BrowseNodesResponse ) {}
+
+    rpc GetFilterTypes ( siemens.common.filters.v1.FilterTypesRequest ) returns ( siemens.common.filters.v1.FilterTypesResponse ) {}
+    rpc GetFilterOptions ( siemens.common.filters.v1.FilterOptionsRequest ) returns ( siemens.common.filters.v1.FilterOptionsResponse ) {}
+
+    rpc GetPropertyValues ( GetPropertyValuesRequest ) returns ( GetPropertyValuesResponse ) {}
+    // Check the available / supported properties (i.e., "keys" only, no values)
+    rpc GetSupportedProperties ( GetSupportedPropertiesRequest ) returns ( GetSupportedPropertiesResponse ) {}
+    rpc GetPropertySchema ( GetPropertySchemaRequest ) returns ( GetPropertySchemaResponse ) {}
+}
+
+// Could be a datapoint or a folder or a combined datapoint+folder
+//
+// Alternative names: BrowsedNode
+message Node {
+    string browsename = 1;
+
+    // json configuration string as defined in the json schema of the connector,
+    // providing attributes like datatype and address information.
+    // The "name" property will not be set; it is constructed by the client using
+    // the browsename and the parent folders as a browsepath by the client!
+    // This refers to the connector specific schema of a single datapoint based on this schema:
+    //   "https://siemens.com/connectivity_suite/schemas/base/1.0.0/config.json#/$defs/connection_datapoint"
+    string datapoint_json_config = 2;
+
+    // optional, configurable in BrowseNodesRequest which properties are wanted
+    // values of requested properties returned with their keys
+    repeated siemens.common.properties.v1.PropertyKeyValuePair properties = 3; // optional
+
+    // When 'true' this node is a pure folder, that means it can't be used to create a datapoint
+    // (e.g. Read/Write/Subscribe are not possible).
+    // It doesn't mean that this is a folder in the original model of the server, but the perspective is from
+    // the browsing client which needs to present this as a folder in the hierarchical tree view.
+    // In the external device this could just be any object which has children but cannot be
+    // used as datapoint.
+    bool is_pure_folder = 4;
+}
+
+// used to navigate in the folder hierarchy to enter and leave folders
+enum FolderOperation {
+    UNSPECIFIED = 0; // not used, just to define a name to number 0
+
+    // go one level deeper in the folder hierarchy by entering the previous received Node as folder
+    // and use its browsename as additional element in the browsepath
+    ENTER_FOLDER = 1;
+
+    // go one level higher in the folder hierarchy by leaving the current folder
+    LEAVE_FOLDER = 2; //
+}
+
+// This message type is defined to work-around missing
+// support for "repeated oneof" in gRPC. See
+// https://github.com/protocolbuffers/protobuf/issues/2592
+// for further reference.
+message BrowsedObject {
+    oneof type {
+        Node node = 1;
+        FolderOperation operation = 2;
+    }
+}
+
+message BrowseNodesRequest {
+    siemens.common.address.v1.Destination target = 1;
+
+    // values of identical keys are logically "OR" combined
+    // values of different keys are logically "AND" combined
+    // Note: this is only useful if the browsed device itself can implement this filter
+    // otherwise, the browsing server anyways needs to browse the full object tree.
+    // Anything that is just filtering the response should be done by the UI / browsing client.
+    // Example: OPC-UA server can provide only those nodes with a certain reference type.
+    repeated siemens.common.filters.v1.ActiveFilter filters = 2; //optional
+
+    // values of identical keys are logically "OR" combined
+    // values of different keys are logically "AND" combined
+    // Examples: timeout, browse depth, # of nodes per reply
+    repeated siemens.common.filters.v1.ActiveOption options = 3; //optional
+
+    // Extra attribute names of the "object" / node to be returned
+    // Examples: object type, min/max values, engineering units
+    repeated string property_keys = 4; //optional
+
+    siemens.common.address.v1.NodeAddress startpoint = 5; //optional
+}
+
+message BrowseNodesResponse {
+    // In cases of where the starting point of a browse request is not the same as the root/default node,
+    // then "initial_browsepath" must be set in the first browse reponse, to ensure that an unique
+    // identification of all browse response results can be done in realtion to the root node.
+    // The "initial_browsepath" includes all browse name from root to the starting point of a browse request.
+    siemens.common.address.v1.BrowsePath initial_browsepath = 1; // optional
+
+    repeated BrowsedObject objects = 2;
+}
+
+
+message PropertyResponse {
+    // The Node Address (same as used in the request) to identify to which datapoint
+    // this properties belongs to
+    siemens.common.address.v1.NodeAddress node = 1;
+
+    // The requested properties result for this node.
+    repeated siemens.common.properties.v1.PropertyKeyValuePair properties = 2;
+}
+
+// Get property values from a specific datapoint of a device
+message GetPropertyValuesRequest {
+    // Device you want to communicate with
+    siemens.common.address.v1.Destination target = 1;
+
+    // The list of nodes where the properties are requested from
+    repeated siemens.common.address.v1.NodeAddress nodes = 2;
+
+    // The properties which are requested
+    repeated siemens.common.properties.v1.SupportedProperty properties = 3;
+}
+
+message GetPropertyValuesResponse {
+    // Request result
+    repeated PropertyResponse properties = 1;
+}
+
+message GetSupportedPropertiesRequest {
+    //void
+}
+
+message GetSupportedPropertiesResponse {
+    // List of supported properties options of this connector
+    repeated siemens.common.properties.v1.SupportedProperty properties = 1;
+}
+
+
+message GetPropertySchemaRequest {
+    // The key is the name of the property
+    string key = 1;
+}
+
+message GetPropertySchemaResponse {
+    // the schema to describe the complex property result
+    string schema_uri = 1;
+    string schema_json = 2;
+}

@@ -15,7 +15,6 @@ import (
 	"syscall"
 
 	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/metadata"
-
 	"{{cookiecutter.al_name}}/handler"
 
 	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/dcd"

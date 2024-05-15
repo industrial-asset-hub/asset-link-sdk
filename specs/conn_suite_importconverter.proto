@@ -1,0 +1,48 @@
+
+// ------------------------------------------------------------------
+// Connectivity Suite Import Converter Service
+// ------------------------------------------------------------------
+//
+// Naming convention according:
+// https://cloud.google.com/apis/design/naming_convention
+//
+// ------------------------------------------------------------------
+
+syntax = "proto3";
+
+package siemens.connectivitysuite.importconverter.v1;
+
+//===================================================================
+// Import Converter Interface Definitions
+//===================================================================
+
+service ImportConverterApi {
+  rpc ConvertImportFile( ConvertImportFileRequest ) returns ( ConvertImportFileResponse ) {};
+}
+
+message ConvertImportFileRequest {
+  // The config file as binary data as it has been read from disk
+  // or received from browser upload.
+  bytes import_file = 1;
+
+  // The filename of the input without the path.
+  // This might be needed by the server when
+  // it supports multiple formats to detect which format it is.
+  // Typically it needs at least needs the extension, but some extensions
+  // like ".tar.gz" have multiple parts, therefore we use the whole filename here.
+  // This is _not_ used to access the file on the filesystem!
+  string input_filename = 2;
+
+  // The config schema URI which shall be used as output format.
+  // This is needed by servers which support multiple schemas.
+  // The output might not fully comply with the schema, some mandatory
+  // fields might be missing when they are not contained in the import
+  // format (e.g. credentials or ip address of the connection).
+  string output_config_schema_uri = 3;
+}
+
+message ConvertImportFileResponse {
+  // The config data according to the JSON config schema specified 
+  // by the schema uri.
+  string configuration_json = 1;
+}
