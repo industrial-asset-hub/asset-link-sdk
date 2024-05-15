@@ -16,7 +16,7 @@ import (
 	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/metadata"
 
 	generatedDriverInfoServer "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/generated/conn_suite_drv_info"
-	generatedDiscoveryServer "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/generated/device_discovery"
+	generatedDiscoveryServer "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/generated/iah-discovery"
 	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/internal/features"
 	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/internal/registryclient"
 	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/internal/server/devicediscovery"
@@ -111,8 +111,11 @@ func (d *DCD) Start(grpcServerAddress, registrationAddress, grpcRegistryAddress,
 	} else {
 		log.Info().
 			Msg("Registered Discovery feature implementation")
-		discoveryServer := &devicediscovery.DiscoveryServerEntity{Discovery: d.discoveryImpl}
-		generatedDiscoveryServer.RegisterDeviceDiscoveryApiServer(d.grpcServer, discoveryServer)
+		discoveryServer := &devicediscovery.DiscoverServerEntity{
+			UnimplementedDeviceDiscoverApiServer: generatedDiscoveryServer.UnimplementedDeviceDiscoverApiServer{},
+			Discovery:                            d.discoveryImpl,
+		}
+		generatedDiscoveryServer.RegisterDeviceDiscoverApiServer(d.grpcServer, discoveryServer)
 	}
 
 	log.Info().

@@ -1,0 +1,55 @@
+
+// Filter type and option definitions
+syntax = "proto3";
+
+import "common_variant.proto";
+import "common_operators.proto";
+
+
+package siemens.common.filters.v1;
+
+
+message SupportedFilter {
+    string key = 1;
+    siemens.common.types.v1.VariantType datatype = 2;
+}
+
+message SupportedOption {
+    string key = 1;
+    siemens.common.types.v1.VariantType datatype = 2;
+}
+
+message ActiveFilter {
+    string key = 1; // e.g. Timeout
+    // array of raw-data
+    siemens.common.operators.v1.ComparisonOperator operator = 2; //optional
+    siemens.common.types.v1.Variant value = 3;
+}
+
+
+message ActiveOption {
+    string key = 1; // e.g. Timeout
+    // array of raw-data
+    siemens.common.operators.v1.ComparisonOperator operator = 2; //optional (when missing it means EQUAL)
+    siemens.common.types.v1.Variant value = 3;
+}
+
+// Get list of supported filter types from the connector
+
+message FilterTypesRequest {
+    //void
+}
+
+message FilterTypesResponse {
+    repeated SupportedFilter filter_types = 1;
+}
+
+// Get list of supported filter options from the connector
+
+message FilterOptionsRequest {
+    //void
+}
+
+message FilterOptionsResponse {
+    repeated SupportedOption filter_options = 1;
+}

@@ -1,0 +1,40 @@
+// ------------------------------------------------------------------
+// Common definition of types used by several APIs
+// ------------------------------------------------------------------
+//
+
+syntax = "proto3";
+
+package siemens.common.types.v1;
+
+//===================================================================
+// Definition of a variant
+//===================================================================
+
+enum VariantType {
+  VT_UNSPECIFIED  = 0;
+  VT_BOOL         = 1;
+  VT_INT64        = 2;
+  VT_UINT64       = 3;
+  VT_DOUBLE       = 4;
+  VT_STRING       = 5;
+  VT_BYTES        = 6;
+}
+
+message Variant {
+  oneof value {
+      // Simple bool value
+      bool bool_value = 1;
+      // Transfer any integer value up to 64 bit
+      int64 int64_value = 2;
+      // Transfer any unsigned integer value up to 64 bit
+      uint64 uint64_value = 3;
+      // Transfer any floating point value
+      double float64_value = 4;
+      // Transfer a UTF8-text
+      string text = 5;
+      // Transfer array of bytes
+      // Example for raw-data: S7-1500 system diagnosis data
+      bytes raw_data = 6;
+  }
+}

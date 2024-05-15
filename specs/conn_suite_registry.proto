@@ -68,6 +68,7 @@ message ServiceInfo {
     // |                       | file to a 'Connectivity Suite compatible' configuration file.
     // |                       | This app is e.g. used by the IIH Configurator to let convert
     // |                       | specific config files provided by the user to compatible format
+    // | "cs-tagbrowser"       | Service which can browse tags. See the 'BrowsingApi' 
     repeated string app_types = 4;
 
     // Mandatory: the schema identification(s) of the driver

@@ -1,0 +1,36 @@
+// ------------------------------------------------------------------
+// Common definition of properties used by several APIs
+// ------------------------------------------------------------------
+//
+
+syntax = "proto3";
+
+import "common_variant.proto";
+
+package siemens.common.properties.v1;
+
+// Get list of supported property types (i.e., keys) from the connector
+message SupportedProperty {
+    // The key is the name of the property
+    string key = 1;
+
+    oneof type {
+        // The datatype which is used for this key's value
+        // scalar values are default supported in the response (see VariantType)
+        // all other datatypes has to provide with the raw_data (bytes)
+        siemens.common.types.v1.VariantType datatype = 2;
+
+        // the schema to describe complex property result as json string
+        // the data of the Variant value is stored in 'Variant.text'
+        string schema_uri = 3;
+    }
+}
+
+// The property which you interested in as key/value pair
+// The list of supported properties (keys) could be get
+// with the GetPropertiesOptions request
+message PropertyKeyValuePair {
+    string key = 1;
+    siemens.common.types.v1.Variant value = 2;
+}
+

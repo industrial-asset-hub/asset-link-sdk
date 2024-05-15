@@ -28,7 +28,7 @@ service DriverInfoApi
     // - OK
     //
     rpc GetVersionInfo( GetVersionInfoRequest ) returns ( GetVersionInfoResponse ) {};
-    
+
     // Possible return values
     // - OK
     // - FAILED_PRECONDITION - no local configuration available (or accessible)
@@ -51,27 +51,42 @@ service DriverInfoApi
 message GetVersionInfoRequest {
     // void
 }
-// Version Info 
+// Version Info
 message VersionInfo {
 
-    // Version numbering according 'Semantic Versioning' 
+    // Version numbering according 'Semantic Versioning'
     // (see https://semver.org/)
     // Major - increment for incompatible API changes
     uint32 major = 1;
     // Minor - increment for added functionality in a backwards compatible manner
     uint32 minor = 2;
     // Patch - increment for backwards compatible bug fixes
-    uint32 patch = 3;    	
-    // Suffix - containing Build and pre-release version, according to https://semver.org/
+    uint32 patch = 3;
+    // Suffix - containing Build number and/or pre-release version.
+    // According to the version definition of Industrial Edge OR to https://semver.org/
+    // Don't expect the string to strictly follow semver, especially for checking
+    // which version is newer!!!!!
+    // Can be an empty string.
+    // Industrial Edge always uses "-" as the first character which is a violation of semver!
+    // Here some examples for Industrial Edge version suffixes:
+    //  - ""
+    //  - "-0"
+    //  - "-1"
+    //  - "-rc.1"
+    //  - "-rc.1.alpha.23773115"
+    //  - "-beta.2.rc.23652691"
+    //  - "-3.0"
     string suffix = 7;
 
     // vendor name, e.g. "Siemens AG"
     string vendor_name = 4;
     // product name, e.g. "CS S7-1500 Driver"
     string product_name = 5;
-    // the documentation URL of the driver 
+    // the documentation URL of the driver
     // e.g. the company webpage with a deep link directly the docu
     string docu_url = 6;
+    // feedback url for customers, it's different for different products
+    string feedback_url = 8;
 }
 message GetVersionInfoResponse {
     // version information
@@ -113,7 +128,7 @@ message GetAppIconRequest {
   // The format names are according to image mime-type defined by
   //   https://www.iana.org/assignments/media-types/media-types.xhtml#image
   //   but without the "image/" prefix because that is obligatory.
-  //repeated string supported_image_formats = 1; 
+  //repeated string supported_image_formats = 1;
 
   // Requested resolution.
   // The images are square therefore only a

@@ -1,0 +1,17 @@
+
+// Filter type and option definitions
+syntax = "proto3";
+
+package siemens.common.operators.v1;
+
+enum ComparisonOperator {
+    EQUAL = 0;                      // == (exact match for strings, case sensitive)
+    NOT_EQUAL = 1;                  // !=
+    GREATER_THAN = 2;               // >
+    GREATER_THAN_OR_EQUAL_TO = 3;   // >=
+    LESS_THAN = 4;                  // <
+    LESS_THAN_OR_EQUAL_TO = 5;      // <=
+
+    // for string datatype only
+    STRING_PATTERN = 6;             // '?' is a wildcard for one character, "*" is a wildcard for many characters
+}

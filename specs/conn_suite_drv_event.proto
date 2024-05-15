@@ -1,0 +1,138 @@
+// ------------------------------------------------------------------
+// Connectivity Suite Driver Event Interface
+// ------------------------------------------------------------------
+//
+// Naming convention according:
+// https://cloud.google.com/apis/design/naming_convention
+//
+// ------------------------------------------------------------------
+
+syntax = "proto3";
+
+// Include for using Protobuf-Any
+import "google/protobuf/any.proto";
+
+package siemens.connectivitysuite.driverevent.v1;
+
+
+// ===========================================
+// The Services Definition
+//
+service DriverEventApi
+{   
+    // Possible return values
+    // - OK
+    //
+    rpc SubscribeEvents( SubscribeEventsRequest ) returns ( stream SubscribeEventsNotification ) {};
+
+}
+
+// ==================================================================
+// Subscription 'Driver-Events'
+//
+message SubscribeEventsRequest {
+    //void
+}
+
+message SubscribeEventsNotification {
+    repeated google.protobuf.Any notifications = 1;
+}
+
+// ------------------------------------------------------------------
+// possible notifications
+// - meta data has changed
+// - driver status has changed
+//
+
+// Metadata has changed. The client should request the metadata again.
+message MetadataChangedNotification {
+    fixed64 timestamp = 1; // source timestamp of the notification (filetime in 100ns)
+    bool config_added_only = 2; // The configuration of a connector has new connections and/or datapoints only
+}
+
+// Driver status has changed
+// (respectively underlying connection status) 
+//
+// The message contains the  status of driver and _ALL_ connections.
+// In this way no special handling for 'late subscribers' is needed.
+//
+// Logical Hierarchy
+// - CS Driver (e.g. S7+Connector)
+//   - Driver Units (e.g. Modbus-RTU, Modbus-TCP)
+//     - Connections (e.g. 'PLC-1', 'PLC-2')
+//
+// The 'Driver Status Change Notification' represents only the levels 'Driver'
+// and 'Connections'. If the specific driver supports multi-driver-units,
+// it has to provide unique connections, e.g. 'PLC1-RTU' or 'PLC1-TCP'
+// 
+message DriverStateNotification {
+
+    // source timestamp of driver state change
+    // 64 bit unsigned integer which represents the number 
+    // of 100 nano-second [0.1 microsec] intervals since January 1, 1601 (UTC).
+    // (see Connectivity Suite type DT_TIMESTAMP)
+    fixed64 timestamp = 1;
+
+    // possible values for the driver statue
+    enum DriverState {
+      // 'undef' might be used as initial value. This is no valid driver state
+      DRIVER_UNDEF = 0;
+      // Connector is running, connections to underlying device(s) are established. Everything is fine.
+      DRIVER_GOOD = 1;
+      // Connector is running, but not fully functional.
+      DRIVER_BAD = 2;
+      // Connector started up and just visible via gRPC. "Birth message"
+      DRIVER_AVAILABLE = 3;
+      // Device not available. This is the "last will" message.
+      DRIVER_UNAVAILABLE = 4;
+    }
+    // the current driver state
+    // valid values are numbers defined with enum 'DriverState'
+    uint32 driver_state = 2;
+    
+    // list of the underlayed connections
+    repeated ConnectionStateInfo connection_states = 3;
+}
+
+// When a device is removed due a configuration change send the notifications in this order:
+// 1. DriverStateNotification for old configured connections (with CONN_STOPPED)
+// 2. MetadataChangedNotification
+// 3. DriverStateNotification for new configured connections
+message ConnectionStateInfo {
+    // source timestamp of connection state change
+    // 64 bit unsigned integer which represents the number 
+    // of 100 nano-second [0.1 microsec] intervals since January 1, 1601 (UTC).
+    // (see Connectivity Suite type DT_TIMESTAMP)
+    fixed64 timestamp = 1;
+
+    // Name of the connection
+    // This name is unique for all connections of one driver
+    // Example: "PLC_1"
+    string connection_name = 2;
+
+    // possible values for the 'Connection State'
+    enum ConnectionState {
+      // 'undef' might be used as initial value. This is no valid connection state
+      CONN_UNDEF = 0;
+      // Connection to device is up. Device is in running state.
+      CONN_GOOD = 1;
+      // Connection to device is up. Device is in stopped state. No process data will be available.
+      CONN_STOPPED = 2;
+      // Connection to device is not working as expected, communication to device will not work.
+      CONN_BAD = 3;
+    }
+    // the current connection state
+    // valid values are numbers defined with enum 'ConnectionState'
+    uint32 connection_state = 3;
+    
+    // Reason/Detail for 'bad' state
+    // Values defined by enum siemens.connectivitysuite.code.v1.Code
+    //
+    // PERMISSION_DENIED   - user credentials are valid, but don't have sufficient permissions
+    // UNAUTHENTICATED     - no valid user credentials (wrong or missing)
+    // UNAVAILABLE         - e.g. when communication is not possible
+    // FAILED_PRECONDITION - e.g. initial browsing of the connected device not finished yet
+    //
+    uint32 reason_code = 4;
+}
+

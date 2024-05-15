@@ -1,0 +1,77 @@
+// ------------------------------------------------------------------
+// Connectivity Suite Interface Definition
+// ------------------------------------------------------------------
+//
+// Naming convention according:
+// https://cloud.google.com/apis/design/naming_convention
+//
+// ------------------------------------------------------------------
+
+syntax = "proto3";
+
+package siemens.connectivitysuite.config.v1;
+
+
+// ==================================================================
+// Configuration Interface Definitions
+//===================================================================
+
+// ===========================================
+// The Services Definition
+//
+service ConfigApi
+{
+    // Possible return values
+    // - OK
+    // - FAILED_PRECONDITION - failed to locally store configuration
+    //
+    rpc SetConfiguration( SetConfigurationRequest ) returns ( SetConfigurationResponse ) {};
+    
+    // Possible return values
+    // - OK
+    // - FAILED_PRECONDITION - no local configuration availabe (or accessible)
+    //
+    rpc GetConfiguration( GetConfigurationRequest ) returns ( GetConfigurationResponse ) {};
+}
+
+
+// ===========================================
+// Set Configuration
+//
+// ------------------------------------------------------------------
+// one complete set of configuration data in a JSON File, 
+// either to be digested by the driver (set) or to be created from 
+// the configuration info the driver has (get)
+//
+message SetConfigurationRequest {
+    // the configuration JSON as string
+    string configuration_json = 1;
+}
+
+// -----------------------------------------------------
+// response for SetConfiguration
+// (no separate error information needed - just use 
+// the method's return code (incl. details)
+//
+message SetConfigurationResponse {
+    //  void
+}
+
+
+// ===========================================
+// Get Configuration
+//
+// ------------------------------------------------------------------
+// Request the configuration from the Connector
+//
+message GetConfigurationRequest {
+    // void
+}
+
+// ------------------------------------------------------------------
+// Response for GetConfiguration from the Connector
+//
+message GetConfigurationResponse {
+    // the configuration JSON as string
+    string configuration_json = 1;
+}

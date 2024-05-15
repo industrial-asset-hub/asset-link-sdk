@@ -1,0 +1,118 @@
+// ------------------------------------------------------------------
+// Common Definition of Device Identifiers
+// ------------------------------------------------------------------
+
+
+syntax = "proto3";
+
+import "common_address.proto";
+
+package siemens.common.identifiers.v1;
+
+
+//===================================================================
+// Identifiers Interface Definitions
+//===================================================================
+
+
+// ===========================================
+// The Services Definition
+//
+service IdentifiersApi
+{
+    rpc GetIdentifiers( GetIdentifiersRequest ) returns( GetIdentifiersResponse ) {}
+    rpc GetSupportedSemantics( GetSupportedSemanticsRequest ) returns( GetSupportedSemanticsResponse ) {}
+}
+
+// ==================================================================
+// Get Identifiers Request
+//
+// Get specific identifiers, identified by their semantic meaning from a device (connection)
+
+message IdentifierRequest {
+    oneof identifier {
+        // The specific identifier which is requested
+        SemanticClassifier semantic = 1;
+        // if a Identifier does not have a semantic mapping we can use the name of it as fallback
+        string name = 2;
+    }
+}
+
+message GetIdentifiersRequest {
+    siemens.common.address.v1.Destination target = 1; //the device to which the nodes/data points belong
+    repeated IdentifierRequest identifiers = 2; // if no specific identifiers are provided, all supported identifiers (see GetSupportedIdentifiers) are returned
+}
+
+
+message GetIdentifiersResponse {
+   repeated DeviceIdentifier identifiers = 1;
+}
+
+// ==================================================================
+// Get supported identifier
+//
+// Get the list of identifiers and their semantic meaning which are supported by the connector
+
+message GetSupportedSemanticsRequest {
+    // void
+}
+
+message GetSupportedSemanticsResponse {
+  repeated SupportedSemantic supportedSemantic = 1;
+}
+
+
+// ==================================================================
+// Identifier definitions
+//
+
+// This message type is defined to work-around missing
+// support for "repeated oneof" in gRPC. See
+// https://github.com/protocolbuffers/protobuf/issues/2592
+// for further reference.
+message DeviceIdentifierValueList {
+    repeated DeviceIdentifier value = 1;
+}
+
+message DeviceIdentifier {
+    // The RAW value of the identifier, read from the device (connection)
+    oneof value {
+        // Transfer any integer value up to 64 bit
+        int64 int64_value = 2;
+        // Transfer any unsigned integer value up to 64 bit
+        uint64 uint64_value = 3;
+        // Transfer any floating point value
+        double float64_value = 4;
+        // Transfer a UTF8-text
+        string text = 5;
+        // Raw data
+        bytes raw_data = 6;
+        // A list of child identifiers. This value type
+        // can be used to transfer structured, hierarchical
+        // information.
+        // Example: Ethernet interface (parent identifier) with
+        // its assigned IP addresses (child identifiers) and MAC
+        // address (another child identifier).
+        DeviceIdentifierValueList children = 7;
+    }
+
+    // List of semantic mappings for this identifier
+    repeated SemanticClassifier classifiers = 8;
+}
+
+message SupportedSemantic {
+    // Human readable name of the identifier, e.g. "Manufacturer"
+    string name = 1;
+    // List of semantic identifiers
+	repeated SemanticClassifier classifiers = 2;
+}
+
+message SemanticClassifier {
+    // The type of the semantic identifier
+    // supported default classifier:
+    // "IRDI": e.g. for "CDD" or "eClass" classifier)
+    // "URI": e.g. for JSON-Link
+	string type = 1;
+	// The value of the semantic identifier, e.g. "0112/2///61987#ABA565#007" (IEC CDD/IRDI "Manufacturer")
+	string value = 2;
+}

@@ -8,103 +8,51 @@
 package dcdconnection
 
 import (
-	generated "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/generated/device_discovery"
+	generated "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/generated/iah-discovery"
 	"encoding/json"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/net/context"
-	"io"
 )
 
-func StartDiscovery(endpoint string, option string, filter string) {
+func StartDiscovery(endpoint string, option string, filter string) *generated.DiscoverResponse {
 	log.Trace().Str("Endpoint", endpoint).Str("Option", option).Str("Filter", filter).Msg("Starting discovery job")
-
-	conn := grpcConnection(endpoint)
-	defer conn.Close()
-
-	client := generated.NewDeviceDiscoveryApiClient(conn)
-
 	// TODO: Generate option
-	parsedOptions := []*generated.DiscoveryOption{}
+	parsedOptions := []*generated.ActiveOption{}
 	err := json.Unmarshal([]byte(option), &parsedOptions)
 	if err != nil {
 		log.Err(err).Msg("Parsing of the discovery option returned an error")
-		return
+		return nil
 	}
 	log.Trace().Interface("Options", parsedOptions).Msg("Parsed discovery options")
 
 	// TODO: Generate Filter
-	parsedFilters := []*generated.DiscoveryFilter{}
+	parsedFilters := []*generated.ActiveFilter{}
 	err = json.Unmarshal([]byte(filter), &parsedFilters)
 	if err != nil {
 		log.Err(err).Msg("Parsing of the discovery filter returned an error")
-		return
+		return nil
 	}
 	log.Trace().Interface("Filters", parsedFilters).Msg("Parsed discovery filter")
 
-	resp, err := client.StartDeviceDiscovery(context.Background(), &generated.DiscoveryRequest{
-		Filters: parsedFilters, Options: parsedOptions})
+	conn := grpcConnection(endpoint)
+	defer conn.Close()
+
+	client := generated.NewDeviceDiscoverApiClient(conn)
+	ctx := context.Background()
+	stream, err := client.DiscoverDevices(ctx, &generated.DiscoverRequest{
+		Filters: parsedFilters,
+		Options: parsedOptions,
+		Target:  nil,
+	})
 
 	if err != nil {
 		log.Err(err).Msg("StartDeviceDiscovery request returned an error")
-		return
-	}
-	log.Info().Str("response", resp.String()).Msg("Received response")
-
-}
-
-func Subscribe(endpoint string, jobid uint32) []map[string]interface{} {
-	log.Trace().Str("Endpoint", endpoint).Msg("Subscribing to discovery job")
-
-	conn := grpcConnection(endpoint)
-	defer conn.Close()
-
-	client := generated.NewDeviceDiscoveryApiClient(conn)
-
-	stream, err := client.SubscribeDiscoveryResults(context.Background(), &generated.DiscoveryResultsRequest{DiscoveryId: jobid})
-	if err != nil {
-		log.Err(err).Msg("open stream error")
 		return nil
 	}
-
-	devices := make([]map[string]interface{}, 0)
-	for {
-		resp, err := stream.Recv()
-
-		if err == io.EOF {
-			break
-		}
-
-		if err != nil {
-			log.Err(err).Msg("SubscribeDiscovery request returned an error")
-			return nil
-
-		}
-		log.Info().Interface("response", resp.Devices).Msg("Received Response")
-
-		for _, d := range resp.Devices {
-			log.Trace().Interface("Devices", d).Msg("")
-			devices = append(devices, d.Parameters.AsMap())
-		}
-	}
-
-	return devices
-}
-
-func StopDiscovery(endpoint string, jobid uint32) {
-	log.Trace().Str("Endpoint", endpoint).Msg("Stop discovery job")
-
-	conn := grpcConnection(endpoint)
-	defer conn.Close()
-
-	client := generated.NewDeviceDiscoveryApiClient(conn)
-
-	resp, err := client.StopDeviceDiscovery(context.Background(), &generated.StopDiscoveryRequest{
-		DiscoveryId: jobid})
-
+	data, err := stream.Recv()
 	if err != nil {
-		log.Err(err).Msg("StopDeviceDiscovery request returned an error")
-		return
+		log.Err(err).Msg("error while receiving data from client stream")
+		return nil
 	}
-	log.Info().Str("response", resp.String()).Msg("Received response")
-
+	return data
 }
