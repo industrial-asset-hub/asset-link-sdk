@@ -2,7 +2,7 @@
 
 ## Bootstrapping
 
-To bootstrap our own CDM Device Class Driver leverage cookiecutter generate the boilerplate code.
+To bootstrap your own CDM Device Class Driver leverage cookiecutter to generate the boilerplate code.
 
 ```bash
 $ tar xzf cdm-dcd-sdk.tar.gz

@@ -1,13 +1,13 @@
 # IAH Asset Link SDK
 
-This repository contains common used modules to create our own
-Asset Link (AL)
+This repository contains commonly used modules for creating your own
+Asset Link (AL).
 
 ## Introduction
 
 This package provides an easy-to-use SDK for David, the device builder.
 
-It contains everything you need, to set up our own Asset Link.
+It contains everything you need to set up your own Asset Link.
 
 ### Overview
 
@@ -90,15 +90,15 @@ SpecificDriver .u.|> Softwareupdate
 ```
 
 > Remark:
-> For simplicity details in the packages "internals" and "models" have been left out for brevity
+> For simplicity, details within the packages "internals" and "models" have been omitted for brevity.
 
-The SDK has been designed in a way, that in order to create a new Asset Link (AL) one needs to implement
-the interfaces of the feature the specific AL intends to provide. Currently, two interfaces are supported:
+The SDK is designed in such a way that to create a new Asset Link, you must implement the interfaces of the feature that the particular AL is intended to provide. 
+Currently, two interfaces are supported:
 
-1. Discovery: Performing a device scan and returning a filled `model.DeviceInfo` per found device
-2. Softwareupdate: Performing a software update of a device
+1. Discovery: Perform a device scan and return a filled `model.DeviceInfo` for each device found.
+2. Software Update: Update the software of a device.
 
-Once the interfaces are implemented the specific dcd uses the `dcdBuilder` to construct a `DCD` with the implemented features.
+Once the interfaces are implemented, the specific DCD uses the `dcdBuilder` to construct a `DCD` with the implemented features.
 On `DCD.Start()` the Asset Link will start the grpc server allowing Industrial Asset Hub (IAH) to interact with it.
 
 ### Pre-requisites
@@ -106,7 +106,7 @@ On `DCD.Start()` the Asset Link will start the grpc server allowing Industrial A
 Industrial Asset Hub:
 
 - [Asset Gateway](https://code.siemens.com/common-device-management/gateway/cdm-agent)
-- and of course access to an IAH tenant, with an on-boarded Asset Gateway.
+- and of course, access to an IAH tenant, with an on-boarded Asset Gateway.
 
 Tooling:
 
@@ -114,7 +114,7 @@ Tooling:
 - [cookiecutter](https://github.com/cookiecutter/cookiecutter)
 - [GoReleaser](https://goreleaser.com/)
 
-It is recommended to use an ~/.netrc file, with https access tokens for code.siemens.com.
+It is recommended to use a ~/.netrc file, with https access tokens for code.siemens.com.
 See [netrc-file](https://www.gnu.org/software/inetutils/manual/html_node/The-_002enetrc-file.html#:~:text=The%20.netrc%20file%20contains%20login%20and%20initialization%20information,be%20set%20using%20the%20environment%20variable%20NETRC%20.)
 
 On a Windows machine, the netrc file must be named as **\_netrc** instead of **.netrc**.
@@ -123,12 +123,12 @@ On a Windows machine, the netrc file must be named as **\_netrc** instead of **.
 echo "machine code.siemens.com login gitlab-ci-token password $PERSONAL_ACCCESS_TOKEN" >> ~/.netrc
 ```
 
-### Bootstrapping our own Asset Link
+### Bootstrapping your own Asset Link
 
-To bootstrap our own device class driver, a template with the well-known
-[cookiecutter](https://github.com/cookiecutter/cookiecutter/) is available inside this repository.
+To bootstrap your own AL, a template using the well-known
+[cookiecutter](https://github.com/cookiecutter/cookiecutter/) is available in this repository.
 
-Execute the following command, which provides a text-based questionnaire to set up a skeleton.
+Run the following command, which provides a text-based questionnaire to set up a skeleton.
 
 ```bash
 $ cookiecutter https://code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk.git
@@ -142,8 +142,8 @@ company_url [https://www.mycompany.local]: https://www.device-builder.local
 year [2023]: 2023
 ```
 
-There should be now an directory with **my-fancy-asset-link**. The directory contains a bunch
-of files. The device class driver is able to run out-of-the-box.
+There should now be a directory called **my-fancy-asset-link**. 
+The directory contains a number of files. The AL is ready to run out of the box.
 There is no fancy logic inside.
 
 To start the AL execute inside the generated directory:
@@ -160,25 +160,26 @@ $ go run main.go --grpc-server-address=$(hostname -i):8080 --grpc-server-endpoin
 [...]
 ```
 
-This registers the driver with the name **my-fancy-asset-link** at the registry provided by the **IAH Asset Gateway**.
-The driver launches an gRPC server at our machine at port 8080. The example driver creates an device,
-after a discovery job is executed with help of the user interface of IAH.
+This registers the AL as **my-fancy-asset-link** in the registry provided by the **IAH Asset Gateway**. 
+The AL starts a gRPC server on your machine on port 8080. The example AL creates a device,
+after running a discovery job using the the IAH user interface.
 
 > Security remark:\
-> The command above binds the Asset Link may to a public accessible IP address of our host. Please
-> take care of protecting the port from external access.
+> The command above binds the Asset Link to a publicly accessible IP address on your host. 
+> Please ensure that the port is protected from external access.
 
-To implement our own logic, have a look inside the file **handler/handler.go**, and make our first steps.
-This Go module contains the implementations for the Asset Link functionality, please adjust according to our needs.
+To implement your own logic, take a look at the **handler/handler.go** file and do your first steps.
+This Go module contains the implementations for the Asset Link functionality. Please adapt it to your needs.
 
-Or to be even faster, use [GoReleaser](https://goreleaser.com/), which generates besides binaries for Linux/Windows and
-different architectures directly a Debian package. This package contains the binary including a systemd services,
-which starts the driver right after the name. The systemd service name, is the same as the Asset Link.
+Or, for even faster results, use [GoReleaser](https://goreleaser.com/), which generates binaries for Linux/Windows and
+various architectures, as well as a Debian package. 
+This package contains the binary, including a systemd service, that starts the driver immediately after the name. 
+The name of the systemd service is the same as that of the Asset Link.
 
 ```bash
 $ goreleaser release --snapshot --clean
 $ ls dist/
-# Contains statically linked binarys
+# Contains statically linked binaries
 my-fancy-dcd_$OS_$ARCHITECTURE/[...]
 
 # Ready-to-use Debian packages
@@ -197,10 +198,10 @@ $ journalctl logs -f -u my-fancy-dcd
 [...]
 ```
 
-### Commandline Tool
+### Command line tool
 
-To ease development or testing, with help of a commandline tool the AL can be triggered interactively. For
-example, a discovery can be started/stopped or even the results are fetched.
+To ease development or testing, the AL can be interactively triggered using a command line tool. 
+For example, a discovery can be started/stopped or even the results are retrieved.
 
 ```bash
 go install code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/cmd/dcd-ctl@main
@@ -208,15 +209,15 @@ go install code.siemens.com/common-device-management/device-class-drivers/cdm-dc
 
 ### Observability Webserver
 
-The AL also starts a Webserver which contains an RestAPI for observability reasons.
-Currently, the following endpoints are available. The Webserver is enabled
+The AL also starts a web server that contains a RestAPI for observability reasons.
+The following endpoints are currently available. The web server is enabled
 for the **GoReleaser** builds by default.
 
-To enable the Webserver the Go build
-constraint `webserver` is used [Go build contraints](https://pkg.go.dev/cmd/go#hdr-Build_constraints). The
-tag can be enabled by adding `-tags webserver` to the `go run` command. For example `go run -tags webserver main.go`
+To enable the web server, the Go build
+constraint `webserver` is used (see [Go build contraints](https://pkg.go.dev/cmd/go#hdr-Build_constraints)). 
+The tag can be enabled by adding `-tags webserver` to the `go run` command. For example `go run -tags webserver main.go`
 
-The webserver listening port defaults to localhost:8082. The following
+The web server listening port is localhost:8082 by default. The following
 HTTP paths are currently available.
 
 | Path     | comment                |
