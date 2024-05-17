@@ -160,8 +160,8 @@ $ go run main.go --grpc-server-address=$(hostname -i):8080 --grpc-server-endpoin
 [...]
 ```
 
-This registers the driver with the name **my-fancy-asset-link** at the registry provided by the **IAH Asset Gateway**. The driver
-launches an gRPC server at our machine at port 8080. The example driver creates an device,
+This registers the driver with the name **my-fancy-asset-link** at the registry provided by the **IAH Asset Gateway**.
+The driver launches an gRPC server at our machine at port 8080. The example driver creates an device,
 after a discovery job is executed with help of the user interface of IAH.
 
 > Security remark:\
