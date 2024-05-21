@@ -8,5 +8,5 @@
 package shared
 
 var (
-  DcdEndpoint string
+	AssetLinkEndpoint string
 )

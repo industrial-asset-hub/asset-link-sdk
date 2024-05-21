@@ -91,10 +91,10 @@ func (r *GrpcServerRegistry) disconnect() {
 	}
 }
 
-// Register registers the device class driver (DCD) at the gRPC Server Registry
+// Register registers the asset link (AL) at the gRPC Server Registry
 // It takes also care, to re-new the registration
 func (r *GrpcServerRegistry) Register() {
-	log.Info().Str("gRPC Server Registry", r.grpcServerRegistryAddress).Msg("Register device class driver at grpc server registry")
+	log.Info().Str("gRPC Server Registry", r.grpcServerRegistryAddress).Msg("Register asset link at grpc server registry")
 
 	// Start registration async. The goroutine also deals with
 	// the re-registration at a given interval.
@@ -144,7 +144,7 @@ func (r *GrpcServerRegistry) unregister() error {
 	return nil
 }
 
-// register registers the DCD at the gprc server registry
+// register registers the Asset Link at the gprc server registry
 func (r *GrpcServerRegistry) register() (error, uint32) {
 	if err := r.connect(); err != nil {
 		log.Warn().Err(err).Msg("Could not dial GRPC server registry")

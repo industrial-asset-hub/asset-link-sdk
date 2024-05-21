@@ -12,10 +12,10 @@ import (
 // infoCmd represents the info command
 var InfoCmd = &cobra.Command{
 	Use:   "info",
-	Short: "Get information of the DCD",
+	Short: "Get information of the AssetLink",
 	Long:  `This command gathers the info of the command.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		dcdconnection.GetInfo(shared.DcdEndpoint)
+		dcdconnection.GetInfo(shared.AssetLinkEndpoint)
 	},
 	//Args: cobra.MatchAll(cobra.ExactArgs(1), cobra.OnlyValidArgs),
 }

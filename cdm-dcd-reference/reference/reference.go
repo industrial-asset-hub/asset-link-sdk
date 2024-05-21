@@ -8,19 +8,24 @@ package reference
 
 import (
 	"errors"
+	"fmt"
+	"sync/atomic"
 	"time"
+
 	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/deviceinfo"
 	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/model"
 
 	"github.com/rs/zerolog/log"
 )
 
-// Implements the features of the DCD.
+// Implements the features of the AssetLink.
 // see
 type ReferenceClassDriver struct {
 	discoveryJobCancelationToken chan uint32
 	discoveryJobRunning          bool
 }
+
+var lastSerialNumber = atomic.Int64{}
 
 // Implementation of the Discovery feature
 
@@ -35,7 +40,6 @@ func (m *ReferenceClassDriver) Start(jobId uint32, deviceInfoReply chan devicein
 		Interface("Filter", filter).
 		Msg("Discovery running?")
 	defer close(deviceInfoReply)
-
 
 	// Check if job is already running
 	// We currently support here only one running job
@@ -69,7 +73,8 @@ func (m *ReferenceClassDriver) Start(jobId uint32, deviceInfoReply chan devicein
 			version := "1.0.0"
 			vendorName := "Siemens AG"
 			//serialNumber := uuid.NewString()
-			serialNumber := "sn"
+			lastSerialNumber.Add(1)
+			serialNumber := fmt.Sprint(lastSerialNumber.Load())
 			vendor := model.Organization{
 				Address:        nil,
 				AlternateNames: nil,
@@ -90,6 +95,13 @@ func (m *ReferenceClassDriver) Start(jobId uint32, deviceInfoReply chan devicein
 				SerialNumber: &serialNumber,
 			}
 			device.ProductInstanceIdentifier = &productSerialidentifier
+
+			randomMacAddress := generateRandomMacAddress()
+			identifierUncertainty := 1
+			device.MacIdentifiers = append(device.MacIdentifiers, model.MacIdentifier{
+				MacAddress:            &randomMacAddress,
+				IdentifierUncertainty: &identifierUncertainty,
+			})
 
 			connectionPointType := "Ipv4Connectivity"
 			Ipv4Address := "192.168.0.1"
@@ -150,4 +162,12 @@ func (m *ReferenceClassDriver) Cancel(jobId uint32) error {
 		Msg("Cancel function exiting")
 	return nil
 
+}
+
+func generateRandomMacAddress() string {
+	return fmt.Sprintf("%02x:%02x:%02x:%02x:%02x:%02x",
+		0x00, 0x16, 0x3e,
+		byte(lastSerialNumber.Load()>>8),
+		byte(lastSerialNumber.Load()>>16),
+		byte(lastSerialNumber.Load()>>24))
 }

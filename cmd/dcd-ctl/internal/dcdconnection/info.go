@@ -29,6 +29,6 @@ func GetInfo(endpoint string) string {
 	}
 	var version = resp.GetVersion().String()
 
-	log.Info().Str("Version", version).Msg("DCD version")
+	log.Info().Str("Version", version).Msg("AssetLink version")
 	return version
 }

@@ -59,7 +59,7 @@ nfpms:
     homepage: {{ cookiecutter.company_url }}
     maintainer: {{ cookiecutter.author_name }} <{{ cookiecutter.author_email }}>
     description: |-
-      CDM Device Class Driver {{ cookiecutter.al_name }}
+      IAH Asset Link {{ cookiecutter.al_name }}
     license: {{ cookiecutter.company }} {{ cookiecutter.year }}
     formats:
       - deb

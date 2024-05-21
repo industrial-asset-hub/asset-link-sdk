@@ -61,13 +61,13 @@ func main() {
 	// Set log level
 	logging.AdjustLogLevel(logLevel)
 	// Register dcd implementation
-	myDCDImplementation := new(reference.ReferenceClassDriver)
+	myAssetLinkImplementation := new(reference.ReferenceClassDriver)
 	dcdImpl := dcd.New(metadata.Metadata{
 		Version: metadata.Version{Version: version, Commit: commit, Date: date},
 		DcdName: "cdm-dcd-reference",
 		Vendor:  "Siemens AG",
 	}).
-		Discovery(myDCDImplementation).
+		Discovery(myAssetLinkImplementation).
 		Build()
 
 	// Signal handler for a proper shutdown
@@ -80,8 +80,8 @@ func main() {
 		os.Exit(1)
 	}(dcdImpl)
 
-	// Start device class driver
+	// Start asset link
 	if err := dcdImpl.Start(grpcServerAddress, grpcServerEndpointAddress, registryAddress, httpServerAddress); err != nil {
-		log.Fatal().Err(err).Msg("Could not start device class driver instance")
+		log.Fatal().Err(err).Msg("Could not start asset link instance")
 	}
 }

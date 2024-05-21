@@ -7,9 +7,10 @@
 package cmd
 
 import (
-	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/cmd/dcd-ctl/cmd/info"
 	"fmt"
 	"os"
+
+	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/cmd/dcd-ctl/cmd/info"
 
 	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/cmd/dcd-ctl/cmd/discovery"
 	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/cmd/dcd-ctl/internal/shared"
@@ -27,7 +28,7 @@ var rootCmd = &cobra.Command{
 	Use:   "dcd-ctl",
 	Short: "command line interface to interact with device-class-drivers",
 	Long: `This command line interfaces allows to interact with the so called
-DCDs (Device Class Drivers).
+	AssetLinks (als).
 
 This can be useful for validation purposes inside CI/CD pipelines or just
 to ease development efforts.`,
@@ -44,7 +45,7 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initHandlers)
-	rootCmd.PersistentFlags().StringVarP(&shared.DcdEndpoint, "endpoint", "e", "localhost:8081", "gRPC Server Address of the DCD")
+	rootCmd.PersistentFlags().StringVarP(&shared.AssetLinkEndpoint, "endpoint", "e", "localhost:8081", "gRPC Server Address of the AssetLink")
 	rootCmd.PersistentFlags().StringVarP(&logLevel, "log-level", "", "info",
 		fmt.Sprintf("set log level. one of: %s,%s,%s,%s,%s,%s,%s",
 			zerolog.TraceLevel.String(),
