@@ -1,4 +1,4 @@
-# {{ cookiecutter.dcd_name }}
+# {{ cookiecutter.al_name }}
 
 This is a automatically created CDM Device Class Driver project.
 

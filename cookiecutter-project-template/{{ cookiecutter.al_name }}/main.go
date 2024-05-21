@@ -16,7 +16,7 @@ import (
 
 	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/metadata"
 
-	"{{cookiecutter.dcd_name}}/handler"
+	"{{cookiecutter.al_name}}/handler"
 
 	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/dcd"
 
@@ -31,7 +31,7 @@ var (
 	version = "dev"
 	commit  = "unknown"
 	date    = "unknown"
-	dcdName = "{{cookiecutter.dcd_name}}"
+	dcdName = "{{cookiecutter.al_name}}"
 	vendor  = "{{cookiecutter.company}}"
 )
 

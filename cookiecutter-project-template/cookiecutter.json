@@ -1,9 +1,9 @@
 {
-  "dcd_name": "my-fancy-dcd",
+  "al_name": "my-asset-link",
   "author_name": "David Device Builder",
   "author_email": "david@david-builder.local",
-  "company": "Device Builder AG",
+  "company": "Machine Builder AG",
   "company_url": "https://www.device-builder.local",
-  "year": "2023",
+  "year": "2024",
   "_copy_without_render": ["*vendor", "cdm-dcd-sdk"]
 }
