@@ -150,7 +150,7 @@ To start the AL execute inside the generated directory:
 
 ```bash
 # Copy templated go.mod file
-$ go.mod.tmpl go.mod
+$ cp go.mod.tmpl go.mod
 
 # Synchronize Go modules
 $ go mod tidy
