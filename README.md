@@ -146,9 +146,12 @@ There should be now an directory with **my-fancy-dcd**. The directory contains a
 of files. The device class driver is able to run out-of-the-box.
 There is no fancy logic inside.
 
-To start the DCD execute:
+To start the DCD execute, inside the generated directory:
 
 ```bash
+# Copy templated go.mod file
+$ go.mod.tmpl go.mod
+
 # Synchronize Go modules
 $ go mod tidy
 
