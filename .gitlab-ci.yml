@@ -128,7 +128,6 @@ cookiecutter-setup:
   script:
     # Copy pre-defined cookiecutter replay template
     - mkdir -p ~/.cookiecutter_replay/
-    - mv cookiecutter-project-template/cookiecutter.dcd_name/ "cookiecutter-project-template/{{ cookiecutter.dcd_name }}/"
     - cp ${CI_PROJECT_DIR}/cookiecutter-project-template/cookiecutter-project-template.json ~/.cookiecutter_replay/cookiecutter-project-template.json
     - mkdir ${COOKIECUTTER_PROJECT}
     - cd ${COOKIECUTTER_PROJECT}
@@ -245,7 +244,6 @@ create-release:
     # inside the cookiecutter-vendor job
     - ls
     - ls cookiecutter-project-template/
-    - mv cookiecutter-project-template/cookiecutter.dcd_name cookiecutter-project-template/\{\{\ cookiecutter.dcd_name\ \}\}/
     - cp -a ${COOKIECUTTER_PROJECT}/${COOKIECUTTER_PROJECT_NAME}/go.mod cookiecutter-project-template/\{\{\ cookiecutter.dcd_name\ \}\}/
     # Replace first line inside go.mod, due to it's specific from the cookiecutter template
     - sed -i "1s/.*/module {{cookiecutter.dcd_name}}/" cookiecutter-project-template/\{\{\ cookiecutter.dcd_name\ \}\}/go.mod
