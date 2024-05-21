@@ -9,6 +9,8 @@ package handler
 
 import (
 	"errors"
+	"fmt"
+	"sync/atomic"
 	"time"
 
 	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/deviceinfo"
@@ -17,18 +19,20 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// Implements the features of the DCD.
+// Implements the features of the AssetLink.
 // see
-type DCDImplementation struct {
+type AssetLinkImplementation struct {
 	discoveryJobCancelationToken chan uint32
 	discoveryJobRunning          bool
 }
+
+var lastSerialNumber = atomic.Int64{}
 
 // Implementation of the Discovery feature
 
 // Start implements the function, which is called, with the
 // dcdconnection method is executed
-func (m *DCDImplementation) Start(jobId uint32, deviceInfoReply chan deviceinfo.DeviceInfo, err chan error, filter map[string]string) {
+func (m *AssetLinkImplementation) Start(jobId uint32, deviceInfoReply chan deviceinfo.DeviceInfo, err chan error, filter map[string]string) {
 	log.Info().
 		Msg("Start Discovery")
 
@@ -70,7 +74,9 @@ func (m *DCDImplementation) Start(jobId uint32, deviceInfoReply chan deviceinfo.
 		version := "1.0.0"
 		vendorName := "{{ cookiecutter.company }}"
 		//serialNumber := uuid.NewString()
-		serialNumber := "sn"
+		//serialNumber := "sn"
+		lastSerialNumber.Add(1)
+		serialNumber := fmt.Sprint(lastSerialNumber.Load())
 		vendor := model.Organization{
 			Address:        nil,
 			AlternateNames: nil,
@@ -91,6 +97,13 @@ func (m *DCDImplementation) Start(jobId uint32, deviceInfoReply chan deviceinfo.
 			SerialNumber: &serialNumber,
 		}
 		device.ProductInstanceIdentifier = &productSerialidentifier
+
+		randomMacAddress := generateRandomMacAddress()
+		identifierUncertainty := 1
+		device.MacIdentifiers = append(device.MacIdentifiers, model.MacIdentifier{
+			MacAddress:            &randomMacAddress,
+			IdentifierUncertainty: &identifierUncertainty,
+		})
 
 		connectionPointType := "Ipv4Connectivity"
 		Ipv4Address := "192.168.0.1"
@@ -126,14 +139,14 @@ func (m *DCDImplementation) Start(jobId uint32, deviceInfoReply chan deviceinfo.
 		time.Sleep(1000 * time.Millisecond)
 	}
 
-	// Close channel, to signal that no more data is to be transfered
+	// Close channel, to signal that no more data is to be transferred
 	m.discoveryJobRunning = false
 	log.Debug().
 		Msg("Start function exiting")
 
 }
 
-func (m *DCDImplementation) Cancel(jobId uint32) error {
+func (m *AssetLinkImplementation) Cancel(jobId uint32) error {
 	log.Info().
 		Uint32("Job Id", jobId).
 		Msg("Cancel Discovery")
@@ -150,4 +163,12 @@ func (m *DCDImplementation) Cancel(jobId uint32) error {
 		Msg("Cancel function exiting")
 	return nil
 
+}
+
+func generateRandomMacAddress() string {
+	return fmt.Sprintf("%02x:%02x:%02x:%02x:%02x:%02x",
+		0x00, 0x16, 0x3e,
+		byte(lastSerialNumber.Load()>>8),
+		byte(lastSerialNumber.Load()>>16),
+		byte(lastSerialNumber.Load()>>24))
 }

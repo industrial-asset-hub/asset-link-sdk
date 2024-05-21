@@ -35,4 +35,5 @@ type DeviceInfo struct {
 	// Override connection point, since generated base schema does not provide derived types
 	ConnectionPoints []Ipv4Connectivity `json:"connection_points,omitempty"`
 	Asset
+	MacIdentifiers []MacIdentifier `json:"mac_identifiers"`
 }

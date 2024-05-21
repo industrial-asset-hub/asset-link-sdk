@@ -114,7 +114,7 @@ nfpms:
     homepage: https://www.siemens.com/
     maintainer: Heiko Schabert <heiko.schabert@siemens.com>
     description: |-
-      CDM Device Class Driver Reference Implementation.
+      IAH Asset Link Reference Implementation.
     license: Siemens AG 2023
     formats:
       - deb

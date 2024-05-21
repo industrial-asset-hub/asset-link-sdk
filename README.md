@@ -15,12 +15,10 @@ It contains everything you need to set up your own Asset Link.
 package "cdm-dcd-sdk" #DAE8FC {
 package "features" {
 interface Discovery
-interface Softwareupdate
 
 Discovery : Start(jobId, deviceInfoReply) error
 Discovery : Cancel(jobId) error
 
-Softwareupdate :  Update(jobId, \n\t deviceId, metaData, progress) error
 
 }
 
@@ -36,7 +34,6 @@ class grpcRegistry
 
 package "server" {
 class devicediscovery
-class firmwareupdate
 class status
 class webserver
 
@@ -48,25 +45,22 @@ class observability
 }
 }
 
-package "dcd" {
-DCD -- dcdBuilder : creates
-DCD *-u- grpcRegistry
+package "assetLink" {
+AssetLink -- assetLinkBuilder : creates
+AssetLink *-u- grpcRegistry
 
-dcdBuilder : string name
-dcdBuilder : features.Discovery discovery
-dcdBuilder : features.Softwareupdate softwareUpdate
-dcdBuilder : New(name)
-dcdBuilder : Discovery(discoImplementation)
-dcdBuilder : Softwareupdate(swImplementation)
-dcdBuilder : Build() -> DCD
+assetLinkBuilder : string name
+assetLinkBuilder : features.Discovery discovery
+assetLinkBuilder : New(name)
+assetLinkBuilder : Discovery(discoImplementation)
+assetLinkBuilder : Build() -> AssetLink
 
-DCD : string name
-DCD : discoveryImpl features.Discovery
-DCD : softwareUpdateImpl features.SoftwareUpdate
-DCD : grpcServer *grpc.Server
-DCD : registryClient *registryclient.GrpcServerRegistry
-DCD : Start(grpcServerAddr, grpcRegistryAddr,)
-DCD : Stop()
+AssetLink : string name
+AssetLink : discoveryImpl features.Discovery
+AssetLink : grpcServer *grpc.Server
+AssetLink : registryClient *registryclient.GrpcServerRegistry
+AssetLink : Start(grpcServerAddr, grpcRegistryAddr,)
+AssetLink : Stop()
 
 
 }
@@ -75,17 +69,15 @@ DCD : Stop()
 package "model" {
 struct DeviceInfo
 DeviceInfo .d[hidden]. Discovery
-DeviceInfo .d[hidden]. Softwareupdate
 
 DeviceInfo : Fields from json schema
 }
 }
 
 package "Device builder implementations" #D5E8D4 {
-SpecificDriver -u- DCD : starts
-SpecificDriver -u- dcdBuilder : uses
+SpecificDriver -u- AssetLink : starts
+SpecificDriver -u- assetLinkBuilder : uses
 SpecificDriver .u.|> Discovery
-SpecificDriver .u.|> Softwareupdate
 }
 ```
 
@@ -97,10 +89,10 @@ interfaces of the feature that the particular AL is intended to provide.
 Currently, two interfaces are supported:
 
 1. Discovery: Perform a device scan and return a filled `model.DeviceInfo` for each device found.
-2. Software Update: Update the software of a device.
 
-Once the interfaces are implemented, the specific DCD uses the `dcdBuilder` to construct a `DCD` with the implemented features.
-On `DCD.Start()` the Asset Link will start the grpc server allowing Industrial Asset Hub (IAH) to interact with it.
+Once the interfaces are implemented, the specific AssetLink uses the `assetLinkBuilder` to construct a `AssetLink` with the
+implemented features.
+On `AssetLink.Start()` the Asset Link will start the grpc server allowing Industrial Asset Hub (IAH) to interact with it.
 
 ### Pre-requisites
 
@@ -146,11 +138,17 @@ There should now be a directory called **custom-asset-link**.
 The directory contains a number of files. The AL is ready to run out of the box.
 There is no fancy logic inside.
 
+`Please note:` Ensure to use a semantic version (e.g., v1.0.0) for the created DCD in the main file. "dev" versions
+are not acceptable.
+
 To start the AL execute inside the generated directory:
 
 ```bash
 # Copy templated go.mod file
 $ cp go.mod.tmpl go.mod
+
+# Set private repository
+$ export GOPRIVATE="code.siemens.com"
 
 # Synchronize Go modules
 $ go mod tidy

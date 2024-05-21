@@ -66,7 +66,7 @@ func main() {
 	logging.AdjustLogLevel(logLevel)
 
 	// Register dcd implementation
-	dcdImpl := new(handler.DCDImplementation)
+	dcdImpl := new(handler.AssetLinkImplementation)
 	dcdInstance := dcd.New(metadata.Metadata{
 		Version: metadata.Version{Version: version, Commit: commit, Date: date},
 		DcdName: dcdName,
@@ -85,9 +85,9 @@ func main() {
 		os.Exit(1)
 	}(dcdInstance)
 
-	// Start device class driver
+	// Start asset link
 	if err := dcdInstance.Start(grpcServerAddress, grpcServerEndpointAddress, registryAddress, httpServerAddress); err != nil {
-		log.Fatal().Err(err).Msg("Could not start device class driver instance")
+		log.Fatal().Err(err).Msg("Could not start asset link instance")
 	}
 
 }

@@ -25,7 +25,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-// Device class driver feature builder, according to the GoF build pattern
+// Asset Link feature builder, according to the GoF build pattern
 // The pattern provides methods to register new features in an easy
 type dcdFeatureBuilder struct {
 	metadata  metadata.Metadata
@@ -59,14 +59,14 @@ type DCD struct {
 	driverInfoServer *driverinfo.DriverInfoServerEntity
 }
 
-// Method to start the device class driver
+// Method to start the asset link
 func (d *DCD) Start(grpcServerAddress, registrationAddress, grpcRegistryAddress, httpServerAddress string) error {
 	log.Info().
 		Str("Name", d.metadata.DcdName).
 		Str("gRPC Address", grpcServerAddress).
 		Str("grpcRegistryAddress", grpcRegistryAddress).
 		Str("registrationName", registrationAddress).
-		Msg("Starting device class driver")
+		Msg("Starting asset link")
 
 	// Webserver for observerability purposes
 	if features.ObservabilityFeatures().HttpObservabilityServer {
@@ -126,11 +126,11 @@ func (d *DCD) Start(grpcServerAddress, registrationAddress, grpcRegistryAddress,
 }
 
 func (d *DCD) Stop() {
-	log.Info().Msg("Stop device class driver")
+	log.Info().Msg("Stop asset link")
 
 	d.registryClient.Stop()
 	d.grpcServer.Stop()
 
-	log.Info().Msg("Device class driver stopped.")
+	log.Info().Msg("Asset Link stopped.")
 	os.Exit(0)
 }
