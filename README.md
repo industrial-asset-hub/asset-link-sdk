@@ -1,13 +1,13 @@
-# CDM Device Class Driver SDK
+# IAH Asset Link SDK
 
 This repository contains common used modules to create our own
-Device Class Driver (DCD)
+Asset Link (AL)
 
 ## Introduction
 
-This package provides an easy-to-use SDK for Otto, the Device builder.
+This package provides an easy-to-use SDK for David, the device builder.
 
-It contains everything you need, to setup our own Device Class Driver.
+It contains everything you need, to set up our own Asset Link.
 
 ### Overview
 
@@ -92,21 +92,21 @@ SpecificDriver .u.|> Softwareupdate
 > Remark:
 > For simplicity details in the packages "internals" and "models" have been left out for brevity
 
-The SDK has been designed in a way, that in order to create a new device class driver (dcd) one needs to implements
-the interfaces of the feature the specific dcd intends to provide. Currently two interfaces are supported:
+The SDK has been designed in a way, that in order to create a new Asset Link (AL) one needs to implement
+the interfaces of the feature the specific AL intends to provide. Currently, two interfaces are supported:
 
 1. Discovery: Performing a device scan and returning a filled `model.DeviceInfo` per found device
 2. Softwareupdate: Performing a software update of a device
 
 Once the interfaces are implemented the specific dcd uses the `dcdBuilder` to construct a `DCD` with the implemented features.
-On `DCD.Start()` the dcd will start the grpc server allowing common device management (CDM) to interact with it.
+On `DCD.Start()` the Asset Link will start the grpc server allowing Industrial Asset Hub (IAH) to interact with it.
 
 ### Pre-requisites
 
-IDM:
+Industrial Asset Hub:
 
 - [Asset Gateway](https://code.siemens.com/common-device-management/gateway/cdm-agent)
-- and of course access to an CDM tenant, with an on-boarded Asset Gateway.
+- and of course access to an IAH tenant, with an on-boarded Asset Gateway.
 
 Tooling:
 
@@ -123,12 +123,12 @@ On a Windows machine, the netrc file must be named as **\_netrc** instead of **.
 echo "machine code.siemens.com login gitlab-ci-token password $PERSONAL_ACCCESS_TOKEN" >> ~/.netrc
 ```
 
-### Bootstrapping our own DCD
+### Bootstrapping our own Asset Link
 
 To bootstrap our own device class driver, a template with the well-known
 [cookiecutter](https://github.com/cookiecutter/cookiecutter/) is available inside this repository.
 
-Execute the following command, which provides a text-based questionnaire to setup an skeleton.
+Execute the following command, which provides a text-based questionnaire to set up a skeleton.
 
 ```bash
 $ cookiecutter https://code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk.git
@@ -142,11 +142,11 @@ company_url [https://www.mycompany.local]: https://www.device-builder.local
 year [2023]: 2023
 ```
 
-There should be now an directory with **my-fancy-dcd**. The directory contains a bunch
+There should be now an directory with **my-fancy-asset-link**. The directory contains a bunch
 of files. The device class driver is able to run out-of-the-box.
 There is no fancy logic inside.
 
-To start the DCD execute, inside the generated directory:
+To start the AL execute inside the generated directory:
 
 ```bash
 # Copy templated go.mod file
@@ -160,20 +160,20 @@ $ go run main.go --grpc-server-address=$(hostname -i):8080 --grpc-server-endpoin
 [...]
 ```
 
-This registers the driver with the name **my-fancy-dcd** at the registry provided by the **CDM Field Agent**. The driver
+This registers the driver with the name **my-fancy-asset-link** at the registry provided by the **IAH Asset Gateway**. The driver
 launches an gRPC server at our machine at port 8080. The example driver creates an device,
-after a discovery job is executed with help of user interface of the CDM.
+after a discovery job is executed with help of the user interface of IAH.
 
 > Security remark:\
-> The command above binds the DCD may to a public accessible IP address of our host. Please
+> The command above binds the Asset Link may to a public accessible IP address of our host. Please
 > take care of protecting the port from external access.
 
 To implement our own logic, have a look inside the file **handler/handler.go**, and make our first steps.
-This Go module contains the implementations for the Device Class Driver functionality, please adjust according to our needs.
+This Go module contains the implementations for the Asset Link functionality, please adjust according to our needs.
 
-Or to be even faster, use [GoReleaser](https://goreleaser.com/), which generates besides binarys for Linux/Windows and
-different architectures directly an Debian package. This package contains the binary including an systemd services,
-which starts the driver right after the name. The systemd service name, is the same as the device class driver.
+Or to be even faster, use [GoReleaser](https://goreleaser.com/), which generates besides binaries for Linux/Windows and
+different architectures directly a Debian package. This package contains the binary including a systemd services,
+which starts the driver right after the name. The systemd service name, is the same as the Asset Link.
 
 ```bash
 $ goreleaser release --snapshot --clean
@@ -199,7 +199,7 @@ $ journalctl logs -f -u my-fancy-dcd
 
 ### Commandline Tool
 
-To ease development or testing, with help of a commandline tool the DCD can be triggered interactively. For
+To ease development or testing, with help of a commandline tool the AL can be triggered interactively. For
 example, a discovery can be started/stopped or even the results are fetched.
 
 ```bash
@@ -208,7 +208,7 @@ go install code.siemens.com/common-device-management/device-class-drivers/cdm-dc
 
 ### Observability Webserver
 
-The DCD also starts an Webserver which contains an RestAPI for observability reasons.
+The AL also starts a Webserver which contains an RestAPI for observability reasons.
 Currently, the following endpoints are available. The Webserver is enabled
 for the **GoReleaser** builds by default.
 
@@ -219,8 +219,8 @@ tag can be enabled by adding `-tags webserver` to the `go run` command. For exam
 The webserver listening port defaults to localhost:8082. The following
 HTTP paths are currently available.
 
-| Path     | comment                 |
-| -------- | ----------------------- |
-| /health  | Health state of the DCD |
-| /version | Version                 |
-| /stats   | observability endpoint  |
+| Path     | comment                |
+| -------- | ---------------------- |
+| /health  | Health state of the AL |
+| /version | Version                |
+| /stats   | observability endpoint |

@@ -6,7 +6,6 @@ require (
 	github.com/Masterminds/semver/v3 v3.2.1
 	github.com/gin-contrib/logger v0.2.6
 	github.com/gin-gonic/gin v1.9.1
-	github.com/google/uuid v1.3.1
 	github.com/rs/zerolog v1.31.0
 	github.com/spf13/cobra v1.7.0
 	github.com/stretchr/testify v1.8.4
