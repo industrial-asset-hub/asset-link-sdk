@@ -92,8 +92,8 @@ SpecificDriver .u.|> Softwareupdate
 > Remark:
 > For simplicity, details within the packages "internals" and "models" have been omitted for brevity.
 
-The SDK is designed in such a way that to create a new Asset Link, you must implement the 
-interfaces of the feature that the particular AL is intended to provide. 
+The SDK is designed in such a way that to create a new Asset Link, you must implement the
+interfaces of the feature that the particular AL is intended to provide.
 Currently, two interfaces are supported:
 
 1. Discovery: Perform a device scan and return a filled `model.DeviceInfo` for each device found.
@@ -135,15 +135,15 @@ Run the following command, which provides a text-based questionnaire to set up a
 $ cookiecutter https://code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk.git
 --directory cookiecutter-project-template [optional -c "branch"]
 
-dcd_name [mydcd]: my-fancy-dcd
-author_name [John Doe]: Otto Device Builder
-author_email [otto@device-builder.local]: otto@device-builder.local
+dcd_name [my-asset-link]: custom-asset-link
+author_name [John Doe]: David Device Builder
+author_email [david@device-builder.local]: david@device-builder.local
 company [My Company AG]: Machine Builder AG
 company_url [https://www.mycompany.local]: https://www.device-builder.local
 year [2023]: 2023
 ```
 
-There should now be a directory called **my-fancy-asset-link**. 
+There should now be a directory called **custom-asset-link**.
 The directory contains a number of files. The AL is ready to run out of the box.
 There is no fancy logic inside.
 
@@ -161,47 +161,47 @@ $ go run main.go --grpc-server-address=$(hostname -i):8080 --grpc-server-endpoin
 [...]
 ```
 
-This registers the AL as **my-fancy-asset-link** in the registry provided by the **IAH Asset Gateway**. 
+This registers the AL as **custom-asset-link** in the registry provided by the **IAH Asset Gateway**.
 The AL starts a gRPC server on your machine on port 8080. The example AL creates a device,
 after running a discovery job using the the IAH user interface.
 
 > Security remark:\
-> The command above binds the Asset Link to a publicly accessible IP address on your host. 
+> The command above binds the Asset Link to a publicly accessible IP address on your host.
 > Please ensure that the port is protected from external access.
 
 To implement your own logic, take a look at the **handler/handler.go** file and do your first steps.
 This Go module contains the implementations for the Asset Link functionality. Please adapt it to your needs.
 
 Or, for even faster results, use [GoReleaser](https://goreleaser.com/), which generates binaries for Linux/Windows and
-various architectures, as well as a Debian package. 
-This package contains the binary, including a systemd service, that starts the driver immediately after the name. 
+various architectures, as well as a Debian package.
+This package contains the binary, including a systemd service, that starts the driver immediately after the name.
 The name of the systemd service is the same as that of the Asset Link.
 
 ```bash
 $ goreleaser release --snapshot --clean
 $ ls dist/
 # Contains statically linked binaries
-my-fancy-dcd_$OS_$ARCHITECTURE/[...]
+custom-asset-link_$OS_$ARCHITECTURE/[...]
 
 # Ready-to-use Debian packages
-my-fancy-dcd_0.0.1-next_linux_amd64.deb
-my-fancy-dcd_0.0.1-next_linux_arm64.deb
+custom-asset-link_0.0.1-next_linux_amd64.deb
+custom-asset-link_0.0.1-next_linux_arm64.deb
 ```
 
 Example Debian installation:
 
 ```bash
-$ dpkg -i dist/my-fancy-dcd_0.0.1-next_linux_amd64.deb
+$ dpkg -i dist/custom-asset-link_0.0.1-next_linux_amd64.deb
 [...]
-$ systemctl status my-fancy-dcd
+$ systemctl status custom-asset-link
 [...]
-$ journalctl logs -f -u my-fancy-dcd
+$ journalctl logs -f -u custom-asset-link
 [...]
 ```
 
 ### Command line tool
 
-To ease development or testing, the AL can be interactively triggered using a command line tool. 
+To ease development or testing, the AL can be interactively triggered using a command line tool.
 For example, a discovery can be started/stopped or even the results are retrieved.
 
 ```bash
@@ -215,7 +215,7 @@ The following endpoints are currently available. The web server is enabled
 for the **GoReleaser** builds by default.
 
 To enable the web server, the Go build
-constraint `webserver` is used (see [Go build contraints](https://pkg.go.dev/cmd/go#hdr-Build_constraints)). 
+constraint `webserver` is used (see [Go build contraints](https://pkg.go.dev/cmd/go#hdr-Build_constraints)).
 The tag can be enabled by adding `-tags webserver` to the `go run` command. For example `go run -tags webserver main.go`
 
 The web server listening port is localhost:8082 by default. The following
