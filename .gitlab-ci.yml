@@ -28,7 +28,7 @@ variables:
   GO_BUILD_IMAGE: golang:1.22.2-alpine
   CGO_ENABLED: 0
   COOKIECUTTER_PROJECT: cookiecutter-test/
-  COOKIECUTTER_PROJECT_NAME: dcd-test
+  COOKIECUTTER_PROJECT_NAME: al-test
 
 # sets credentials to access private GO modules located in code.siemens.com
 .set_git_https_credentials: &set_git_https_credentials |
@@ -244,10 +244,10 @@ create-release:
     # inside the cookiecutter-vendor job
     - ls
     - ls cookiecutter-project-template/
-    - cp -a ${COOKIECUTTER_PROJECT}/${COOKIECUTTER_PROJECT_NAME}/go.mod cookiecutter-project-template/\{\{\ cookiecutter.dcd_name\ \}\}/
+    - cp -a ${COOKIECUTTER_PROJECT}/${COOKIECUTTER_PROJECT_NAME}/go.mod cookiecutter-project-template/\{\{\ cookiecutter.al_name\ \}\}/
     # Replace first line inside go.mod, due to it's specific from the cookiecutter template
-    - sed -i "1s/.*/module {{cookiecutter.dcd_name}}/" cookiecutter-project-template/\{\{\ cookiecutter.dcd_name\ \}\}/go.mod
-    - cp -a ${COOKIECUTTER_PROJECT}/${COOKIECUTTER_PROJECT_NAME}/${CI_PROJECT_NAME}/ cookiecutter-project-template/\{\{\ cookiecutter.dcd_name\ \}\}/
+    - sed -i "1s/.*/module {{cookiecutter.al_name}}/" cookiecutter-project-template/\{\{\ cookiecutter.al_name\ \}\}/go.mod
+    - cp -a ${COOKIECUTTER_PROJECT}/${COOKIECUTTER_PROJECT_NAME}/${CI_PROJECT_NAME}/ cookiecutter-project-template/\{\{\ cookiecutter.al_name\ \}\}/
     # Create release
     - |
       if [ "${CI_COMMIT_TAG:-}" != "" ]; then

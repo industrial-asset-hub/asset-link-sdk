@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# SPDX-FileCopyrightText: 2023 Siemens AG
+# SPDX-FileCopyrightText: 2024 Siemens AG
 #
 # SPDX-License-Identifier:
 
 set -xeu
 # shellcheck disable=SC1083
-systemctl stop {{ cookiecutter.dcd_name }}
+systemctl stop {{ cookiecutter.al_name }}
 
 systemctl daemon-reload

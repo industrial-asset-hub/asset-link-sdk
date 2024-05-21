@@ -66,7 +66,7 @@ func (m *DCDImplementation) Start(jobId uint32, deviceInfoReply chan deviceinfo.
 
 		Name := "Device"
 		device.Name = &Name
-		product := "{{ cookiecutter.dcd_name }}"
+		product := "{{ cookiecutter.al_name }}"
 		version := "1.0.0"
 		vendorName := "{{ cookiecutter.company }}"
 		//serialNumber := uuid.NewString()

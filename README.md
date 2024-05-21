@@ -134,12 +134,11 @@ Run the following command, which provides a text-based questionnaire to set up a
 ```bash
 $ cookiecutter https://code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk.git
 --directory cookiecutter-project-template [optional -c "branch"]
-
-dcd_name [my-asset-link]: custom-asset-link
-author_name [John Doe]: David Device Builder
+al_name [my-asset-link]: custom-asset-link
+author_name [David Device Builder]: David Device Builder
 author_email [david@device-builder.local]: david@device-builder.local
-company [My Company AG]: Machine Builder AG
-company_url [https://www.mycompany.local]: https://www.device-builder.local
+company [Machine Builder AG]: Machine Builder AG
+company_url [https://www.device-builder.local]: https://www.device-builder.local
 year [2023]: 2023
 ```
 
