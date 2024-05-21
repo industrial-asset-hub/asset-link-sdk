@@ -92,7 +92,8 @@ SpecificDriver .u.|> Softwareupdate
 > Remark:
 > For simplicity, details within the packages "internals" and "models" have been omitted for brevity.
 
-The SDK is designed in such a way that to create a new Asset Link, you must implement the interfaces of the feature that the particular AL is intended to provide. 
+The SDK is designed in such a way that to create a new Asset Link, you must implement the 
+interfaces of the feature that the particular AL is intended to provide. 
 Currently, two interfaces are supported:
 
 1. Discovery: Perform a device scan and return a filled `model.DeviceInfo` for each device found.
