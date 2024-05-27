@@ -7,33 +7,195 @@
 
 package model
 
-import "fmt"
+import (
+	generated "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/generated/iah-discovery"
+	"fmt"
+	"github.com/google/uuid"
+)
 
-func (d DeviceInfo) Init() DeviceInfo {
-	d.Type = "Asset"
-	fmt.Println("Init")
-	return d
-}
+const (
+	prefix = "https://schema.industrial-assets.io/base/v0.7.5"
+)
 
-func New() DeviceInfo {
-	d := DeviceInfo{}
-	d.Type = "Asset"
-	d.Context = map[string]interface{}{
-		"base":      "https://common-device-management.code.siemens.io/documentation/asset-modeling/base-schema/v0.7.0/",
-		"linkml":    "https://w3id.org/linkml/",
-		"lis":       "http://rds.posccaesar.org/ontology/lis14/rdl/",
-		"schemaorg": "https://schema.org/",
-		"skos":      "http://www.w3.org/2004/02/skos/core#",
-		"@vocab":    "https://common-device-management.code.siemens.io/documentation/asset-modeling/base-schema/v0.7.0/",
+func NewDevice() *generated.DiscoveredDevice {
+	name := "Example Device"
+	serialNumber := uuid.New().String()
+	articelNumber := "test-article-number"
+	var timestamp uint64 = 133344110897340000
+	device := generated.DiscoveredDevice{
+		Identifiers: []*generated.DeviceIdentifier{
+			{
+				Value: &generated.DeviceIdentifier_Text{Text: "Siemens AG"},
+				Classifiers: []*generated.SemanticClassifier{
+					{
+						Type:  "URI",
+						Value: fmt.Sprintf("%s/Asset#product_instance_identifier/manufacturer_product/manufacturer/name", prefix),
+					},
+				},
+			},
+			{
+				Value: &generated.DeviceIdentifier_Children{
+					Children: &generated.DeviceIdentifierValueList{
+						Value: []*generated.DeviceIdentifier{
+							{
+								Value: &generated.DeviceIdentifier_Text{
+									Text: "30:13:89:1E:C7:61",
+								},
+								Classifiers: []*generated.SemanticClassifier{
+									{
+										Type:  "URI",
+										Value: fmt.Sprintf("%s/Asset#mac_identifiers/mac_address", prefix),
+									},
+								},
+							},
+						},
+					},
+				},
+				Classifiers: []*generated.SemanticClassifier{
+					{
+						Type:  "URI",
+						Value: fmt.Sprintf("%s/Asset#mac_identifiers", prefix),
+					},
+				},
+			},
+			{
+				Value: &generated.DeviceIdentifier_Text{Text: articelNumber},
+				Classifiers: []*generated.SemanticClassifier{
+					{
+						Type:  "URI",
+						Value: fmt.Sprintf("%s/Asset#product_instance_identifier/manufacturer_product/product_id", prefix),
+					},
+				},
+			},
+			{
+				Value: &generated.DeviceIdentifier_Text{Text: name},
+				Classifiers: []*generated.SemanticClassifier{
+					{
+						Type:  "URI",
+						Value: fmt.Sprintf("%s/Asset#name", prefix),
+					},
+				},
+			},
+			{
+				Value: &generated.DeviceIdentifier_Text{Text: serialNumber},
+				Classifiers: []*generated.SemanticClassifier{
+					{
+						Type:  "URI",
+						Value: fmt.Sprintf("%s/Asset#product_instance_identifier/serial_number", prefix),
+					},
+				},
+			},
+			{
+				Value: &generated.DeviceIdentifier_Children{
+					Children: &generated.DeviceIdentifierValueList{
+						Value: []*generated.DeviceIdentifier{
+							{
+								Value: &generated.DeviceIdentifier_Text{
+									Text: "0_Ethernet",
+								},
+								Classifiers: []*generated.SemanticClassifier{
+									{
+										Type:  "URI",
+										Value: fmt.Sprintf("%s/Asset#connection_points/related_connection_points/connection_point", prefix),
+									},
+								},
+							},
+						},
+					},
+				},
+				Classifiers: []*generated.SemanticClassifier{
+					{
+						Type:  "URI",
+						Value: fmt.Sprintf("%s/Asset#connection_points", prefix),
+					},
+				},
+			},
+			{
+				Value: &generated.DeviceIdentifier_Children{
+					Children: &generated.DeviceIdentifierValueList{
+						Value: []*generated.DeviceIdentifier{
+							{
+								Value: &generated.DeviceIdentifier_Text{
+									Text: "uuid:40ead537-6faa-4a38-beb3-f55b34578ats",
+								},
+								Classifiers: []*generated.SemanticClassifier{
+									{
+										Type:  "URI",
+										Value: fmt.Sprintf("%s/Asset#connection_points/id", prefix),
+									},
+								},
+							},
+							{
+								Value: &generated.DeviceIdentifier_Text{
+									Text: "EthernetPort",
+								},
+								Classifiers: []*generated.SemanticClassifier{
+									{
+										Type:  "URI",
+										Value: fmt.Sprintf("%s/Asset#connection_points/connection_point_type", prefix),
+									},
+								},
+							},
+						},
+					},
+				},
+				Classifiers: []*generated.SemanticClassifier{
+					{
+						Type:  "URI",
+						Value: fmt.Sprintf("%s/Asset#connection_points", prefix),
+					},
+				},
+			},
+			{
+				Value: &generated.DeviceIdentifier_Children{
+					Children: &generated.DeviceIdentifierValueList{
+						Value: []*generated.DeviceIdentifier{
+							{
+								Value: &generated.DeviceIdentifier_Text{
+									Text: "30:13:89:1E:C7:72",
+								},
+								Classifiers: []*generated.SemanticClassifier{
+									{
+										Type:  "URI",
+										Value: fmt.Sprintf("%s/Asset#connection_points/mac_address", prefix),
+									},
+								},
+							},
+							{
+								Value: &generated.DeviceIdentifier_Text{
+									Text: "EthernetPort",
+								},
+								Classifiers: []*generated.SemanticClassifier{
+									{
+										Type:  "URI",
+										Value: fmt.Sprintf("%s/Asset#connection_points/connection_point_type", prefix),
+									},
+								},
+							},
+							{
+								Value: &generated.DeviceIdentifier_Text{
+									Text: "uuid:40ead537-6faa-4a38-beb3-f55b3123456s",
+								},
+								Classifiers: []*generated.SemanticClassifier{
+									{
+										Type:  "URI",
+										Value: fmt.Sprintf("%s/Asset#connection_points/id", prefix),
+									},
+								},
+							},
+						},
+					},
+				},
+				Classifiers: []*generated.SemanticClassifier{
+					{
+						Type:  "URI",
+						Value: fmt.Sprintf("%s/Asset#connection_points", prefix),
+					},
+				},
+			},
+		},
+		ConnectionParameterSet: nil,
+		Timestamp:              timestamp,
 	}
-	return d
-}
-
-type DeviceInfo struct {
-	Type    string                 `json:"@type"`
-	Context map[string]interface{} `json:"@context"`
-	// Override connection point, since generated base schema does not provide derived types
-	ConnectionPoints []Ipv4Connectivity `json:"connection_points,omitempty"`
-	Asset
-	MacIdentifiers []MacIdentifier `json:"mac_identifiers"`
+	return &device
 }
