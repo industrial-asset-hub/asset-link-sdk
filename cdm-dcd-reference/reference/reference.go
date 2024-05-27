@@ -47,9 +47,68 @@ func (m *ReferenceClassDriver) Start(jobId uint32, deviceChannel chan []*generat
 
 	m.discoveryJobRunning = true
 	m.discoveryJobCancelationToken = make(chan uint32)
-	device := model.NewDevice()
+	deviceInfo := model.NewDevice("Profinet")
+	timestamp := model.CreateTimestamp()
+
+	Name := "Device"
+	deviceInfo.Name = &Name
+	product := "cdm-reference-dcd"
+	version := "1.0.0"
+	vendorName := "Siemens AG"
+	//serialNumber := uuid.NewString()
+	serialNumber := "sn"
+	vendor := model.Organization{
+		Address:        nil,
+		AlternateNames: nil,
+		ContactPoint:   nil,
+		Id:             "",
+		Name:           &vendorName,
+	}
+	productSerialidentifier := model.ProductSerialIdentifier{
+		IdentifierType:        nil,
+		IdentifierUncertainty: nil,
+		ManufacturerProduct: &model.Product{
+			Id:             "",
+			Manufacturer:   &vendor,
+			Name:           nil,
+			ProductId:      &product,
+			ProductVersion: &version,
+		},
+		SerialNumber: &serialNumber,
+	}
+	deviceInfo.ProductInstanceIdentifier = &productSerialidentifier
+
+	connectionPointType := "Ipv4Connectivity"
+	Ipv4Address := "192.168.0.1"
+	Ipv4NetMask := "255.255.255.0"
+	Ipv4Connectivity := model.Ipv4Connectivity{
+		ConnectionPointType:     &connectionPointType,
+		Id:                      "1",
+		InstanceAnnotations:     nil,
+		Ipv4Address:             &Ipv4Address,
+		NetworkMask:             &Ipv4NetMask,
+		RelatedConnectionPoints: nil,
+		RouterIpv4Address:       nil,
+	}
+	deviceInfo.ConnectionPoints = append(deviceInfo.ConnectionPoints, Ipv4Connectivity)
+
+	state := model.ManagementStateValuesUnknown
+	State := model.ManagementState{
+		StateTimestamp: &timestamp,
+		StateValue:     &state,
+	}
+	deviceInfo.ManagementState = State
+
+	reachabilityStateValue := model.ReachabilityStateValuesReached
+	reachabilityState := model.ReachabilityState{
+		StateTimestamp: &timestamp,
+		StateValue:     &reachabilityStateValue,
+	}
+	deviceInfo.ReachabilityState = &reachabilityState
+
+	discoveredDevice := deviceInfo.ConvertToDiscoveredDevice()
 	devices := make([]*generated.DiscoveredDevice, 0)
-	devices = append(devices, device)
+	devices = append(devices, discoveredDevice)
 	deviceChannel <- devices
 	m.discoveryJobRunning = false
 	log.Debug().
