@@ -1,6 +1,6 @@
 # {{ cookiecutter.al_name }}
 
-This is a automatically created CDM Device Class Driver project.
+This is a automatically created IAH Asset Link project.
 
 Before starting, you should synchronize the Go modules. This can be done by:
 
@@ -11,7 +11,7 @@ $ go mod tidy
 
 ## Run && Building
 
-To start the DCD execute:
+To start the AssetLink execute:
 
 ```bash
 # Execute

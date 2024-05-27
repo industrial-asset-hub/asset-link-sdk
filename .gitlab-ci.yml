@@ -155,7 +155,7 @@ cookiecutter-setup:
 
 # Vendors the needed Go packages. This vendor/ is used, inside the
 # release job, to include the vendor/ directory, into
-# the generated cdm-dcd-sdk archiv. This also, updates the go.mod file w/
+# the generated cdm-dcd-sdk archive. This also, updates the go.mod file w/
 # the most recent tag of the cdm-dcd-sdk
 # Caution: this removes the cookiecutter specific header of the go.mod file.
 #          This header has to be restored inside the create-release job, to have
@@ -197,7 +197,7 @@ cookiecutter-vendor:
       - $COOKIECUTTER_PROJECT
     policy: pull-push
 
-# Builds the already bootstrapped DCD
+# Builds the already bootstrapped Asset Link
 # and uses the vendored files.
 cookiecutter-build:
   extends: .go-build

@@ -1,4 +1,4 @@
-# CDM Device Class Driver SDK
+# Industrial Asset Hub - Asset Link SDK
 
 ## Contributing
 
