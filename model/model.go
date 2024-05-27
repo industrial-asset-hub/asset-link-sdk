@@ -11,7 +11,7 @@ const (
 	baseSchemaPrefix = "https://schema.industrial-assets.io/base/v0.7.5"
 )
 
-func NewDevice(typeOfAsset string) DeviceInfo {
+func NewDevice(typeOfAsset string) *DeviceInfo {
 	d := DeviceInfo{}
 	d.Type = typeOfAsset
 	d.Context = map[string]interface{}{
@@ -22,7 +22,7 @@ func NewDevice(typeOfAsset string) DeviceInfo {
 		"skos":      "http://www.w3.org/2004/02/skos/core#",
 		"@vocab":    "https://common-device-management.code.siemens.io/documentation/asset-modeling/base-schema/v0.7.5/",
 	}
-	return d
+	return &d
 }
 
 type DeviceInfo struct {
