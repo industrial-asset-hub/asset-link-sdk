@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	prefix = "https://schema.industrial-assets.io/base/v0.7.5"
+	baseSchemaPrefix = "https://schema.industrial-assets.io/base/v0.7.5"
 )
 
 func NewDevice() *generated.DiscoveredDevice {
@@ -29,7 +29,7 @@ func NewDevice() *generated.DiscoveredDevice {
 				Classifiers: []*generated.SemanticClassifier{
 					{
 						Type:  "URI",
-						Value: fmt.Sprintf("%s/Asset#product_instance_identifier/manufacturer_product/manufacturer/name", prefix),
+						Value: fmt.Sprintf("%s/Asset#product_instance_identifier/manufacturer_product/manufacturer/name", baseSchemaPrefix),
 					},
 				},
 			},
@@ -44,7 +44,7 @@ func NewDevice() *generated.DiscoveredDevice {
 								Classifiers: []*generated.SemanticClassifier{
 									{
 										Type:  "URI",
-										Value: fmt.Sprintf("%s/Asset#mac_identifiers/mac_address", prefix),
+										Value: fmt.Sprintf("%s/Asset#mac_identifiers/mac_address", baseSchemaPrefix),
 									},
 								},
 							},
@@ -54,7 +54,7 @@ func NewDevice() *generated.DiscoveredDevice {
 				Classifiers: []*generated.SemanticClassifier{
 					{
 						Type:  "URI",
-						Value: fmt.Sprintf("%s/Asset#mac_identifiers", prefix),
+						Value: fmt.Sprintf("%s/Asset#mac_identifiers", baseSchemaPrefix),
 					},
 				},
 			},
@@ -63,7 +63,7 @@ func NewDevice() *generated.DiscoveredDevice {
 				Classifiers: []*generated.SemanticClassifier{
 					{
 						Type:  "URI",
-						Value: fmt.Sprintf("%s/Asset#product_instance_identifier/manufacturer_product/product_id", prefix),
+						Value: fmt.Sprintf("%s/Asset#product_instance_identifier/manufacturer_product/product_id", baseSchemaPrefix),
 					},
 				},
 			},
@@ -72,7 +72,7 @@ func NewDevice() *generated.DiscoveredDevice {
 				Classifiers: []*generated.SemanticClassifier{
 					{
 						Type:  "URI",
-						Value: fmt.Sprintf("%s/Asset#name", prefix),
+						Value: fmt.Sprintf("%s/Asset#name", baseSchemaPrefix),
 					},
 				},
 			},
@@ -81,7 +81,7 @@ func NewDevice() *generated.DiscoveredDevice {
 				Classifiers: []*generated.SemanticClassifier{
 					{
 						Type:  "URI",
-						Value: fmt.Sprintf("%s/Asset#product_instance_identifier/serial_number", prefix),
+						Value: fmt.Sprintf("%s/Asset#product_instance_identifier/serial_number", baseSchemaPrefix),
 					},
 				},
 			},
@@ -96,7 +96,7 @@ func NewDevice() *generated.DiscoveredDevice {
 								Classifiers: []*generated.SemanticClassifier{
 									{
 										Type:  "URI",
-										Value: fmt.Sprintf("%s/Asset#connection_points/related_connection_points/connection_point", prefix),
+										Value: fmt.Sprintf("%s/Asset#connection_points/related_connection_points/connection_point", baseSchemaPrefix),
 									},
 								},
 							},
@@ -106,7 +106,7 @@ func NewDevice() *generated.DiscoveredDevice {
 				Classifiers: []*generated.SemanticClassifier{
 					{
 						Type:  "URI",
-						Value: fmt.Sprintf("%s/Asset#connection_points", prefix),
+						Value: fmt.Sprintf("%s/Asset#connection_points", baseSchemaPrefix),
 					},
 				},
 			},
@@ -121,7 +121,7 @@ func NewDevice() *generated.DiscoveredDevice {
 								Classifiers: []*generated.SemanticClassifier{
 									{
 										Type:  "URI",
-										Value: fmt.Sprintf("%s/Asset#connection_points/id", prefix),
+										Value: fmt.Sprintf("%s/Asset#connection_points/id", baseSchemaPrefix),
 									},
 								},
 							},
@@ -132,7 +132,7 @@ func NewDevice() *generated.DiscoveredDevice {
 								Classifiers: []*generated.SemanticClassifier{
 									{
 										Type:  "URI",
-										Value: fmt.Sprintf("%s/Asset#connection_points/connection_point_type", prefix),
+										Value: fmt.Sprintf("%s/Asset#connection_points/connection_point_type", baseSchemaPrefix),
 									},
 								},
 							},
@@ -142,7 +142,7 @@ func NewDevice() *generated.DiscoveredDevice {
 				Classifiers: []*generated.SemanticClassifier{
 					{
 						Type:  "URI",
-						Value: fmt.Sprintf("%s/Asset#connection_points", prefix),
+						Value: fmt.Sprintf("%s/Asset#connection_points", baseSchemaPrefix),
 					},
 				},
 			},
@@ -157,7 +157,7 @@ func NewDevice() *generated.DiscoveredDevice {
 								Classifiers: []*generated.SemanticClassifier{
 									{
 										Type:  "URI",
-										Value: fmt.Sprintf("%s/Asset#connection_points/mac_address", prefix),
+										Value: fmt.Sprintf("%s/Asset#connection_points/mac_address", baseSchemaPrefix),
 									},
 								},
 							},
@@ -168,7 +168,7 @@ func NewDevice() *generated.DiscoveredDevice {
 								Classifiers: []*generated.SemanticClassifier{
 									{
 										Type:  "URI",
-										Value: fmt.Sprintf("%s/Asset#connection_points/connection_point_type", prefix),
+										Value: fmt.Sprintf("%s/Asset#connection_points/connection_point_type", baseSchemaPrefix),
 									},
 								},
 							},
@@ -179,7 +179,7 @@ func NewDevice() *generated.DiscoveredDevice {
 								Classifiers: []*generated.SemanticClassifier{
 									{
 										Type:  "URI",
-										Value: fmt.Sprintf("%s/Asset#connection_points/id", prefix),
+										Value: fmt.Sprintf("%s/Asset#connection_points/id", baseSchemaPrefix),
 									},
 								},
 							},
@@ -189,7 +189,7 @@ func NewDevice() *generated.DiscoveredDevice {
 				Classifiers: []*generated.SemanticClassifier{
 					{
 						Type:  "URI",
-						Value: fmt.Sprintf("%s/Asset#connection_points", prefix),
+						Value: fmt.Sprintf("%s/Asset#connection_points", baseSchemaPrefix),
 					},
 				},
 			},
