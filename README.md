@@ -15,10 +15,14 @@ It contains everything you need to set up your own Asset Link.
 package "cdm-dcd-sdk" #DAE8FC {
 package "features" {
 interface Discovery
+interface Softwareupdate
 
-Discovery : Start(jobId, deviceInfoReply) error
-Discovery : Cancel(jobId) error
+Start(jobId uint32, deviceChannel chan []*generated.DiscoveredDevice, err chan error, filters map[string]string)
+Cancel(jobId uint32) error
+FilterTypes(filterTypesChannel chan []*generated.SupportedFilter)
+FilterOptions(filterOptionsChannel chan []*generated.SupportedOption)
 
+Softwareupdate :  Update(jobId, \n\t deviceId, metaData, progress) error
 
 }
 
@@ -34,6 +38,7 @@ class grpcRegistry
 
 package "server" {
 class devicediscovery
+class firmwareupdate
 class status
 class webserver
 
@@ -69,6 +74,7 @@ AssetLink : Stop()
 package "model" {
 struct DeviceInfo
 DeviceInfo .d[hidden]. Discovery
+DeviceInfo .d[hidden]. Softwareupdate
 
 DeviceInfo : Fields from json schema
 }
@@ -78,6 +84,7 @@ package "Device builder implementations" #D5E8D4 {
 SpecificDriver -u- AssetLink : starts
 SpecificDriver -u- assetLinkBuilder : uses
 SpecificDriver .u.|> Discovery
+SpecificDriver .u.|> Softwareupdate
 }
 ```
 
