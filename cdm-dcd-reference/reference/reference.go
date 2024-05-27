@@ -8,22 +8,18 @@ package reference
 
 import (
 	generated "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/generated/iah-discovery"
-	"errors"
-	"time"
-	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/deviceinfo"
 	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/model"
-
+	"errors"
+	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
 )
 
-// Implements the features of the AssetLink.
+// Implements the features of the DCD.
 // see
 type ReferenceClassDriver struct {
 	discoveryJobCancelationToken chan uint32
 	discoveryJobRunning          bool
 }
-
-var lastSerialNumber = atomic.Int64{}
 
 // Implementation of the Discovery feature
 
@@ -35,10 +31,7 @@ func (m *ReferenceClassDriver) Start(jobId uint32, deviceChannel chan []*generat
 
 	log.Debug().
 		Bool("running", m.discoveryJobRunning).
-		Interface("Filter", filter).
 		Msg("Discovery running?")
-	defer close(deviceInfoReply)
-
 
 	// Check if job is already running
 	// We currently support here only one running job
@@ -54,187 +47,9 @@ func (m *ReferenceClassDriver) Start(jobId uint32, deviceChannel chan []*generat
 
 	m.discoveryJobRunning = true
 	m.discoveryJobCancelationToken = make(chan uint32)
-	name := "Example Device"
-	serialNumber := uuid.New().String()
-	articelNumber := "test-article-number"
-	var timestamp uint64 = 133344110897340000
-	device := generated.DiscoveredDevice{
-		Identifiers: []*generated.DeviceIdentifier{
-			{
-				Value: &generated.DeviceIdentifier_Text{Text: "Siemens AG"},
-				Classifiers: []*generated.SemanticClassifier{
-					{
-						Type:  "URI",
-						Value: "https://schema.industrial-assets.io/base/v0.7.5/Asset#product_instance_identifier/manufacturer_product/manufacturer/name",
-					},
-				},
-			},
-			{
-				Value: &generated.DeviceIdentifier_Children{
-					Children: &generated.DeviceIdentifierValueList{
-						Value: []*generated.DeviceIdentifier{
-							{
-								Value: &generated.DeviceIdentifier_Text{
-									Text: "30:13:89:1E:C7:61",
-								},
-								Classifiers: []*generated.SemanticClassifier{
-									{
-										Type:  "URI",
-										Value: "https://schema.industrial-assets.io/base/v0.7.5/Asset#mac_identifiers/mac_address",
-									},
-								},
-							},
-						},
-					},
-				},
-				Classifiers: []*generated.SemanticClassifier{
-					{
-						Type:  "URI",
-						Value: "https://schema.industrial-assets.io/base/v0.7.5/Asset#mac_identifiers",
-					},
-				},
-			},
-			{
-				Value: &generated.DeviceIdentifier_Text{Text: articelNumber},
-				Classifiers: []*generated.SemanticClassifier{
-					{
-						Type:  "URI",
-						Value: "https://schema.industrial-assets.io/base/v0.7.5/Asset#product_instance_identifier/manufacturer_product/product_id",
-					},
-				},
-			},
-			{
-				Value: &generated.DeviceIdentifier_Text{Text: name},
-				Classifiers: []*generated.SemanticClassifier{
-					{
-						Type:  "URI",
-						Value: "https://schema.industrial-assets.io/base/v0.7.5/Asset#name",
-					},
-				},
-			},
-			{
-				Value: &generated.DeviceIdentifier_Text{Text: serialNumber},
-				Classifiers: []*generated.SemanticClassifier{
-					{
-						Type:  "URI",
-						Value: "https://schema.industrial-assets.io/base/v0.7.5/Asset#product_instance_identifier/serial_number",
-					},
-				},
-			},
-			{
-				Value: &generated.DeviceIdentifier_Children{
-					Children: &generated.DeviceIdentifierValueList{
-						Value: []*generated.DeviceIdentifier{
-							{
-								Value: &generated.DeviceIdentifier_Text{
-									Text: "0_Ethernet",
-								},
-								Classifiers: []*generated.SemanticClassifier{
-									{
-										Type:  "URI",
-										Value: "https://schema.industrial-assets.io/base/v0.7.5/Asset#connection_points/related_connection_points/connection_point",
-									},
-								},
-							},
-						},
-					},
-				},
-				Classifiers: []*generated.SemanticClassifier{
-					{
-						Type:  "URI",
-						Value: "https://schema.industrial-assets.io/base/v0.7.5/Asset#connection_points",
-					},
-				},
-			},
-			{
-				Value: &generated.DeviceIdentifier_Children{
-					Children: &generated.DeviceIdentifierValueList{
-						Value: []*generated.DeviceIdentifier{
-							{
-								Value: &generated.DeviceIdentifier_Text{
-									Text: "uuid:40ead537-6faa-4a38-beb3-f55b34578ats",
-								},
-								Classifiers: []*generated.SemanticClassifier{
-									{
-										Type:  "URI",
-										Value: "https://schema.industrial-assets.io/base/v0.7.5/Asset#connection_points/id",
-									},
-								},
-							},
-							{
-								Value: &generated.DeviceIdentifier_Text{
-									Text: "EthernetPort",
-								},
-								Classifiers: []*generated.SemanticClassifier{
-									{
-										Type:  "URI",
-										Value: "https://schema.industrial-assets.io/base/v0.7.5/Asset#connection_points/connection_point_type",
-									},
-								},
-							},
-						},
-					},
-				},
-				Classifiers: []*generated.SemanticClassifier{
-					{
-						Type:  "URI",
-						Value: "https://schema.industrial-assets.io/base/v0.7.5/Asset#connection_points",
-					},
-				},
-			},
-			{
-				Value: &generated.DeviceIdentifier_Children{
-					Children: &generated.DeviceIdentifierValueList{
-						Value: []*generated.DeviceIdentifier{
-							{
-								Value: &generated.DeviceIdentifier_Text{
-									Text: "30:13:89:1E:C7:72",
-								},
-								Classifiers: []*generated.SemanticClassifier{
-									{
-										Type:  "URI",
-										Value: "https://schema.industrial-assets.io/base/v0.7.5/Asset#connection_points/mac_address",
-									},
-								},
-							},
-							{
-								Value: &generated.DeviceIdentifier_Text{
-									Text: "EthernetPort",
-								},
-								Classifiers: []*generated.SemanticClassifier{
-									{
-										Type:  "URI",
-										Value: "https://schema.industrial-assets.io/base/v0.7.5/Asset#connection_points/connection_point_type",
-									},
-								},
-							},
-							{
-								Value: &generated.DeviceIdentifier_Text{
-									Text: "uuid:40ead537-6faa-4a38-beb3-f55b3123456s",
-								},
-								Classifiers: []*generated.SemanticClassifier{
-									{
-										Type:  "URI",
-										Value: "https://schema.industrial-assets.io/base/v0.7.5/Asset#connection_points/id",
-									},
-								},
-							},
-						},
-					},
-				},
-				Classifiers: []*generated.SemanticClassifier{
-					{
-						Type:  "URI",
-						Value: "https://schema.industrial-assets.io/base/v0.7.5/Asset#connection_points",
-					},
-				},
-			},
-		},
-		ConnectionParameterSet: nil,
-		Timestamp:              timestamp,
-	}
+	device := model.NewDevice()
 	devices := make([]*generated.DiscoveredDevice, 0)
-	devices = append(devices, &device)
+	devices = append(devices, device)
 	deviceChannel <- devices
 	m.discoveryJobRunning = false
 	log.Debug().
@@ -258,6 +73,7 @@ func (m *ReferenceClassDriver) Cancel(jobId uint32) error {
 	log.Debug().
 		Msg("Cancel function exiting")
 	return nil
+}
 
 func (m *ReferenceClassDriver) FilterTypes(filterTypesChannel chan []*generated.SupportedFilter) {
 	filterTypes := make([]*generated.SupportedFilter, 0)
