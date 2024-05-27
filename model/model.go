@@ -21,7 +21,7 @@ func NewDevice() *generated.DiscoveredDevice {
 	name := "Example Device"
 	serialNumber := uuid.New().String()
 	articelNumber := "test-article-number"
-	timestamp := CreateTimestamp()
+	var timestamp uint64 = 133344110897340000
 	device := generated.DiscoveredDevice{
 		Identifiers: []*generated.DeviceIdentifier{
 			{
