@@ -17,10 +17,10 @@ package "features" {
 interface Discovery
 interface Softwareupdate
 
-Start(jobId uint32, deviceChannel chan []*generated.DiscoveredDevice, err chan error, filters map[string]string)
-Cancel(jobId uint32) error
-FilterTypes(filterTypesChannel chan []*generated.SupportedFilter)
-FilterOptions(filterOptionsChannel chan []*generated.SupportedOption)
+Discovery : Start(jobId uint32, deviceChannel chan []*generated.DiscoveredDevice, err chan error, filters map[string]string)
+Discovery : Cancel(jobId uint32) error
+Discovery : FilterTypes(filterTypesChannel chan []*generated.SupportedFilter)
+Discovery : FilterOptions(filterOptionsChannel chan []*generated.SupportedOption)
 
 Softwareupdate :  Update(jobId, \n\t deviceId, metaData, progress) error
 
