@@ -10,8 +10,9 @@ import (
 	generated "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/generated/iah-discovery"
 	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/model"
 	"errors"
-	"github.com/google/uuid"
+	"fmt"
 	"github.com/rs/zerolog/log"
+	"sync/atomic"
 )
 
 // Implements the features of the DCD.
@@ -20,6 +21,8 @@ type ReferenceClassDriver struct {
 	discoveryJobCancelationToken chan uint32
 	discoveryJobRunning          bool
 }
+
+var lastSerialNumber = atomic.Int64{}
 
 // Implementation of the Discovery feature
 
@@ -55,8 +58,9 @@ func (m *ReferenceClassDriver) Start(jobId uint32, deviceChannel chan []*generat
 	product := "cdm-reference-dcd"
 	version := "1.0.0"
 	vendorName := "Siemens AG"
-	//serialNumber := uuid.NewString()
-	serialNumber := "sn"
+	lastSerialNumber.Add(1)
+	serialNumber := fmt.Sprint(lastSerialNumber.Load())
+
 	vendor := model.Organization{
 		Address:        nil,
 		AlternateNames: nil,
@@ -77,6 +81,12 @@ func (m *ReferenceClassDriver) Start(jobId uint32, deviceChannel chan []*generat
 		SerialNumber: &serialNumber,
 	}
 	deviceInfo.ProductInstanceIdentifier = &productSerialidentifier
+	randomMacAddress := generateRandomMacAddress()
+	identifierUncertainty := 1
+	deviceInfo.MacIdentifiers = append(deviceInfo.MacIdentifiers, model.MacIdentifier{
+		MacAddress:            &randomMacAddress,
+		IdentifierUncertainty: &identifierUncertainty,
+	})
 
 	connectionPointType := "Ipv4Connectivity"
 	Ipv4Address := "192.168.0.1"
