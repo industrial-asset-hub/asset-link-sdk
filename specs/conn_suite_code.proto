@@ -1,0 +1,129 @@
+// ------------------------------------------------------------------
+// Connectivity Suite Error Codes
+// ------------------------------------------------------------------
+//
+// Reference example:
+// google/rpc/code.proto
+//
+// Naming convention according:
+// https://cloud.google.com/apis/design/naming_convention
+//
+// ------------------------------------------------------------------
+
+syntax = "proto3";
+
+package siemens.connectivitysuite.code.v1;
+
+enum Code {
+
+  // --------------------------------------------------------------------------
+  // The google defined codes can be used for partial errors as well
+  // see https://grpc.github.io/grpc/core/md_doc_statuscodes.html
+  //
+  
+  // Not an error; returned on success
+  // (normally this code is not used - these codes are only used in
+  // case of error)
+  OK = 0;
+  
+  // The operation was cancelled, typically by the caller.
+  CANCELLED = 1;
+  
+  // Unknown error
+  // Error which cannot be assigned to a specific code
+  // E.g. errors raised by APIs that do not return enough error information 
+  // may be converted to this error.
+  UNKNOWN = 2;
+  
+  // The client specified an invalid argument.
+  // Arguments are problematic regardless of the state of the system 
+  // (e.g., a malformed file name).
+  INVALID_ARGUMENT = 3;
+  
+  // The deadline expired before the operation could complete. 
+  // e.g. underlyed system had not answered in a defined timeslot
+  DEADLINE_EXCEEDED = 4;
+  
+  // Some requested entity (e.g., file or directory) was not found. 
+  NOT_FOUND = 5;
+
+  // The entity to create (e.g., file or directory) already exists.
+  ALREADY_EXISTS = 6;
+  
+  // The caller does not have permission to execute the specified operation.
+  // This error code does not imply the request is valid or the requested 
+  // entity exists or satisfies other pre-conditions.
+  PERMISSION_DENIED = 7;
+
+  // Some resource has been exhausted
+  // e.g. due to limited number of datapoints
+  RESOURCE_EXHAUSTED = 8;
+  
+  // The operation was rejected because the system is not in a state required 
+  // for the operation's execution.
+  // - missing configuration
+  // - no connection established
+  // - etc.
+  FAILED_PRECONDITION = 9;
+  
+  // The operation was aborted, typically due to a concurrency issue such as 
+  // a sequencer check failure or transaction abort.
+  ABORTED = 10;
+  
+  // The operation was attempted past the valid range.
+  OUT_OF_RANGE = 11;
+  
+  // The operation is not implemented or is not supported/enabled in this service.
+  UNIMPLEMENTED = 12;
+  
+  // Internal errors. This means that some invariants expected by the underlying 
+  // system have been broken. This error code is reserved for serious errors.
+  // - internal driver has returned an error
+  // - etc.
+  INTERNAL = 13;
+
+  // The service is currently unavailable. 
+  // (This is most likely a transient condition)
+  UNAVAILABLE = 14;
+  
+  // Unrecoverable data loss or corruption.
+  DATA_LOSS = 15;
+  
+  // The request does not have valid authentication credentials for the operation.
+  UNAUTHENTICATED = 16;
+  
+  
+  // --------------------------------------------------------------------------
+  // Connectivity Suite dedicated status codes
+  // (more specific than the generic codes above)
+  //
+  
+  // The Data-API call contains invalid datapoint ID
+  // - no configuration available
+  // - not existent datapoint ID
+  // - etc.
+  INVALID_DATAPOINT_ID = 64;
+  
+  // The Data-API call contains invalid subscription ID
+  // - subscription not created
+  // - subscription already deleted
+  // - etc.
+  INVALID_SUBSCRIPTION_ID = 65;
+  
+  // Something goes wrong in serialisation of palyoad
+  // - unknown datatype
+  // - internal error
+  // - etc.
+  PAYLOAD_SERIALISATION_ISSUE = 66;
+  
+  // Something goes wrong in deserialisation of palyoad
+  // - unknown datatype
+  // - internal error
+  // - etc.
+  PAYLOAD_DESERIALISATION_ISSUE = 67;
+  
+  // Processing of the request not finished yet.
+  // Still busy in working on the reqest.
+  BUSY = 68;
+  
+}

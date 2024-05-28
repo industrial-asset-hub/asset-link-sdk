@@ -1,0 +1,43 @@
+// ------------------------------------------------------------------
+// Connectivity Suite - Command API
+// ------------------------------------------------------------------
+
+// Conenctivity Suite Command Interface
+syntax = "proto3";
+
+import "common_address.proto";
+
+package siemens.connectivitysuite.command.v1;
+
+service CommandApi {
+    rpc ExecuteCommand( ExecuteCommandRequest ) returns( ExecuteCommandResponse ) {}
+    rpc GetSupportedCommands ( GetSupportedCommandsRequest ) returns ( GetSupportedCommandsResponse ) {}
+}
+
+message ExecuteCommandRequest {
+    // Connection configuration
+    siemens.common.address.v1.Destination connection = 1;  // connection
+
+    // Datapoint configuration (address and connector specific datatype)
+    siemens.common.address.v1.DatapointParameterSet datapoint_parameter_set = 2;
+
+    // The command which has to be executed
+    string command = 3;
+
+    // The raw-data for this command
+    bytes payload = 4;
+}
+
+message ExecuteCommandResponse {   
+    // Raw-data value stream with the result of the command (optional)
+    bytes payload = 1;
+}
+
+message GetSupportedCommandsRequest {
+    // void
+}
+
+message GetSupportedCommandsResponse {  
+    // List of supported commands by this connector  
+    repeated string commands = 1;
+}

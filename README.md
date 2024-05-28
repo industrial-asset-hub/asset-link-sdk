@@ -16,9 +16,10 @@ package "cdm-dcd-sdk" #DAE8FC {
 package "features" {
 interface Discovery
 
-Discovery : Start(jobId, deviceInfoReply) error
-Discovery : Cancel(jobId) error
-
+Discovery : Start(jobId uint32, deviceChannel chan []*generated.DiscoveredDevice, err chan error, filters map[string]string)
+Discovery : Cancel(jobId uint32) error
+Discovery : FilterTypes(filterTypesChannel chan []*generated.SupportedFilter)
+Discovery : FilterOptions(filterOptionsChannel chan []*generated.SupportedOption)
 
 }
 

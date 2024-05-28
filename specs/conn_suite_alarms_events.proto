@@ -1,0 +1,272 @@
+// ------------------------------------------------------------------
+// Connectivity Suite Interface Definition
+//
+// Alarms & Events API Interface
+//
+// ------------------------------------------------------------------
+//
+// Naming convention according:
+// https://cloud.google.com/apis/design/naming_convention
+//
+// ------------------------------------------------------------------
+
+syntax = "proto3";
+
+// import "google/protobuf/any.proto";
+// import "conn_suite_code.proto";
+
+package siemens.connectivitysuite.alarmsevents.v1;
+
+// ===========================================
+//
+// Concept Alarm-and-Event Interface
+// ---------------------------------
+// - Alarm subscription is done at Connector-Level and not at Device-Level
+//   The alarm data contains the source of the alarm. So all relevant information
+//   should be available.
+// - Alarm data contains full-text-messages
+//   Minimum the texts in default language are provided.
+// - Late Subscriber (client) should get a list of active alarms.
+//   I.e. the connector must be able to provide the list of active alarms
+//   at any time.
+// - The client can optional read metadata to be able to define subscription filters.
+//   When the client subscribes w/o filter, it will get all alarms.
+// - There is only a SubscribeAlarms() function defined. 
+//   Stopping of the subscription can be done from client or server by gRPC functionality.
+//
+// For more details see the related Wiki Chapter in the Connectivity Suite SDK
+//
+
+// ===========================================
+// The Services Definition
+//
+service AlarmEventApi
+{    
+    // Possible return values
+    // - OK
+    // - FAILED_PRECONDITION - no connector configuration available
+    //
+    rpc GetAlarmMetadata( GetAlarmMetadataRequest ) returns( GetAlarmMetadataResponse ) {};
+    
+    // Possible return values
+    // - OK
+    // - FAILED_PRECONDITION - parameters (connection, filter, etc.) are invalid
+    //
+    // The subscription can be closed from both sides (client and server) 
+    // just by using gRPC standard functions ( call Finish() )
+    //
+    // Error details are provided via gRPC standard mechanisms.
+    // see https://github.com/googleapis/googleapis/blob/master/google/rpc/status.proto
+    // see https://github.com/googleapis/googleapis/blob/master/google/rpc/error_details.proto
+    //
+    rpc SubscribeAlarms( SubscribeAlarmRequest ) returns( stream SubscribeAlarmNotification ) {};
+}
+
+// ==================================================================
+// Alarms and Events Metadata
+//
+
+message GetAlarmMetadataRequest {
+}
+
+// The Alarm Metadata is a summarize (merge) of all connections
+// controlled by this connector.
+message GetAlarmMetadataResponse {
+    // array of alarms' metadata
+    AlarmMetadata alarm_metadata  = 1;
+}
+
+// The alarm's metadata is needed to be able to define filters for
+// subscribing alarms.
+// ToDo - confirm with relevant norm documents
+    message AlarmMetadata {
+    repeated string areas           = 1; // possible alarm areas of this connection
+                                         // e.g. 'System', 'Security', etc.
+    repeated string sources         = 2; // possible alarm sources of this connection
+                                         // e.g. "PLC_1", "PLC_2"
+    repeated string origins         = 3; // Possible technological entity that can cause alarms
+                                         // e.g. "oxygen pump"
+    repeated string alarm_classes   = 4; // possible alarm classes of this connection
+                                         // e.g. 'Acknowledgement', 'No Acknowledgement', 
+                                         // 'Critical', 'Information', etc.
+    repeated string languages       = 5; // list of available languages
+    repeated string well_known_keys = 6; // list of well-known extended properties key
+                                         // e.g. SIMATIC S7-1500 alarm-parameter: 
+                                         // 'producer', 'ap1', 'ap2', 'ap3'
+}
+
+
+// ==================================================================
+// Subscription 'Alarms and Events'
+//
+
+message SubscribeAlarmRequest {
+
+    // Define, what alarms the client is interested in
+    // Filter can utilize alarm areas, sources and classes
+    // When a filter property is empty (e.g. 'sources') alarms from all sources are provided.
+    AlarmFilter alarm_filter = 1;
+    
+    // List of languages the client is interested in. 
+    // When nothing is provided or no match, then only the default language 
+    // is provided by the connector.
+    // (the default language depends on the connector or the device projecting)
+    repeated string languages = 2;
+}
+
+message SubscribeAlarmNotification {
+    // one ore more alarm notifications
+    repeated AlarmNotification notifications = 1;
+}
+
+
+// -------------------------------------------------------------
+// Filter for Alarm-and-Events Subscription
+// The client can reduce the number of transferred notifications
+// to the information it is interested in.
+//
+// When one filter property is empty, this corresponds to ALL
+// i.e. when no area is defined, alarms from ALL areas are provided (i.e. not filtered for 'areas')
+message AlarmFilter {
+    repeated string areas         = 1; // list of 'alarm areas' the client is interested in (OR linked)
+    repeated string sources       = 2; // list of 'alarm sources' the client is interested in (AND linked to the areas)
+    repeated string alarm_classes = 3; // list of 'alarm classes' the client is interested in (AND linked to the areas)
+    repeated string origins       = 4; // list of 'alarm origins' the client is interested in (AND linked to the areas)
+}
+
+// -------------------------------------------------------------
+// Alarm and Event Notification (streaming)
+//
+message AlarmNotification {
+
+    string alarm_id = 1; // Unique identifier for this specific alarm
+                         // Might be composed from device-specific alarm information
+                         // Example S7-1500:
+                         // alarm_id = <connection name>-<container RID>-<ALID>-<ARID>
+
+    // Timestamps in 100-nanosecond intervals since January 1, 1601 (UTC)
+    // A specific alarm does not need to include all of these timestamps.
+    // Only relevant timestamps are included in the message.
+    fixed64 raised_time       = 2; // timestamp when the alarm was raised
+    fixed64 acknowledged_time = 3; // timestamp when the alarm was acknowledged
+    fixed64 confirmed_time    = 4; // timestamp when the alarm was confirmed
+    fixed64 cleared_time      = 5; // timestamp when the alarm was cleared (condition of the alarm was cleared)
+    fixed64 removed_time      = 6; // timestamp when the alarm was removed
+                                   // The 'removed time' is equal to the last state change, e.g. 'cleared'
+                                   // Does not exist, when the alarm is stateless (is_created == null)
+                                   // e.g. S7-1500 'Notify Report'
+
+    uint32 priority = 7; //      0 no prio
+                         //  1.. 5 low
+                         //  6..10 medium
+                         // 11..15 high
+                         // 16..   highest
+
+    string area     = 8; // Alarm area e.g. 'System', 'Process', 'Security', etc.
+                         // Might be mapped from device-specific information
+                         // e.g. S7-1500: corresponds to 'alarm domain'
+
+    string source   = 9; // Alarm source. Depending on availability of configuration:
+                         // - factory equipment
+                         // - equipment functionality
+                         // - tags
+                         // e.g. connection name and/or device name
+
+    string origin  = 10; // Technological entity that is associated 
+                         // with the alarm and known by the users of the system
+                         // e.g. the plant identifier
+
+    string alarm_class = 11; // Alarm class 
+                             // e.g. 'Acknowledgement', 'No Acknowledgement', 'Critical', 'Information', etc.
+
+    // For a state of 'State Machine' three different values are needed:
+    // 'not_relevant' (not applicable), 'yes' and 'no'
+    // PROTOBUF provides a non-set variable with default value (e.g. 'false' for bool)
+    enum SmState {
+        not_relevant = 0;
+        yes = 1;
+        no = 2;
+    }
+
+    // Used state machines of the alarm and its current state
+    // Not all alarm types or devices use all of them
+    // The client gets to know what state machines are used and what state changes
+    
+    SmState is_active       = 12; // the alarm _condition_ is active (the trigger of the alarm is active)
+    SmState is_acknowledged = 13; // the user has seen the alarm condition
+    SmState is_confirmed    = 14; // the user has solved the problem that caused the alarm
+
+    // Alarm _instance_ active (don't mix up with alarm _condition_ active!!!)
+    // This means "is_active" might be "no", but it is missing acknowledgement or confirmation
+    // To know is an alarm instance is still active, you need to combine the state variables in the following way:
+    // is_created = (is_active == yes) || (is_acknowledged == no) || (is_confirmed == no)
+
+    // Incoming alarm
+    // To know if this is the notification which has raised the alarm alarm, you need to combine the state variables in the following way:
+    // is_incoming = (is_active == yes) || (is_acknowledged =! yes) || (is_confirmed != yes)
+
+    // Alarm going to idle state
+    // To know if this is the notification which moves the alarm alarm to idle state, you need to combine the state variables in the following way:
+    // is_idle = (is_active == no) && (is_acknowledged =! no) && (is_confirmed != no)
+    // maybe it is easier to check if `removed_time` is set
+
+    // Usage of state machine for different alarm types
+    //
+    // -------------------|---------- state machines ------------
+    // alarm type         |  active  | acknowledged | confirmed
+    // -------------------+----------+--------------+------------
+    // alarm with confirm |     X    |     X        |    X
+    // S7+ alarm          |     X    |     X        |   n.r.
+    // S7+ notify         |     X    |    n.r.      |   n.r.
+    // S7+ inforeport     |    n.r.  |    n.r.      |   n.r.
+    //
+    // meaning of flags:
+    //    X    = either 'yes' or 'no'
+    //    n.r. = not relevant
+
+    // A localized text contains the language code and the language specific text
+    //
+    // It is implemeted as ::google::protobuf:Map of <key, value>
+    // key - language code
+    //        - Language Codes according ISO 639-1 
+    //        - Country Codes  according ISO 3166 (two-letter code - alpha-2)
+    //        - Examples: "en-US", "de-DE"
+    // value - UTF-8 encoded message in this language
+    //
+    message MultiLingualText {
+        map<string, string> localized_texts = 1;
+    }
+
+    // the leading alarm text
+    // If the system provides additional texts, they are transferred via
+    // 'ExtendedProperty' (see below)
+    MultiLingualText alarm_text = 15;
+
+    // There might be even more device specific alarm properties.
+    // Such information can be provided with 'extended properties'.
+    // e.g. for S7-1500 the alarm contains 'client alarm ID' or 'producer'
+    // e.g. for 'alarm parameter' we could define 'well-known keys', e.g. 'ap1', 'ap2'
+    message ExtendedProperty {
+        // The key of the extended property
+        // e.g. 'Client alarm ID', 'Producer', etc.
+        string key = 1;
+        // The value can contain various values, e.g. numbers or multilingual texts
+        // For specific use cases also byte-array (raw) is available
+        oneof value {
+            // Transfer any integer value up to 64 bit
+            int64 int64_value = 2;
+            // Transfer any floating point value
+            double float64_value = 3;
+            // Transfer a UTF8-text
+            string text = 4;
+            // Multilangual text, i.e. one or more texts with 'language' property
+            // The key-value-pair provides a semantic context for a text
+            // Examples for S7-1500: 'InfoText' or 'AddlText1'
+            MultiLingualText multilingual_text = 5;
+            // Transfer array of bytes
+            // Example for raw-data: S7-1500 system diagnosis data
+            bytes raw_data = 6;
+        };
+    };
+    repeated ExtendedProperty extended_properties = 16;
+}
