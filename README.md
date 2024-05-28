@@ -148,9 +148,6 @@ To start the AL execute inside the generated directory:
 # Copy templated go.mod file
 $ cp go.mod.tmpl go.mod
 
-# Set private repository
-$ export GOPRIVATE="code.siemens.com"
-
 # Synchronize Go modules
 $ go mod tidy
 
