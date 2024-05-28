@@ -11,6 +11,7 @@ import (
 	generated "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/generated/iah-discovery"
 	"fmt"
 	"github.com/google/uuid"
+	"strconv"
 	"time"
 )
 
@@ -38,6 +39,7 @@ type DeviceInfo struct {
 	// Override connection point, since generated base schema does not provide derived types
 	ConnectionPoints []Ipv4Connectivity `json:"connection_points,omitempty"`
 	Asset
+	MacIdentifiers []MacIdentifier `json:"mac_identifiers"`
 }
 
 func CreateTimestamp() string {
@@ -151,17 +153,6 @@ func (d *DeviceInfo) ConvertToDiscoveredDevice() *generated.DiscoveredDevice {
 						Value: []*generated.DeviceIdentifier{
 							{
 								Value: &generated.DeviceIdentifier_Text{
-									Text: *d.ConnectionPoints[0].Ipv4Address,
-								},
-								Classifiers: []*generated.SemanticClassifier{
-									{
-										Type:  "URI",
-										Value: fmt.Sprintf("%s/Asset#connection_points/mac_address", baseSchemaPrefix),
-									},
-								},
-							},
-							{
-								Value: &generated.DeviceIdentifier_Text{
 									Text: *d.ConnectionPoints[0].ConnectionPointType,
 								},
 								Classifiers: []*generated.SemanticClassifier{
@@ -189,6 +180,42 @@ func (d *DeviceInfo) ConvertToDiscoveredDevice() *generated.DiscoveredDevice {
 					{
 						Type:  "URI",
 						Value: fmt.Sprintf("%s/Asset#connection_points", baseSchemaPrefix),
+					},
+				},
+			},
+			{
+				Value: &generated.DeviceIdentifier_Children{
+					Children: &generated.DeviceIdentifierValueList{
+						Value: []*generated.DeviceIdentifier{
+							{
+								Value: &generated.DeviceIdentifier_Text{
+									Text: strconv.Itoa(*d.MacIdentifiers[0].IdentifierUncertainty),
+								},
+								Classifiers: []*generated.SemanticClassifier{
+									{
+										Type:  "URI",
+										Value: fmt.Sprintf("%s/Asset#mac_identifiers/identifier_uncertainty", baseSchemaPrefix),
+									},
+								},
+							},
+							{
+								Value: &generated.DeviceIdentifier_Text{
+									Text: *d.MacIdentifiers[0].MacAddress,
+								},
+								Classifiers: []*generated.SemanticClassifier{
+									{
+										Type:  "URI",
+										Value: fmt.Sprintf("%s/Asset#mac_identifiers/mac_address", baseSchemaPrefix),
+									},
+								},
+							},
+						},
+					},
+				},
+				Classifiers: []*generated.SemanticClassifier{
+					{
+						Type:  "URI",
+						Value: fmt.Sprintf("%s/Asset#mac_identifiers", baseSchemaPrefix),
 					},
 				},
 			},
