@@ -11,6 +11,7 @@ import (
 	generated "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/generated/iah-discovery"
 	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/model"
 	"errors"
+	"fmt"
 	"github.com/rs/zerolog/log"
 )
 
@@ -40,15 +41,18 @@ func (m *AssetLinkImplementation) Start(jobId uint32, deviceChannel chan []*gene
 	err <- nil
 	m.discoveryJobRunning = true
 	m.discoveryJobCancelationToken = make(chan uint32)
-	deviceInfo := model.NewDevice("Profinet")
+	device := model.NewDevice("Profinet")
 	timestamp := model.CreateTimestamp()
+
 	Name := "Device"
-	deviceInfo.Name = &Name
-	product := "cdm-reference-dcd"
+	device.Name = &Name
+	product := "{{ cookiecutter.al_name }}"
 	version := "1.0.0"
-	vendorName := "Siemens AG"
+	vendorName := "{{ cookiecutter.company }}"
 	//serialNumber := uuid.NewString()
-	serialNumber := "sn"
+	//serialNumber := "sn"
+	lastSerialNumber.Add(1)
+	serialNumber := fmt.Sprint(lastSerialNumber.Load())
 	vendor := model.Organization{
 		Address:        nil,
 		AlternateNames: nil,
@@ -68,7 +72,14 @@ func (m *AssetLinkImplementation) Start(jobId uint32, deviceChannel chan []*gene
 		},
 		SerialNumber: &serialNumber,
 	}
-	deviceInfo.ProductInstanceIdentifier = &productSerialidentifier
+	device.ProductInstanceIdentifier = &productSerialidentifier
+
+	randomMacAddress := generateRandomMacAddress()
+	identifierUncertainty := 1
+	device.MacIdentifiers = append(device.MacIdentifiers, model.MacIdentifier{
+		MacAddress:            &randomMacAddress,
+		IdentifierUncertainty: &identifierUncertainty,
+	})
 
 	connectionPointType := "Ipv4Connectivity"
 	Ipv4Address := "192.168.0.1"
@@ -82,23 +93,23 @@ func (m *AssetLinkImplementation) Start(jobId uint32, deviceChannel chan []*gene
 		RelatedConnectionPoints: nil,
 		RouterIpv4Address:       nil,
 	}
-	deviceInfo.ConnectionPoints = append(deviceInfo.ConnectionPoints, Ipv4Connectivity)
+	device.ConnectionPoints = append(device.ConnectionPoints, Ipv4Connectivity)
 
 	state := model.ManagementStateValuesUnknown
 	State := model.ManagementState{
 		StateTimestamp: &timestamp,
 		StateValue:     &state,
 	}
-	deviceInfo.ManagementState = State
+	device.ManagementState = State
 
 	reachabilityStateValue := model.ReachabilityStateValuesReached
 	reachabilityState := model.ReachabilityState{
 		StateTimestamp: &timestamp,
 		StateValue:     &reachabilityStateValue,
 	}
-	deviceInfo.ReachabilityState = &reachabilityState
+	device.ReachabilityState = &reachabilityState
 
-	discoveredDevice := deviceInfo.ConvertToDiscoveredDevice()
+	discoveredDevice := device.ConvertToDiscoveredDevice()
 	devices := make([]*generated.DiscoveredDevice, 0)
 	devices = append(devices, discoveredDevice)
 	deviceChannel <- devices
