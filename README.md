@@ -15,14 +15,11 @@ It contains everything you need to set up your own Asset Link.
 package "cdm-dcd-sdk" #DAE8FC {
 package "features" {
 interface Discovery
-interface Softwareupdate
 
 Discovery : Start(jobId uint32, deviceChannel chan []*generated.DiscoveredDevice, err chan error, filters map[string]string)
 Discovery : Cancel(jobId uint32) error
 Discovery : FilterTypes(filterTypesChannel chan []*generated.SupportedFilter)
 Discovery : FilterOptions(filterOptionsChannel chan []*generated.SupportedOption)
-
-Softwareupdate :  Update(jobId, \n\t deviceId, metaData, progress) error
 
 }
 
