@@ -121,7 +121,7 @@ func (m *AssetLinkImplementation) Start(jobId uint32, deviceChannel chan []*gene
 		Msg("Start function exiting")
 }
 
-func (m *DCDImplementation) Cancel(jobId uint32) error {
+func (m *AssetLinkImplementation) Cancel(jobId uint32) error {
 	log.Info().
 		Uint32("Job Id", jobId).
 		Msg("Cancel Discovery")
