@@ -140,6 +140,24 @@ func (m *AssetLinkImplementation) Cancel(jobId uint32) error {
 
 }
 
+func (m *AssetLinkImplementation) FilterTypes(filterTypesChannel chan []*generated.SupportedFilter) {
+	filterTypes := make([]*generated.SupportedFilter, 0)
+	filterTypes = append(filterTypes, &generated.SupportedFilter{
+		Key:      "type",
+		Datatype: generated.VariantType_VT_BYTES,
+	})
+	filterTypesChannel <- filterTypes
+}
+
+func (m *AssetLinkImplementation) FilterOptions(filterOptionsChannel chan []*generated.SupportedOption) {
+	filterOptions := make([]*generated.SupportedOption, 0)
+	filterOptions = append(filterOptions, &generated.SupportedOption{
+		Key:      "option",
+		Datatype: generated.VariantType_VT_BOOL,
+	})
+	filterOptionsChannel <- filterOptions
+}
+
 func generateRandomMacAddress() string {
 	return fmt.Sprintf("%02x:%02x:%02x:%02x:%02x:%02x",
 		0x00, 0x16, 0x3e,
