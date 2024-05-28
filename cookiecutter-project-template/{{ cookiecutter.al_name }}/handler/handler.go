@@ -13,6 +13,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/rs/zerolog/log"
+	"sync/atomic"
 )
 
 // Implements the features of the DCD.
@@ -21,6 +22,8 @@ type AssetLinkImplementation struct {
 	discoveryJobCancelationToken chan uint32
 	discoveryJobRunning          bool
 }
+
+var lastSerialNumber = atomic.Int64{}
 
 // Implementation of the Discovery feature
 
