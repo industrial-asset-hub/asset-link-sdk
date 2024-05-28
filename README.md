@@ -38,7 +38,6 @@ class grpcRegistry
 
 package "server" {
 class devicediscovery
-class firmwareupdate
 class status
 class webserver
 
@@ -74,7 +73,6 @@ AssetLink : Stop()
 package "model" {
 struct DeviceInfo
 DeviceInfo .d[hidden]. Discovery
-DeviceInfo .d[hidden]. Softwareupdate
 
 DeviceInfo : Fields from json schema
 }
@@ -84,7 +82,6 @@ package "Device builder implementations" #D5E8D4 {
 SpecificDriver -u- AssetLink : starts
 SpecificDriver -u- assetLinkBuilder : uses
 SpecificDriver .u.|> Discovery
-SpecificDriver .u.|> Softwareupdate
 }
 ```
 
