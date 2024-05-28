@@ -13,7 +13,10 @@ import (
 	"errors"
 	"fmt"
 	"github.com/rs/zerolog/log"
+	"math/rand"
+	"strings"
 	"sync/atomic"
+	"time"
 )
 
 // Implements the features of the DCD.
@@ -69,7 +72,7 @@ func (m *AssetLinkImplementation) Start(jobId uint32, deviceChannel chan []*gene
 		ManufacturerProduct: &model.Product{
 			Id:             "",
 			Manufacturer:   &vendor,
-			Name:           nil,
+			Name:           &Name,
 			ProductId:      &product,
 			ProductVersion: &version,
 		},
@@ -87,13 +90,20 @@ func (m *AssetLinkImplementation) Start(jobId uint32, deviceChannel chan []*gene
 	connectionPointType := "Ipv4Connectivity"
 	Ipv4Address := "192.168.0.1"
 	Ipv4NetMask := "255.255.255.0"
+	connectionPoint := "ethernet"
+	relatedConnectionPoint := model.RelatedConnectionPoint{
+		ConnectionPoint:    &connectionPoint,
+		CustomRelationship: nil,
+	}
+	relatedConnectionPoints := make([]model.RelatedConnectionPoint, 0)
+	relatedConnectionPoints = append(relatedConnectionPoints, relatedConnectionPoint)
 	Ipv4Connectivity := model.Ipv4Connectivity{
 		ConnectionPointType:     &connectionPointType,
 		Id:                      "1",
 		InstanceAnnotations:     nil,
 		Ipv4Address:             &Ipv4Address,
 		NetworkMask:             &Ipv4NetMask,
-		RelatedConnectionPoints: nil,
+		RelatedConnectionPoints: relatedConnectionPoints,
 		RouterIpv4Address:       nil,
 	}
 	device.ConnectionPoints = append(device.ConnectionPoints, Ipv4Connectivity)
@@ -159,9 +169,15 @@ func (m *AssetLinkImplementation) FilterOptions(filterOptionsChannel chan []*gen
 }
 
 func generateRandomMacAddress() string {
-	return fmt.Sprintf("%02x:%02x:%02x:%02x:%02x:%02x",
-		0x00, 0x16, 0x3e,
-		byte(lastSerialNumber.Load()>>8),
-		byte(lastSerialNumber.Load()>>16),
-		byte(lastSerialNumber.Load()>>24))
+	rand.Seed(time.Now().UnixNano())
+	replaceX := func(r rune) rune {
+		if r == 'X' {
+			hexDigits := "0123456789ABCDEF"
+			return rune(hexDigits[rand.Intn(16)])
+		}
+		return r
+	}
+	macTemplate := "XX:XX:XX:XX:XX:XX"
+	mac := strings.Map(replaceX, macTemplate)
+	return mac
 }

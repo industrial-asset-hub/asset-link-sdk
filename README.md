@@ -139,9 +139,6 @@ There should now be a directory called **custom-asset-link**.
 The directory contains a number of files. The AL is ready to run out of the box.
 There is no fancy logic inside.
 
-`Please note:` Ensure to use a semantic version (e.g., v1.0.0) for the created DCD in the main file. "dev" versions
-are not acceptable.
-
 To start the AL execute inside the generated directory:
 
 ```bash
