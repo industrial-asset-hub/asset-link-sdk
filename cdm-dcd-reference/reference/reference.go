@@ -13,9 +13,7 @@ import (
 	"fmt"
 	"github.com/rs/zerolog/log"
 	"math/rand"
-	"strings"
 	"sync/atomic"
-	"time"
 )
 
 // Implements the features of the DCD.
@@ -173,15 +171,10 @@ func (m *ReferenceClassDriver) FilterOptions(filterOptionsChannel chan []*genera
 }
 
 func generateRandomMacAddress() string {
-	rand.Seed(time.Now().UnixNano())
-	replaceX := func(r rune) rune {
-		if r == 'X' {
-			hexDigits := "0123456789ABCDEF"
-			return rune(hexDigits[rand.Intn(16)])
-		}
-		return r
-	}
-	macTemplate := "XX:XX:XX:XX:XX:XX"
-	mac := strings.Map(replaceX, macTemplate)
-	return mac
+	r := rand.Uint64()
+	return fmt.Sprintf("%02x:%02x:%02x:%02x:%02x:%02x",
+		0x00, 0x16, 0x3e,
+		byte(r>>8),
+		byte(r>>16),
+		byte(r>>24))
 }
