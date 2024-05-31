@@ -12,6 +12,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/rs/zerolog/log"
+	"math/rand"
 	"sync/atomic"
 )
 
@@ -74,7 +75,7 @@ func (m *ReferenceClassDriver) Start(jobId uint32, deviceChannel chan []*generat
 		ManufacturerProduct: &model.Product{
 			Id:             "",
 			Manufacturer:   &vendor,
-			Name:           nil,
+			Name:           &Name,
 			ProductId:      &product,
 			ProductVersion: &version,
 		},
@@ -87,17 +88,24 @@ func (m *ReferenceClassDriver) Start(jobId uint32, deviceChannel chan []*generat
 		MacAddress:            &randomMacAddress,
 		IdentifierUncertainty: &identifierUncertainty,
 	})
-
-	connectionPointType := "Ipv4Connectivity"
+	connectionPoint := "ethernet"
+	relatedConnectionPoint := model.RelatedConnectionPoint{
+		ConnectionPoint:    &connectionPoint,
+		CustomRelationship: nil,
+	}
+	relatedConnectionPoints := make([]model.RelatedConnectionPoint, 0)
+	relatedConnectionPoints = append(relatedConnectionPoints, relatedConnectionPoint)
+	// not using it due to unexpected build issue
+	//connectionPointType := "Ipv4Connectivity"
 	Ipv4Address := "192.168.0.1"
 	Ipv4NetMask := "255.255.255.0"
 	Ipv4Connectivity := model.Ipv4Connectivity{
-		ConnectionPointType:     &connectionPointType,
+		ConnectionPointType:     nil,
 		Id:                      "1",
 		InstanceAnnotations:     nil,
 		Ipv4Address:             &Ipv4Address,
 		NetworkMask:             &Ipv4NetMask,
-		RelatedConnectionPoints: nil,
+		RelatedConnectionPoints: relatedConnectionPoints,
 		RouterIpv4Address:       nil,
 	}
 	deviceInfo.ConnectionPoints = append(deviceInfo.ConnectionPoints, Ipv4Connectivity)
@@ -163,9 +171,10 @@ func (m *ReferenceClassDriver) FilterOptions(filterOptionsChannel chan []*genera
 }
 
 func generateRandomMacAddress() string {
+	r := rand.Uint64()
 	return fmt.Sprintf("%02x:%02x:%02x:%02x:%02x:%02x",
 		0x00, 0x16, 0x3e,
-		byte(lastSerialNumber.Load()>>8),
-		byte(lastSerialNumber.Load()>>16),
-		byte(lastSerialNumber.Load()>>24))
+		byte(r>>8),
+		byte(r>>16),
+		byte(r>>24))
 }
