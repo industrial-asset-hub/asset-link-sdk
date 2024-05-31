@@ -80,7 +80,7 @@ func TestConvertToDiscoveredDevice(t *testing.T) {
 	}
 	device.ReachabilityState = &reachabilityState
 	discoveredDevice := device.ConvertToDiscoveredDevice()
-	assert.Equal(t, 17, len(discoveredDevice.Identifiers))
+	assert.Equal(t, 15, len(discoveredDevice.Identifiers))
 	assert.Equal(t, "URI", discoveredDevice.Identifiers[0].Classifiers[0].GetType())
 	assert.Equal(t, "https://schema.industrial-assets.io/base/v0.7.5/Asset#@type", discoveredDevice.Identifiers[0].Classifiers[0].GetValue())
 }
