@@ -32,21 +32,21 @@ func convertToDeviceIdentifiers(valueToConvert reflect.Value, prefixUri string, 
 			return identifiers
 		}
 		structIdentifiers := convertToDeviceIdentifiers(valueToConvert.Elem(), prefixUri, level)
-		identifiers = appendIdentifiers(identifiers, structIdentifiers)
+		identifiers = appendDeviceIdentifiers(identifiers, structIdentifiers)
 	case reflect.Struct:
 		structIdentifiers := convertStructTypeToDeviceIdentifiers(valueToConvert, prefixUri, level+1)
-		identifiers = appendIdentifiers(identifiers, structIdentifiers)
+		identifiers = appendDeviceIdentifiers(identifiers, structIdentifiers)
 	case reflect.Slice:
 		for index := 0; index < valueToConvert.Len(); index++ {
 			sliceIdentifier := convertSliceElementToDeviceIdentifier(valueToConvert.Index(index), prefixUri, level+1)
-			identifiers = append(identifiers, sliceIdentifier)
+			identifiers = appendDeviceIdentifier(identifiers, sliceIdentifier)
 		}
 	case reflect.String:
 		identifier := convertToDeviceIdentifier(valueToConvert.String(), prefixUri)
-		identifiers = append(identifiers, identifier)
+		identifiers = appendDeviceIdentifier(identifiers, identifier)
 	case reflect.Int, reflect.Float64, reflect.Bool:
 		identifier := convertToDeviceIdentifier(valueToConvert.Interface(), prefixUri)
-		identifiers = append(identifiers, identifier)
+		identifiers = appendDeviceIdentifier(identifiers, identifier)
 	default:
 		log.Warn().Msgf(fmt.Sprintf("Coudn't process value of kind %v and type %s", valueToConvert.Kind(), valueToConvert.Type()))
 	}
@@ -113,9 +113,19 @@ func convertToDeviceIdentifier(value interface{}, identifierUri string) *generat
 	return identifier
 }
 
-func appendIdentifiers(destinationIdentifiers []*generated.DeviceIdentifier, sourceIdentifiers []*generated.DeviceIdentifier) []*generated.DeviceIdentifier {
+func appendDeviceIdentifier(destinationIdentifiers []*generated.DeviceIdentifier, sourceIdentifier *generated.DeviceIdentifier) []*generated.DeviceIdentifier {
+	if destinationIdentifiers == nil || sourceIdentifier == nil {
+		return destinationIdentifiers
+	}
+	return append(destinationIdentifiers, sourceIdentifier)
+}
+
+func appendDeviceIdentifiers(destinationIdentifiers []*generated.DeviceIdentifier, sourceIdentifiers []*generated.DeviceIdentifier) []*generated.DeviceIdentifier {
+	if destinationIdentifiers == nil || sourceIdentifiers == nil {
+		return destinationIdentifiers
+	}
 	for _, structIdentifier := range sourceIdentifiers {
-		destinationIdentifiers = append(destinationIdentifiers, structIdentifier)
+		destinationIdentifiers = appendDeviceIdentifier(destinationIdentifiers, structIdentifier)
 	}
 	return destinationIdentifiers
 }
@@ -137,7 +147,7 @@ func convertStructTypeToDeviceIdentifiers(valueStruct reflect.Value, prefixUri s
 		}
 		currentFieldUri := getUri(prefixUri, fieldName, currentFieldLevel)
 		elementIdentifiers := convertToDeviceIdentifiers(fieldValue, currentFieldUri, currentFieldLevel)
-		structIdentifiers = appendIdentifiers(structIdentifiers, elementIdentifiers)
+		structIdentifiers = appendDeviceIdentifiers(structIdentifiers, elementIdentifiers)
 	}
 	return structIdentifiers
 }
