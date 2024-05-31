@@ -39,14 +39,14 @@ func convertToDeviceIdentifiers(valueToConvert reflect.Value, prefixUri string, 
 	case reflect.Slice:
 		for index := 0; index < valueToConvert.Len(); index++ {
 			sliceIdentifier := convertSliceElementToDeviceIdentifier(valueToConvert.Index(index), prefixUri, level+1)
-			identifiers = appendDeviceIdentifier(identifiers, sliceIdentifier)
+			identifiers = appendDeviceIdentifiers(identifiers, []*generated.DeviceIdentifier{sliceIdentifier})
 		}
 	case reflect.String:
 		identifier := convertToDeviceIdentifier(valueToConvert.String(), prefixUri)
-		identifiers = appendDeviceIdentifier(identifiers, identifier)
+		identifiers = appendDeviceIdentifiers(identifiers, []*generated.DeviceIdentifier{identifier})
 	case reflect.Int, reflect.Float64, reflect.Bool:
 		identifier := convertToDeviceIdentifier(valueToConvert.Interface(), prefixUri)
-		identifiers = appendDeviceIdentifier(identifiers, identifier)
+		identifiers = appendDeviceIdentifiers(identifiers, []*generated.DeviceIdentifier{identifier})
 	default:
 		log.Warn().Msgf(fmt.Sprintf("Coudn't process value of kind %v and type %s", valueToConvert.Kind(), valueToConvert.Type()))
 	}
@@ -113,19 +113,14 @@ func convertToDeviceIdentifier(value interface{}, identifierUri string) *generat
 	return identifier
 }
 
-func appendDeviceIdentifier(destinationIdentifiers []*generated.DeviceIdentifier, sourceIdentifier *generated.DeviceIdentifier) []*generated.DeviceIdentifier {
-	if destinationIdentifiers == nil || sourceIdentifier == nil {
-		return destinationIdentifiers
-	}
-	return append(destinationIdentifiers, sourceIdentifier)
-}
-
 func appendDeviceIdentifiers(destinationIdentifiers []*generated.DeviceIdentifier, sourceIdentifiers []*generated.DeviceIdentifier) []*generated.DeviceIdentifier {
 	if destinationIdentifiers == nil || sourceIdentifiers == nil {
 		return destinationIdentifiers
 	}
-	for _, structIdentifier := range sourceIdentifiers {
-		destinationIdentifiers = appendDeviceIdentifier(destinationIdentifiers, structIdentifier)
+	for _, sourceIdentifier := range sourceIdentifiers {
+		if sourceIdentifier != nil {
+			destinationIdentifiers = append(destinationIdentifiers, sourceIdentifier)
+		}
 	}
 	return destinationIdentifiers
 }
