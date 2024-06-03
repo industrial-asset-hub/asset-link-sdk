@@ -40,8 +40,8 @@ variables:
 .protoc-go: &protoc-go
   - export GOPATH=$HOME/go
   - export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
-  - go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
-  - go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+  - go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.33.0
+  - go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.3.0
 
 # latest is currently broken, there set the last working version
 # https://github.com/omissis/go-jsonschema/issues/131
@@ -171,9 +171,9 @@ cookiecutter-vendor:
     - >
       if [ -z $CI_COMMIT_TAG ]; then
         echo "detected non-tag build"
-        go get ${CI_SERVER_HOST}/${CI_PROJECT_PATH}@${CI_COMMIT_SHA}
+        go get ${CI_SERVER_HOST}/${CI_PROJECT_PATH}/v2@${CI_COMMIT_SHA}
       else
-        go get ${CI_SERVER_HOST}/${CI_PROJECT_PATH}@${CI_COMMIT_TAG}
+        go get ${CI_SERVER_HOST}/${CI_PROJECT_PATH}/v2@${CI_COMMIT_TAG}
       fi
     # Prepare
     - cat go.mod
@@ -189,7 +189,7 @@ cookiecutter-vendor:
       else
         cd ${CI_PROJECT_NAME} && git checkout ${CI_COMMIT_TAG} && cd ..
       fi
-    - go mod edit -replace=${CI_SERVER_HOST}/${CI_PROJECT_PATH}=./${CI_PROJECT_NAME}
+    - go mod edit -replace=${CI_SERVER_HOST}/${CI_PROJECT_PATH}/v2=./${CI_PROJECT_NAME}
     - cat go.mod
   cache:
     key: "$CI_PIPELINE_ID-$CI_COMMIT_REF_SLUG-COOKIECUTTER"

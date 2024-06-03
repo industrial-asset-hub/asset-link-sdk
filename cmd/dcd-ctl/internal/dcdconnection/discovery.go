@@ -8,7 +8,7 @@
 package dcdconnection
 
 import (
-	generated "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/generated/iah-discovery"
+	generated "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/generated/iah-discovery"
 	"encoding/json"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/net/context"

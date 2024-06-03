@@ -14,12 +14,12 @@ import (
 	"os/signal"
 	"syscall"
 
-	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/metadata"
+	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/metadata"
 	"{{cookiecutter.al_name}}/handler"
 
-	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/dcd"
+	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/dcd"
 
-	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/logging"
+	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/logging"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"

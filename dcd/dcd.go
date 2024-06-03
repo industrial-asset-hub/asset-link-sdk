@@ -12,15 +12,15 @@ import (
 	"net"
 	"os"
 
-	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/internal/server/webserver"
-	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/metadata"
+	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/internal/server/webserver"
+	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/metadata"
 
-	generatedDriverInfoServer "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/generated/conn_suite_drv_info"
-	generatedDiscoveryServer "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/generated/iah-discovery"
-	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/internal/features"
-	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/internal/registryclient"
-	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/internal/server/devicediscovery"
-	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/internal/server/driverinfo"
+	generatedDriverInfoServer "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/generated/conn_suite_drv_info"
+	generatedDiscoveryServer "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/generated/iah-discovery"
+	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/internal/features"
+	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/internal/registryclient"
+	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/internal/server/devicediscovery"
+	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/internal/server/driverinfo"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
 )
