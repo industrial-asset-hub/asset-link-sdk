@@ -8,8 +8,8 @@
 package handler
 
 import (
-	generated "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/generated/iah-discovery"
-	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/model"
+	generated "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/generated/iah-discovery"
+	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/model"
 	"errors"
 	"fmt"
 	"github.com/rs/zerolog/log"

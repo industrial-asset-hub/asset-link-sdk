@@ -8,8 +8,8 @@
 package driverinfo
 
 import (
-	generated "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/generated/conn_suite_drv_info"
-	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/metadata"
+	generated "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/generated/conn_suite_drv_info"
+	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/metadata"
 	semver "github.com/Masterminds/semver/v3"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/net/context"

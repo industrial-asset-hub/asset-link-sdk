@@ -197,7 +197,7 @@ To ease development or testing, the AL can be interactively triggered using a co
 For example, a discovery can be started/stopped or even the results are retrieved.
 
 ```bash
-go install code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/cmd/dcd-ctl@main
+go install code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/cmd/dcd-ctl@main
 ```
 
 ### Observability Webserver

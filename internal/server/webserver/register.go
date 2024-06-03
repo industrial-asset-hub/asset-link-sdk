@@ -10,9 +10,9 @@
 package webserver
 
 import (
-  "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/internal/features"
+	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/internal/features"
 )
 
 func init() {
-  features.ObservabilityFeatures().HttpObservabilityServer = true
+	features.ObservabilityFeatures().HttpObservabilityServer = true
 }

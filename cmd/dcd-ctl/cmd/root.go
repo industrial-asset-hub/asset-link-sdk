@@ -10,11 +10,11 @@ import (
 	"fmt"
 	"os"
 
-	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/cmd/dcd-ctl/cmd/info"
+	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/cmd/dcd-ctl/cmd/info"
 
-	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/cmd/dcd-ctl/cmd/discovery"
-	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/cmd/dcd-ctl/internal/shared"
-	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/logging"
+	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/cmd/dcd-ctl/cmd/discovery"
+	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/cmd/dcd-ctl/internal/shared"
+	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/logging"
 	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
 )
