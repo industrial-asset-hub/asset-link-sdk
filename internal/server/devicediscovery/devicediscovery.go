@@ -12,6 +12,7 @@ import (
 	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/internal/features"
 	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/internal/observability"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/rs/zerolog/log"
@@ -30,8 +31,8 @@ func (d *DiscoverServerEntity) DiscoverDevices(req *generated.DiscoverRequest, s
 		Msg("Start discovery request called")
 	// TODO: Think about making the interface more explicit
 	filter := map[string]string{
-		"option": fmt.Sprintf("%s", req.GetOptions()),
-		"filter": fmt.Sprintf("%s", req.GetFilters()),
+		"option": safeSerialize(req.GetOptions()),
+		"filter": safeSerialize(req.GetFilters()),
 	}
 
 	var jobId uint32 = 1
@@ -62,6 +63,15 @@ func (d *DiscoverServerEntity) DiscoverDevices(req *generated.DiscoverRequest, s
 	m.Devices = devices
 	streamErr := stream.SendMsg(m)
 	return streamErr
+}
+
+func safeSerialize(value interface{}) string {
+	b, err := json.Marshal(value)
+	if err != nil {
+		log.Error().Err(err).Any("value", value).Msg("Error during serialization of value")
+		return ""
+	}
+	return string(b)
 }
 
 func (d *DiscoverServerEntity) GetFilterTypes(context.Context, *generated.FilterTypesRequest) (*generated.FilterTypesResponse, error) {
