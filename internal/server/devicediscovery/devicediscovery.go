@@ -23,6 +23,14 @@ type DiscoverServerEntity struct {
 	features.Discovery
 }
 
+type FilterOrOption struct {
+	Key      string `json:"key"`
+	Operator string `json:"operator"`
+	Value    struct {
+		RawData string `json:"raw_data"`
+	} `json:"value"`
+}
+
 func (d *DiscoverServerEntity) DiscoverDevices(req *generated.DiscoverRequest, stream generated.DeviceDiscoverApi_DiscoverDevicesServer) error {
 	log.Info().
 		Str("options", fmt.Sprintf("%s", req.GetOptions())).
@@ -31,8 +39,8 @@ func (d *DiscoverServerEntity) DiscoverDevices(req *generated.DiscoverRequest, s
 		Msg("Start discovery request called")
 	// TODO: Think about making the interface more explicit
 	filter := map[string]string{
-		"option": safeSerialize(req.GetOptions()),
-		"filter": safeSerialize(req.GetFilters()),
+		"option": serializeFilterOrOption(req.GetOptions()),
+		"filter": serializeFilterOrOption(req.GetFilters()),
 	}
 
 	var jobId uint32 = 1
@@ -65,10 +73,28 @@ func (d *DiscoverServerEntity) DiscoverDevices(req *generated.DiscoverRequest, s
 	return streamErr
 }
 
-func safeSerialize(value interface{}) string {
-	b, err := json.Marshal(value)
+type GrpcFilterOrOption interface {
+	GetKey() string
+	GetOperator() generated.ComparisonOperator
+	GetValue() *generated.Variant
+}
+
+func serializeFilterOrOption[T GrpcFilterOrOption](filters []T) string {
+	var filterList []FilterOrOption
+	for _, filter := range filters {
+		filterList = append(filterList, FilterOrOption{
+			Key:      filter.GetKey(),
+			Operator: filter.GetOperator().String(),
+			Value: struct {
+				RawData string `json:"raw_data"`
+			}{
+				RawData: string(filter.GetValue().GetRawData()),
+			},
+		})
+	}
+	b, err := json.Marshal(filterList)
 	if err != nil {
-		log.Error().Err(err).Any("value", value).Msg("Error during serialization of value")
+		log.Error().Any("filters", filters).Err(err).Msg("Failed to serialize filters")
 		return ""
 	}
 	return string(b)
