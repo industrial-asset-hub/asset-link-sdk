@@ -1,8 +1,4 @@
-
 # EditorConfig is awesome: https://EditorConfig.org
-# SPDX-FileCopyrightText: 2023 Siemens AG
-#
-# SPDX-License-Identifier:
 
 # top-most EditorConfig file
 root = true
@@ -15,11 +11,18 @@ charset = utf-8
 indent_style = space
 indent_size = 2
 
+[*.go]
+indent_style = tab
+
 [*.py]
 indent_style = space
 indent_size = 4
 
-[*.yaml,*.yml]
+[*.yaml]
+indent_style = space
+indent_size = 2
+
+[*.yml]
 indent_style = space
 indent_size = 2
 
