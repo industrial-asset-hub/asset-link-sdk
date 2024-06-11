@@ -62,11 +62,13 @@ func (d *DiscoverServerEntity) DiscoverDevices(req *generated.DiscoverRequest, s
 			log.Error().Err(err).Msg(errMsg)
 			return err
 		}
-
 	} else {
-		log.Info().
-			Msg("No Discovery implementation found")
+		log.Info().Msg("No Discovery implementation found")
 	}
+	return receiveDevicesFromChannelAndPublishToStream(deviceChannel, m, stream)
+}
+
+func receiveDevicesFromChannelAndPublishToStream(deviceChannel chan []*generated.DiscoveredDevice, m *generated.DiscoverResponse, stream generated.DeviceDiscoverApi_DiscoverDevicesServer) error {
 	for {
 		devices, ok := <-deviceChannel
 		if !ok {
