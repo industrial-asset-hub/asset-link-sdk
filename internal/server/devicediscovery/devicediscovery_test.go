@@ -16,29 +16,31 @@ import (
 	"time"
 )
 
+const notImplementedForMock = "The mock does not implement this, yet"
+
 type streamServer struct {
 	SendMsgArgument any
 	done            chan interface{}
 }
 
 func (mock *streamServer) Send(response *generated.DiscoverResponse) error {
-	panic("implement me")
+	panic(notImplementedForMock)
 }
 
 func (mock *streamServer) SetHeader(md metadata.MD) error {
-	panic("implement me")
+	panic(notImplementedForMock)
 }
 
 func (mock streamServer) SendHeader(md metadata.MD) error {
-	panic("implement me")
+	panic(notImplementedForMock)
 }
 
 func (mock *streamServer) SetTrailer(md metadata.MD) {
-	panic("implement me")
+	panic(notImplementedForMock)
 }
 
 func (mock *streamServer) Context() context.Context {
-	panic("implement me")
+	panic(notImplementedForMock)
 }
 
 func (mock *streamServer) SendMsg(m any) error {
@@ -48,7 +50,7 @@ func (mock *streamServer) SendMsg(m any) error {
 }
 
 func (mock *streamServer) RecvMsg(m any) error {
-	panic("implement me")
+	panic(notImplementedForMock)
 }
 
 type discoveryMock struct {
@@ -66,15 +68,15 @@ func (d *discoveryMock) publishDevice(device *generated.DiscoveredDevice) {
 }
 
 func (d *discoveryMock) Cancel(jobId uint32) error {
-	panic("implement me")
+	panic(notImplementedForMock)
 }
 
 func (d *discoveryMock) FilterTypes(filterTypesChannel chan []*generated.SupportedFilter) {
-	panic("implement me")
+	panic(notImplementedForMock)
 }
 
 func (d *discoveryMock) FilterOptions(filterOptionsChannel chan []*generated.SupportedOption) {
-	panic("implement me")
+	panic(notImplementedForMock)
 }
 
 func TestSafeSerializeFilter(t *testing.T) {
