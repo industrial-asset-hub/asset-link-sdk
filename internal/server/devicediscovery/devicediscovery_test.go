@@ -12,6 +12,7 @@ import (
 	"context"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc/metadata"
+	"sync"
 	"testing"
 	"time"
 )
@@ -55,10 +56,13 @@ func (mock *streamServer) RecvMsg(m any) error {
 
 type discoveryMock struct {
 	deviceChannel chan []*generated.DiscoveredDevice
+	mu            sync.Mutex
 }
 
 func (d *discoveryMock) Start(jobId uint32, deviceChannel chan []*generated.DiscoveredDevice, err chan error, filters map[string]string) {
+	d.mu.Lock()
 	d.deviceChannel = deviceChannel
+	d.mu.Unlock()
 	err <- nil
 }
 
@@ -152,9 +156,12 @@ func waitUntilDeviceChannelIsUp(t *testing.T, mock *discoveryMock) {
 			t.Error("Timeout reached while waiting for device channel to be up")
 			t.FailNow()
 		case <-tick:
+			mock.mu.Lock()
 			if mock.deviceChannel != nil {
+				mock.mu.Unlock()
 				return
 			}
+			mock.mu.Unlock()
 		}
 	}
 }
