@@ -46,7 +46,6 @@ func (mock *streamServer) Context() context.Context {
 
 func (mock *streamServer) SendMsg(m any) error {
 	mock.SendMsgArgument = m
-	close(mock.done)
 	return nil
 }
 
@@ -68,6 +67,9 @@ func (d *discoveryMock) Start(jobId uint32, deviceChannel chan []*generated.Disc
 
 func (d *discoveryMock) publishDevice(device *generated.DiscoveredDevice) {
 	d.deviceChannel <- []*generated.DiscoveredDevice{device}
+}
+
+func (d *discoveryMock) closeDeviceChannel() {
 	close(d.deviceChannel)
 }
 
@@ -116,17 +118,12 @@ func TestSafeSerializeOption(t *testing.T) {
 }
 
 func TestDiscoverDevices(t *testing.T) {
-	t.Run("Should send discovered device to stream", func(t *testing.T) {
+	t.Run("Should stream discovered devices", func(t *testing.T) {
 		discovery := &discoveryMock{}
 		discoverServerEntity := DiscoverServerEntity{
-			UnimplementedDeviceDiscoverApiServer: generated.UnimplementedDeviceDiscoverApiServer{},
-			Discovery:                            discovery,
+			Discovery: discovery,
 		}
-		request := &generated.DiscoverRequest{
-			Filters: nil,
-			Options: nil,
-			Target:  nil,
-		}
+		request := &generated.DiscoverRequest{}
 		resultStream := &streamServer{
 			done: make(chan interface{}),
 		}
@@ -135,15 +132,18 @@ func TestDiscoverDevices(t *testing.T) {
 		go func() {
 			err := discoverServerEntity.DiscoverDevices(request, resultStream)
 			assert.NoError(t, err)
+			close(resultStream.done)
 		}()
 		waitUntilDeviceChannelIsUp(t, discovery)
 
-		expectedDevice := publish(discovery)
+		expectedDevice1 := publishDevice(discovery)
+		expectedDevice2 := publishDevice(discovery)
+		discovery.closeDeviceChannel()
 		<-resultStream.done
 
-		assert.NotNil(t, resultStream.SendMsgArgument)
-		discoverResponse := resultStream.SendMsgArgument.(*generated.DiscoverResponse)
-		assert.Contains(t, discoverResponse.Devices, expectedDevice)
+		response := resultStream.SendMsgArgument.(*generated.DiscoverResponse)
+		assert.Contains(t, response.Devices, expectedDevice1)
+		assert.Contains(t, response.Devices, expectedDevice2)
 	})
 }
 
@@ -166,7 +166,7 @@ func waitUntilDeviceChannelIsUp(t *testing.T, mock *discoveryMock) {
 	}
 }
 
-func publish(mock *discoveryMock) *generated.DiscoveredDevice {
+func publishDevice(mock *discoveryMock) *generated.DiscoveredDevice {
 	identifier := &generated.DeviceIdentifier{
 		Value: &generated.DeviceIdentifier_Children{},
 		Classifiers: []*generated.SemanticClassifier{{
