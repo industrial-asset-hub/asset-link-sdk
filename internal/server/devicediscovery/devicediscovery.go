@@ -62,15 +62,27 @@ func (d *DiscoverServerEntity) DiscoverDevices(req *generated.DiscoverRequest, s
 			log.Error().Err(err).Msg(errMsg)
 			return err
 		}
-
 	} else {
-		log.Info().
-			Msg("No Discovery implementation found")
+		log.Info().Msg("No Discovery implementation found")
 	}
-	devices := <-deviceChannel
-	m.Devices = devices
-	streamErr := stream.SendMsg(m)
-	return streamErr
+	return receiveDevicesFromChannelAndPublishToStream(deviceChannel, m, stream)
+}
+
+func receiveDevicesFromChannelAndPublishToStream(deviceChannel chan []*generated.DiscoveredDevice, m *generated.DiscoverResponse, stream generated.DeviceDiscoverApi_DiscoverDevicesServer) error {
+	for {
+		devices, ok := <-deviceChannel
+		if !ok {
+			log.Debug().Msg("No more devices received")
+			return nil
+		}
+		log.Debug().Msgf("%d devices received", len(devices))
+		m.Devices = devices
+		streamErr := stream.SendMsg(m)
+		if streamErr != nil {
+			log.Error().Msgf("Error sending message: %v", streamErr)
+			return streamErr
+		}
+	}
 }
 
 type GrpcFilterOrOption interface {
