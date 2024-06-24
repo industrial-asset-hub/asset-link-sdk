@@ -7,13 +7,14 @@
 package reference
 
 import (
-	generated "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/generated/iah-discovery"
-	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/model"
 	"errors"
 	"fmt"
-	"github.com/rs/zerolog/log"
 	"math/rand"
 	"sync/atomic"
+
+	generated "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/generated/iah-discovery"
+	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/model"
+	"github.com/rs/zerolog/log"
 )
 
 // Implements the features of the DCD.
@@ -37,6 +38,7 @@ func (m *ReferenceClassDriver) Start(jobId uint32, deviceChannel chan []*generat
 		Bool("running", m.discoveryJobRunning).
 		Msg("Discovery running?")
 
+	defer close(deviceChannel)
 	// Check if job is already running
 	// We currently support here only one running job
 	if m.discoveryJobRunning {
@@ -128,6 +130,7 @@ func (m *ReferenceClassDriver) Start(jobId uint32, deviceChannel chan []*generat
 	devices := make([]*generated.DiscoveredDevice, 0)
 	devices = append(devices, discoveredDevice)
 	deviceChannel <- devices
+
 	m.discoveryJobRunning = false
 	log.Debug().
 		Msg("Start function exiting")

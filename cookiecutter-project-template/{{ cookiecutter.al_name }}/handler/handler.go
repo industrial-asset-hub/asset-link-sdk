@@ -8,13 +8,14 @@
 package handler
 
 import (
-	generated "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/generated/iah-discovery"
-	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/model"
 	"errors"
 	"fmt"
-	"github.com/rs/zerolog/log"
 	"math/rand"
 	"sync/atomic"
+
+	generated "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/generated/iah-discovery"
+	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/model"
+	"github.com/rs/zerolog/log"
 )
 
 // Implements the features of the DCD.
@@ -38,6 +39,7 @@ func (m *AssetLinkImplementation) Start(jobId uint32, deviceChannel chan []*gene
 		errMsg := "Discovery job is already running"
 		err <- errors.New(errMsg)
 	}
+	defer close(deviceChannel)
 
 	// Thus, this function is executed as Goroutine,
 	// and the gRPC Server methods blocks, until the job is started, we assume at this point,
@@ -124,6 +126,7 @@ func (m *AssetLinkImplementation) Start(jobId uint32, deviceChannel chan []*gene
 	devices := make([]*generated.DiscoveredDevice, 0)
 	devices = append(devices, discoveredDevice)
 	deviceChannel <- devices
+
 	m.discoveryJobRunning = false
 	log.Debug().
 		Msg("Start function exiting")
