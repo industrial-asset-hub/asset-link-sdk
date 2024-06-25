@@ -149,7 +149,7 @@ $ cp go.mod.tmpl go.mod
 $ go mod tidy
 
 # Execute
-$ go run main.go --grpc-server-address=$(hostname -i):8080 --grpc-server-endpoint-address --grpc-registry-address=localhost:50051
+$ go run main.go --grpc-server-address=$(hostname -i):8080 --grpc-server-endpoint-address=$(hostname) --grpc-registry-address=localhost:50051
 [...]
 ```
 
