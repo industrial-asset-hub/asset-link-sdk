@@ -1,9 +1,10 @@
 package model
 
 import (
+	"testing"
+
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestConvertToDiscoveredDevice(t *testing.T) {
@@ -47,10 +48,13 @@ func TestConvertToDiscoveredDevice(t *testing.T) {
 	connectionPointType := "Ipv4Connectivity"
 	Ipv4Address := "192.168.0.1"
 	Ipv4NetMask := "255.255.255.0"
-	connectionPoint := "ethernet"
+	connectionPoint := "EthernetPort"
+	connectionPointTypeIpv6 := "Ipv6Connectivity"
+	routerIpv6Address := []string{"fd12:3456:789a::1"}
+	Ipv6Address := []string{"fd12:3456:789a::1", "fd12:3456:789a::2"}
 	relatedConnectionPoint := RelatedConnectionPoint{
-		ConnectionPoint:    &connectionPoint,
-		CustomRelationship: nil,
+		ConnectionPoint:    &connectionPointType,
+		CustomRelationship: &connectionPoint,
 	}
 	relatedConnectionPoints := make([]RelatedConnectionPoint, 0)
 	relatedConnectionPoints = append(relatedConnectionPoints, relatedConnectionPoint)
@@ -63,8 +67,28 @@ func TestConvertToDiscoveredDevice(t *testing.T) {
 		RelatedConnectionPoints: relatedConnectionPoints,
 		RouterIpv4Address:       nil,
 	}
-	device.ConnectionPoints = append(device.ConnectionPoints, Ipv4Connectivity)
-	device.ConnectionPoints = append(device.ConnectionPoints, Ipv4Connectivity)
+	device.ConnectionPoints = append(device.ConnectionPoints, Connection{
+		Ipv4Connectivity: Ipv4Connectivity,
+	})
+	Ipv6Connectivity := Ipv6Connectivity{
+		ConnectionPointType:     &connectionPointTypeIpv6,
+		Id:                      "2",
+		InstanceAnnotations:     nil,
+		Ipv6Address:             Ipv6Address,
+		RelatedConnectionPoints: nil,
+		RouterIpv6Address:       routerIpv6Address,
+	}
+	device.ConnectionPoints = append(device.ConnectionPoints, Connection{
+		Ipv6Connectivity: Ipv6Connectivity,
+	})
+	EthernetPort := EthernetPort{
+		Id:                  "3",
+		ConnectionPointType: &connectionPoint,
+		MacAddress:          &randomMacAddress,
+	}
+	device.ConnectionPoints = append(device.ConnectionPoints, Connection{
+		EthernetPort: EthernetPort,
+	})
 
 	state := ManagementStateValuesUnknown
 	State := ManagementState{
@@ -80,7 +104,7 @@ func TestConvertToDiscoveredDevice(t *testing.T) {
 	}
 	device.ReachabilityState = &reachabilityState
 	discoveredDevice := device.ConvertToDiscoveredDevice()
-	assert.Equal(t, 15, len(discoveredDevice.Identifiers))
+	assert.Equal(t, 16, len(discoveredDevice.Identifiers))
 	assert.Equal(t, "URI", discoveredDevice.Identifiers[0].Classifiers[0].GetType())
 	assert.Equal(t, "https://schema.industrial-assets.io/base/v0.7.5/Asset#@type", discoveredDevice.Identifiers[0].Classifiers[0].GetValue())
 }
