@@ -8,13 +8,15 @@
 package dcdconnection
 
 import (
-	generated "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/generated/iah-discovery"
 	"encoding/json"
+	"io"
+
+	generated "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/generated/iah-discovery"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/net/context"
 )
 
-func StartDiscovery(endpoint string, option string, filter string) *generated.DiscoverResponse {
+func StartDiscovery(endpoint string, option string, filter string) []generated.DiscoverResponse {
 	log.Trace().Str("Endpoint", endpoint).Str("Option", option).Str("Filter", filter).Msg("Starting discovery job")
 	// TODO: Generate option
 	parsedOptions := []*generated.ActiveOption{}
@@ -49,10 +51,22 @@ func StartDiscovery(endpoint string, option string, filter string) *generated.Di
 		log.Err(err).Msg("StartDeviceDiscovery request returned an error")
 		return nil
 	}
-	data, err := stream.Recv()
-	if err != nil {
-		log.Err(err).Msg("error while receiving data from client stream")
-		return nil
+
+	devices := make([]generated.DiscoverResponse, 0)
+	for {
+		resp, err := stream.Recv()
+
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Err(err).Msg("SubscribeDiscovery request returned an error")
+			return nil
+		}
+		log.Info().Interface("response", resp.Devices).Msg("Received Response")
+		//for _, d := range resp.Devices {
+		log.Trace().Interface("Devices", resp).Msg("")
+		devices = append(devices, *resp)
 	}
-	return data
+	return devices
 }
