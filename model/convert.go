@@ -2,9 +2,10 @@ package model
 
 import (
 	"fmt"
-	"github.com/rs/zerolog/log"
 	"reflect"
 	"strings"
+
+	"github.com/rs/zerolog/log"
 
 	generated "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/generated/iah-discovery"
 )
@@ -47,6 +48,13 @@ func convertToDeviceIdentifiers(valueToConvert reflect.Value, prefixUri string, 
 	case reflect.Int, reflect.Float64, reflect.Bool:
 		identifier := convertToDeviceIdentifier(valueToConvert.Interface(), prefixUri)
 		identifiers = appendDeviceIdentifiers(identifiers, []*generated.DeviceIdentifier{identifier})
+	case reflect.Interface:
+		if valueToConvert.IsNil() {
+			return identifiers
+		}
+		interfaceValue := valueToConvert.Elem()
+		interfaceIdentifiers := convertToDeviceIdentifiers(interfaceValue, prefixUri, level)
+		identifiers = appendDeviceIdentifiers(identifiers, interfaceIdentifiers)
 	default:
 		log.Warn().Msgf(fmt.Sprintf("Coudn't process value of kind %v and type %s", valueToConvert.Kind(), valueToConvert.Type()))
 	}
