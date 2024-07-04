@@ -109,9 +109,7 @@ func (m *AssetLinkImplementation) Start(jobId uint32, deviceChannel chan []*gene
 		RelatedConnectionPoints: relatedConnectionPoints,
 		RouterIpv4Address:       nil,
 	}
-	device.ConnectionPoints = append(device.ConnectionPoints, model.Connection{
-		Ipv4Connectivity: Ipv4Connectivity,
-	})
+	device.ConnectionPoints = append(device.ConnectionPoints, Ipv4Connectivity)
 	Ipv6Connectivity := model.Ipv6Connectivity{
 		ConnectionPointType:     &connectionPointTypeIpv6,
 		Id:                      "2",
@@ -120,17 +118,13 @@ func (m *AssetLinkImplementation) Start(jobId uint32, deviceChannel chan []*gene
 		RelatedConnectionPoints: nil,
 		RouterIpv6Address:       routerIpv6Address,
 	}
-	device.ConnectionPoints = append(device.ConnectionPoints, model.Connection{
-		Ipv6Connectivity: Ipv6Connectivity,
-	})
+	device.ConnectionPoints = append(device.ConnectionPoints, Ipv6Connectivity)
 	EthernetPort := model.EthernetPort{
 		Id:                  "3",
 		ConnectionPointType: &connectionPoint,
 		MacAddress:          &randomMacAddress,
 	}
-	device.ConnectionPoints = append(device.ConnectionPoints, model.Connection{
-		EthernetPort: EthernetPort,
-	})
+	device.ConnectionPoints = append(device.ConnectionPoints, EthernetPort)
 
 	state := model.ManagementStateValuesUnknown
 	State := model.ManagementState{

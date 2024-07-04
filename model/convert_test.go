@@ -67,9 +67,7 @@ func TestConvertToDiscoveredDevice(t *testing.T) {
 		RelatedConnectionPoints: relatedConnectionPoints,
 		RouterIpv4Address:       nil,
 	}
-	device.ConnectionPoints = append(device.ConnectionPoints, Connection{
-		Ipv4Connectivity: Ipv4Connectivity,
-	})
+	device.ConnectionPoints = append(device.ConnectionPoints, Ipv4Connectivity)
 	Ipv6Connectivity := Ipv6Connectivity{
 		ConnectionPointType:     &connectionPointTypeIpv6,
 		Id:                      "2",
@@ -78,17 +76,13 @@ func TestConvertToDiscoveredDevice(t *testing.T) {
 		RelatedConnectionPoints: nil,
 		RouterIpv6Address:       routerIpv6Address,
 	}
-	device.ConnectionPoints = append(device.ConnectionPoints, Connection{
-		Ipv6Connectivity: Ipv6Connectivity,
-	})
+	device.ConnectionPoints = append(device.ConnectionPoints, Ipv6Connectivity)
 	EthernetPort := EthernetPort{
 		Id:                  "3",
 		ConnectionPointType: &connectionPoint,
 		MacAddress:          &randomMacAddress,
 	}
-	device.ConnectionPoints = append(device.ConnectionPoints, Connection{
-		EthernetPort: EthernetPort,
-	})
+	device.ConnectionPoints = append(device.ConnectionPoints, EthernetPort)
 
 	state := ManagementStateValuesUnknown
 	State := ManagementState{

@@ -112,9 +112,7 @@ func (m *ReferenceClassDriver) Start(jobId uint32, deviceChannel chan []*generat
 		RelatedConnectionPoints: relatedConnectionPoints,
 		RouterIpv4Address:       nil,
 	}
-	deviceInfo.ConnectionPoints = append(deviceInfo.ConnectionPoints, model.Connection{
-		Ipv4Connectivity: Ipv4Connectivity,
-	})
+	deviceInfo.ConnectionPoints = append(deviceInfo.ConnectionPoints, Ipv4Connectivity)
 	Ipv6Connectivity := model.Ipv6Connectivity{
 		ConnectionPointType:     nil,
 		Id:                      "2",
@@ -123,17 +121,13 @@ func (m *ReferenceClassDriver) Start(jobId uint32, deviceChannel chan []*generat
 		RelatedConnectionPoints: nil,
 		RouterIpv6Address:       routerIpv6Address,
 	}
-	deviceInfo.ConnectionPoints = append(deviceInfo.ConnectionPoints, model.Connection{
-		Ipv6Connectivity: Ipv6Connectivity,
-	})
+	deviceInfo.ConnectionPoints = append(deviceInfo.ConnectionPoints, Ipv6Connectivity)
 	EthernetPort := model.EthernetPort{
 		Id:                  "3",
 		ConnectionPointType: nil,
 		MacAddress:          &randomMacAddress,
 	}
-	deviceInfo.ConnectionPoints = append(deviceInfo.ConnectionPoints, model.Connection{
-		EthernetPort: EthernetPort,
-	})
+	deviceInfo.ConnectionPoints = append(deviceInfo.ConnectionPoints, EthernetPort)
 
 	state := model.ManagementStateValuesUnknown
 	State := model.ManagementState{
