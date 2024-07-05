@@ -90,17 +90,19 @@ func (m *ReferenceClassDriver) Start(jobId uint32, deviceChannel chan []*generat
 		MacAddress:            &randomMacAddress,
 		IdentifierUncertainty: &identifierUncertainty,
 	})
-	connectionPoint := "ethernet"
+	// connectionPoint := "ethernet"
 	relatedConnectionPoint := model.RelatedConnectionPoint{
-		ConnectionPoint:    &connectionPoint,
+		ConnectionPoint:    nil,
 		CustomRelationship: nil,
 	}
 	relatedConnectionPoints := make([]model.RelatedConnectionPoint, 0)
 	relatedConnectionPoints = append(relatedConnectionPoints, relatedConnectionPoint)
 	// not using it due to unexpected build issue
-	//connectionPointType := "Ipv4Connectivity"
+	//connectionPointType := "Ipv4Connectivtestity"
 	Ipv4Address := "192.168.0.1"
 	Ipv4NetMask := "255.255.255.0"
+	routerIpv6Address := []string{"fd12:3456:789a::1"}
+	Ipv6Address := []string{"fd12:3456:789a::1", "fd12:3456:789a::2"}
 	Ipv4Connectivity := model.Ipv4Connectivity{
 		ConnectionPointType:     nil,
 		Id:                      "1",
@@ -111,6 +113,21 @@ func (m *ReferenceClassDriver) Start(jobId uint32, deviceChannel chan []*generat
 		RouterIpv4Address:       nil,
 	}
 	deviceInfo.ConnectionPoints = append(deviceInfo.ConnectionPoints, Ipv4Connectivity)
+	Ipv6Connectivity := model.Ipv6Connectivity{
+		ConnectionPointType:     nil,
+		Id:                      "2",
+		InstanceAnnotations:     nil,
+		Ipv6Address:             Ipv6Address,
+		RelatedConnectionPoints: nil,
+		RouterIpv6Address:       routerIpv6Address,
+	}
+	deviceInfo.ConnectionPoints = append(deviceInfo.ConnectionPoints, Ipv6Connectivity)
+	EthernetPort := model.EthernetPort{
+		Id:                  "3",
+		ConnectionPointType: nil,
+		MacAddress:          &randomMacAddress,
+	}
+	deviceInfo.ConnectionPoints = append(deviceInfo.ConnectionPoints, EthernetPort)
 
 	state := model.ManagementStateValuesUnknown
 	State := model.ManagementState{

@@ -90,10 +90,13 @@ func (m *AssetLinkImplementation) Start(jobId uint32, deviceChannel chan []*gene
 	connectionPointType := "Ipv4Connectivity"
 	Ipv4Address := "192.168.0.1"
 	Ipv4NetMask := "255.255.255.0"
-	connectionPoint := "ethernet"
+	connectionPoint := "EthernetPort"
+	connectionPointTypeIpv6 := "Ipv6Connectivity"
+	routerIpv6Address := []string{"fd12:3456:789a::1"}
+	Ipv6Address := []string{"fd12:3456:789a::1", "fd12:3456:789a::2"}
 	relatedConnectionPoint := model.RelatedConnectionPoint{
-		ConnectionPoint:    &connectionPoint,
-		CustomRelationship: nil,
+		ConnectionPoint:    &connectionPointType,
+		CustomRelationship: &connectionPoint,
 	}
 	relatedConnectionPoints := make([]model.RelatedConnectionPoint, 0)
 	relatedConnectionPoints = append(relatedConnectionPoints, relatedConnectionPoint)
@@ -107,6 +110,21 @@ func (m *AssetLinkImplementation) Start(jobId uint32, deviceChannel chan []*gene
 		RouterIpv4Address:       nil,
 	}
 	device.ConnectionPoints = append(device.ConnectionPoints, Ipv4Connectivity)
+	Ipv6Connectivity := model.Ipv6Connectivity{
+		ConnectionPointType:     &connectionPointTypeIpv6,
+		Id:                      "2",
+		InstanceAnnotations:     nil,
+		Ipv6Address:             Ipv6Address,
+		RelatedConnectionPoints: nil,
+		RouterIpv6Address:       routerIpv6Address,
+	}
+	device.ConnectionPoints = append(device.ConnectionPoints, Ipv6Connectivity)
+	EthernetPort := model.EthernetPort{
+		Id:                  "3",
+		ConnectionPointType: &connectionPoint,
+		MacAddress:          &randomMacAddress,
+	}
+	device.ConnectionPoints = append(device.ConnectionPoints, EthernetPort)
 
 	state := model.ManagementStateValuesUnknown
 	State := model.ManagementState{
