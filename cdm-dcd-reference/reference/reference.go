@@ -90,15 +90,12 @@ func (m *ReferenceClassDriver) Start(jobId uint32, deviceChannel chan []*generat
 		MacAddress:            &randomMacAddress,
 		IdentifierUncertainty: &identifierUncertainty,
 	})
-	// connectionPoint := "ethernet"
 	relatedConnectionPoint := model.RelatedConnectionPoint{
 		ConnectionPoint:    nil,
 		CustomRelationship: nil,
 	}
 	relatedConnectionPoints := make([]model.RelatedConnectionPoint, 0)
 	relatedConnectionPoints = append(relatedConnectionPoints, relatedConnectionPoint)
-	// not using it due to unexpected build issue
-	//connectionPointType := "Ipv4Connectivtestity"
 	Ipv4Address := "192.168.0.1"
 	Ipv4NetMask := "255.255.255.0"
 	routerIpv6Address := []string{"fd12:3456:789a::1"}
