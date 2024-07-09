@@ -16,7 +16,7 @@ import (
 
 func TestNetwork(t *testing.T) {
 	t.Run("AddNic", func(t *testing.T) {
-		m := NewDevice("asset")
+		m := NewDevice("asset", "MyDevice")
 
 		assert.NotEmpty(t, m.AddNic("nic2", "AA:AA:AA:AA:AA:AA"))
 		m.AddNic("nic0", "AA:BB:CC:DD:EE:FF")
@@ -34,16 +34,21 @@ func TestNetwork(t *testing.T) {
 					assert.Equal(t, "name", *v.InstanceAnnotations[0].Key)
 					assert.Equal(t, "nic0", *v.InstanceAnnotations[0].Value)
 					assert.Equal(t, "AA:BB:CC:DD:EE:FF", *v.MacAddress)
+
+					uncertainity := 1
+					id := MacIdentifier{MacAddress: v.MacAddress, IdentifierUncertainty: &uncertainity}
+					assert.Contains(t, m.MacIdentifiers, id)
 					break
 				}
 			}
 		}
+
 		assert.Equal(t, 1, found)
 
 	})
 
 	t.Run("AddIpv4", func(t *testing.T) {
-		m := NewDevice("asset")
+		m := NewDevice("asset", "device")
 		assert.NotEmpty(t, m.AddIPv4("nic0",
 			"10.0.0.1", "255.0.0.0",
 			"10.0.0.254"))
@@ -72,7 +77,7 @@ func TestNetwork(t *testing.T) {
 	})
 
 	t.Run("AddIpv6", func(t *testing.T) {
-		m := NewDevice("asset")
+		m := NewDevice("asset", "device")
 		m.AddIPv6("nic0",
 			"fd00::42", "",
 			"fd00::1")

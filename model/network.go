@@ -30,6 +30,10 @@ func (d *DeviceInfo) AddNic(name string, macAddress string) (id string) {
 		RelatedConnectionPoints: nil,
 	}
 	d.ConnectionPoints = append(d.ConnectionPoints, nic)
+
+	// automatically an MAC identifier, as it is required currently.
+	d.addIdentifier(macAddress)
+
 	return id
 }
 

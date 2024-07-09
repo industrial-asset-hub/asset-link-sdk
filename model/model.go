@@ -15,9 +15,15 @@ const (
 	baseSchemaPrefix = "https://schema.industrial-assets.io/base/v0.7.5"
 )
 
-func NewDevice(typeOfAsset string) *DeviceInfo {
+// Generates a new asset skeleton
+func NewDevice(typeOfAsset string, assetName string) *DeviceInfo {
 	d := DeviceInfo{}
 	d.Type = typeOfAsset
+	d.Name = &assetName
+
+	d.addManagementState()
+	d.addReachabilityState()
+
 	return &d
 }
 
