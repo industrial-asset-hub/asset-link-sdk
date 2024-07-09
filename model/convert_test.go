@@ -45,15 +45,16 @@ func TestConvertToDiscoveredDevice(t *testing.T) {
 		IdentifierUncertainty: &identifierUncertainty,
 	})
 
-	connectionPointType := "Ipv4Connectivity"
+	connectionPointType := Ipv4ConnectivityConnectionPointTypeIpv4Connectivity
 	Ipv4Address := "192.168.0.1"
 	Ipv4NetMask := "255.255.255.0"
 	connectionPoint := "EthernetPort"
-	connectionPointTypeIpv6 := "Ipv6Connectivity"
+	connectionPointTypeIpv6 := Ipv6ConnectivityConnectionPointTypeIpv6Connectivity
 	routerIpv6Address := []string{"fd12:3456:789a::1"}
 	Ipv6Address := []string{"fd12:3456:789a::1", "fd12:3456:789a::2"}
+	conPoint := "eth0"
 	relatedConnectionPoint := RelatedConnectionPoint{
-		ConnectionPoint:    &connectionPointType,
+		ConnectionPoint:    &conPoint,
 		CustomRelationship: &connectionPoint,
 	}
 	relatedConnectionPoints := make([]RelatedConnectionPoint, 0)
@@ -77,9 +78,10 @@ func TestConvertToDiscoveredDevice(t *testing.T) {
 		RouterIpv6Address:       routerIpv6Address,
 	}
 	device.ConnectionPoints = append(device.ConnectionPoints, Ipv6Connectivity)
+	ethernetType := EthernetPortConnectionPointTypeEthernetPort
 	EthernetPort := EthernetPort{
 		Id:                  "3",
-		ConnectionPointType: &connectionPoint,
+		ConnectionPointType: &ethernetType,
 		MacAddress:          &randomMacAddress,
 	}
 	device.ConnectionPoints = append(device.ConnectionPoints, EthernetPort)
