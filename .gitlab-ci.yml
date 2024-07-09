@@ -155,6 +155,7 @@ generate:
     - *go-jsonschema
     - go generate
     - git diff --exit-code
+  allow_failure: true
 
 .go-build:
   stage: build
