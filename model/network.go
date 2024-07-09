@@ -17,7 +17,7 @@ import (
 func (d *DeviceInfo) AddNic(name string, macAddress string) (id string) {
 	id = uuid.New().String()
 
-	t := "EthernetPort"
+	t := EthernetPortConnectionPointTypeEthernetPort
 	nameKey := "name"
 	nic := EthernetPort{
 		ConnectionPointType: &t,
@@ -45,7 +45,7 @@ func (d *DeviceInfo) AddNic(name string, macAddress string) (id string) {
 func (d *DeviceInfo) AddIPv4(nicId string, address string, networkMask string, router string) (id string) {
 	id = uuid.New().String()
 
-	t := "Ipv4Connectivity"
+	t := Ipv4ConnectivityConnectionPointTypeIpv4Connectivity
 	customRelName := "Relies on"
 	relationship := RelatedConnectionPoint{
 		ConnectionPoint:    &nicId,
@@ -73,7 +73,7 @@ func (d *DeviceInfo) AddIPv4(nicId string, address string, networkMask string, r
 func (d *DeviceInfo) AddIPv6(nicId string, address string, networkMask string, router string) (id string) {
 	id = uuid.New().String()
 
-	t := "Ipv6Connectivity"
+	t := Ipv6ConnectivityConnectionPointTypeIpv6Connectivity
 	customRelName := "Relies on"
 	relationship := RelatedConnectionPoint{
 		ConnectionPoint:    &nicId,
