@@ -141,6 +141,21 @@ cookiecutter-setup:
       - $COOKIECUTTER_PROJECT/${COOKIECUTTER_PROJECT_NAME}
     policy: pull-push
 
+generate:
+  stage: test
+  needs: []
+  image: $GO_BUILD_IMAGE
+  variables:
+    CGO_ENABLED: 1
+  script:
+    - apk add --no-cache git curl gcc libc-dev protobuf-dev
+    - *set_git_https_credentials
+    - *cookiecutter_gomod-quirk
+    - *protoc-go
+    - *go-jsonschema
+    - go generate
+    - git diff --exit-code
+
 .go-build:
   stage: build
   image: archlinux:latest
