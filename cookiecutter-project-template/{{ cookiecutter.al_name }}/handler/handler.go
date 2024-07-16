@@ -47,99 +47,33 @@ func (m *AssetLinkImplementation) Start(jobId uint32, deviceChannel chan []*gene
 	err <- nil
 	m.discoveryJobRunning = true
 	m.discoveryJobCancelationToken = make(chan uint32)
-	device := model.NewDevice("Profinet")
-	timestamp := model.CreateTimestamp()
 
-	Name := "Device"
-	device.Name = &Name
+	//
+	// At here our custom logic to discover our device and fetch the needed information
+	//
+
+	// Fillup the device information
+	device := model.NewDevice("EthernetDevice", "My First Ethernet Device")
+
 	product := "{{ cookiecutter.al_name }}"
-	version := "1.0.0"
+	orderNumber := "PRODUCT-ONE"
+	productVersion := "1.0.0"
 	vendorName := "{{ cookiecutter.company }}"
-	//serialNumber := uuid.NewString()
-	//serialNumber := "sn"
 	lastSerialNumber.Add(1)
 	serialNumber := fmt.Sprint(lastSerialNumber.Load())
-	vendor := model.Organization{
-		Address:        nil,
-		AlternateNames: nil,
-		ContactPoint:   nil,
-		Id:             "",
-		Name:           &vendorName,
-	}
-	productSerialidentifier := model.ProductSerialIdentifier{
-		IdentifierType:        nil,
-		IdentifierUncertainty: nil,
-		ManufacturerProduct: &model.Product{
-			Id:             "",
-			Manufacturer:   &vendor,
-			Name:           &Name,
-			ProductId:      &product,
-			ProductVersion: &version,
-		},
-		SerialNumber: &serialNumber,
-	}
-	device.ProductInstanceIdentifier = &productSerialidentifier
+
+	device.AddNameplate(
+		vendorName,
+		orderNumber,
+		product,
+		productVersion,
+		serialNumber)
 
 	randomMacAddress := generateRandomMacAddress()
-	identifierUncertainty := 1
-	device.MacIdentifiers = append(device.MacIdentifiers, model.MacIdentifier{
-		MacAddress:            &randomMacAddress,
-		IdentifierUncertainty: &identifierUncertainty,
-	})
+	id := device.AddNic("eth0", randomMacAddress)
+	device.AddIPv4(id, "192.168.0.1", "255.255.255.0", "")
 
-	connectionPointType := "Ipv4Connectivity"
-	Ipv4Address := "192.168.0.1"
-	Ipv4NetMask := "255.255.255.0"
-	connectionPoint := "EthernetPort"
-	connectionPointTypeIpv6 := "Ipv6Connectivity"
-	routerIpv6Address := []string{"fd12:3456:789a::1"}
-	Ipv6Address := []string{"fd12:3456:789a::1", "fd12:3456:789a::2"}
-	relatedConnectionPoint := model.RelatedConnectionPoint{
-		ConnectionPoint:    &connectionPointType,
-		CustomRelationship: &connectionPoint,
-	}
-	relatedConnectionPoints := make([]model.RelatedConnectionPoint, 0)
-	relatedConnectionPoints = append(relatedConnectionPoints, relatedConnectionPoint)
-	Ipv4Connectivity := model.Ipv4Connectivity{
-		ConnectionPointType:     &connectionPointType,
-		Id:                      "1",
-		InstanceAnnotations:     nil,
-		Ipv4Address:             &Ipv4Address,
-		NetworkMask:             &Ipv4NetMask,
-		RelatedConnectionPoints: relatedConnectionPoints,
-		RouterIpv4Address:       nil,
-	}
-	device.ConnectionPoints = append(device.ConnectionPoints, Ipv4Connectivity)
-	Ipv6Connectivity := model.Ipv6Connectivity{
-		ConnectionPointType:     &connectionPointTypeIpv6,
-		Id:                      "2",
-		InstanceAnnotations:     nil,
-		Ipv6Address:             Ipv6Address,
-		RelatedConnectionPoints: nil,
-		RouterIpv6Address:       routerIpv6Address,
-	}
-	device.ConnectionPoints = append(device.ConnectionPoints, Ipv6Connectivity)
-	EthernetPort := model.EthernetPort{
-		Id:                  "3",
-		ConnectionPointType: &connectionPoint,
-		MacAddress:          &randomMacAddress,
-	}
-	device.ConnectionPoints = append(device.ConnectionPoints, EthernetPort)
-
-	state := model.ManagementStateValuesUnknown
-	State := model.ManagementState{
-		StateTimestamp: &timestamp,
-		StateValue:     &state,
-	}
-	device.ManagementState = State
-
-	reachabilityStateValue := model.ReachabilityStateValuesReached
-	reachabilityState := model.ReachabilityState{
-		StateTimestamp: &timestamp,
-		StateValue:     &reachabilityStateValue,
-	}
-	device.ReachabilityState = &reachabilityState
-
+	// Convert and stream device to upstream system
 	discoveredDevice := device.ConvertToDiscoveredDevice()
 	devices := make([]*generated.DiscoveredDevice, 0)
 	devices = append(devices, discoveredDevice)
