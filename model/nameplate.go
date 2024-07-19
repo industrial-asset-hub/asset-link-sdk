@@ -7,6 +7,10 @@
 
 package model
 
+import (
+	"github.com/google/uuid"
+)
+
 // Add nameplate to an discovered asset
 //
 // Name = ManufacturerProductDesignation
@@ -41,4 +45,49 @@ func (d *DeviceInfo) AddNameplate(manufacturerName string,
 
 	d.ProductInstanceIdentifier = &pi
 
+}
+
+func (d *DeviceInfo) AddFirmware(name string, version string) {
+	softwareIdentifier := SoftwareIdentifier{
+		Name:    &name,
+		Version: &version,
+	}
+
+	softwareArtifact := SoftwareArtifact{
+		AssetOperations:           nil,
+		ChecksumIdentifier:        nil,
+		ConnectionPoints:          nil,
+		CustomUiProperties:        nil,
+		FunctionalParts:           nil,
+		Id:                        uuid.New().String(),
+		InstanceAnnotations:       nil,
+		ManagementState:           ManagementState{},
+		Name:                      nil,
+		OtherStates:               nil,
+		ProductInstanceIdentifier: nil,
+		ReachabilityState:         nil,
+		SoftwareComponents:        nil,
+		SoftwareIdentifier:        &softwareIdentifier,
+	}
+
+	runningSoftware := RunningSoftware{
+		Artifact:                  &softwareArtifact,
+		AssetOperations:           nil,
+		ConnectionPoints:          nil,
+		CustomRunningSoftwareType: nil,
+		CustomUiProperties:        nil,
+		FunctionalParts:           nil,
+		Id:                        uuid.New().String(),
+		InstanceAnnotations:       nil,
+		ManagementState:           ManagementState{},
+		Name:                      nil,
+		OtherStates:               nil,
+		ProductInstanceIdentifier: nil,
+		ReachabilityState:         nil,
+		RunningSoftwareType:       nil,
+		RunningSwId:               nil,
+		SoftwareComponents:        nil,
+	}
+
+	d.SoftwareComponents = append(d.SoftwareComponents, runningSoftware)
 }
