@@ -38,10 +38,11 @@ func TestSoftwareNameplate(t *testing.T) {
 	t.Run("AddFirmware", func(t *testing.T) {
 		m := NewDevice("", "")
 
-		m.AddFirmware("ArtifactName", "0.1.2")
+		m.AddSoftware("ArtifactName", "0.1.2")
+		m.AddSoftware("ArtifactName1", "2.1.3")
 
 		firmware := m.getFirmware()
-		if len(firmware) != 1 {
+		if len(firmware) != 2 {
 			fmt.Printf("Expected 1 added firmware, got %d\n", len(firmware))
 			t.Fail()
 		}

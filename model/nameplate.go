@@ -8,6 +8,8 @@
 package model
 
 // Add nameplate to an discovered asset
+//
+// Inspired by IDTA 02006-0-0 Digital Nameplate for industrial equippment
 func (d *DeviceInfo) AddNameplate(manufacturerName string,
 	productArticleNumberOfManufacturer string,
 	manufacturerProductFamily string,
@@ -41,7 +43,7 @@ func (d *DeviceInfo) AddNameplate(manufacturerName string,
 }
 
 // Add Firmware information to an discovered asset
-func (d *DeviceInfo) AddFirmware(name string, version string) {
+func (d *DeviceInfo) AddSoftware(name string, version string) {
 	softwareIdentifier := SoftwareIdentifier{
 		Name:    &name,
 		Version: &version,
