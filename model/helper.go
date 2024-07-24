@@ -20,7 +20,7 @@ func (d *DeviceInfo) addIdentifier(mac string) {
 
 // Add reachability state to the asset
 func (d *DeviceInfo) addReachabilityState() {
-	timestamp := CreateTimestamp()
+	timestamp := createTimestamp()
 	state := ReachabilityStateValuesReached
 
 	reachabilityState := ReachabilityState{
