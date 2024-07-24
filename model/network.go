@@ -11,17 +11,18 @@ import (
 	"github.com/google/uuid"
 )
 
-// Add an Network card
+// AddNic Add a network interface card
 //
+// The function returns an UUID, which can be used to add an IP address to the NIC
 // No validation of is currently done
-func (d *DeviceInfo) AddNic(name string, macAddress string) (id string) {
-	id = uuid.New().String()
+func (d *DeviceInfo) AddNic(name string, macAddress string) (nicId string) {
+	nicId = uuid.New().String()
 
 	t := EthernetPortConnectionPointTypeEthernetPort
 	nameKey := "name"
 	nic := EthernetPort{
 		ConnectionPointType: &t,
-		Id:                  id,
+		Id:                  nicId,
 		InstanceAnnotations: []InstanceAnnotation{InstanceAnnotation{
 			Key:   &nameKey,
 			Value: &name,
@@ -34,12 +35,12 @@ func (d *DeviceInfo) AddNic(name string, macAddress string) (id string) {
 	// automatically an MAC identifier, as it is required currently.
 	d.addIdentifier(macAddress)
 
-	return id
+	return nicId
 }
 
-// Add an IPv4 address to a network card
+// AddIPv4 Add an IPv4 address to a network card
 //
-// networkMask should be a consists of 4 octets (aaa.bbb.ccc.ddd)
+// The given network mask should consist of 4 octets (aaa.bbb.ccc.ddd)
 //
 // No validation of is currently done
 func (d *DeviceInfo) AddIPv4(nicId string, address string, networkMask string, router string) (id string) {
@@ -65,7 +66,7 @@ func (d *DeviceInfo) AddIPv4(nicId string, address string, networkMask string, r
 	return id
 }
 
-// Add an IPv6 address to a network card
+// AddIPv6 Add an IPv6 address to a network card
 //
 // networkMask is currently missing
 //

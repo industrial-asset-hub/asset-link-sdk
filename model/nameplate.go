@@ -7,12 +7,18 @@
 
 package model
 
-// Add nameplate to an discovered asset
+// AddNameplate Add a digital nameplate to an asset.
+// The nameplate is inspired by IDTA 02006-0-0 Digital Nameplate for industrial equippment
 //
-// Inspired by IDTA 02006-0-0 Digital Nameplate for industrial equippment
+// manufacturerName: legally valid designation of the natural or judicial person
+// productArticleNumberOfManufacturer: unique product identifier of the manufacturer
+// manufacturerProductDesignation: short description of the product (short text)
+// hardwareVersion: version of the hardware supplied with the device
+// serialNumber: unique combination of numbers and letters used to identify
+// the device once it has been manufactured
 func (d *DeviceInfo) AddNameplate(manufacturerName string,
 	productArticleNumberOfManufacturer string,
-	manufacturerProductFamily string,
+	manufacturerProductDesignation string,
 	hardwareVersion string,
 	serialNumber string,
 ) {
@@ -28,7 +34,7 @@ func (d *DeviceInfo) AddNameplate(manufacturerName string,
 	mp := Product{
 		Id:             "",
 		Manufacturer:   &organisation,
-		Name:           &manufacturerProductFamily,
+		Name:           &manufacturerProductDesignation,
 		ProductId:      &productArticleNumberOfManufacturer,
 		ProductVersion: &hardwareVersion,
 	}
@@ -42,7 +48,7 @@ func (d *DeviceInfo) AddNameplate(manufacturerName string,
 	d.ProductInstanceIdentifier = &pi
 }
 
-// Add Firmware information to an discovered asset
+// AddSoftware Add software information to an asset
 func (d *DeviceInfo) AddSoftware(name string, version string) {
 	softwareIdentifier := SoftwareIdentifier{
 		Name:    &name,

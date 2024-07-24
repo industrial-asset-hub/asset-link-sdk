@@ -35,7 +35,7 @@ func (d *DeviceInfo) addReachabilityState() {
 // Only used internal
 func (d *DeviceInfo) addManagementState() {
 
-	timestamp := CreateTimestamp()
+	timestamp := createTimestamp()
 	state := ManagementStateValuesUnknown
 
 	mgmtState := ManagementState{

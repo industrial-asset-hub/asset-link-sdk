@@ -15,7 +15,7 @@ const (
 	baseSchemaPrefix = "https://schema.industrial-assets.io/base/v0.7.5"
 )
 
-// Generates a new asset skeleton
+// NewDevice Generates a new asset skeleton
 func NewDevice(typeOfAsset string, assetName string) *DeviceInfo {
 	d := DeviceInfo{}
 	d.Type = typeOfAsset
@@ -37,7 +37,7 @@ type DeviceInfo struct {
 	SoftwareComponents []any `json:"software_components,omitempty"`
 }
 
-func CreateTimestamp() string {
+func createTimestamp() string {
 	currentTime := time.Now().UTC()
 	return currentTime.Format(time.RFC3339Nano)
 }
