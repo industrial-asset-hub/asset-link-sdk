@@ -93,3 +93,49 @@ func (d *DeviceInfo) AddSoftware(name string, version string) {
 
 	d.SoftwareComponents = append(d.SoftwareComponents, runningSoftware)
 }
+
+// AddSoftware Add software information to an asset
+func (d *DeviceInfo) AddSoftware(name string, version string) {
+	softwareIdentifier := SoftwareIdentifier{
+		Name:    &name,
+		Version: &version,
+	}
+
+	softwareArtifact := SoftwareArtifact{
+		AssetOperations:           nil,
+		ChecksumIdentifier:        nil,
+		ConnectionPoints:          nil,
+		CustomUiProperties:        nil,
+		FunctionalParts:           nil,
+		Id:                        "",
+		InstanceAnnotations:       nil,
+		ManagementState:           ManagementState{},
+		Name:                      nil,
+		OtherStates:               nil,
+		ProductInstanceIdentifier: nil,
+		ReachabilityState:         nil,
+		SoftwareComponents:        nil,
+		SoftwareIdentifier:        &softwareIdentifier,
+	}
+
+	runningSoftware := RunningSoftware{
+		Artifact:                  &softwareArtifact,
+		AssetOperations:           nil,
+		ConnectionPoints:          nil,
+		CustomRunningSoftwareType: nil,
+		CustomUiProperties:        nil,
+		FunctionalParts:           nil,
+		Id:                        "",
+		InstanceAnnotations:       nil,
+		ManagementState:           ManagementState{},
+		Name:                      nil,
+		OtherStates:               nil,
+		ProductInstanceIdentifier: nil,
+		ReachabilityState:         nil,
+		RunningSoftwareType:       nil,
+		RunningSwId:               nil,
+		SoftwareComponents:        nil,
+	}
+
+	d.SoftwareComponents = append(d.SoftwareComponents, runningSoftware)
+}
