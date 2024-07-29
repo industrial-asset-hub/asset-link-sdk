@@ -7,7 +7,9 @@
 
 package model
 
-import "github.com/google/uuid"
+import (
+	"github.com/google/uuid"
+)
 
 func (d *DeviceInfo) addIdentifier(mac string) {
 
@@ -22,7 +24,7 @@ func (d *DeviceInfo) addIdentifier(mac string) {
 
 // Add reachability state to the asset
 func (d *DeviceInfo) addReachabilityState() {
-	timestamp := createTimestamp()
+	timestamp := CreateTimestamp()
 	state := ReachabilityStateValuesReached
 
 	reachabilityState := ReachabilityState{
@@ -37,7 +39,7 @@ func (d *DeviceInfo) addReachabilityState() {
 // Only used internal
 func (d *DeviceInfo) addManagementState() {
 
-	timestamp := createTimestamp()
+	timestamp := CreateTimestamp()
 	state := ManagementStateValuesUnknown
 
 	mgmtState := ManagementState{
@@ -48,25 +50,56 @@ func (d *DeviceInfo) addManagementState() {
 	d.ManagementState = mgmtState
 }
 
-func (d *DeviceInfo) addSoftwareComponent(annotations map[string]string) {
+func (d *DeviceInfo) addSoftwareComponent(assetName string) {
+
 	softwareAsset := SoftwareAsset{
 		AssetOperations:           nil,
 		ConnectionPoints:          nil,
 		CustomUiProperties:        nil,
 		FunctionalParts:           nil,
 		Id:                        uuid.New().String(),
-		InstanceAnnotations:       nil,
+		InstanceAnnotations:       []InstanceAnnotation{},
 		ManagementState:           ManagementState{},
-		Name:                      nil,
+		Name:                      &assetName,
 		OtherStates:               nil,
 		ProductInstanceIdentifier: nil,
 		ReachabilityState:         nil,
 		SoftwareComponents:        nil,
 	}
+	softwareAsset.AddManagementState()
+	softwareAsset.AddInstanceAnnotation("description", "IAH description")
 	d.SoftwareComponents = append(d.SoftwareComponents, softwareAsset)
 }
 
-func (d *DeviceInfo) AddOneMetadata(key string, value string) {
+// Add Management state to the software component
+// Only used internal
+func (s *SoftwareAsset) AddManagementState() {
+	timestamp := CreateTimestamp()
+	state := ManagementStateValuesRegarded
+	mgmtState := ManagementState{
+		StateTimestamp: &timestamp,
+		StateValue:     &state,
+	}
+	s.ManagementState = mgmtState
+}
+
+func (s *SoftwareAsset) AddInstanceAnnotation(key string, value string) {
+	instanceAnnotation := InstanceAnnotation{
+		Key:   &key,
+		Value: &value,
+	}
+	s.InstanceAnnotations = append(s.InstanceAnnotations, instanceAnnotation)
+}
+
+func (d *DeviceInfo) AddAssetOperations(operationName string, activationFlag bool) {
+	assetOperation := AssetOperation{
+		OperationName:  &operationName,
+		ActivationFlag: &activationFlag,
+	}
+	d.AssetOperations = append(d.AssetOperations, assetOperation)
+}
+
+func (d *DeviceInfo) AddMetadata(key string, value string) {
 	instanceAnnotation := InstanceAnnotation{
 		Key:   &key,
 		Value: &value,

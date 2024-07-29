@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	baseSchemaPrefix = "https://schema.industrial-assets.io/base/v0.7.5"
+	baseSchemaPrefix = "https://schema.industrial-assets.io/base/v0.8.2"
 )
 
 // NewDevice Generates a new asset skeleton
@@ -23,7 +23,7 @@ func NewDevice(typeOfAsset string, assetName string) *DeviceInfo {
 
 	d.addManagementState()
 	d.addReachabilityState()
-
+	d.addSoftwareComponent(assetName)
 	return &d
 }
 
@@ -37,7 +37,7 @@ type DeviceInfo struct {
 	SoftwareComponents []any `json:"software_components,omitempty"`
 }
 
-func createTimestamp() string {
+func CreateTimestamp() string {
 	currentTime := time.Now().UTC()
 	return currentTime.Format(time.RFC3339Nano)
 }
