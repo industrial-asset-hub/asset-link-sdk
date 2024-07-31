@@ -3,9 +3,9 @@
 # SPDX-License-Identifier:
 dist/
 # Automatically generated and updated inside CI/CD pipeline
-cookiecutter-project-template/{{ cookiecutter.al_name }}/go.mod
-cookiecutter-project-template/{{ cookiecutter.al_name }}/vendor/
-cookiecutter-project-template/{{ cookiecutter.al_name }}/cdm-dcd-sdk/
+cookiecutter-project-template/{{ cookiecutter.al_id }}/go.mod
+cookiecutter-project-template/{{ cookiecutter.al_id }}/vendor/
+cookiecutter-project-template/{{ cookiecutter.al_id }}/cdm-dcd-sdk/
 cookiecutter-test/
 
 .idea/*

@@ -32,12 +32,12 @@ func (apptypes appTypes) String() string {
 	return []string{"cdm-agent", "cdm-device-class-driver"}[apptypes]
 }
 
-func generateDriverSchemaUri(dcdName string) string {
-	return "siemens.cdm.dcd." + dcdName
+func generateDriverSchemaUri(dcdId string) string {
+	return "siemens.cdm.dcd." + dcdId
 }
 
 type GrpcServerRegistry struct {
-	dcdName                   string
+	dcdId                     string
 	grpcServerRegistryAddress string
 	grpcAddress               string
 	appInstanceId             string
@@ -51,9 +51,9 @@ const (
 )
 
 // Create new GRPC Registry client
-func New(registryAddress string, dcdName string, grpcAddress string) *GrpcServerRegistry {
+func New(registryAddress string, dcdId string, grpcAddress string) *GrpcServerRegistry {
 	return &GrpcServerRegistry{grpcServerRegistryAddress: registryAddress,
-		dcdName:     dcdName,
+		dcdId:       dcdId,
 		grpcAddress: grpcAddress,
 	}
 }
@@ -167,11 +167,11 @@ func (r *GrpcServerRegistry) register() (error, uint32) {
 		return err, retryRegistrationInterval
 	}
 
-	r.appInstanceId = CDM_DEVICE_CLASS_DRIVER.String() + "-" + r.dcdName
+	r.appInstanceId = CDM_DEVICE_CLASS_DRIVER.String() + "-" + r.dcdId
 	register := pb.RegisterServiceRequest{Info: &pb.ServiceInfo{
 		AppTypes:         []string{APP_TYPE_CS_IAH_DISCOVER_V1},
 		AppInstanceId:    r.appInstanceId,
-		DriverSchemaUris: []string{generateDriverSchemaUri(r.dcdName)},
+		DriverSchemaUris: []string{generateDriverSchemaUri(r.dcdId)},
 		GrpcIpPortNumber: uint32(portNumber),
 	}}
 	// Check if IP or DNS name

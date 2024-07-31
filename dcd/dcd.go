@@ -62,7 +62,7 @@ type DCD struct {
 // Method to start the asset link
 func (d *DCD) Start(grpcServerAddress, registrationAddress, grpcRegistryAddress, httpServerAddress string) error {
 	log.Info().
-		Str("Name", d.metadata.DcdName).
+		Str("Name", d.metadata.DcdId).
 		Str("gRPC Address", grpcServerAddress).
 		Str("grpcRegistryAddress", grpcRegistryAddress).
 		Str("registrationName", registrationAddress).
@@ -93,7 +93,7 @@ func (d *DCD) Start(grpcServerAddress, registrationAddress, grpcRegistryAddress,
 	// Since, a grpc endpoint can also be ":8081" which listens on all ports, the endpoint needs to be explicitly set.
 	_, portNumberString, err := net.SplitHostPort(grpcServerAddress)
 
-	d.registryClient = registryclient.New(grpcRegistryAddress, d.metadata.DcdName, fmt.Sprintf("%s:%s", registrationAddress, portNumberString))
+	d.registryClient = registryclient.New(grpcRegistryAddress, d.metadata.DcdId, fmt.Sprintf("%s:%s", registrationAddress, portNumberString))
 	d.registryClient.Register()
 
 	// Start GRPC server

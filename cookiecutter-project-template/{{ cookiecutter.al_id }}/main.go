@@ -15,7 +15,7 @@ import (
 	"syscall"
 
 	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/metadata"
-	"{{cookiecutter.al_name}}/handler"
+	"{{cookiecutter.al_id}}/handler"
 
 	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/dcd"
 
@@ -30,6 +30,7 @@ var (
 	version = "dev"
 	commit  = "unknown"
 	date    = "unknown"
+	dcdId   = "{{cookiecutter.al_id}}"
 	dcdName = "{{cookiecutter.al_name}}"
 	vendor  = "{{cookiecutter.company}}"
 )
@@ -68,6 +69,7 @@ func main() {
 	dcdImpl := new(handler.AssetLinkImplementation)
 	dcdInstance := dcd.New(metadata.Metadata{
 		Version: metadata.Version{Version: version, Commit: commit, Date: date},
+		DcdId:   dcdId,
 		DcdName: dcdName,
 		Vendor:  vendor,
 	}).

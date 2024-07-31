@@ -1,5 +1,6 @@
 {
   "al_name": "my-asset-link",
+  "al_id": "UUID of the Asset Link",
   "author_name": "David Device Builder",
   "author_email": "david@david-builder.local",
   "company": "Machine Builder AG",

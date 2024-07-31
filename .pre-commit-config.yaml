@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2023 Siemens AG
+#ƒ SPDX-FileCopyrightText: 2023 Siemens AG
 #
 # SPDX-License-Identifier:
 ---
@@ -15,7 +15,7 @@ repos:
       - id: check-json
       - id: check-xml
       - id: check-yaml
-        exclude: "(cookiecutter-project-template/{{ cookiecutter.al_name }}/.goreleaser.yaml)"
+        exclude: "(cookiecutter-project-template/{{ cookiecutter.al_id }}/.goreleaser.yaml)"
       - id: detect-private-key
       - id: detect-aws-credentials
         args: ["--allow-missing-credentials"]

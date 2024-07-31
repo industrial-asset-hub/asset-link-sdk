@@ -58,7 +58,6 @@ func (m *AssetLinkImplementation) Start(jobId uint32, deviceChannel chan []*gene
 	product := "{{ cookiecutter.al_name }}"
 	orderNumber := "PRODUCT-ONE"
 	productVersion := "1.0.0"
-	firmwareVersion := "1.2.4"
 	vendorName := "{{ cookiecutter.company }}"
 	lastSerialNumber.Add(1)
 	serialNumber := fmt.Sprint(lastSerialNumber.Load())
@@ -69,8 +68,6 @@ func (m *AssetLinkImplementation) Start(jobId uint32, deviceChannel chan []*gene
 		product,
 		productVersion,
 		serialNumber)
-
-	device.AddSoftware("firmware", firmwareVersion)
 
 	randomMacAddress := generateRandomMacAddress()
 	id := device.AddNic("eth0", randomMacAddress)
