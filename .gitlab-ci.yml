@@ -260,10 +260,10 @@ create-release:
     # inside the cookiecutter-vendor job
     - ls
     - ls cookiecutter-project-template/
-    - cp -a ${COOKIECUTTER_PROJECT}/${COOKIECUTTER_PROJECT_NAME}/go.mod cookiecutter-project-template/\{\{\ cookiecutter.al_name\ \}\}/
+    - cp -a ${COOKIECUTTER_PROJECT}/${COOKIECUTTER_PROJECT_NAME}/go.mod cookiecutter-project-template/\{\{\ cookiecutter.al_id\ \}\}/
     # Replace first line inside go.mod, due to it's specific from the cookiecutter template
-    - sed -i "1s/.*/module {{cookiecutter.al_name}}/" cookiecutter-project-template/\{\{\ cookiecutter.al_name\ \}\}/go.mod
-    - cp -a ${COOKIECUTTER_PROJECT}/${COOKIECUTTER_PROJECT_NAME}/${CI_PROJECT_NAME}/ cookiecutter-project-template/\{\{\ cookiecutter.al_name\ \}\}/
+    - sed -i "1s/.*/module {{cookiecutter.al_id}}/" cookiecutter-project-template/\{\{\ cookiecutter.al_id\ \}\}/go.mod
+    - cp -a ${COOKIECUTTER_PROJECT}/${COOKIECUTTER_PROJECT_NAME}/${CI_PROJECT_NAME}/ cookiecutter-project-template/\{\{\ cookiecutter.al_id\ \}\}/
     # Create release
     - |
       if [ "${CI_COMMIT_TAG:-}" != "" ]; then

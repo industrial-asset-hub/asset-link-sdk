@@ -9,7 +9,7 @@ import (
 
 func TestConvertToDiscoveredDevice(t *testing.T) {
 	device := NewDevice("Profinet", "Device")
-	timestamp := CreateTimestamp()
+	timestamp := createTimestamp()
 
 	Name := "Device"
 	device.Name = &Name

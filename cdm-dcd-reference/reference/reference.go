@@ -67,6 +67,7 @@ func (m *ReferenceClassDriver) Start(jobId uint32, deviceChannel chan []*generat
 		"1.0.0",
 		serialNumber)
 
+	deviceInfo.AddSoftware("firmware", "1.2.5")
 	randomMacAddress := generateRandomMacAddress()
 	id := deviceInfo.AddNic("eth0", randomMacAddress)
 	deviceInfo.AddIPv4(id, "192.168.0.1", "255.255.255.0", "")

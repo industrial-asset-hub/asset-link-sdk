@@ -8,7 +8,9 @@
 package model
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/assert"
+	"reflect"
 	"testing"
 )
 
@@ -30,4 +32,41 @@ func TestNameplate(t *testing.T) {
 		assert.Equal(t, "MyOrderNumber", *m.ProductInstanceIdentifier.ManufacturerProduct.ProductId)
 		assert.Equal(t, "s-n-1.2.3", *m.ProductInstanceIdentifier.SerialNumber)
 	})
+}
+
+func TestSoftwareNameplate(t *testing.T) {
+	t.Run("AddFirmware", func(t *testing.T) {
+		m := NewDevice("", "")
+
+		m.AddSoftware("ArtifactName", "0.1.2")
+		m.AddSoftware("ArtifactName1", "2.1.3")
+
+		firmware := m.getFirmware()
+		if len(firmware) != 2 {
+			fmt.Printf("Expected 1 added firmware, got %d\n", len(firmware))
+			t.Fail()
+		}
+		found := 0
+		for _, v := range firmware {
+			if *v.Artifact.SoftwareIdentifier.Name == "ArtifactName" {
+				found++
+				assert.Equal(t, "ArtifactName", *v.Artifact.SoftwareIdentifier.Name)
+				assert.Equal(t, "0.1.2", *v.Artifact.SoftwareIdentifier.Version)
+				break
+			}
+		}
+
+		assert.Equal(t, 1, found)
+	})
+}
+
+func (d *DeviceInfo) getFirmware() []RunningSoftware {
+
+	r := []RunningSoftware{}
+	for _, v := range d.SoftwareComponents {
+		if reflect.TypeOf(v) == reflect.TypeOf(RunningSoftware{}) {
+			r = append(r, v.(RunningSoftware))
+		}
+	}
+	return r
 }
