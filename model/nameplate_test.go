@@ -25,7 +25,7 @@ func TestNameplate(t *testing.T) {
 			"0.1.2",
 			"s-n-1.2.3")
 
-		//ManufacturerProductDesignation
+		// ManufacturerProductDesignation
 		assert.Equal(t, "ManufacturerCompany", *m.ProductInstanceIdentifier.ManufacturerProduct.Manufacturer.Name)
 		assert.Equal(t, "ProductFamily", *m.ProductInstanceIdentifier.ManufacturerProduct.Name)
 		assert.Equal(t, "0.1.2", *m.ProductInstanceIdentifier.ManufacturerProduct.ProductVersion)

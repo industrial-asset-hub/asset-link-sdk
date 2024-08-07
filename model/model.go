@@ -33,7 +33,7 @@ type DeviceInfo struct {
 	ConnectionPoints []any `json:"connection_points,omitempty"`
 	Asset
 	MacIdentifiers []MacIdentifier `json:"mac_identifiers"`
-	//To Be clarified
+	// To Be clarified
 	SoftwareComponents []any `json:"software_components,omitempty"`
 }
 

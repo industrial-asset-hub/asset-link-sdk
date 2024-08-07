@@ -92,6 +92,9 @@ func (d *DCD) Start(grpcServerAddress, registrationAddress, grpcRegistryAddress,
 	// Split into host and port. The registered endpoint is assembled by an dedicated flag and the grpc server endpoint.
 	// Since, a grpc endpoint can also be ":8081" which listens on all ports, the endpoint needs to be explicitly set.
 	_, portNumberString, err := net.SplitHostPort(grpcServerAddress)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Could not determine port of gRPC server address")
+	}
 
 	d.registryClient = registryclient.New(grpcRegistryAddress, d.metadata.DcdId, fmt.Sprintf("%s:%s", registrationAddress, portNumberString))
 	d.registryClient.Register()
