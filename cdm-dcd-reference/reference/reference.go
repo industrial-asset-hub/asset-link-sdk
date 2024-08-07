@@ -72,8 +72,6 @@ func (m *ReferenceClassDriver) Start(jobId uint32, deviceChannel chan []*generat
 	id := deviceInfo.AddNic("eth0", randomMacAddress)
 	deviceInfo.AddIPv4(id, "192.168.0.1", "255.255.255.0", "")
 	deviceInfo.AddIPv4(id, "10.0.0.1", "255.255.255.0", "")
-	deviceInfo.AddMetadata("sw_version", "2")
-	deviceInfo.AddAssetOperations("firmware_update", false)
 
 	discoveredDevice := deviceInfo.ConvertToDiscoveredDevice()
 	devices := make([]*generated.DiscoveredDevice, 0)

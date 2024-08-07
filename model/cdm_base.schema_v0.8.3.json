@@ -2635,11 +2635,11 @@
       "type": "string"
     }
   },
-  "$id": "https://common-device-management.code.siemens.io/documentation/asset-modeling/base-schema/v0.8.2/iah-base.jsonld",
+  "$id": "https://common-device-management.code.siemens.io/documentation/asset-modeling/base-schema/v0.8.3/iah-base.jsonld",
   "$schema": "https://json-schema.org/draft/2019-09/schema",
   "additionalProperties": true,
   "metamodel_version": "1.7.0",
   "title": "IAH-Base",
   "type": "object",
-  "version": "0.8.2"
+  "version": "0.8.3"
 }

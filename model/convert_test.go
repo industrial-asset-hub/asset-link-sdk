@@ -9,7 +9,7 @@ import (
 
 func TestConvertToDiscoveredDevice(t *testing.T) {
 	device := NewDevice("Profinet", "Device")
-	timestamp := CreateTimestamp()
+	timestamp := createTimestamp()
 	Name := "Device"
 	device.Name = &Name
 	product := "test-dcd"
@@ -99,7 +99,7 @@ func TestConvertToDiscoveredDevice(t *testing.T) {
 	}
 	device.ReachabilityState = &reachabilityState
 	discoveredDevice := device.ConvertToDiscoveredDevice()
-	assert.Equal(t, 17, len(discoveredDevice.Identifiers))
+	assert.Equal(t, 16, len(discoveredDevice.Identifiers))
 	assert.Equal(t, "URI", discoveredDevice.Identifiers[0].Classifiers[0].GetType())
-	assert.Equal(t, "https://schema.industrial-assets.io/base/v0.8.2/Asset#@type", discoveredDevice.Identifiers[0].Classifiers[0].GetValue())
+	assert.Equal(t, "https://schema.industrial-assets.io/base/v0.8.3/Asset#@type", discoveredDevice.Identifiers[0].Classifiers[0].GetValue())
 }
