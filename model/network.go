@@ -84,9 +84,9 @@ func (d *DeviceInfo) AddIPv6(nicId string, address string, networkMask string, r
 		ConnectionPointType:     &t,
 		Id:                      id,
 		InstanceAnnotations:     nil,
-		Ipv6Address:             []string{address},
+		Ipv6Address:             &address,
 		RelatedConnectionPoints: []RelatedConnectionPoint{relationship},
-		RouterIpv6Address:       []string{router},
+		RouterIpv6Address:       &router,
 	}
 	d.ConnectionPoints = append(d.ConnectionPoints, ipv6)
 

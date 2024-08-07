@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	baseSchemaPrefix = "https://schema.industrial-assets.io/base/v0.7.5"
+	baseSchemaPrefix = "https://schema.industrial-assets.io/base/v0.8.3"
 )
 
 // NewDevice Generates a new asset skeleton

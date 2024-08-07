@@ -4,6 +4,11 @@
       "additionalProperties": false,
       "description": "Artifact identifier based on the artifact checksum.\nSuch an identifier is good to confirm the identity of an artifact, but not so good to find that artifact.",
       "properties": {
+        "asset_identifier_type": {
+          "description": "Type designator that provides support for polymorphism using asset identifiers.",
+          "enum": ["ArtifactChecksum"],
+          "type": "string"
+        },
         "checksum": {
           "description": "The checksum string as a URN. The URN scheme for checksums is \"urn:<format>:<checksum>\", being format the checksum format (MD5, SHA1,...).",
           "type": "string"
@@ -24,6 +29,38 @@
       "additionalProperties": false,
       "description": "An asset is the representation of a functional object with a technical function that is known to Industrial Asset Hub (IAH). Industrial Asset Hub (IAH) might want to manage the asset, to model its relationships with other assets, it might know the asset and ignore it,...\nThe only attributes that an instance of this class must provide are an ID to refer to it and the asset management state.\nAn asset instance might represent a physical object (like a Raspberry Pi or an application running on a system) or a virtual object (like a router in a network topology, no matter which physical device it is). In both cases an identifier for the object being represented is needed.",
       "properties": {
+        "asset_identifiers": {
+          "description": "An asset identifier is an asset attribute that provides enough information to unequivocally identify the represented object.\nIn some cases the ID attribute acts simultaneously as a reference for the asset instance and as identifier for the represented object, otherwise at least one asset identifier is needed.\nThere can be multiple asset_identifiers with different goals. For example, the information of a metal nameplate can be used by a human-being to identify a device represented by an asset instance, but a software certificate provided by a device might help a software component identify the device in the network,...\nAn asset identifier might have an identifier_type, that defines its format and possibly even semantics.",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/AssetIdentifier"
+              },
+              {
+                "$ref": "#/$defs/SoftwareIdentifier"
+              },
+              {
+                "$ref": "#/$defs/ArtifactChecksum"
+              },
+              {
+                "$ref": "#/$defs/ProductSerialIdentifier"
+              },
+              {
+                "$ref": "#/$defs/MacIdentifier"
+              },
+              {
+                "$ref": "#/$defs/Ipv4Identifier"
+              },
+              {
+                "$ref": "#/$defs/Ipv6Identifier"
+              },
+              {
+                "$ref": "#/$defs/GatewayIdentifier"
+              }
+            ]
+          },
+          "type": "array"
+        },
         "asset_operations": {
           "description": "List of device management operations supported by an asset. Each operation type might appear only once.",
           "items": {
@@ -54,14 +91,44 @@
         "custom_ui_properties": {
           "description": "Metadata associated with Asset in User Interface",
           "items": {
-            "$ref": "#/$defs/InstanceAnnotation"
+            "$ref": "#/$defs/CustomProperty"
           },
           "type": "array"
+        },
+        "functional_object_type": {
+          "description": "Type designator that provides support for polymorphism using functional parts.",
+          "enum": ["Asset"],
+          "type": "string"
         },
         "functional_parts": {
           "description": "The functional objects that an asset is composed of, in case such a level of decomposition is desired. This is enables having assets composed of other assets and even devices composed of other devices and assets.\nAn Asset must be addressable independently from other Assets (therefore they need to have an \"id\") and are therefore individually modeled. But not all parts of an Asset that are modeled need to be individually addressable, these are FunctionalObjects, but not Assets.\nProbably those functional_parts of an Asset providing some function for the Asset will be modeled here. Therefore an Asset can delegate the Interactions that it's offering to its functional_parts.",
           "items": {
-            "$ref": "#/$defs/Asset"
+            "anyOf": [
+              {
+                "$ref": "#/$defs/Asset"
+              },
+              {
+                "$ref": "#/$defs/Device"
+              },
+              {
+                "$ref": "#/$defs/SoftwareAsset"
+              },
+              {
+                "$ref": "#/$defs/SoftwareArtifact"
+              },
+              {
+                "$ref": "#/$defs/RunningSoftware"
+              },
+              {
+                "$ref": "#/$defs/AssetLink"
+              },
+              {
+                "$ref": "#/$defs/Dcd"
+              },
+              {
+                "$ref": "#/$defs/Gateway"
+              }
+            ]
           },
           "type": "array"
         },
@@ -75,6 +142,11 @@
             "$ref": "#/$defs/InstanceAnnotation"
           },
           "type": "array"
+        },
+        "last_modified_timestamp": {
+          "description": "Timestamp of last asset modification",
+          "format": "date-time",
+          "type": "string"
         },
         "management_state": {
           "$ref": "#/$defs/ManagementState",
@@ -102,9 +174,32 @@
         "software_components": {
           "description": "An asset can host software artifacts that might want to be tracked. This can be used simply to keep track of the firmware version or to keep a full-blown Software Bill of Material (SBOM).\nPlease notice that this attribute is not meant to model relationships between the different software assets available in a device. Static relationships implicit to the SoftwareAssets themselves (like \"firmware image A contains package X\" or \"package X depends on package Y\") might be modeled on the Software Assets, if desired. Although it probably goes beyond the purpose of asset modeling. Deployment dependent relationships (like \"firmware image needs to be installed before installing app\") might be modeled as external AssetLinks, if desired. Once again it probably goes beyond the purpose of asset modeling.",
           "items": {
-            "$ref": "#/$defs/SoftwareAsset"
+            "anyOf": [
+              {
+                "$ref": "#/$defs/SoftwareAsset"
+              },
+              {
+                "$ref": "#/$defs/SoftwareArtifact"
+              },
+              {
+                "$ref": "#/$defs/RunningSoftware"
+              },
+              {
+                "$ref": "#/$defs/AssetLink"
+              },
+              {
+                "$ref": "#/$defs/Dcd"
+              },
+              {
+                "$ref": "#/$defs/Gateway"
+              }
+            ]
           },
           "type": "array"
+        },
+        "zone": {
+          "description": "Provides references to the different zones that an asset belongs to.\nZones are typically used to group assets logically mostly for the purpose of access control. That way it is possible to give certain roles or persons specific permissions to all assets associated to a zone.",
+          "type": "string"
         }
       },
       "required": ["management_state", "id"],
@@ -115,6 +210,11 @@
       "additionalProperties": false,
       "description": "An Identifier that provides an unambiguous identification of an asset instance.",
       "properties": {
+        "asset_identifier_type": {
+          "description": "Type designator that provides support for polymorphism using asset identifiers.",
+          "enum": ["AssetIdentifier"],
+          "type": "string"
+        },
         "identifier_type": {
           "description": "Type of an items identifier.",
           "type": "string"
@@ -134,6 +234,38 @@
         "artifact": {
           "$ref": "#/$defs/SoftwareArtifact",
           "description": "Reference to the software artifact which the running software has been instantiated from.\nAs of now the combination of multiple software artifacts into a running software (for example with plug-ins) is not supported and can not be natively modeled. Instance annotations need to be used for that purpose."
+        },
+        "asset_identifiers": {
+          "description": "An asset identifier is an asset attribute that provides enough information to unequivocally identify the represented object.\nIn some cases the ID attribute acts simultaneously as a reference for the asset instance and as identifier for the represented object, otherwise at least one asset identifier is needed.\nThere can be multiple asset_identifiers with different goals. For example, the information of a metal nameplate can be used by a human-being to identify a device represented by an asset instance, but a software certificate provided by a device might help a software component identify the device in the network,...\nAn asset identifier might have an identifier_type, that defines its format and possibly even semantics.",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/AssetIdentifier"
+              },
+              {
+                "$ref": "#/$defs/SoftwareIdentifier"
+              },
+              {
+                "$ref": "#/$defs/ArtifactChecksum"
+              },
+              {
+                "$ref": "#/$defs/ProductSerialIdentifier"
+              },
+              {
+                "$ref": "#/$defs/MacIdentifier"
+              },
+              {
+                "$ref": "#/$defs/Ipv4Identifier"
+              },
+              {
+                "$ref": "#/$defs/Ipv6Identifier"
+              },
+              {
+                "$ref": "#/$defs/GatewayIdentifier"
+              }
+            ]
+          },
+          "type": "array"
         },
         "asset_operations": {
           "description": "List of device management operations supported by an asset. Each operation type might appear only once.",
@@ -169,14 +301,44 @@
         "custom_ui_properties": {
           "description": "Metadata associated with Asset in User Interface",
           "items": {
-            "$ref": "#/$defs/InstanceAnnotation"
+            "$ref": "#/$defs/CustomProperty"
           },
           "type": "array"
+        },
+        "functional_object_type": {
+          "description": "Type designator that provides support for polymorphism using functional parts.",
+          "enum": ["AssetLink"],
+          "type": "string"
         },
         "functional_parts": {
           "description": "The functional objects that an asset is composed of, in case such a level of decomposition is desired. This is enables having assets composed of other assets and even devices composed of other devices and assets.\nAn Asset must be addressable independently from other Assets (therefore they need to have an \"id\") and are therefore individually modeled. But not all parts of an Asset that are modeled need to be individually addressable, these are FunctionalObjects, but not Assets.\nProbably those functional_parts of an Asset providing some function for the Asset will be modeled here. Therefore an Asset can delegate the Interactions that it's offering to its functional_parts.",
           "items": {
-            "$ref": "#/$defs/Asset"
+            "anyOf": [
+              {
+                "$ref": "#/$defs/Asset"
+              },
+              {
+                "$ref": "#/$defs/Device"
+              },
+              {
+                "$ref": "#/$defs/SoftwareAsset"
+              },
+              {
+                "$ref": "#/$defs/SoftwareArtifact"
+              },
+              {
+                "$ref": "#/$defs/RunningSoftware"
+              },
+              {
+                "$ref": "#/$defs/AssetLink"
+              },
+              {
+                "$ref": "#/$defs/Dcd"
+              },
+              {
+                "$ref": "#/$defs/Gateway"
+              }
+            ]
           },
           "type": "array"
         },
@@ -190,6 +352,11 @@
             "$ref": "#/$defs/InstanceAnnotation"
           },
           "type": "array"
+        },
+        "last_modified_timestamp": {
+          "description": "Timestamp of last asset modification",
+          "format": "date-time",
+          "type": "string"
         },
         "management_state": {
           "$ref": "#/$defs/ManagementState",
@@ -225,9 +392,32 @@
         "software_components": {
           "description": "An asset can host software artifacts that might want to be tracked. This can be used simply to keep track of the firmware version or to keep a full-blown Software Bill of Material (SBOM).\nPlease notice that this attribute is not meant to model relationships between the different software assets available in a device. Static relationships implicit to the SoftwareAssets themselves (like \"firmware image A contains package X\" or \"package X depends on package Y\") might be modeled on the Software Assets, if desired. Although it probably goes beyond the purpose of asset modeling. Deployment dependent relationships (like \"firmware image needs to be installed before installing app\") might be modeled as external AssetLinks, if desired. Once again it probably goes beyond the purpose of asset modeling.",
           "items": {
-            "$ref": "#/$defs/SoftwareAsset"
+            "anyOf": [
+              {
+                "$ref": "#/$defs/SoftwareAsset"
+              },
+              {
+                "$ref": "#/$defs/SoftwareArtifact"
+              },
+              {
+                "$ref": "#/$defs/RunningSoftware"
+              },
+              {
+                "$ref": "#/$defs/AssetLink"
+              },
+              {
+                "$ref": "#/$defs/Dcd"
+              },
+              {
+                "$ref": "#/$defs/Gateway"
+              }
+            ]
           },
           "type": "array"
+        },
+        "zone": {
+          "description": "Provides references to the different zones that an asset belongs to.\nZones are typically used to group assets logically mostly for the purpose of access control. That way it is possible to give certain roles or persons specific permissions to all assets associated to a zone.",
+          "type": "string"
         }
       },
       "required": ["management_state", "id"],
@@ -248,6 +438,26 @@
         }
       },
       "title": "AssetOperation",
+      "type": "object"
+    },
+    "AssetRelationship": {
+      "additionalProperties": false,
+      "description": "Relationship between two different assets.",
+      "properties": {
+        "object": {
+          "description": "The target of a relationship between two assets.",
+          "type": "string"
+        },
+        "predicate": {
+          "$ref": "#/$defs/PredicateValues",
+          "description": "A relationship type."
+        },
+        "subject": {
+          "description": "The origin of a relationship between two assets.",
+          "type": "string"
+        }
+      },
+      "title": "AssetRelationship",
       "type": "object"
     },
     "ConnectionPoint": {
@@ -284,7 +494,7 @@
     },
     "ContactPoint": {
       "additionalProperties": false,
-      "description": "A contact point\u2014for example, a Customer Complaints department.",
+      "description": "A contact point—for example, a Customer Complaints department.",
       "properties": {
         "email": {
           "description": "Email address.",
@@ -563,6 +773,26 @@
       "title": "CountryCode",
       "type": "string"
     },
+    "CustomProperty": {
+      "additionalProperties": false,
+      "description": "Instance annotation hosting a custom property with a label.",
+      "properties": {
+        "key": {
+          "description": "The identifier of a key/value pair.",
+          "type": "string"
+        },
+        "label": {
+          "description": "Human readable label to show the property in the UI.",
+          "type": "string"
+        },
+        "value": {
+          "description": "The real metadata of a key/value pair.",
+          "type": "string"
+        }
+      },
+      "title": "CustomProperty",
+      "type": "object"
+    },
     "Dcd": {
       "additionalProperties": false,
       "description": "Device Class Driver (DCD) running and registered.",
@@ -570,6 +800,38 @@
         "artifact": {
           "$ref": "#/$defs/SoftwareArtifact",
           "description": "Reference to the software artifact which the running software has been instantiated from.\nAs of now the combination of multiple software artifacts into a running software (for example with plug-ins) is not supported and can not be natively modeled. Instance annotations need to be used for that purpose."
+        },
+        "asset_identifiers": {
+          "description": "An asset identifier is an asset attribute that provides enough information to unequivocally identify the represented object.\nIn some cases the ID attribute acts simultaneously as a reference for the asset instance and as identifier for the represented object, otherwise at least one asset identifier is needed.\nThere can be multiple asset_identifiers with different goals. For example, the information of a metal nameplate can be used by a human-being to identify a device represented by an asset instance, but a software certificate provided by a device might help a software component identify the device in the network,...\nAn asset identifier might have an identifier_type, that defines its format and possibly even semantics.",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/AssetIdentifier"
+              },
+              {
+                "$ref": "#/$defs/SoftwareIdentifier"
+              },
+              {
+                "$ref": "#/$defs/ArtifactChecksum"
+              },
+              {
+                "$ref": "#/$defs/ProductSerialIdentifier"
+              },
+              {
+                "$ref": "#/$defs/MacIdentifier"
+              },
+              {
+                "$ref": "#/$defs/Ipv4Identifier"
+              },
+              {
+                "$ref": "#/$defs/Ipv6Identifier"
+              },
+              {
+                "$ref": "#/$defs/GatewayIdentifier"
+              }
+            ]
+          },
+          "type": "array"
         },
         "asset_operations": {
           "description": "List of device management operations supported by an asset. Each operation type might appear only once.",
@@ -605,14 +867,44 @@
         "custom_ui_properties": {
           "description": "Metadata associated with Asset in User Interface",
           "items": {
-            "$ref": "#/$defs/InstanceAnnotation"
+            "$ref": "#/$defs/CustomProperty"
           },
           "type": "array"
+        },
+        "functional_object_type": {
+          "description": "Type designator that provides support for polymorphism using functional parts.",
+          "enum": ["Dcd"],
+          "type": "string"
         },
         "functional_parts": {
           "description": "The functional objects that an asset is composed of, in case such a level of decomposition is desired. This is enables having assets composed of other assets and even devices composed of other devices and assets.\nAn Asset must be addressable independently from other Assets (therefore they need to have an \"id\") and are therefore individually modeled. But not all parts of an Asset that are modeled need to be individually addressable, these are FunctionalObjects, but not Assets.\nProbably those functional_parts of an Asset providing some function for the Asset will be modeled here. Therefore an Asset can delegate the Interactions that it's offering to its functional_parts.",
           "items": {
-            "$ref": "#/$defs/Asset"
+            "anyOf": [
+              {
+                "$ref": "#/$defs/Asset"
+              },
+              {
+                "$ref": "#/$defs/Device"
+              },
+              {
+                "$ref": "#/$defs/SoftwareAsset"
+              },
+              {
+                "$ref": "#/$defs/SoftwareArtifact"
+              },
+              {
+                "$ref": "#/$defs/RunningSoftware"
+              },
+              {
+                "$ref": "#/$defs/AssetLink"
+              },
+              {
+                "$ref": "#/$defs/Dcd"
+              },
+              {
+                "$ref": "#/$defs/Gateway"
+              }
+            ]
           },
           "type": "array"
         },
@@ -626,6 +918,11 @@
             "$ref": "#/$defs/InstanceAnnotation"
           },
           "type": "array"
+        },
+        "last_modified_timestamp": {
+          "description": "Timestamp of last asset modification",
+          "format": "date-time",
+          "type": "string"
         },
         "management_state": {
           "$ref": "#/$defs/ManagementState",
@@ -661,9 +958,32 @@
         "software_components": {
           "description": "An asset can host software artifacts that might want to be tracked. This can be used simply to keep track of the firmware version or to keep a full-blown Software Bill of Material (SBOM).\nPlease notice that this attribute is not meant to model relationships between the different software assets available in a device. Static relationships implicit to the SoftwareAssets themselves (like \"firmware image A contains package X\" or \"package X depends on package Y\") might be modeled on the Software Assets, if desired. Although it probably goes beyond the purpose of asset modeling. Deployment dependent relationships (like \"firmware image needs to be installed before installing app\") might be modeled as external AssetLinks, if desired. Once again it probably goes beyond the purpose of asset modeling.",
           "items": {
-            "$ref": "#/$defs/SoftwareAsset"
+            "anyOf": [
+              {
+                "$ref": "#/$defs/SoftwareAsset"
+              },
+              {
+                "$ref": "#/$defs/SoftwareArtifact"
+              },
+              {
+                "$ref": "#/$defs/RunningSoftware"
+              },
+              {
+                "$ref": "#/$defs/AssetLink"
+              },
+              {
+                "$ref": "#/$defs/Dcd"
+              },
+              {
+                "$ref": "#/$defs/Gateway"
+              }
+            ]
           },
           "type": "array"
+        },
+        "zone": {
+          "description": "Provides references to the different zones that an asset belongs to.\nZones are typically used to group assets logically mostly for the purpose of access control. That way it is possible to give certain roles or persons specific permissions to all assets associated to a zone.",
+          "type": "string"
         }
       },
       "required": ["management_state", "id"],
@@ -674,6 +994,38 @@
       "additionalProperties": false,
       "description": "A device is a special type of asset that can be managed with some asset management system. In order to be manageable, it requires at least one connection point for the asset management to communicate with the device and software capable of interacting with the asset management.",
       "properties": {
+        "asset_identifiers": {
+          "description": "An asset identifier is an asset attribute that provides enough information to unequivocally identify the represented object.\nIn some cases the ID attribute acts simultaneously as a reference for the asset instance and as identifier for the represented object, otherwise at least one asset identifier is needed.\nThere can be multiple asset_identifiers with different goals. For example, the information of a metal nameplate can be used by a human-being to identify a device represented by an asset instance, but a software certificate provided by a device might help a software component identify the device in the network,...\nAn asset identifier might have an identifier_type, that defines its format and possibly even semantics.",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/AssetIdentifier"
+              },
+              {
+                "$ref": "#/$defs/SoftwareIdentifier"
+              },
+              {
+                "$ref": "#/$defs/ArtifactChecksum"
+              },
+              {
+                "$ref": "#/$defs/ProductSerialIdentifier"
+              },
+              {
+                "$ref": "#/$defs/MacIdentifier"
+              },
+              {
+                "$ref": "#/$defs/Ipv4Identifier"
+              },
+              {
+                "$ref": "#/$defs/Ipv6Identifier"
+              },
+              {
+                "$ref": "#/$defs/GatewayIdentifier"
+              }
+            ]
+          },
+          "type": "array"
+        },
         "asset_operations": {
           "description": "List of device management operations supported by an asset. Each operation type might appear only once.",
           "items": {
@@ -704,14 +1056,44 @@
         "custom_ui_properties": {
           "description": "Metadata associated with Asset in User Interface",
           "items": {
-            "$ref": "#/$defs/InstanceAnnotation"
+            "$ref": "#/$defs/CustomProperty"
           },
           "type": "array"
+        },
+        "functional_object_type": {
+          "description": "Type designator that provides support for polymorphism using functional parts.",
+          "enum": ["Device"],
+          "type": "string"
         },
         "functional_parts": {
           "description": "The functional objects that an asset is composed of, in case such a level of decomposition is desired. This is enables having assets composed of other assets and even devices composed of other devices and assets.\nAn Asset must be addressable independently from other Assets (therefore they need to have an \"id\") and are therefore individually modeled. But not all parts of an Asset that are modeled need to be individually addressable, these are FunctionalObjects, but not Assets.\nProbably those functional_parts of an Asset providing some function for the Asset will be modeled here. Therefore an Asset can delegate the Interactions that it's offering to its functional_parts.",
           "items": {
-            "$ref": "#/$defs/Asset"
+            "anyOf": [
+              {
+                "$ref": "#/$defs/Asset"
+              },
+              {
+                "$ref": "#/$defs/Device"
+              },
+              {
+                "$ref": "#/$defs/SoftwareAsset"
+              },
+              {
+                "$ref": "#/$defs/SoftwareArtifact"
+              },
+              {
+                "$ref": "#/$defs/RunningSoftware"
+              },
+              {
+                "$ref": "#/$defs/AssetLink"
+              },
+              {
+                "$ref": "#/$defs/Dcd"
+              },
+              {
+                "$ref": "#/$defs/Gateway"
+              }
+            ]
           },
           "type": "array"
         },
@@ -725,6 +1107,11 @@
             "$ref": "#/$defs/InstanceAnnotation"
           },
           "type": "array"
+        },
+        "last_modified_timestamp": {
+          "description": "Timestamp of last asset modification",
+          "format": "date-time",
+          "type": "string"
         },
         "management_state": {
           "$ref": "#/$defs/ManagementState",
@@ -752,9 +1139,32 @@
         "software_components": {
           "description": "An asset can host software artifacts that might want to be tracked. This can be used simply to keep track of the firmware version or to keep a full-blown Software Bill of Material (SBOM).\nPlease notice that this attribute is not meant to model relationships between the different software assets available in a device. Static relationships implicit to the SoftwareAssets themselves (like \"firmware image A contains package X\" or \"package X depends on package Y\") might be modeled on the Software Assets, if desired. Although it probably goes beyond the purpose of asset modeling. Deployment dependent relationships (like \"firmware image needs to be installed before installing app\") might be modeled as external AssetLinks, if desired. Once again it probably goes beyond the purpose of asset modeling.",
           "items": {
-            "$ref": "#/$defs/SoftwareAsset"
+            "anyOf": [
+              {
+                "$ref": "#/$defs/SoftwareAsset"
+              },
+              {
+                "$ref": "#/$defs/SoftwareArtifact"
+              },
+              {
+                "$ref": "#/$defs/RunningSoftware"
+              },
+              {
+                "$ref": "#/$defs/AssetLink"
+              },
+              {
+                "$ref": "#/$defs/Dcd"
+              },
+              {
+                "$ref": "#/$defs/Gateway"
+              }
+            ]
           },
           "type": "array"
+        },
+        "zone": {
+          "description": "Provides references to the different zones that an asset belongs to.\nZones are typically used to group assets logically mostly for the purpose of access control. That way it is possible to give certain roles or persons specific permissions to all assets associated to a zone.",
+          "type": "string"
         }
       },
       "required": [
@@ -808,6 +1218,11 @@
       "additionalProperties": false,
       "description": "A part of a system, and has a function whose realization contributes to the performance of the system as a whole.",
       "properties": {
+        "functional_object_type": {
+          "description": "Type designator that provides support for polymorphism using functional parts.",
+          "enum": ["FunctionalObject"],
+          "type": "string"
+        },
         "id": {
           "description": "The identifier property represents any kind of identifier for any kind of Thing, such as ISBNs, GTIN codes, UUIDs etc. Schema.org provides dedicated properties for representing many of these, either as textual strings or as URL (URI) links.",
           "type": "string"
@@ -835,6 +1250,38 @@
         "artifact": {
           "$ref": "#/$defs/SoftwareArtifact",
           "description": "Reference to the software artifact which the running software has been instantiated from.\nAs of now the combination of multiple software artifacts into a running software (for example with plug-ins) is not supported and can not be natively modeled. Instance annotations need to be used for that purpose."
+        },
+        "asset_identifiers": {
+          "description": "An asset identifier is an asset attribute that provides enough information to unequivocally identify the represented object.\nIn some cases the ID attribute acts simultaneously as a reference for the asset instance and as identifier for the represented object, otherwise at least one asset identifier is needed.\nThere can be multiple asset_identifiers with different goals. For example, the information of a metal nameplate can be used by a human-being to identify a device represented by an asset instance, but a software certificate provided by a device might help a software component identify the device in the network,...\nAn asset identifier might have an identifier_type, that defines its format and possibly even semantics.",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/AssetIdentifier"
+              },
+              {
+                "$ref": "#/$defs/SoftwareIdentifier"
+              },
+              {
+                "$ref": "#/$defs/ArtifactChecksum"
+              },
+              {
+                "$ref": "#/$defs/ProductSerialIdentifier"
+              },
+              {
+                "$ref": "#/$defs/MacIdentifier"
+              },
+              {
+                "$ref": "#/$defs/Ipv4Identifier"
+              },
+              {
+                "$ref": "#/$defs/Ipv6Identifier"
+              },
+              {
+                "$ref": "#/$defs/GatewayIdentifier"
+              }
+            ]
+          },
+          "type": "array"
         },
         "asset_operations": {
           "description": "List of device management operations supported by an asset. Each operation type might appear only once.",
@@ -870,14 +1317,44 @@
         "custom_ui_properties": {
           "description": "Metadata associated with Asset in User Interface",
           "items": {
-            "$ref": "#/$defs/InstanceAnnotation"
+            "$ref": "#/$defs/CustomProperty"
           },
           "type": "array"
+        },
+        "functional_object_type": {
+          "description": "Type designator that provides support for polymorphism using functional parts.",
+          "enum": ["Gateway"],
+          "type": "string"
         },
         "functional_parts": {
           "description": "The functional objects that an asset is composed of, in case such a level of decomposition is desired. This is enables having assets composed of other assets and even devices composed of other devices and assets.\nAn Asset must be addressable independently from other Assets (therefore they need to have an \"id\") and are therefore individually modeled. But not all parts of an Asset that are modeled need to be individually addressable, these are FunctionalObjects, but not Assets.\nProbably those functional_parts of an Asset providing some function for the Asset will be modeled here. Therefore an Asset can delegate the Interactions that it's offering to its functional_parts.",
           "items": {
-            "$ref": "#/$defs/Asset"
+            "anyOf": [
+              {
+                "$ref": "#/$defs/Asset"
+              },
+              {
+                "$ref": "#/$defs/Device"
+              },
+              {
+                "$ref": "#/$defs/SoftwareAsset"
+              },
+              {
+                "$ref": "#/$defs/SoftwareArtifact"
+              },
+              {
+                "$ref": "#/$defs/RunningSoftware"
+              },
+              {
+                "$ref": "#/$defs/AssetLink"
+              },
+              {
+                "$ref": "#/$defs/Dcd"
+              },
+              {
+                "$ref": "#/$defs/Gateway"
+              }
+            ]
           },
           "type": "array"
         },
@@ -895,6 +1372,11 @@
             "$ref": "#/$defs/InstanceAnnotation"
           },
           "type": "array"
+        },
+        "last_modified_timestamp": {
+          "description": "Timestamp of last asset modification",
+          "format": "date-time",
+          "type": "string"
         },
         "management_state": {
           "$ref": "#/$defs/ManagementState",
@@ -944,13 +1426,36 @@
         "software_components": {
           "description": "An asset can host software artifacts that might want to be tracked. This can be used simply to keep track of the firmware version or to keep a full-blown Software Bill of Material (SBOM).\nPlease notice that this attribute is not meant to model relationships between the different software assets available in a device. Static relationships implicit to the SoftwareAssets themselves (like \"firmware image A contains package X\" or \"package X depends on package Y\") might be modeled on the Software Assets, if desired. Although it probably goes beyond the purpose of asset modeling. Deployment dependent relationships (like \"firmware image needs to be installed before installing app\") might be modeled as external AssetLinks, if desired. Once again it probably goes beyond the purpose of asset modeling.",
           "items": {
-            "$ref": "#/$defs/SoftwareAsset"
+            "anyOf": [
+              {
+                "$ref": "#/$defs/SoftwareAsset"
+              },
+              {
+                "$ref": "#/$defs/SoftwareArtifact"
+              },
+              {
+                "$ref": "#/$defs/RunningSoftware"
+              },
+              {
+                "$ref": "#/$defs/AssetLink"
+              },
+              {
+                "$ref": "#/$defs/Dcd"
+              },
+              {
+                "$ref": "#/$defs/Gateway"
+              }
+            ]
           },
           "type": "array"
         },
         "trust_established_state": {
           "$ref": "#/$defs/TrustEstablishedState",
           "description": "A slot to track the trust establishment of the asset"
+        },
+        "zone": {
+          "description": "Provides references to the different zones that an asset belongs to.\nZones are typically used to group assets logically mostly for the purpose of access control. That way it is possible to give certain roles or persons specific permissions to all assets associated to a zone.",
+          "type": "string"
         }
       },
       "required": ["management_state", "id"],
@@ -961,6 +1466,11 @@
       "additionalProperties": false,
       "description": "GatewayId and Base64 encoded version of certificate subject key identifer will be the identifier for the Gateway.",
       "properties": {
+        "asset_identifier_type": {
+          "description": "Type designator that provides support for polymorphism using asset identifiers.",
+          "enum": ["GatewayIdentifier"],
+          "type": "string"
+        },
         "certificate_id": {
           "description": "Base64 encoded version of certificate subject key identifer",
           "type": "string"
@@ -1091,6 +1601,11 @@
       "additionalProperties": false,
       "description": "Identifier for an Asset instance using one IPv4 address assigned to it.",
       "properties": {
+        "asset_identifier_type": {
+          "description": "Type designator that provides support for polymorphism using asset identifiers.",
+          "enum": ["Ipv4Identifier"],
+          "type": "string"
+        },
         "identifier_type": {
           "description": "Type of an items identifier.",
           "type": "string"
@@ -1131,11 +1646,8 @@
         },
         "ipv6_address": {
           "description": "The IP v6 address of a device port.",
-          "items": {
-            "pattern": "^(?:[A-F0-9]{1,4}:){7}[A-F0-9]{1,4}$",
-            "type": "string"
-          },
-          "type": "array"
+          "pattern": "^(?:[A-F0-9]{1,4}:){7}[A-F0-9]{1,4}$",
+          "type": "string"
         },
         "related_connection_points": {
           "description": "A connection point might rely on another connection point to work.\nExamples: a TCP/IP connection can only work if there is some kind of connection point at physical level (e.g. Ethernet Port, Bluetooth Port), a container might be connected over a virtual ethernet to a software bridge, a software bridge might be directly connected to an ethernet port.\nThis attribute enables modeling these kind of dependencies in a limited way. Other modeling mechanisms might be needed to model complex networking set-ups.",
@@ -1146,11 +1658,8 @@
         },
         "router_ipv6_address": {
           "description": "The IP v6 address of the default IP v6 router (AKA gateway).",
-          "items": {
-            "pattern": "^(?:[A-F0-9]{1,4}:){7}[A-F0-9]{1,4}$",
-            "type": "string"
-          },
-          "type": "array"
+          "pattern": "^(?:[A-F0-9]{1,4}:){7}[A-F0-9]{1,4}$",
+          "type": "string"
         }
       },
       "required": ["id"],
@@ -1161,6 +1670,11 @@
       "additionalProperties": false,
       "description": "Identifier for an Asset instance using one IPv6 address assigned to it.",
       "properties": {
+        "asset_identifier_type": {
+          "description": "Type designator that provides support for polymorphism using asset identifiers.",
+          "enum": ["Ipv6Identifier"],
+          "type": "string"
+        },
         "identifier_type": {
           "description": "Type of an items identifier.",
           "type": "string"
@@ -1171,11 +1685,8 @@
         },
         "ipv6_address": {
           "description": "The IP v6 address of a device port.",
-          "items": {
-            "pattern": "^(?:[A-F0-9]{1,4}:){7}[A-F0-9]{1,4}$",
-            "type": "string"
-          },
-          "type": "array"
+          "pattern": "^(?:[A-F0-9]{1,4}:){7}[A-F0-9]{1,4}$",
+          "type": "string"
         }
       },
       "title": "Ipv6Identifier",
@@ -1185,6 +1696,11 @@
       "additionalProperties": false,
       "description": "Identifier for an Asset instance using the mac address.",
       "properties": {
+        "asset_identifier_type": {
+          "description": "Type designator that provides support for polymorphism using asset identifiers.",
+          "enum": ["MacIdentifier"],
+          "type": "string"
+        },
         "identifier_type": {
           "description": "Type of an items identifier.",
           "type": "string"
@@ -1331,6 +1847,12 @@
       "title": "PostalAddress",
       "type": "object"
     },
+    "PredicateValues": {
+      "description": "Possible relationship predicates.",
+      "enum": ["related_to"],
+      "title": "PredicateValues",
+      "type": "string"
+    },
     "Product": {
       "additionalProperties": false,
       "description": "Any offered product or service that might have different versions for the same product ID.",
@@ -1364,6 +1886,11 @@
       "additionalProperties": false,
       "description": "Identifier for an Asset instance using the product (asset class) identifier and serial number.",
       "properties": {
+        "asset_identifier_type": {
+          "description": "Type designator that provides support for polymorphism using asset identifiers.",
+          "enum": ["ProductSerialIdentifier"],
+          "type": "string"
+        },
         "identifier_type": {
           "description": "Type of an items identifier.",
           "type": "string"
@@ -1431,6 +1958,38 @@
           "$ref": "#/$defs/SoftwareArtifact",
           "description": "Reference to the software artifact which the running software has been instantiated from.\nAs of now the combination of multiple software artifacts into a running software (for example with plug-ins) is not supported and can not be natively modeled. Instance annotations need to be used for that purpose."
         },
+        "asset_identifiers": {
+          "description": "An asset identifier is an asset attribute that provides enough information to unequivocally identify the represented object.\nIn some cases the ID attribute acts simultaneously as a reference for the asset instance and as identifier for the represented object, otherwise at least one asset identifier is needed.\nThere can be multiple asset_identifiers with different goals. For example, the information of a metal nameplate can be used by a human-being to identify a device represented by an asset instance, but a software certificate provided by a device might help a software component identify the device in the network,...\nAn asset identifier might have an identifier_type, that defines its format and possibly even semantics.",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/AssetIdentifier"
+              },
+              {
+                "$ref": "#/$defs/SoftwareIdentifier"
+              },
+              {
+                "$ref": "#/$defs/ArtifactChecksum"
+              },
+              {
+                "$ref": "#/$defs/ProductSerialIdentifier"
+              },
+              {
+                "$ref": "#/$defs/MacIdentifier"
+              },
+              {
+                "$ref": "#/$defs/Ipv4Identifier"
+              },
+              {
+                "$ref": "#/$defs/Ipv6Identifier"
+              },
+              {
+                "$ref": "#/$defs/GatewayIdentifier"
+              }
+            ]
+          },
+          "type": "array"
+        },
         "asset_operations": {
           "description": "List of device management operations supported by an asset. Each operation type might appear only once.",
           "items": {
@@ -1465,14 +2024,44 @@
         "custom_ui_properties": {
           "description": "Metadata associated with Asset in User Interface",
           "items": {
-            "$ref": "#/$defs/InstanceAnnotation"
+            "$ref": "#/$defs/CustomProperty"
           },
           "type": "array"
+        },
+        "functional_object_type": {
+          "description": "Type designator that provides support for polymorphism using functional parts.",
+          "enum": ["RunningSoftware"],
+          "type": "string"
         },
         "functional_parts": {
           "description": "The functional objects that an asset is composed of, in case such a level of decomposition is desired. This is enables having assets composed of other assets and even devices composed of other devices and assets.\nAn Asset must be addressable independently from other Assets (therefore they need to have an \"id\") and are therefore individually modeled. But not all parts of an Asset that are modeled need to be individually addressable, these are FunctionalObjects, but not Assets.\nProbably those functional_parts of an Asset providing some function for the Asset will be modeled here. Therefore an Asset can delegate the Interactions that it's offering to its functional_parts.",
           "items": {
-            "$ref": "#/$defs/Asset"
+            "anyOf": [
+              {
+                "$ref": "#/$defs/Asset"
+              },
+              {
+                "$ref": "#/$defs/Device"
+              },
+              {
+                "$ref": "#/$defs/SoftwareAsset"
+              },
+              {
+                "$ref": "#/$defs/SoftwareArtifact"
+              },
+              {
+                "$ref": "#/$defs/RunningSoftware"
+              },
+              {
+                "$ref": "#/$defs/AssetLink"
+              },
+              {
+                "$ref": "#/$defs/Dcd"
+              },
+              {
+                "$ref": "#/$defs/Gateway"
+              }
+            ]
           },
           "type": "array"
         },
@@ -1486,6 +2075,11 @@
             "$ref": "#/$defs/InstanceAnnotation"
           },
           "type": "array"
+        },
+        "last_modified_timestamp": {
+          "description": "Timestamp of last asset modification",
+          "format": "date-time",
+          "type": "string"
         },
         "management_state": {
           "$ref": "#/$defs/ManagementState",
@@ -1521,9 +2115,32 @@
         "software_components": {
           "description": "An asset can host software artifacts that might want to be tracked. This can be used simply to keep track of the firmware version or to keep a full-blown Software Bill of Material (SBOM).\nPlease notice that this attribute is not meant to model relationships between the different software assets available in a device. Static relationships implicit to the SoftwareAssets themselves (like \"firmware image A contains package X\" or \"package X depends on package Y\") might be modeled on the Software Assets, if desired. Although it probably goes beyond the purpose of asset modeling. Deployment dependent relationships (like \"firmware image needs to be installed before installing app\") might be modeled as external AssetLinks, if desired. Once again it probably goes beyond the purpose of asset modeling.",
           "items": {
-            "$ref": "#/$defs/SoftwareAsset"
+            "anyOf": [
+              {
+                "$ref": "#/$defs/SoftwareAsset"
+              },
+              {
+                "$ref": "#/$defs/SoftwareArtifact"
+              },
+              {
+                "$ref": "#/$defs/RunningSoftware"
+              },
+              {
+                "$ref": "#/$defs/AssetLink"
+              },
+              {
+                "$ref": "#/$defs/Dcd"
+              },
+              {
+                "$ref": "#/$defs/Gateway"
+              }
+            ]
           },
           "type": "array"
+        },
+        "zone": {
+          "description": "Provides references to the different zones that an asset belongs to.\nZones are typically used to group assets logically mostly for the purpose of access control. That way it is possible to give certain roles or persons specific permissions to all assets associated to a zone.",
+          "type": "string"
         }
       },
       "required": ["management_state", "id"],
@@ -1532,7 +2149,7 @@
     },
     "RunningSoftwareValues": {
       "description": "Possible running software types.",
-      "enum": ["cdm_gateway", "other"],
+      "enum": ["cdm_gateway", "iah_gateway", "other"],
       "title": "RunningSoftwareValues",
       "type": "string"
     },
@@ -1565,6 +2182,38 @@
       "additionalProperties": false,
       "description": "Software asset representing software on rest.",
       "properties": {
+        "asset_identifiers": {
+          "description": "An asset identifier is an asset attribute that provides enough information to unequivocally identify the represented object.\nIn some cases the ID attribute acts simultaneously as a reference for the asset instance and as identifier for the represented object, otherwise at least one asset identifier is needed.\nThere can be multiple asset_identifiers with different goals. For example, the information of a metal nameplate can be used by a human-being to identify a device represented by an asset instance, but a software certificate provided by a device might help a software component identify the device in the network,...\nAn asset identifier might have an identifier_type, that defines its format and possibly even semantics.",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/AssetIdentifier"
+              },
+              {
+                "$ref": "#/$defs/SoftwareIdentifier"
+              },
+              {
+                "$ref": "#/$defs/ArtifactChecksum"
+              },
+              {
+                "$ref": "#/$defs/ProductSerialIdentifier"
+              },
+              {
+                "$ref": "#/$defs/MacIdentifier"
+              },
+              {
+                "$ref": "#/$defs/Ipv4Identifier"
+              },
+              {
+                "$ref": "#/$defs/Ipv6Identifier"
+              },
+              {
+                "$ref": "#/$defs/GatewayIdentifier"
+              }
+            ]
+          },
+          "type": "array"
+        },
         "asset_operations": {
           "description": "List of device management operations supported by an asset. Each operation type might appear only once.",
           "items": {
@@ -1599,14 +2248,44 @@
         "custom_ui_properties": {
           "description": "Metadata associated with Asset in User Interface",
           "items": {
-            "$ref": "#/$defs/InstanceAnnotation"
+            "$ref": "#/$defs/CustomProperty"
           },
           "type": "array"
+        },
+        "functional_object_type": {
+          "description": "Type designator that provides support for polymorphism using functional parts.",
+          "enum": ["SoftwareArtifact"],
+          "type": "string"
         },
         "functional_parts": {
           "description": "The functional objects that an asset is composed of, in case such a level of decomposition is desired. This is enables having assets composed of other assets and even devices composed of other devices and assets.\nAn Asset must be addressable independently from other Assets (therefore they need to have an \"id\") and are therefore individually modeled. But not all parts of an Asset that are modeled need to be individually addressable, these are FunctionalObjects, but not Assets.\nProbably those functional_parts of an Asset providing some function for the Asset will be modeled here. Therefore an Asset can delegate the Interactions that it's offering to its functional_parts.",
           "items": {
-            "$ref": "#/$defs/Asset"
+            "anyOf": [
+              {
+                "$ref": "#/$defs/Asset"
+              },
+              {
+                "$ref": "#/$defs/Device"
+              },
+              {
+                "$ref": "#/$defs/SoftwareAsset"
+              },
+              {
+                "$ref": "#/$defs/SoftwareArtifact"
+              },
+              {
+                "$ref": "#/$defs/RunningSoftware"
+              },
+              {
+                "$ref": "#/$defs/AssetLink"
+              },
+              {
+                "$ref": "#/$defs/Dcd"
+              },
+              {
+                "$ref": "#/$defs/Gateway"
+              }
+            ]
           },
           "type": "array"
         },
@@ -1620,6 +2299,11 @@
             "$ref": "#/$defs/InstanceAnnotation"
           },
           "type": "array"
+        },
+        "last_modified_timestamp": {
+          "description": "Timestamp of last asset modification",
+          "format": "date-time",
+          "type": "string"
         },
         "management_state": {
           "$ref": "#/$defs/ManagementState",
@@ -1647,13 +2331,36 @@
         "software_components": {
           "description": "An asset can host software artifacts that might want to be tracked. This can be used simply to keep track of the firmware version or to keep a full-blown Software Bill of Material (SBOM).\nPlease notice that this attribute is not meant to model relationships between the different software assets available in a device. Static relationships implicit to the SoftwareAssets themselves (like \"firmware image A contains package X\" or \"package X depends on package Y\") might be modeled on the Software Assets, if desired. Although it probably goes beyond the purpose of asset modeling. Deployment dependent relationships (like \"firmware image needs to be installed before installing app\") might be modeled as external AssetLinks, if desired. Once again it probably goes beyond the purpose of asset modeling.",
           "items": {
-            "$ref": "#/$defs/SoftwareAsset"
+            "anyOf": [
+              {
+                "$ref": "#/$defs/SoftwareAsset"
+              },
+              {
+                "$ref": "#/$defs/SoftwareArtifact"
+              },
+              {
+                "$ref": "#/$defs/RunningSoftware"
+              },
+              {
+                "$ref": "#/$defs/AssetLink"
+              },
+              {
+                "$ref": "#/$defs/Dcd"
+              },
+              {
+                "$ref": "#/$defs/Gateway"
+              }
+            ]
           },
           "type": "array"
         },
         "software_identifier": {
           "$ref": "#/$defs/SoftwareIdentifier",
           "description": "Identifier for a software artifact based on the well-established pattern name and version."
+        },
+        "zone": {
+          "description": "Provides references to the different zones that an asset belongs to.\nZones are typically used to group assets logically mostly for the purpose of access control. That way it is possible to give certain roles or persons specific permissions to all assets associated to a zone.",
+          "type": "string"
         }
       },
       "required": ["management_state", "id"],
@@ -1664,6 +2371,38 @@
       "additionalProperties": false,
       "description": "Any kind of software element that needs to be considered. From artifacts (executables, libraries, archives,...) to running software (process, container, virtual machine,...).",
       "properties": {
+        "asset_identifiers": {
+          "description": "An asset identifier is an asset attribute that provides enough information to unequivocally identify the represented object.\nIn some cases the ID attribute acts simultaneously as a reference for the asset instance and as identifier for the represented object, otherwise at least one asset identifier is needed.\nThere can be multiple asset_identifiers with different goals. For example, the information of a metal nameplate can be used by a human-being to identify a device represented by an asset instance, but a software certificate provided by a device might help a software component identify the device in the network,...\nAn asset identifier might have an identifier_type, that defines its format and possibly even semantics.",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/AssetIdentifier"
+              },
+              {
+                "$ref": "#/$defs/SoftwareIdentifier"
+              },
+              {
+                "$ref": "#/$defs/ArtifactChecksum"
+              },
+              {
+                "$ref": "#/$defs/ProductSerialIdentifier"
+              },
+              {
+                "$ref": "#/$defs/MacIdentifier"
+              },
+              {
+                "$ref": "#/$defs/Ipv4Identifier"
+              },
+              {
+                "$ref": "#/$defs/Ipv6Identifier"
+              },
+              {
+                "$ref": "#/$defs/GatewayIdentifier"
+              }
+            ]
+          },
+          "type": "array"
+        },
         "asset_operations": {
           "description": "List of device management operations supported by an asset. Each operation type might appear only once.",
           "items": {
@@ -1694,14 +2433,44 @@
         "custom_ui_properties": {
           "description": "Metadata associated with Asset in User Interface",
           "items": {
-            "$ref": "#/$defs/InstanceAnnotation"
+            "$ref": "#/$defs/CustomProperty"
           },
           "type": "array"
+        },
+        "functional_object_type": {
+          "description": "Type designator that provides support for polymorphism using functional parts.",
+          "enum": ["SoftwareAsset"],
+          "type": "string"
         },
         "functional_parts": {
           "description": "The functional objects that an asset is composed of, in case such a level of decomposition is desired. This is enables having assets composed of other assets and even devices composed of other devices and assets.\nAn Asset must be addressable independently from other Assets (therefore they need to have an \"id\") and are therefore individually modeled. But not all parts of an Asset that are modeled need to be individually addressable, these are FunctionalObjects, but not Assets.\nProbably those functional_parts of an Asset providing some function for the Asset will be modeled here. Therefore an Asset can delegate the Interactions that it's offering to its functional_parts.",
           "items": {
-            "$ref": "#/$defs/Asset"
+            "anyOf": [
+              {
+                "$ref": "#/$defs/Asset"
+              },
+              {
+                "$ref": "#/$defs/Device"
+              },
+              {
+                "$ref": "#/$defs/SoftwareAsset"
+              },
+              {
+                "$ref": "#/$defs/SoftwareArtifact"
+              },
+              {
+                "$ref": "#/$defs/RunningSoftware"
+              },
+              {
+                "$ref": "#/$defs/AssetLink"
+              },
+              {
+                "$ref": "#/$defs/Dcd"
+              },
+              {
+                "$ref": "#/$defs/Gateway"
+              }
+            ]
           },
           "type": "array"
         },
@@ -1715,6 +2484,11 @@
             "$ref": "#/$defs/InstanceAnnotation"
           },
           "type": "array"
+        },
+        "last_modified_timestamp": {
+          "description": "Timestamp of last asset modification",
+          "format": "date-time",
+          "type": "string"
         },
         "management_state": {
           "$ref": "#/$defs/ManagementState",
@@ -1742,9 +2516,32 @@
         "software_components": {
           "description": "An asset can host software artifacts that might want to be tracked. This can be used simply to keep track of the firmware version or to keep a full-blown Software Bill of Material (SBOM).\nPlease notice that this attribute is not meant to model relationships between the different software assets available in a device. Static relationships implicit to the SoftwareAssets themselves (like \"firmware image A contains package X\" or \"package X depends on package Y\") might be modeled on the Software Assets, if desired. Although it probably goes beyond the purpose of asset modeling. Deployment dependent relationships (like \"firmware image needs to be installed before installing app\") might be modeled as external AssetLinks, if desired. Once again it probably goes beyond the purpose of asset modeling.",
           "items": {
-            "$ref": "#/$defs/SoftwareAsset"
+            "anyOf": [
+              {
+                "$ref": "#/$defs/SoftwareAsset"
+              },
+              {
+                "$ref": "#/$defs/SoftwareArtifact"
+              },
+              {
+                "$ref": "#/$defs/RunningSoftware"
+              },
+              {
+                "$ref": "#/$defs/AssetLink"
+              },
+              {
+                "$ref": "#/$defs/Dcd"
+              },
+              {
+                "$ref": "#/$defs/Gateway"
+              }
+            ]
           },
           "type": "array"
+        },
+        "zone": {
+          "description": "Provides references to the different zones that an asset belongs to.\nZones are typically used to group assets logically mostly for the purpose of access control. That way it is possible to give certain roles or persons specific permissions to all assets associated to a zone.",
+          "type": "string"
         }
       },
       "required": ["management_state", "id"],
@@ -1755,6 +2552,19 @@
       "additionalProperties": false,
       "description": "Well established",
       "properties": {
+        "asset_identifier_type": {
+          "description": "Type designator that provides support for polymorphism using asset identifiers.",
+          "enum": ["SoftwareIdentifier"],
+          "type": "string"
+        },
+        "identifier_type": {
+          "description": "Type of an items identifier.",
+          "type": "string"
+        },
+        "identifier_uncertainty": {
+          "description": "Number that tells how uncertain an identifier is compared with other identifiers provided by an Asset Link. The highest the number, the more uncertain the identification must be considered. This number has to be considered relative to the other identifiers for the same element. The default value is 0, meaning no uncertainty.\nThis index helps decide across Asset Links which identifiers are better suited for deduplication. The identifier provided by two different Asset Links with the lowest uncertainty should be chosen for deduplication purposes.",
+          "type": "integer"
+        },
         "name": {
           "description": "The name of the item.",
           "type": "string"
@@ -1825,11 +2635,11 @@
       "type": "string"
     }
   },
-  "$id": "https://common-device-management.code.siemens.io/documentation/asset-modeling/base-schema/v0.7.5/cdm_base.jsonld",
-  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://common-device-management.code.siemens.io/documentation/asset-modeling/base-schema/v0.8.3/iah-base.jsonld",
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
   "additionalProperties": true,
   "metamodel_version": "1.7.0",
   "title": "IAH-Base",
   "type": "object",
-  "version": "0.7.5"
+  "version": "0.8.3"
 }

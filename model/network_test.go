@@ -9,9 +9,10 @@ package model
 
 import (
 	"fmt"
-	"github.com/stretchr/testify/assert"
 	"reflect"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestNetwork(t *testing.T) {
@@ -95,9 +96,9 @@ func TestNetwork(t *testing.T) {
 			for _, ik := range v.RelatedConnectionPoints {
 				if *ik.ConnectionPoint == "nic0" {
 					found++
-					assert.Equal(t, "fd00::42", v.Ipv6Address[0])
-					// assert.Equal(t, "255.0.0.0", *v.NetworkMask)
-					assert.Equal(t, "fd00::1", v.RouterIpv6Address[0])
+					assert.Equal(t, "fd00::42", *v.Ipv6Address)
+					// TODO: assertion for IPv6 network mask when available
+					assert.Equal(t, "fd00::1", *v.RouterIpv6Address)
 					break
 				}
 			}

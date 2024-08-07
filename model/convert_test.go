@@ -10,7 +10,6 @@ import (
 func TestConvertToDiscoveredDevice(t *testing.T) {
 	device := NewDevice("Profinet", "Device")
 	timestamp := createTimestamp()
-
 	Name := "Device"
 	device.Name = &Name
 	product := "test-dcd"
@@ -50,8 +49,8 @@ func TestConvertToDiscoveredDevice(t *testing.T) {
 	Ipv4NetMask := "255.255.255.0"
 	connectionPoint := "EthernetPort"
 	connectionPointTypeIpv6 := Ipv6ConnectivityConnectionPointTypeIpv6Connectivity
-	routerIpv6Address := []string{"fd12:3456:789a::1"}
-	Ipv6Address := []string{"fd12:3456:789a::1", "fd12:3456:789a::2"}
+	routerIpv6Address := "fd12:3456:789a::1"
+	Ipv6Address := "fd12:3456:789a::1"
 	conPoint := "eth0"
 	relatedConnectionPoint := RelatedConnectionPoint{
 		ConnectionPoint:    &conPoint,
@@ -73,9 +72,9 @@ func TestConvertToDiscoveredDevice(t *testing.T) {
 		ConnectionPointType:     &connectionPointTypeIpv6,
 		Id:                      "2",
 		InstanceAnnotations:     nil,
-		Ipv6Address:             Ipv6Address,
+		Ipv6Address:             &Ipv6Address,
 		RelatedConnectionPoints: nil,
-		RouterIpv6Address:       routerIpv6Address,
+		RouterIpv6Address:       &routerIpv6Address,
 	}
 	device.ConnectionPoints = append(device.ConnectionPoints, Ipv6Connectivity)
 	ethernetType := EthernetPortConnectionPointTypeEthernetPort
@@ -102,5 +101,5 @@ func TestConvertToDiscoveredDevice(t *testing.T) {
 	discoveredDevice := device.ConvertToDiscoveredDevice()
 	assert.Equal(t, 16, len(discoveredDevice.Identifiers))
 	assert.Equal(t, "URI", discoveredDevice.Identifiers[0].Classifiers[0].GetType())
-	assert.Equal(t, "https://schema.industrial-assets.io/base/v0.7.5/Asset#@type", discoveredDevice.Identifiers[0].Classifiers[0].GetValue())
+	assert.Equal(t, "https://schema.industrial-assets.io/base/v0.8.3/Asset#@type", discoveredDevice.Identifiers[0].Classifiers[0].GetValue())
 }
