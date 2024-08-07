@@ -3,6 +3,7 @@ package model
 import (
 	"fmt"
 	"reflect"
+	"strconv"
 	"strings"
 
 	"github.com/rs/zerolog/log"
@@ -45,7 +46,7 @@ func convertToDeviceIdentifiers(valueToConvert reflect.Value, prefixUri string, 
 	case reflect.String:
 		identifier := convertToDeviceIdentifier(valueToConvert.String(), prefixUri)
 		identifiers = appendDeviceIdentifiers(identifiers, []*generated.DeviceIdentifier{identifier})
-	case reflect.Int, reflect.Float64, reflect.Bool:
+	case reflect.Int, reflect.Float64:
 		identifier := convertToDeviceIdentifier(valueToConvert.Interface(), prefixUri)
 		identifiers = appendDeviceIdentifiers(identifiers, []*generated.DeviceIdentifier{identifier})
 	case reflect.Interface:
@@ -55,6 +56,9 @@ func convertToDeviceIdentifiers(valueToConvert reflect.Value, prefixUri string, 
 		interfaceValue := valueToConvert.Elem()
 		interfaceIdentifiers := convertToDeviceIdentifiers(interfaceValue, prefixUri, level)
 		identifiers = appendDeviceIdentifiers(identifiers, interfaceIdentifiers)
+	case reflect.Bool:
+		identifier := convertToDeviceIdentifier(strconv.FormatBool(valueToConvert.Bool()), prefixUri)
+		identifiers = appendDeviceIdentifiers(identifiers, []*generated.DeviceIdentifier{identifier})
 	default:
 		log.Warn().Msgf(fmt.Sprintf("Coudn't process value of kind %v and type %s", valueToConvert.Kind(), valueToConvert.Type()))
 	}

@@ -96,7 +96,7 @@ func TestNetwork(t *testing.T) {
 				if *ik.ConnectionPoint == "nic0" {
 					found++
 					assert.Equal(t, "fd00::42", v.Ipv6Address[0])
-					//assert.Equal(t, "255.0.0.0", *v.NetworkMask)
+					// assert.Equal(t, "255.0.0.0", *v.NetworkMask)
 					assert.Equal(t, "fd00::1", v.RouterIpv6Address[0])
 					break
 				}

@@ -14,7 +14,6 @@ import generated "code.siemens.com/common-device-management/device-class-drivers
 // Interface Discovery provides the methods used the discovery feature
 type Discovery interface {
 	Start(jobId uint32, deviceChannel chan []*generated.DiscoveredDevice, err chan error, filters map[string]string)
-	Cancel(jobId uint32) error
 	FilterTypes(filterTypesChannel chan []*generated.SupportedFilter)
 	FilterOptions(filterOptionsChannel chan []*generated.SupportedOption)
 }

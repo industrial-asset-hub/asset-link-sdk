@@ -20,8 +20,7 @@ import (
 // Implements the features of the DCD.
 // see
 type ReferenceClassDriver struct {
-	discoveryJobCancelationToken chan uint32
-	discoveryJobRunning          bool
+	discoveryJobRunning bool
 }
 
 var lastSerialNumber = atomic.Int64{}
@@ -52,7 +51,6 @@ func (m *ReferenceClassDriver) Start(jobId uint32, deviceChannel chan []*generat
 	err <- nil
 
 	m.discoveryJobRunning = true
-	m.discoveryJobCancelationToken = make(chan uint32)
 
 	// Just provide a static asset
 	name := "Device"
@@ -82,24 +80,6 @@ func (m *ReferenceClassDriver) Start(jobId uint32, deviceChannel chan []*generat
 	log.Debug().
 		Msg("Start function exiting")
 
-}
-
-func (m *ReferenceClassDriver) Cancel(jobId uint32) error {
-	log.Info().
-		Uint32("Job Id", jobId).
-		Msg("Cancel Discovery")
-
-	if m.discoveryJobRunning {
-		log.Info().
-			Msg("Cancel received. Sending notification to stop current discovery job")
-		m.discoveryJobCancelationToken <- jobId
-	} else {
-		log.Warn().
-			Msg("Cancel received, but no discovery is running")
-	}
-	log.Debug().
-		Msg("Cancel function exiting")
-	return nil
 }
 
 func (m *ReferenceClassDriver) FilterTypes(filterTypesChannel chan []*generated.SupportedFilter) {
