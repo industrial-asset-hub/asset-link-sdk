@@ -64,7 +64,7 @@ func StartDiscovery(endpoint string, option string, filter string) []generated.D
 			return nil
 		}
 		log.Info().Interface("response", resp.Devices).Msg("Received Response")
-		//for _, d := range resp.Devices {
+
 		log.Trace().Interface("Devices", resp).Msg("")
 		devices = append(devices, *resp)
 	}
