@@ -67,6 +67,8 @@ func (m *AssetLinkImplementation) Start(jobId uint32, deviceChannel chan []*gene
 		productVersion,
 		serialNumber)
 
+	device.AddCapabilities("firmware_update", false)
+
 	randomMacAddress := generateRandomMacAddress()
 	id := device.AddNic("eth0", randomMacAddress)
 	device.AddIPv4(id, "192.168.0.1", "255.255.255.0", "")
