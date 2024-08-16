@@ -57,7 +57,7 @@ func convertToDeviceIdentifiers(valueToConvert reflect.Value, prefixUri string, 
 		interfaceIdentifiers := convertToDeviceIdentifiers(interfaceValue, prefixUri, level)
 		identifiers = appendDeviceIdentifiers(identifiers, interfaceIdentifiers)
 	case reflect.Bool:
-		identifier := convertToDeviceIdentifier(strconv.FormatBool(valueToConvert.Bool()), prefixUri)
+		identifier := convertToDeviceIdentifier(valueToConvert.Bool(), prefixUri)
 		identifiers = appendDeviceIdentifiers(identifiers, []*generated.DeviceIdentifier{identifier})
 	default:
 		log.Warn().Msgf(fmt.Sprintf("Coudn't process value of kind %v and type %s", valueToConvert.Kind(), valueToConvert.Type()))
@@ -113,13 +113,18 @@ func convertToDeviceIdentifier(value interface{}, identifierUri string) *generat
 		identifier.Value = &generated.DeviceIdentifier_Uint64Value{Uint64Value: value.(uint64)}
 	case []byte:
 		identifier.Value = &generated.DeviceIdentifier_RawData{RawData: value.([]byte)}
+	case bool:
+		// TODO: Convert to bool if datatype is available
+		// For now we convert to an string, and accepting a schema violation
+		// Related to, that capabilities may have a separate interface.
+		identifier.Value = &generated.DeviceIdentifier_Text{Text: strconv.FormatBool(value.(bool))}
 	}
 	if identifier.Value == nil {
 		return nil
 	}
+
 	classifier := &generated.SemanticClassifier{
-		Type:  "URI",
-		Value: identifierUri,
+		Type: "URI", Value: identifierUri,
 	}
 	identifier.Classifiers = []*generated.SemanticClassifier{classifier}
 	return identifier
