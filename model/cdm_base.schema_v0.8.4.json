@@ -494,7 +494,7 @@
     },
     "ContactPoint": {
       "additionalProperties": false,
-      "description": "A contact point—for example, a Customer Complaints department.",
+      "description": "A contact point\u2014for example, a Customer Complaints department.",
       "properties": {
         "email": {
           "description": "Email address.",
@@ -1646,7 +1646,12 @@
         },
         "ipv6_address": {
           "description": "The IP v6 address of a device port.",
-          "pattern": "^(?:[A-F0-9]{1,4}:){7}[A-F0-9]{1,4}$",
+          "pattern": "^(?:[a-fA-F0-9]{1,4}:){7}[a-fA-F0-9]{1,4}$",
+          "type": "string"
+        },
+        "ipv6_network_prefix": {
+          "description": "Prefix of the subnetwork in which the IP address is located.",
+          "pattern": "^[a-fA-F0-9]{1,4}:(?:[a-fA-F0-9]{0,4}:){1,7}/([0-9]{1,2}|1[01][0-9]|12[0-8])$",
           "type": "string"
         },
         "related_connection_points": {
@@ -1658,7 +1663,7 @@
         },
         "router_ipv6_address": {
           "description": "The IP v6 address of the default IP v6 router (AKA gateway).",
-          "pattern": "^(?:[A-F0-9]{1,4}:){7}[A-F0-9]{1,4}$",
+          "pattern": "^(?:[a-fA-F0-9]{0,4}:){1,7}[a-fA-F0-9]{1,4}$",
           "type": "string"
         }
       },
@@ -1685,7 +1690,7 @@
         },
         "ipv6_address": {
           "description": "The IP v6 address of a device port.",
-          "pattern": "^(?:[A-F0-9]{1,4}:){7}[A-F0-9]{1,4}$",
+          "pattern": "^(?:[a-fA-F0-9]{1,4}:){7}[a-fA-F0-9]{1,4}$",
           "type": "string"
         }
       },
@@ -2635,11 +2640,11 @@
       "type": "string"
     }
   },
-  "$id": "https://common-device-management.code.siemens.io/documentation/asset-modeling/base-schema/v0.8.3/iah-base.jsonld",
+  "$id": "https://common-device-management.code.siemens.io/documentation/asset-modeling/base-schema/v0.8.4/iah-base.jsonld",
   "$schema": "https://json-schema.org/draft/2019-09/schema",
   "additionalProperties": true,
   "metamodel_version": "1.7.0",
   "title": "IAH-Base",
   "type": "object",
-  "version": "0.8.3"
+  "version": "0.8.4"
 }

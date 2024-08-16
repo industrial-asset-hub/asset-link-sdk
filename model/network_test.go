@@ -80,7 +80,7 @@ func TestNetwork(t *testing.T) {
 	t.Run("AddIpv6", func(t *testing.T) {
 		m := NewDevice("asset", "device")
 		m.AddIPv6("nic0",
-			"fd00::42", "",
+			"fd00::42", "/64",
 			"fd00::1")
 		m.AddIPv6("nic2",
 			"fd06:1:2:3::1", "",
@@ -97,7 +97,7 @@ func TestNetwork(t *testing.T) {
 				if *ik.ConnectionPoint == "nic0" {
 					found++
 					assert.Equal(t, "fd00::42", *v.Ipv6Address)
-					// TODO: assertion for IPv6 network mask when available
+					assert.Equal(t, "/64", *v.Ipv6NetworkPrefix)
 					assert.Equal(t, "fd00::1", *v.RouterIpv6Address)
 					break
 				}

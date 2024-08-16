@@ -68,8 +68,6 @@ func (d *DeviceInfo) AddIPv4(nicId string, address string, networkMask string, r
 
 // AddIPv6 Add an IPv6 address to a network card
 //
-// networkMask is currently missing
-//
 // No validation of is currently done
 func (d *DeviceInfo) AddIPv6(nicId string, address string, networkMask string, router string) (id string) {
 	id = uuid.New().String()
@@ -85,6 +83,7 @@ func (d *DeviceInfo) AddIPv6(nicId string, address string, networkMask string, r
 		Id:                      id,
 		InstanceAnnotations:     nil,
 		Ipv6Address:             &address,
+		Ipv6NetworkPrefix:       &networkMask,
 		RelatedConnectionPoints: []RelatedConnectionPoint{relationship},
 		RouterIpv6Address:       &router,
 	}
