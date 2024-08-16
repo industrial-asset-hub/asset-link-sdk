@@ -11,12 +11,14 @@ package model
 // The nameplate is inspired by IDTA 02006-0-0 Digital Nameplate for industrial equippment
 //
 // manufacturerName: legally valid designation of the natural or judicial person
+// URIOfTheProduct: unique global identification of the product using an universal resource identifier (URI
 // productArticleNumberOfManufacturer: unique product identifier of the manufacturer
 // manufacturerProductDesignation: short description of the product (short text)
 // hardwareVersion: version of the hardware supplied with the device
 // serialNumber: unique combination of numbers and letters used to identify
 // the device once it has been manufactured
 func (d *DeviceInfo) AddNameplate(manufacturerName string,
+	UriOfTheProduct string,
 	productArticleNumberOfManufacturer string,
 	manufacturerProductDesignation string,
 	hardwareVersion string,
@@ -32,7 +34,7 @@ func (d *DeviceInfo) AddNameplate(manufacturerName string,
 	}
 
 	mp := Product{
-		Id:             "",
+		Id:             UriOfTheProduct,
 		Manufacturer:   &organisation,
 		Name:           &manufacturerProductDesignation,
 		ProductId:      &productArticleNumberOfManufacturer,

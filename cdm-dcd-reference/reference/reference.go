@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
+	"strings"
 	"sync/atomic"
 
 	generated "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/generated/iah-discovery"
@@ -55,13 +56,17 @@ func (m *ReferenceClassDriver) Start(jobId uint32, deviceChannel chan []*generat
 	// Just provide a static asset
 	name := "Device"
 	lastSerialNumber.Add(1)
+	manufacturer := "Siemens AG"
 	serialNumber := fmt.Sprint(lastSerialNumber.Load())
-
+	product := "cdm-reference-dcd-test2"
 	deviceInfo := model.NewDevice("EthernetDevice", name)
+
+	uriOfTheProduct := fmt.Sprintf("https://%s/%s-%s", strings.ReplaceAll(manufacturer, " ", "_"), strings.ReplaceAll(product, " ", "_"), serialNumber)
 	deviceInfo.AddNameplate(
-		"Siemens AG",
+		manufacturer,
+		uriOfTheProduct,
 		"MyOrderNumber",
-		"cdm-reference-dcd-test2",
+		product,
 		"1.0.0",
 		serialNumber)
 

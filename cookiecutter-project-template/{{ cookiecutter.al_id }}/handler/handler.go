@@ -11,6 +11,7 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
+	"strings"
 	"sync/atomic"
 
 	generated "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/generated/iah-discovery"
@@ -59,9 +60,10 @@ func (m *AssetLinkImplementation) Start(jobId uint32, deviceChannel chan []*gene
 	vendorName := "{{ cookiecutter.company }}"
 	lastSerialNumber.Add(1)
 	serialNumber := fmt.Sprint(lastSerialNumber.Load())
-
+	productUri := fmt.Sprintf("urn:%s/%s", strings.ReplaceAll(vendorName, " ", "_"), strings.ReplaceAll(product, " ", "_"), serialNumber)
 	device.AddNameplate(
 		vendorName,
+		productUri,
 		orderNumber,
 		product,
 		productVersion,

@@ -20,6 +20,7 @@ func TestNameplate(t *testing.T) {
 
 		m.AddNameplate(
 			"ManufacturerCompany",
+			"GuidOfTheProduct",
 			"MyOrderNumber",
 			"ProductFamily",
 			"0.1.2",
@@ -27,6 +28,7 @@ func TestNameplate(t *testing.T) {
 
 		// ManufacturerProductDesignation
 		assert.Equal(t, "ManufacturerCompany", *m.ProductInstanceIdentifier.ManufacturerProduct.Manufacturer.Name)
+		assert.Equal(t, "GuidOfTheProduct", m.ProductInstanceIdentifier.ManufacturerProduct.Id)
 		assert.Equal(t, "ProductFamily", *m.ProductInstanceIdentifier.ManufacturerProduct.Name)
 		assert.Equal(t, "0.1.2", *m.ProductInstanceIdentifier.ManufacturerProduct.ProductVersion)
 		assert.Equal(t, "MyOrderNumber", *m.ProductInstanceIdentifier.ManufacturerProduct.ProductId)
