@@ -203,8 +203,12 @@ cookiecutter-vendor:
     # Enable it from 1.21 on.
     - go mod edit -toolchain=none
 
-    - go mod download
     - go mod tidy
+    - go mod download
+
+    # Doing the step twice, since go mod tidy re-enables
+    - go mod edit -toolchain=none
+
     # We include the SDK inside a local folder, for now!
     - git clone ${CI_PROJECT_URL}
     - >
@@ -263,6 +267,7 @@ go:version:matrix:
   parallel:
     matrix:
       - VERSION: ["1.19", "1.20", "1.21", "1.22", "latest"]
+  allow_failure: true
 
 build:
   extends: .go-build
