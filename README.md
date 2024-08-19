@@ -104,7 +104,7 @@ Industrial Asset Hub:
 
 Tooling:
 
-- [Go](https://go.dev/) Version >=1.19 is required
+- [Go](https://go.dev/) Version >=1.20 is required
 - [cookiecutter](https://github.com/cookiecutter/cookiecutter)
 - [GoReleaser](https://goreleaser.com/)
 

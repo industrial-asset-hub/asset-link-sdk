@@ -26,6 +26,8 @@ variables:
   HTTPS_PROXY: "$CODE_PROXY"
   NO_PROXY: $CODE_NO_PROXY
   GO_BUILD_IMAGE: golang:1.22.2-alpine
+  # Used to hardly enforce that version inside the go.mod file
+  GO_MINIMAL_VERSION: 1.20
   CGO_ENABLED: 0
   COOKIECUTTER_PROJECT: cookiecutter-test/
   COOKIECUTTER_PROJECT_NAME: al-test
@@ -194,6 +196,13 @@ cookiecutter-vendor:
     # Prepare
     - cat go.mod
     - go generate ./...
+
+    # See https://go.dev/blog/toolchain for references
+    - go mod edit -go=$GO_MINIMAL_VERSION
+    # Since, we still want to support go1.20, we remove the toolchain
+    # Enable it from 1.21 on.
+    - go mod edit -toolchain=none
+
     - go mod download
     - go mod tidy
     # We include the SDK inside a local folder, for now!
@@ -221,7 +230,6 @@ cookiecutter-build:
   variables:
     GIT_STRATEGY: clone
   script:
-    - *set_netrc
     - cd ${COOKIECUTTER_PROJECT}/${COOKIECUTTER_PROJECT_NAME}/
     - goreleaser build --snapshot --clean --single-target
   cache:
@@ -229,6 +237,32 @@ cookiecutter-build:
     paths:
       - $COOKIECUTTER_PROJECT
     policy: pull
+
+go:version:matrix:
+  stage: build
+  variables:
+    GIT_STRATEGY: clone
+    GONOSUMDB: code.siemens.com
+    GOPRIVATE: code.siemens.com
+  image: golang:$VERSION
+  needs: ["cookiecutter-vendor"]
+  before_script:
+    - echo 'deb [trusted=yes] https://repo.goreleaser.com/apt/ /' | tee /etc/apt/sources.list.d/goreleaser.list
+    - apt-get update -qq
+    - apt-get install --assume-yes --no-install-recommends  git goreleaser
+  script:
+    - *set_netrc
+    - cd ${COOKIECUTTER_PROJECT}/${COOKIECUTTER_PROJECT_NAME}/
+    - go version
+    - goreleaser build --snapshot --clean --single-target
+  cache:
+    key: "$CI_PIPELINE_ID-$CI_COMMIT_REF_SLUG-COOKIECUTTER"
+    paths:
+      - $COOKIECUTTER_PROJECT
+    policy: pull
+  parallel:
+    matrix:
+      - VERSION: ["1.19", "1.20", "1.21", "1.22", "latest"]
 
 build:
   extends: .go-build
