@@ -228,20 +228,6 @@ cookiecutter-vendor:
 
 # Builds the already bootstrapped Asset Link
 # and uses the vendored files.
-cookiecutter-build:
-  extends: .go-build
-  needs: ["cookiecutter-vendor"]
-  variables:
-    GIT_STRATEGY: clone
-  script:
-    - cd ${COOKIECUTTER_PROJECT}/${COOKIECUTTER_PROJECT_NAME}/
-    - goreleaser build --snapshot --clean --single-target
-  cache:
-    key: "$CI_PIPELINE_ID-$CI_COMMIT_REF_SLUG-COOKIECUTTER"
-    paths:
-      - $COOKIECUTTER_PROJECT
-    policy: pull
-
 go:version:matrix:
   stage: build
   variables:
