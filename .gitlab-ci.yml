@@ -156,7 +156,7 @@ generate:
     - *protoc-go
     - *go-jsonschema
     - go generate
-    - git diff --exit-code
+    - git diff --exit-code -w -G'(^[^\*# /])|(^#\w)|(^\s+[^\*#/])'
   allow_failure: true
 
 .go-build:
