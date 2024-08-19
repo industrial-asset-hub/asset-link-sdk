@@ -255,7 +255,6 @@ go:version:matrix:
     - apt-get update -qq
     - apt-get install --assume-yes --no-install-recommends  git goreleaser
   script:
-    - *set_netrc
     - cd ${COOKIECUTTER_PROJECT}/${COOKIECUTTER_PROJECT_NAME}/
     - go version
     - goreleaser build --snapshot --clean --single-target
