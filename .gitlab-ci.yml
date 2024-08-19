@@ -266,7 +266,7 @@ go:version:matrix:
     policy: pull
   parallel:
     matrix:
-      - VERSION: ["1.19", "1.20", "1.21", "1.22", "latest"]
+      - VERSION: ["1.18", "1.19", "1.20", "1.21", "1.22", "latest"]
   allow_failure: true
 
 build:
