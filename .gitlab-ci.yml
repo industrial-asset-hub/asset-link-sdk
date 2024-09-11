@@ -25,7 +25,7 @@ variables:
   HTTP_PROXY: "$CODE_PROXY"
   HTTPS_PROXY: "$CODE_PROXY"
   NO_PROXY: $CODE_NO_PROXY
-  GO_BUILD_IMAGE: golang:1.22.2-alpine
+  GO_BUILD_IMAGE: golang:1.22-alpine
   # Used to hardly enforce that version inside the go.mod file
   GO_MINIMAL_VERSION: 1.20
   CGO_ENABLED: 0
@@ -168,7 +168,7 @@ vulncheck:
     - go install golang.org/x/vuln/cmd/govulncheck@latest
   script:
     - go version
-    - govulncheck ./...
+    - govulncheck -show color ./...
   allow_failure: true
 
 .go-build:
