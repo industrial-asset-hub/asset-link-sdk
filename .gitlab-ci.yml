@@ -159,6 +159,18 @@ generate:
     - git diff --exit-code -w -G'(^[^\*# /])|(^#\w)|(^\s+[^\*#/])'
   allow_failure: true
 
+#TODO: Find a way to upload scan report to Gitlab or Github
+vulncheck:
+  stage: test
+  needs: []
+  image: $GO_BUILD_IMAGE
+  before_script:
+    - go install golang.org/x/vuln/cmd/govulncheck@latest
+  script:
+    - go version
+    - govulncheck ./...
+  allow_failure: true
+
 .go-build:
   stage: build
   image: archlinux:latest
