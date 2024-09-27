@@ -118,7 +118,7 @@ unit-tests:
 cookiecutter-setup:
   stage: test
   needs: []
-  image: cr.siemens.com/code-ops/poetry-docker:1.3-py3.11
+  image: cr.siemens.com/code-ops/poetry-docker:1.8-py3.11
   variables:
     GIT_STRATEGY: clone
   before_script:
