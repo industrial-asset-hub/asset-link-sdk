@@ -9,6 +9,9 @@ include:
   - project: "common-device-management/utils/templates/gitlab-ci"
     ref: main
     file: "shared/pre-commit.yaml"
+  - project: "common-device-management/utils/templates/gitlab-ci"
+    ref: main
+    file: "shared/clearing.yaml"
 
 stages:
   - check
@@ -16,6 +19,7 @@ stages:
   - lint
   - test
   - build
+  - scan
   - release
 
 variables:
@@ -274,6 +278,34 @@ build:
   artifacts:
     expire_in: 1 day
     paths: [dist]
+###########################################################################################################################################
+### Stage: scan
+### BlackDuck upload for SVM
+###########################################################################################################################################
+
+.rulesBlackDuckUpload:
+  - &MAIN_TAG
+    if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH || $CI_COMMIT_TAG
+    when: always
+    allow_failure: true # should not happen, but should not block something like a critical bug fix
+  - &BRANCH
+    if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
+    when: manual
+    allow_failure: true
+
+analyzePackageDependencies:
+  extends: .analyze_package_dependencies_go
+  rules:
+    - *MAIN_TAG
+    - *BRANCH
+  needs: ["build"]
+
+clearingSubmit:
+  needs: ["analyzePackageDependencies"]
+  extends: .clearing_submit
+  rules:
+    - *MAIN_TAG
+    - *BRANCH
 
 create-release:
   stage: release

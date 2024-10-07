@@ -2,8 +2,6 @@ module code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sd
 
 go 1.21
 
-toolchain go1.22.5
-
 require (
 	github.com/Masterminds/semver/v3 v3.3.0
 	github.com/gin-contrib/logger v1.1.2
