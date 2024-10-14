@@ -1,0 +1,9 @@
+FROM scratch
+ARG COMPONENT_NAME=default
+ARG TARGETARCH=amd64
+
+COPY --chmod=0755 build/$COMPONENT_NAME*-$TARGETARCH /service
+
+EXPOSE 50051
+
+ENTRYPOINT ["/service"]

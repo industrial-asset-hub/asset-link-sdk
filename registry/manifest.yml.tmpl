@@ -1,0 +1,10 @@
+image: $IMAGE_STORAGE_URL_BASE
+manifests:
+  - image: $IMAGE_STORAGE_URL_BASE-arm64
+    platform:
+      architecture: arm64
+      os: linux
+  - image: $IMAGE_STORAGE_URL_BASE-amd64
+    platform:
+      architecture: amd64
+      os: linux
