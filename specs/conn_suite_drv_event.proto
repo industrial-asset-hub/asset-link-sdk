@@ -19,7 +19,7 @@ package siemens.connectivitysuite.driverevent.v1;
 // The Services Definition
 //
 service DriverEventApi
-{   
+{
     // Possible return values
     // - OK
     //
@@ -51,7 +51,7 @@ message MetadataChangedNotification {
 }
 
 // Driver status has changed
-// (respectively underlying connection status) 
+// (respectively underlying connection status)
 //
 // The message contains the  status of driver and _ALL_ connections.
 // In this way no special handling for 'late subscribers' is needed.
@@ -64,32 +64,34 @@ message MetadataChangedNotification {
 // The 'Driver Status Change Notification' represents only the levels 'Driver'
 // and 'Connections'. If the specific driver supports multi-driver-units,
 // it has to provide unique connections, e.g. 'PLC1-RTU' or 'PLC1-TCP'
-// 
+//
 message DriverStateNotification {
 
     // source timestamp of driver state change
-    // 64 bit unsigned integer which represents the number 
+    // 64 bit unsigned integer which represents the number
     // of 100 nano-second [0.1 microsec] intervals since January 1, 1601 (UTC).
     // (see Connectivity Suite type DT_TIMESTAMP)
     fixed64 timestamp = 1;
 
-    // possible values for the driver statue
+    // possible values for the driver status
     enum DriverState {
-      // 'undef' might be used as initial value. This is no valid driver state
+      // 'undef' might be used as initial value. This is no valid driver state.
       DRIVER_UNDEF = 0;
-      // Connector is running, connections to underlying device(s) are established. Everything is fine.
+      // Connector is running. No statement about the underlying device connections.
       DRIVER_GOOD = 1;
       // Connector is running, but not fully functional.
       DRIVER_BAD = 2;
-      // Connector started up and just visible via gRPC. "Birth message"
+      // Connector started up and now visible via gRPC. This is the 'Birth message'
       DRIVER_AVAILABLE = 3;
-      // Device not available. This is the "last will" message.
+      // Device not available. This state represents the 'last will' message.
+      // The client should not rely on this message. In case of connection loss
+      // or driver crash it will not be sent.
       DRIVER_UNAVAILABLE = 4;
     }
     // the current driver state
     // valid values are numbers defined with enum 'DriverState'
     uint32 driver_state = 2;
-    
+
     // list of the underlayed connections
     repeated ConnectionStateInfo connection_states = 3;
 }
@@ -100,7 +102,7 @@ message DriverStateNotification {
 // 3. DriverStateNotification for new configured connections
 message ConnectionStateInfo {
     // source timestamp of connection state change
-    // 64 bit unsigned integer which represents the number 
+    // 64 bit unsigned integer which represents the number
     // of 100 nano-second [0.1 microsec] intervals since January 1, 1601 (UTC).
     // (see Connectivity Suite type DT_TIMESTAMP)
     fixed64 timestamp = 1;
@@ -124,7 +126,7 @@ message ConnectionStateInfo {
     // the current connection state
     // valid values are numbers defined with enum 'ConnectionState'
     uint32 connection_state = 3;
-    
+
     // Reason/Detail for 'bad' state
     // Values defined by enum siemens.connectivitysuite.code.v1.Code
     //

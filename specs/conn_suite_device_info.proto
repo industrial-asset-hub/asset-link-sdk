@@ -1,0 +1,67 @@
+
+/*
+ * Copyright (c) Siemens AG 2024 ALL RIGHTS RESERVED.
+ */
+
+
+// Device Info Interface
+
+syntax = "proto3";
+
+import "common_address.proto";
+import "common_properties.proto";
+
+package siemens.connectivitysuite.deviceinfo.v1;
+
+service DeviceInfoApi {
+    // Retrieve device properties from the device, e.g.
+    // certificates, order number, firmware version
+    rpc GetPropertyValues (GetPropertyValuesRequest) returns (GetPropertyValuesResponse) {}
+    // Retrieve the properties supported by the device
+    rpc GetSupportedProperties (GetSupportedPropertiesRequest) returns (GetSupportedPropertiesResponse) {}
+}
+
+message GetPropertyValuesRequest {
+    // mandatory: Specify the device from which to retrieve the device info
+    siemens.common.address.v1.Destination device = 1;
+
+    // list of keys to retrieve the device information, e.g. for
+    // certificates and device specific properties
+    repeated string keys = 2;
+}
+
+message GetPropertyValuesResponse {
+    // List of results (either property or error)
+    // Each requested property key will have a corresponding result
+    repeated PropertyValueResult property_results = 1;
+}
+
+// This is a workaround for "repeated oneof" in protobuf. See https://github.com/protocolbuffers/protobuf/issues/2592
+message PropertyValueResult {
+    oneof result {
+        // A device property, e.g. certificate
+        siemens.common.properties.v1.PropertyKeyValuePair property = 1;
+        // Error message in case of failure
+        GetPropertyValueError error = 2;
+    }
+}
+
+message GetPropertyValueError {
+    // The error code, which should be an enum value of
+    // siemens.common.code.v1
+    int32 result_code = 1;
+    // Developer-facing human-readable message in English
+    string description = 2;
+    // The key this error belongs to
+    string key = 3;
+}
+
+message GetSupportedPropertiesRequest {
+    // mandatory: Specify the device from which to retrieve the device info
+    siemens.common.address.v1.Destination device = 1;
+}
+
+message GetSupportedPropertiesResponse {
+    // List of supported properties of this device
+    repeated siemens.common.properties.v1.SupportedProperty properties = 1;
+}
