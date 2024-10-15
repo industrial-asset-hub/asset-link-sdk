@@ -3,7 +3,6 @@ module code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sd
 go 1.21
 
 require (
-	code.siemens.com/common-device-management/utils/go-modules/cdmlog.git v1.6.2
 	github.com/Masterminds/semver/v3 v3.3.0
 	github.com/gin-contrib/logger v1.1.2
 	github.com/gin-gonic/gin v1.10.0
@@ -57,8 +56,6 @@ require (
 	github.com/ugorji/go/codec v1.2.12 // indirect
 	github.com/xeipuuv/gojsonpointer v0.0.0-20180127040702-4e3ac2762d5f // indirect
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
-	go.opentelemetry.io/otel v1.28.0 // indirect
-	go.opentelemetry.io/otel/trace v1.28.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.9.0 // indirect
 	golang.org/x/arch v0.9.0 // indirect

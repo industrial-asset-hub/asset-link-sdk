@@ -9,8 +9,8 @@ import (
 	"net"
 	"strings"
 
+	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/logging"
 	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/registry/internal/server"
-	"code.siemens.com/common-device-management/utils/go-modules/cdmlog.git/pkg/logging"
 
 	pb "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/generated/conn_suite_registry"
 
@@ -30,6 +30,7 @@ var (
 )
 
 func main() {
+	logging.SetupLogging()
 	log.Info().
 		Str("Version", version).
 		Str("commit", commit).
@@ -64,7 +65,7 @@ func main() {
 	serverAddress := viper.GetString("server-address")
 
 	// Set log level
-	logging.SetupLogging(logLevel, "grpc-server-registry")
+	logging.AdjustLogLevel(logLevel)
 
 	log.Debug().Msg("Debug level enabled.")
 
