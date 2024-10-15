@@ -12,8 +12,8 @@ import (
 	"sync"
 	"time"
 
-	"code.siemens.com/common-device-management/gateway/grpc-server-registry/internal/shared"
-	pb "code.siemens.com/common-device-management/utils/go-modules/grpcserverregistry.git/pkg/grpc-server-registry"
+	pb "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/generated/conn_suite_registry"
+	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/registry/internal/shared"
 
 	"github.com/rs/zerolog/log"
 	codes "google.golang.org/grpc/codes"

@@ -13,7 +13,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	pb "code.siemens.com/common-device-management/utils/go-modules/grpcserverregistry.git/pkg/grpc-server-registry"
+	pb "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/generated/conn_suite_registry"
 	"github.com/stretchr/testify/assert"
 )
 

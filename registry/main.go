@@ -5,13 +5,14 @@
 package main
 
 import (
-	"code.siemens.com/common-device-management/gateway/grpc-server-registry/internal/server"
-	"code.siemens.com/common-device-management/utils/go-modules/cdmlog.git/pkg/logging"
 	"fmt"
 	"net"
 	"strings"
 
-	pb "code.siemens.com/common-device-management/utils/go-modules/grpcserverregistry.git/pkg/grpc-server-registry"
+	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/registry/internal/server"
+	"code.siemens.com/common-device-management/utils/go-modules/cdmlog.git/pkg/logging"
+
+	pb "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/generated/conn_suite_registry"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"

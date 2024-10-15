@@ -107,7 +107,7 @@ unit-tests:
     - *protoc-go
     - *go-jsonschema
     - go generate
-    - go test --race ./... ./registry/... -covermode=atomic -coverprofile=coverage.txt -v 2>&1 | go-junit-report -iocopy -set-exit-code -out report.xml
+    - go test --race ./... -covermode=atomic -coverprofile=coverage.txt -v 2>&1 | go-junit-report -iocopy -set-exit-code -out report.xml
     - go tool cover -func=coverage.txt
     - go tool cover -html=coverage.txt -o coverage.html
   artifacts:
@@ -119,9 +119,7 @@ unit-tests:
       - coverage.html
     expire_in: 1 day
 
-#TODO: make sure the unit tests of registry are also executed
 #TODO: make sure docker images are generated for registry
-#TODO: make sure to use local dependencies instead of code.siemens.com dependencies in registry
 
 cookiecutter-setup:
   stage: test

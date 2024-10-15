@@ -10,7 +10,6 @@ before:
   hooks:
     - go generate ./...
     - go mod download
-    - sh -c `cd registry; go mod download` #TODO: move everything into one package (single go.mod, ...) ?!?
 
 builds:
   - id: cdm-dcd-reference
@@ -62,8 +61,7 @@ builds:
     mod_timestamp: "{{ .CommitTimestamp }}"
   - id: registry
     binary: registry
-    dir: ./registry/
-    main: ./main.go
+    main: ./registry/main.go
     flags:
       - -trimpath
     ldflags:
