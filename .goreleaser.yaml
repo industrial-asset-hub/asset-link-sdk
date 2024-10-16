@@ -172,7 +172,7 @@ nfpms:
 #     ids:
 #       - registry
 #     image_templates:
-#       - "todo/todo:{{ .Tag }}-linux-amd64"
+#       - "cr.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/registry:{{ .Tag }}-linux-amd64"
 #     dockerfile: registry/Dockerfile
 #     use: buildx
 #     goos: linux
@@ -183,7 +183,7 @@ nfpms:
 #     ids:
 #       - registry
 #     image_templates:
-#       - "todo/todo:{{ .Tag }}-linux-arm64"
+#       - "cr.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/registry:{{ .Tag }}-linux-arm64"
 #     dockerfile: registry/Dockerfile
 #     use: buildx
 #     goos: linux
@@ -192,10 +192,10 @@ nfpms:
 #       - "--platform=linux/arm64"
 
 # docker_manifests:
-#   - name_template: "todo/todo:{{ .Tag }}"
+#   - name_template: "cr.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/registry:{{ .Tag }}"
 #     image_templates:
-#       - "todo/todo:{{ .Tag }}-linux-amd64"
-#       - "todo/todo:{{ .Tag }}-linux-arm64"
+#       - "cr.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/registry:{{ .Tag }}-linux-amd64"
+#       - "cr.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/registry:{{ .Tag }}-linux-arm64"
 
 checksum:
   name_template: "{{.ProjectName}}_{{.Version}}.sha256"

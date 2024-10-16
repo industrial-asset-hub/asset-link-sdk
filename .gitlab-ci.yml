@@ -12,6 +12,12 @@ include:
   - project: "common-device-management/utils/templates/gitlab-ci"
     ref: main
     file: "shared/clearing.yaml"
+  - project: "common-device-management/utils/templates/gitlab-ci"
+    ref: main
+    file: "shared/versioning.yaml" # required for containerization of registry
+  - project: "common-device-management/utils/templates/gitlab-ci"
+    ref: main
+    file: "templates/container-image-helper.yaml" # required for containerization of registry
 
 stages:
   - check
@@ -21,6 +27,7 @@ stages:
   - build
   - scan
   - release
+  - containerize
 
 variables:
   https_proxy: $CODE_PROXY
@@ -35,6 +42,10 @@ variables:
   CGO_ENABLED: 0
   COOKIECUTTER_PROJECT: cookiecutter-test/
   COOKIECUTTER_PROJECT_NAME: al-test
+
+###########################################################################################################################################
+### Shared
+###########################################################################################################################################
 
 # sets credentials to access private GO modules located in code.siemens.com
 .set_git_https_credentials: &set_git_https_credentials |
@@ -56,7 +67,11 @@ variables:
 
 # Place temporary go.mod file, inside cookiecutter  project dir to make go test happy
 .cookiecutter_gomod-quirk: &cookiecutter_gomod-quirk ( cd cookiecutter-project-template/*/ && cp ../../go.mod go.mod)
-# Lint
+
+###########################################################################################################################################
+### Stage: lint
+###########################################################################################################################################
+
 lint:
   image: $GO_BUILD_IMAGE
   stage: lint
@@ -92,6 +107,10 @@ reuse:
     - reuse lint
   allow_failure: true
 
+###########################################################################################################################################
+### Stage: test
+###########################################################################################################################################
+
 unit-tests:
   stage: test
   needs: []
@@ -118,8 +137,6 @@ unit-tests:
       - coverage.txt
       - coverage.html
     expire_in: 1 day
-
-#TODO: make sure docker images are generated for registry
 
 cookiecutter-setup:
   stage: test
@@ -176,6 +193,10 @@ vulncheck:
     - go version
     - govulncheck -show color ./...
   allow_failure: true
+
+###########################################################################################################################################
+### Stage: build
+###########################################################################################################################################
 
 .go-build:
   stage: build
@@ -280,6 +301,7 @@ build:
   artifacts:
     expire_in: 1 day
     paths: [dist]
+
 ###########################################################################################################################################
 ### Stage: scan
 ### BlackDuck upload for SVM
@@ -309,10 +331,14 @@ clearingSubmit:
     - *MAIN_TAG
     - *BRANCH
 
+###########################################################################################################################################
+### Stage: release
+###########################################################################################################################################
+
 create-release:
   stage: release
   image: archlinux:latest
-  # disable artifact passing
+  # Disable artifact passing
   dependencies: []
   variables:
     # Disable shallow cloning so that goreleaser can diff between tags
@@ -325,9 +351,9 @@ create-release:
     - *go-jsonschema
   script:
     - *set_netrc
-    # Copy go.mod and the vendor dir for the SDK archive to the into the cookiecutter template
-    # the go.mod inside the cookiecutter-project-template does not have to contain the cdm-dcd-sdk. It is updated
-    # inside the cookiecutter-vendor job
+    # Copy go.mod and the vendor dir for the SDK archive into the cookiecutter template
+    # the go.mod inside the cookiecutter-project-template does not have to contain the cdm-dcd-sdk.
+    # It is updated inside the cookiecutter-vendor job.
     - ls
     - ls cookiecutter-project-template/
     - cp -a ${COOKIECUTTER_PROJECT}/${COOKIECUTTER_PROJECT_NAME}/go.mod cookiecutter-project-template/\{\{\ cookiecutter.al_id\ \}\}/
@@ -353,3 +379,104 @@ create-release:
     paths:
       - $COOKIECUTTER_PROJECT
     policy: pull
+
+###########################################################################################################################################
+### Stage: containerize
+###########################################################################################################################################
+
+.container_registry_login: &container_registry_login |
+  echo "{\"auths\":{\"$CODE_CR_PROXY\":{\"username\":\"$GITLAB_USER_LOGIN\",\"password\":\"$CR_PROXY_TOKEN\"}}}" > /kaniko/.docker/config.json
+
+.build_tag_push_containerimage:
+  stage: containerize
+  variables:
+    COMPONENT_CONTEXT: ""
+    COMPONENT_NAME: "registry"
+  image:
+    name: gcr.io/kaniko-project/executor:v1.23.2-debug@sha256:c3109d5926a997b100c4343944e06c6b30a6804b2f9abe0994d3de6ef92b028e
+    entrypoint: [""]
+  # Let GitLab inject a CI JWT token into the build
+  id_tokens:
+    CR_PROXY_TOKEN:
+      aud: https://code.siemens.com
+  script:
+    - *container_registry_login
+    - CONTEXT=$CI_PROJECT_DIR/$COMPONENT_CONTEXT
+    - IMAGE_STORAGE_URL=$CI_REGISTRY_IMAGE/$COMPONENT_NAME:$IMAGE_TAG
+    - printf "IMAGE_STORAGE_URL=$IMAGE_STORAGE_URL\n" >> build.env
+    - >
+      /kaniko/executor \
+        --build-arg http_proxy="$http_proxy" \
+        --build-arg https_proxy="$https_proxy" \
+        --build-arg no_proxy="$no_proxy" \
+        --build-arg COMPONENT_NAME="$COMPONENT_NAME" \
+        --context $CONTEXT \
+        --dockerfile $CONTEXT/Dockerfile \
+        --destination $IMAGE_STORAGE_URL \
+        --registry-mirror $CODE_CR_PROXY_HOST
+  retry: 1
+  artifacts:
+    reports:
+      dotenv: build.env
+
+.build_tag_push_containerimage_multiarch:
+  extends: .build_tag_push_containerimage
+  variables:
+    ARCH: "amd64"
+  # Let GitLab inject a CI JWT token into the build
+  id_tokens:
+    CR_PROXY_TOKEN:
+      aud: https://code.siemens.com
+  script:
+    - *container_registry_login
+    - CONTEXT=$CI_PROJECT_DIR/$COMPONENT_CONTEXT
+    - IMAGE_STORAGE_URL_BASE=$CI_REGISTRY_IMAGE/$COMPONENT_NAME:$IMAGE_TAG
+    - printf "IMAGE_STORAGE_URL_BASE=$IMAGE_STORAGE_URL_BASE\n" >> build.env
+    - IMAGE_STORAGE_URL=$IMAGE_STORAGE_URL_BASE-$ARCH
+    - printf "IMAGE_STORAGE_URL=$IMAGE_STORAGE_URL\n" >> build.env
+    - |
+      case $ARCH in
+          amd64)
+            ;;
+          arm64)
+            ;;
+          *)
+            echo "Unsupported architecture: $ARCH"
+            exit 1
+            ;;
+      esac
+    - >
+      /kaniko/executor \
+        --build-arg http_proxy="$http_proxy" \
+        --build-arg https_proxy="$https_proxy" \
+        --build-arg no_proxy="$no_proxy" \
+        --build-arg COMPONENT_NAME="$COMPONENT_NAME" \
+        --build-arg TARGETARCH="$ARCH" \
+        --context $CONTEXT \
+        --dockerfile $CONTEXT/Dockerfile \
+        --destination $IMAGE_STORAGE_URL \
+        --registry-mirror $CODE_CR_PROXY_HOST
+
+createRegistryImageAmd64:
+  extends: .build_tag_push_containerimage_multiarch
+  variables:
+    COMPONENT_CONTEXT: "registry/"
+    COMPONENT_NAME: "registry"
+    ARCH: "amd64"
+
+createRegistryImageArm64:
+  extends: .build_tag_push_containerimage_multiarch
+  variables:
+    COMPONENT_CONTEXT: "registry/"
+    COMPONENT_NAME: "registry"
+    ARCH: "arm64"
+  tags:
+    - DOCKER-AARCH64
+
+createRegistryContainerImageIndex:
+  extends: .createContainerImageIndex
+  stage: containerize
+  needs:
+    - version
+    - createRegistryImageAmd64
+    - createRegistryImageArm64
