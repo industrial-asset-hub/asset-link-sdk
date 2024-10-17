@@ -5,12 +5,13 @@
  *
  */
 
-package dcdconnection
+package dcd
 
 import (
 	"encoding/json"
 	"io"
 
+	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/cmd/dcd-ctl/internal/shared"
 	generated "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/generated/iah-discovery"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/net/context"
@@ -36,7 +37,7 @@ func StartDiscovery(endpoint string, option string, filter string) []generated.D
 	}
 	log.Trace().Interface("Filters", parsedFilters).Msg("Parsed discovery filter")
 
-	conn := grpcConnection(endpoint)
+	conn := shared.GrpcConnection(endpoint)
 	defer conn.Close()
 
 	client := generated.NewDeviceDiscoverApiClient(conn)
