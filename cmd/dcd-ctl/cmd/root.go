@@ -7,6 +7,7 @@
 package cmd
 
 import (
+	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/cmd/dcd-ctl/cmd/test"
 	"fmt"
 	"os"
 
@@ -58,6 +59,7 @@ func init() {
 
 	rootCmd.AddCommand(discovery.DiscoveryCmd)
 	rootCmd.AddCommand(info.InfoCmd)
+	rootCmd.AddCommand(test.TestCmd)
 
 }
 func initHandlers() {
