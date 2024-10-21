@@ -194,7 +194,19 @@ $ journalctl logs -f -u custom-asset-link
 ### Command line tool
 
 To ease development or testing, the AL can be interactively triggered using a command line tool.
-For example, a discovery can be started/stopped or even the results are retrieved.
+For example, a discovery can be started/stopped or even the results are retrieved,
+the test-suite can be used as follows:
+go run cmd/dcd-ctl/dcd-ctl.go test
+the following arguments can be provided to test AL:
+
+1. assets: to validate the asset against the schema using linkml-validator
+   example usage: go run cmd/dcd-ctl/dcd-ctl.go test assets --base-schema-path path/to/base/schema --ass
+   et-path path/to/asset
+   --schema-path path/to/schema --target-class target_class_name
+2. api: to validate the api (tests are to be added)
+   example usage: go run cmd/dcd-ctl/dcd-ctl.go test api
+3. json-schema: to validate the json schema using json schema validator
+   example usage: go run cmd/dcd-ctl/dcd-ctl.go test json-schema --schema-path path/to/schema --asset-path path/to/asset
 
 ```bash
 go install code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/cmd/dcd-ctl@main
