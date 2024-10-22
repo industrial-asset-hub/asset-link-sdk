@@ -1,0 +1,522 @@
+[
+  {
+    "devices": [
+      {
+        "identifiers": [
+          {
+            "Value": {
+              "Text": "EthernetDevice"
+            },
+            "classifiers": [
+              {
+                "type": "URI",
+                "value": "https://schema.industrial-assets.io/base/v0.8.3/Asset#@type"
+              }
+            ]
+          },
+          {
+            "Value": {
+              "Children": {
+                "value": [
+                  {
+                    "Value": {
+                      "Text": "EthernetPort"
+                    },
+                    "classifiers": [
+                      {
+                        "type": "URI",
+                        "value": "https://schema.industrial-assets.io/base/v0.8.3/Asset#connection_points/connection_point_type"
+                      }
+                    ]
+                  },
+                  {
+                    "Value": {
+                      "Text": "f688df2a-cdf4-41c7-9836-9b71de5a7762"
+                    },
+                    "classifiers": [
+                      {
+                        "type": "URI",
+                        "value": "https://schema.industrial-assets.io/base/v0.8.3/Asset#connection_points/id"
+                      }
+                    ]
+                  },
+                  {
+                    "Value": {
+                      "Children": {
+                        "value": [
+                          {
+                            "Value": {
+                              "Text": "name"
+                            },
+                            "classifiers": [
+                              {
+                                "type": "URI",
+                                "value": "https://schema.industrial-assets.io/base/v0.8.3/Asset#connection_points/instance_annotations/key"
+                              }
+                            ]
+                          },
+                          {
+                            "Value": {
+                              "Text": "eth0"
+                            },
+                            "classifiers": [
+                              {
+                                "type": "URI",
+                                "value": "https://schema.industrial-assets.io/base/v0.8.3/Asset#connection_points/instance_annotations/value"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    "classifiers": [
+                      {
+                        "type": "URI",
+                        "value": "https://schema.industrial-assets.io/base/v0.8.3/Asset#connection_points/instance_annotations"
+                      }
+                    ]
+                  },
+                  {
+                    "Value": {
+                      "Text": "00:16:3e:cd:de:9e"
+                    },
+                    "classifiers": [
+                      {
+                        "type": "URI",
+                        "value": "https://schema.industrial-assets.io/base/v0.8.3/Asset#connection_points/mac_address"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            "classifiers": [
+              {
+                "type": "URI",
+                "value": "https://schema.industrial-assets.io/base/v0.8.3/Asset#connection_points"
+              }
+            ]
+          },
+          {
+            "Value": {
+              "Children": {
+                "value": [
+                  {
+                    "Value": {
+                      "Text": "Ipv4Connectivity"
+                    },
+                    "classifiers": [
+                      {
+                        "type": "URI",
+                        "value": "https://schema.industrial-assets.io/base/v0.8.3/Asset#connection_points/connection_point_type"
+                      }
+                    ]
+                  },
+                  {
+                    "Value": {
+                      "Text": "45c3cffc-180b-472e-9e8a-f332e5ad7731"
+                    },
+                    "classifiers": [
+                      {
+                        "type": "URI",
+                        "value": "https://schema.industrial-assets.io/base/v0.8.3/Asset#connection_points/id"
+                      }
+                    ]
+                  },
+                  {
+                    "Value": {
+                      "Text": "192.168.0.1"
+                    },
+                    "classifiers": [
+                      {
+                        "type": "URI",
+                        "value": "https://schema.industrial-assets.io/base/v0.8.3/Asset#connection_points/ipv4_address"
+                      }
+                    ]
+                  },
+                  {
+                    "Value": {
+                      "Text": "255.255.255.0"
+                    },
+                    "classifiers": [
+                      {
+                        "type": "URI",
+                        "value": "https://schema.industrial-assets.io/base/v0.8.3/Asset#connection_points/network_mask"
+                      }
+                    ]
+                  },
+                  {
+                    "Value": {
+                      "Children": {
+                        "value": [
+                          {
+                            "Value": {
+                              "Text": "f688df2a-cdf4-41c7-9836-9b71de5a7762"
+                            },
+                            "classifiers": [
+                              {
+                                "type": "URI",
+                                "value": "https://schema.industrial-assets.io/base/v0.8.3/Asset#connection_points/related_connection_points/connection_point"
+                              }
+                            ]
+                          },
+                          {
+                            "Value": {
+                              "Text": "Relies on"
+                            },
+                            "classifiers": [
+                              {
+                                "type": "URI",
+                                "value": "https://schema.industrial-assets.io/base/v0.8.3/Asset#connection_points/related_connection_points/custom_relationship"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    "classifiers": [
+                      {
+                        "type": "URI",
+                        "value": "https://schema.industrial-assets.io/base/v0.8.3/Asset#connection_points/related_connection_points"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            "classifiers": [
+              {
+                "type": "URI",
+                "value": "https://schema.industrial-assets.io/base/v0.8.3/Asset#connection_points"
+              }
+            ]
+          },
+          {
+            "Value": {
+              "Children": {
+                "value": [
+                  {
+                    "Value": {
+                      "Text": "Ipv4Connectivity"
+                    },
+                    "classifiers": [
+                      {
+                        "type": "URI",
+                        "value": "https://schema.industrial-assets.io/base/v0.8.3/Asset#connection_points/connection_point_type"
+                      }
+                    ]
+                  },
+                  {
+                    "Value": {
+                      "Text": "50b208a2-5050-4c51-8afe-f038ef5a0351"
+                    },
+                    "classifiers": [
+                      {
+                        "type": "URI",
+                        "value": "https://schema.industrial-assets.io/base/v0.8.3/Asset#connection_points/id"
+                      }
+                    ]
+                  },
+                  {
+                    "Value": {
+                      "Text": "10.0.0.1"
+                    },
+                    "classifiers": [
+                      {
+                        "type": "URI",
+                        "value": "https://schema.industrial-assets.io/base/v0.8.3/Asset#connection_points/ipv4_address"
+                      }
+                    ]
+                  },
+                  {
+                    "Value": {
+                      "Text": "255.255.255.0"
+                    },
+                    "classifiers": [
+                      {
+                        "type": "URI",
+                        "value": "https://schema.industrial-assets.io/base/v0.8.3/Asset#connection_points/network_mask"
+                      }
+                    ]
+                  },
+                  {
+                    "Value": {
+                      "Children": {
+                        "value": [
+                          {
+                            "Value": {
+                              "Text": "f688df2a-cdf4-41c7-9836-9b71de5a7762"
+                            },
+                            "classifiers": [
+                              {
+                                "type": "URI",
+                                "value": "https://schema.industrial-assets.io/base/v0.8.3/Asset#connection_points/related_connection_points/connection_point"
+                              }
+                            ]
+                          },
+                          {
+                            "Value": {
+                              "Text": "Relies on"
+                            },
+                            "classifiers": [
+                              {
+                                "type": "URI",
+                                "value": "https://schema.industrial-assets.io/base/v0.8.3/Asset#connection_points/related_connection_points/custom_relationship"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    "classifiers": [
+                      {
+                        "type": "URI",
+                        "value": "https://schema.industrial-assets.io/base/v0.8.3/Asset#connection_points/related_connection_points"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            "classifiers": [
+              {
+                "type": "URI",
+                "value": "https://schema.industrial-assets.io/base/v0.8.3/Asset#connection_points"
+              }
+            ]
+          },
+          {
+            "Value": {
+              "Children": {
+                "value": [
+                  {
+                    "Value": {
+                      "Text": "true"
+                    },
+                    "classifiers": [
+                      {
+                        "type": "URI",
+                        "value": "https://schema.industrial-assets.io/base/v0.8.3/Asset#asset_operations/activation_flag"
+                      }
+                    ]
+                  },
+                  {
+                    "Value": {
+                      "Text": "firmware_update"
+                    },
+                    "classifiers": [
+                      {
+                        "type": "URI",
+                        "value": "https://schema.industrial-assets.io/base/v0.8.3/Asset#asset_operations/operation_name"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            "classifiers": [
+              {
+                "type": "URI",
+                "value": "https://schema.industrial-assets.io/base/v0.8.3/Asset#asset_operations"
+              }
+            ]
+          },
+          {
+            "Value": {
+              "Text": "2024-11-27T12:36:34.614443Z"
+            },
+            "classifiers": [
+              {
+                "type": "URI",
+                "value": "https://schema.industrial-assets.io/base/v0.8.3/Asset#management_state/state_timestamp"
+              }
+            ]
+          },
+          {
+            "Value": {
+              "Text": "unknown"
+            },
+            "classifiers": [
+              {
+                "type": "URI",
+                "value": "https://schema.industrial-assets.io/base/v0.8.3/Asset#management_state/state_value"
+              }
+            ]
+          },
+          {
+            "Value": {
+              "Text": "Device"
+            },
+            "classifiers": [
+              {
+                "type": "URI",
+                "value": "https://schema.industrial-assets.io/base/v0.8.3/Asset#name"
+              }
+            ]
+          },
+          {
+            "Value": {
+              "Text": "https://Siemens_AG/cdm-reference-dcd-test2-1"
+            },
+            "classifiers": [
+              {
+                "type": "URI",
+                "value": "https://schema.industrial-assets.io/base/v0.8.3/Asset#product_instance_identifier/manufacturer_product/id"
+              }
+            ]
+          },
+          {
+            "Value": {
+              "Text": "4fff30455545fa54938f2124a5392aae79b83073"
+            },
+            "classifiers": [
+              {
+                "type": "URI",
+                "value": "https://schema.industrial-assets.io/base/v0.8.3/Asset#product_instance_identifier/manufacturer_product/manufacturer/id"
+              }
+            ]
+          },
+          {
+            "Value": {
+              "Text": "Siemens AG"
+            },
+            "classifiers": [
+              {
+                "type": "URI",
+                "value": "https://schema.industrial-assets.io/base/v0.8.3/Asset#product_instance_identifier/manufacturer_product/manufacturer/name"
+              }
+            ]
+          },
+          {
+            "Value": {
+              "Text": "cdm-reference-dcd-test2"
+            },
+            "classifiers": [
+              {
+                "type": "URI",
+                "value": "https://schema.industrial-assets.io/base/v0.8.3/Asset#product_instance_identifier/manufacturer_product/name"
+              }
+            ]
+          },
+          {
+            "Value": {
+              "Text": "MyOrderNumber"
+            },
+            "classifiers": [
+              {
+                "type": "URI",
+                "value": "https://schema.industrial-assets.io/base/v0.8.3/Asset#product_instance_identifier/manufacturer_product/product_id"
+              }
+            ]
+          },
+          {
+            "Value": {
+              "Text": "1.0.0"
+            },
+            "classifiers": [
+              {
+                "type": "URI",
+                "value": "https://schema.industrial-assets.io/base/v0.8.3/Asset#product_instance_identifier/manufacturer_product/product_version"
+              }
+            ]
+          },
+          {
+            "Value": {
+              "Text": "1"
+            },
+            "classifiers": [
+              {
+                "type": "URI",
+                "value": "https://schema.industrial-assets.io/base/v0.8.3/Asset#product_instance_identifier/serial_number"
+              }
+            ]
+          },
+          {
+            "Value": {
+              "Text": "2024-11-27T12:36:34.614443Z"
+            },
+            "classifiers": [
+              {
+                "type": "URI",
+                "value": "https://schema.industrial-assets.io/base/v0.8.3/Asset#reachability_state/state_timestamp"
+              }
+            ]
+          },
+          {
+            "Value": {
+              "Text": "reached"
+            },
+            "classifiers": [
+              {
+                "type": "URI",
+                "value": "https://schema.industrial-assets.io/base/v0.8.3/Asset#reachability_state/state_value"
+              }
+            ]
+          },
+          {
+            "Value": {
+              "Children": {
+                "value": [
+                  {
+                    "Value": {
+                      "Text": "00:16:3e:cd:de:9e"
+                    },
+                    "classifiers": [
+                      {
+                        "type": "URI",
+                        "value": "https://schema.industrial-assets.io/base/v0.8.3/Asset#mac_identifiers/mac_address"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            "classifiers": [
+              {
+                "type": "URI",
+                "value": "https://schema.industrial-assets.io/base/v0.8.3/Asset#mac_identifiers"
+              }
+            ]
+          },
+          {
+            "Value": {
+              "Children": {
+                "value": [
+                  {
+                    "Value": {
+                      "Text": "firmware"
+                    },
+                    "classifiers": [
+                      {
+                        "type": "URI",
+                        "value": "https://schema.industrial-assets.io/base/v0.8.3/Asset#software_components/artifact/software_identifier/name"
+                      }
+                    ]
+                  },
+                  {
+                    "Value": {
+                      "Text": "1.2.5"
+                    },
+                    "classifiers": [
+                      {
+                        "type": "URI",
+                        "value": "https://schema.industrial-assets.io/base/v0.8.3/Asset#software_components/artifact/software_identifier/version"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            "classifiers": [
+              {
+                "type": "URI",
+                "value": "https://schema.industrial-assets.io/base/v0.8.3/Asset#software_components"
+              }
+            ]
+          }
+        ],
+        "timestamp": 19347439483904
+      }
+    ]
+  }
+]
