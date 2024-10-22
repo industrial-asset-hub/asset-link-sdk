@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# SPDX-FileCopyrightText: 2024 Siemens AG
+# SPDX-FileCopyrightText: {{cookiecutter.year}} {{cookiecutter.company}}
 #
-# SPDX-License-Identifier:
+# SPDX-License-Identifier: MIT
 
 set -xeu
 

@@ -1,6 +1,6 @@
-#ƒ SPDX-FileCopyrightText: 2023 Siemens AG
+#ƒ SPDX-FileCopyrightText: 2024 Siemens AG
 #
-# SPDX-License-Identifier:
+# SPDX-License-Identifier: MIT
 ---
 exclude: ^specs/
 default_stages: [commit]

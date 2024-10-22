@@ -1,10 +1,17 @@
+/*
+ * SPDX-FileCopyrightText: 2024 Siemens AG
+ *
+ * SPDX-License-Identifier: MIT
+ *
+ */
 package test
 
 import (
 	"fmt"
-	"github.com/xeipuuv/gojsonschema"
 	"path/filepath"
 	"strings"
+
+	"github.com/xeipuuv/gojsonschema"
 )
 
 func ValidateJsonSchema(schemaPath string, dataPath string) error {
