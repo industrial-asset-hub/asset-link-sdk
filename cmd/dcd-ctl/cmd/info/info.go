@@ -15,8 +15,8 @@ import (
 // infoCmd represents the info command
 var InfoCmd = &cobra.Command{
 	Use:   "info",
-	Short: "Get AssetLink information",
-	Long:  `Get version information of the AssetLink`,
+	Short: "Print asset link information",
+	Long:  `This command prints information on the asset link.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		dcd.GetInfo(shared.AssetLinkEndpoint)
 	},
