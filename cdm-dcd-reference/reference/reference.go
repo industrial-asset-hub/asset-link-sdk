@@ -1,7 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2023 Siemens AG
+ * SPDX-FileCopyrightText: 2024 Siemens AG
  *
- * SPDX-License-Identifier:
+ * SPDX-License-Identifier: MIT
  *
  */
 package reference
@@ -86,7 +86,6 @@ func (m *ReferenceClassDriver) Start(jobId uint32, deviceChannel chan []*generat
 	m.discoveryJobRunning = false
 	log.Debug().
 		Msg("Start function exiting")
-
 }
 
 func (m *ReferenceClassDriver) FilterTypes(filterTypesChannel chan []*generated.SupportedFilter) {

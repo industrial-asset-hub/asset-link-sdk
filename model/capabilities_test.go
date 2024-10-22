@@ -1,7 +1,7 @@
 /*
  * SPDX-FileCopyrightText: 2024 Siemens AG
  *
- * SPDX-License-Identifier:
+ * SPDX-License-Identifier: MIT
  *
  */
 
@@ -9,8 +9,9 @@ package model
 
 import (
 	"fmt"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestCapabilities(t *testing.T) {

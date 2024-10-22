@@ -1,3 +1,8 @@
+#!/usr/bin/env bash
+# SPDX-FileCopyrightText: {{cookiecutter.year}} {{cookiecutter.company}}
+#
+# SPDX-License-Identifier: MIT
+
 [Unit]
 Description=IAH Asset Link {{ cookiecutter.al_name }}
 After=network.target

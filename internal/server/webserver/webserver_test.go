@@ -1,22 +1,23 @@
 /*
- * SPDX-FileCopyrightText: 2023 Siemens AG
+ * SPDX-FileCopyrightText: 2024 Siemens AG
  *
- * SPDX-License-Identifier:
+ * SPDX-License-Identifier: MIT
  *
  */
 
 package webserver
 
 import (
-	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/metadata"
 	"encoding/json"
-	"github.com/gin-gonic/gin"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/metadata"
+	"github.com/gin-gonic/gin"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestServer(t *testing.T) {

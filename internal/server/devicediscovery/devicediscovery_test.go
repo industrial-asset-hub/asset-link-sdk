@@ -1,20 +1,21 @@
 /*
- * SPDX-FileCopyrightText: 2023 Siemens AG
+ * SPDX-FileCopyrightText: 2024 Siemens AG
  *
- * SPDX-License-Identifier:
+ * SPDX-License-Identifier: MIT
  *
  */
 
 package devicediscovery
 
 import (
-	generated "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/generated/iah-discovery"
 	"context"
-	"github.com/stretchr/testify/assert"
-	"google.golang.org/grpc/metadata"
 	"sync"
 	"testing"
 	"time"
+
+	generated "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/generated/iah-discovery"
+	"github.com/stretchr/testify/assert"
+	"google.golang.org/grpc/metadata"
 )
 
 const notImplementedForMock = "The mock does not implement this, yet"

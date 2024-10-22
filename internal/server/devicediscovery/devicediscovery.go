@@ -1,20 +1,21 @@
 /*
- * SPDX-FileCopyrightText: 2023 Siemens AG
+ * SPDX-FileCopyrightText: 2024 Siemens AG
  *
- * SPDX-License-Identifier:
+ * SPDX-License-Identifier: MIT
  *
  */
 
 package devicediscovery
 
 import (
-	generated "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/generated/iah-discovery"
-	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/internal/features"
-	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/internal/observability"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
+
+	generated "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/generated/iah-discovery"
+	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/internal/features"
+	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/internal/observability"
 	"github.com/rs/zerolog/log"
 )
 
