@@ -167,36 +167,6 @@ nfpms:
       postinstall: "contrib/postinstall.bash"
       postremove: "contrib/postremove.bash"
 
-# dockers:
-#   - id: registry-image-linux-amd64
-#     ids:
-#       - registry
-#     image_templates:
-#       - "cr.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/registry:{{ .Tag }}-linux-amd64"
-#     dockerfile: registry/Dockerfile
-#     use: buildx
-#     goos: linux
-#     goarch: amd64
-#     build_flag_templates:
-#       - "--platform=linux/amd64"
-#   - id: registry-image-linux-arm64
-#     ids:
-#       - registry
-#     image_templates:
-#       - "cr.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/registry:{{ .Tag }}-linux-arm64"
-#     dockerfile: registry/Dockerfile
-#     use: buildx
-#     goos: linux
-#     goarch: amd64
-#     build_flag_templates:
-#       - "--platform=linux/arm64"
-
-# docker_manifests:
-#   - name_template: "cr.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/registry:{{ .Tag }}"
-#     image_templates:
-#       - "cr.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/registry:{{ .Tag }}-linux-amd64"
-#       - "cr.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/registry:{{ .Tag }}-linux-arm64"
-
 checksum:
   name_template: "{{.ProjectName}}_{{.Version}}.sha256"
   algorithm: sha256
