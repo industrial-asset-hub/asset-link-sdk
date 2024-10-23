@@ -108,7 +108,7 @@ func (d *DCD) Start(grpcServerAddress, registrationAddress, grpcRegistryAddress,
 		Metadata: d.metadata}
 	generatedDriverInfoServer.RegisterDriverInfoApiServer(d.grpcServer, d.driverInfoServer)
 
-	switch true {
+	switch {
 	// if a custom discovery server is provided, register it
 	case d.customDiscoveryServer != nil:
 		log.Info().Msg("Registered existing discovery server")
