@@ -9,9 +9,6 @@
 
 syntax = "proto3";
 
-// Include when using Protobuf-Any
-// import "google/protobuf/any.proto";
-
 package siemens.connectivitysuite.drvinfo.v1;
 
 //===================================================================
@@ -51,6 +48,12 @@ service DriverInfoApi
 message GetVersionInfoRequest {
     // void
 }
+
+message GetVersionInfoResponse {
+    // version information
+    VersionInfo version = 1;
+}
+
 // Version Info
 message VersionInfo {
 
@@ -80,17 +83,15 @@ message VersionInfo {
 
     // vendor name, e.g. "Siemens AG"
     string vendor_name = 4;
-    // product name, e.g. "CS S7-1500 Driver"
+    // product name, e.g. "SIMATIC S7+ Connector"
     string product_name = 5;
+    // description of the application, e.g. "Connector for SIMATIC S7-1200 and S7-1500 PLCs using S7+ protocol"
+    string product_description = 9;
     // the documentation URL of the driver
     // e.g. the company webpage with a deep link directly the docu
     string docu_url = 6;
     // feedback url for customers, it's different for different products
     string feedback_url = 8;
-}
-message GetVersionInfoResponse {
-    // version information
-    VersionInfo version = 1;
 }
 
 // ==================================================================
@@ -99,17 +100,18 @@ message GetVersionInfoResponse {
 message GetConfigSchemaRequest {
     // void
 }
+
 message ConfigSchema {
     // URI of the schema
     string uri = 1;
     // JSON string with configuration schema
     string schema = 2;
 }
+
 message GetConfigSchemaResponse {
     // configuration schema(s)
     repeated ConfigSchema schemas = 1;
 }
-
 
 // ==================================================================
 // Get Icon
@@ -140,6 +142,7 @@ message GetAppIconRequest {
   // e.g. provide 150 for a 150x150 pixel PNG
   //int32 resolution = 2;
 }
+
 message GetAppIconResponse  {
   // Image format of the returned image.
   // The aspect rate of the image shall be 1:1 that means a square image.

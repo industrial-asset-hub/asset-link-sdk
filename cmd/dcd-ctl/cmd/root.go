@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: MIT
  *
  */
+
 package cmd
 
 import (
@@ -47,6 +48,7 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initHandlers)
+	rootCmd.PersistentFlags().StringVarP(&shared.RegistryEndpoint, "registry", "r", "localhost:50051", "gRPC Server Address of the Registry")
 	rootCmd.PersistentFlags().StringVarP(&shared.AssetLinkEndpoint, "endpoint", "e", "localhost:8081", "gRPC Server Address of the AssetLink")
 	rootCmd.PersistentFlags().StringVarP(&logLevel, "log-level", "", "info",
 		fmt.Sprintf("set log level. one of: %s,%s,%s,%s,%s,%s,%s",
@@ -60,6 +62,7 @@ func init() {
 
 	rootCmd.AddCommand(discovery.DiscoveryCmd)
 	rootCmd.AddCommand(info.InfoCmd)
+	rootCmd.AddCommand(info.ListCmd)
 	rootCmd.AddCommand(test.TestCmd)
 
 }

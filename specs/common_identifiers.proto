@@ -66,7 +66,7 @@ message GetSupportedSemanticsResponse {
 // Identifier definitions
 //
 
-// This message type is defined to work-around missing
+// This message type is defined to workaround missing
 // support for "repeated oneof" in gRPC. See
 // https://github.com/protocolbuffers/protobuf/issues/2592
 // for further reference.

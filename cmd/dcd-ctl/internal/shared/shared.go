@@ -8,5 +8,6 @@
 package shared
 
 var (
+	RegistryEndpoint  string
 	AssetLinkEndpoint string
 )

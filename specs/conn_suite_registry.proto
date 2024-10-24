@@ -68,8 +68,21 @@ message ServiceInfo {
     // |                       | file to a 'Connectivity Suite compatible' configuration file.
     // |                       | This app is e.g. used by the IIH Configurator to let convert
     // |                       | specific config files provided by the user to compatible format
-    // | "cs-tagbrowser"       | Service which can browse tags. See the 'BrowsingApi' 
+    // | "cs-tagbrowser"       | Service which can browse tags. See the 'BrowsingApi'
+    // | "iah-discover"        | The Connector is acting as a Asset Link (AL) and returns IAH
+    // |                       | compliant discover results.
+    // |                       | The interface siemens.industrialassethub.discover.v1 must be supported.
+    //
+    // For more info see the Connectivity Suite documentation.
     repeated string app_types = 4;
+
+    // List of all interfaces the app supports.
+    // An interface is identified by the package name of the proto file / API service
+    // Examples "siemens.connectivitysuite.browsing.v2" or "siemens.connectivitysuite.data.v1"
+    // When this list is empty, the service is considered to support all mandatory interfaces
+    // of the listed app_types and none of the optional ones. Those are then automatically
+    // added by the Registry Service.
+    repeated string interfaces = 8;
 
     // Mandatory: the schema identification(s) of the driver
     repeated string driver_schema_uris = 5;
@@ -90,6 +103,7 @@ message RegisterServiceResponse {
 message UnregisterServiceRequest {
     ServiceInfo info = 1;
 }
+
 message UnregisterServiceResponse {
 }
 
@@ -119,10 +133,17 @@ message ServiceInfoFilter {
 
     // the schema identification(s) of the driver
     repeated string driver_schema_uris = 4;
+
+    // interfaces (actually the package names of the interfaces)
+    // Examples "siemens.connectivitysuite.browsing.v2" or "siemens.connectivitysuite.data.v1"
+    // (see 'ServiceInfo.interfaces')
+    repeated string interfaces = 5;
 }
+
 message QueryRegisteredServicesRequest {
     ServiceInfoFilter filter = 1;
 }
+
 message QueryRegisteredServicesResponse {
     repeated ServiceInfo infos = 1;
 }

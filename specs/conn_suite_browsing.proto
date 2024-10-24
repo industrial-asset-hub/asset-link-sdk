@@ -13,7 +13,7 @@ import "common_filters.proto";
 import "common_properties.proto";
 import "common_address.proto";
 
-package siemens.connectivitysuite.browsing.v1;
+package siemens.connectivitysuite.browsing.v2;
 
 
 //===================================================================
@@ -78,7 +78,7 @@ enum FolderOperation {
     LEAVE_FOLDER = 2; //
 }
 
-// This message type is defined to work-around missing
+// This message type is defined to workaround missing
 // support for "repeated oneof" in gRPC. See
 // https://github.com/protocolbuffers/protobuf/issues/2592
 // for further reference.
@@ -129,6 +129,7 @@ message PropertyResponse {
     siemens.common.address.v1.NodeAddress node = 1;
 
     // The requested properties result for this node.
+    // Will only contain the properties which exists for this node
     repeated siemens.common.properties.v1.PropertyKeyValuePair properties = 2;
 }
 
