@@ -10,8 +10,8 @@ package webserver
 import (
 	"net/http"
 
-	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/internal/observability"
-	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/metadata"
+	"code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/internal/observability"
+	"code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/metadata"
 	"github.com/gin-contrib/logger"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"

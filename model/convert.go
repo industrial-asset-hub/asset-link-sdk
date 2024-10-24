@@ -14,7 +14,7 @@ import (
 
 	"github.com/rs/zerolog/log"
 
-	generated "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/generated/iah-discovery"
+	generated "code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/generated/iah-discovery"
 )
 
 func (d *DeviceInfo) ConvertToDiscoveredDevice() *generated.DiscoveredDevice {
