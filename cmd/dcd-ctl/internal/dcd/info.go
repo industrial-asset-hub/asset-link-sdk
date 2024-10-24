@@ -5,9 +5,10 @@
  *
  */
 
-package dcdconnection
+package dcd
 
 import (
+	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/cmd/dcd-ctl/internal/shared"
 	generated "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/generated/conn_suite_drv_info"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/net/context"
@@ -16,7 +17,7 @@ import (
 func GetInfo(endpoint string) string {
 	log.Trace().Str("Endpoint", endpoint).Msg("Fetching health")
 
-	conn := grpcConnection(endpoint)
+	conn := shared.GrpcConnection(endpoint)
 	defer conn.Close()
 
 	client := generated.NewDriverInfoApiClient(conn)
@@ -27,8 +28,10 @@ func GetInfo(endpoint string) string {
 		log.Err(err).Msg("version request returned an error")
 		return ""
 	}
+
 	var version = resp.GetVersion().String()
 
 	log.Info().Str("Version", version).Msg("AssetLink version")
+
 	return version
 }

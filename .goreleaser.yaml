@@ -4,6 +4,8 @@
 ---
 project_name: cdm-dcd-sdk
 
+version: 2
+
 before:
   hooks:
     - go generate ./...
@@ -57,6 +59,29 @@ builds:
       - goos: windows
         goarch: arm64
     mod_timestamp: "{{ .CommitTimestamp }}"
+  - id: registry
+    binary: registry
+    main: ./registry/main.go
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -extldflags '-static'
+      - -X main.version={{.Version}}
+        -X main.commit={{.Commit}}
+        -X main.date={{.CommitDate}}
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ignore:
+      - goos: windows
+        goarch: arm64
+    mod_timestamp: "{{ .CommitTimestamp }}"
 
 archives:
   - id: dcd-ctl
@@ -73,8 +98,23 @@ archives:
     format_overrides:
       - goos: windows
         format: zip
-    files:
-      - none*
+    files: []
+
+  - id: registry
+    builds:
+      - registry
+    format: tar.gz
+    name_template: >-
+      {{  "registry" }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+    format_overrides:
+      - goos: windows
+        format: zip
+    files: []
 
   - id: cdm-dcd-reference
     builds:
@@ -90,15 +130,13 @@ archives:
     format_overrides:
       - goos: windows
         format: zip
-    files:
-      - none*
+    files: []
 
   - id: cdm-dcd-sdk
     meta: true
     format: tar.gz
     wrap_in_directory: false
     files:
-      - none*
       - README.SDK.md
       - cookiecutter-project-template/
     name_template: >-

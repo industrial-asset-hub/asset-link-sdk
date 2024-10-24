@@ -5,7 +5,7 @@
  *
  */
 
-package dcdconnection
+package shared
 
 import (
 	"github.com/rs/zerolog/log"
@@ -13,7 +13,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-func grpcConnection(endpoint string) *grpc.ClientConn {
+func GrpcConnection(endpoint string) *grpc.ClientConn {
 	conn, err := grpc.Dial(endpoint, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Err(err).Msg("can not connect with server")

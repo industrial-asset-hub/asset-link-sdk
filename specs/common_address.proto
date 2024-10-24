@@ -105,7 +105,7 @@ message Destination {
   }
 }
 
-// This is a work-around for "repeated oneof" in protobuf. See https://github.com/protocolbuffers/protobuf/issues/2592
+// This is a workaround for "repeated oneof" in protobuf. See https://github.com/protocolbuffers/protobuf/issues/2592
 message NodeAddress {
   oneof type {
       // A json string containing the datapoint address according to the

@@ -14,15 +14,20 @@ message SupportedProperty {
     // The key is the name of the property
     string key = 1;
 
+    // when used in the GetPropertyValuesRequest then the type shall be empty, it will be ignored
     oneof type {
         // The datatype which is used for this key's value
         // scalar values are default supported in the response (see VariantType)
         // all other datatypes has to provide with the raw_data (bytes)
         siemens.common.types.v1.VariantType datatype = 2;
 
-        // the schema to describe complex property result as json string
+        // the schema to describe complex property result as json string (VT_STRING)
         // the data of the Variant value is stored in 'Variant.text'
         string schema_uri = 3;
+
+        // the content type of the variant type "VT_FILE"
+        // the data is stored in the 'file' field
+        string content_type = 4;
     }
 }
 

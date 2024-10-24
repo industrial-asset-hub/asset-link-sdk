@@ -4,13 +4,14 @@
  * SPDX-License-Identifier: MIT
  *
  */
+
 package discovery
 
 import (
 	"encoding/json"
 	"os"
 
-	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/cmd/dcd-ctl/internal/dcdconnection"
+	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/cmd/dcd-ctl/internal/dcd"
 	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/cmd/dcd-ctl/internal/shared"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
@@ -26,7 +27,7 @@ var startCmd = &cobra.Command{
 	Short: "Start discovery job",
 	Long:  `This command starts an discovery job.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		resp := dcdconnection.StartDiscovery(shared.AssetLinkEndpoint, options, filters)
+		resp := dcd.StartDiscovery(shared.AssetLinkEndpoint, options, filters)
 
 		log.Trace().Str("File", outputFile).Msg("Saving to file")
 		f, _ := os.Create(outputFile)
