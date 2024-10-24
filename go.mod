@@ -1,4 +1,4 @@
-module code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2
+module code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2
 
 go 1.21
 

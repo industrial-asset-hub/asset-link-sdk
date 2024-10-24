@@ -1,8 +1,9 @@
-/*******************************************************************************
-
-* Copyright (c) Siemens AG 2022 ALL RIGHTS RESERVED.
-
-*******************************************************************************/
+/*
+ * SPDX-FileCopyrightText: 2024 Siemens AG
+ *
+ * SPDX-License-Identifier: MIT
+ *
+ */
 
 package shared
 

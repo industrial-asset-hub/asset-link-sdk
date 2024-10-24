@@ -1,7 +1,7 @@
 /*
  * SPDX-FileCopyrightText: 2024 Siemens AG
  *
- * SPDX-License-Identifier:
+ * SPDX-License-Identifier: MIT
  *
  */
 
@@ -13,8 +13,8 @@ import (
 	"strconv"
 	"strings"
 
-	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/cmd/dcd-ctl/internal/shared"
-	generated "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/generated/conn_suite_registry"
+	"code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/cmd/dcd-ctl/internal/shared"
+	generated "code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/generated/conn_suite_registry"
 	"github.com/rs/zerolog/log"
 )
 

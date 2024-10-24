@@ -1,15 +1,15 @@
 /*
  * SPDX-FileCopyrightText: 2024 Siemens AG
  *
- * SPDX-License-Identifier:
+ * SPDX-License-Identifier: MIT
  *
  */
 
 package info
 
 import (
-	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/cmd/dcd-ctl/internal/registry"
-	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/cmd/dcd-ctl/internal/shared"
+	"code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/cmd/dcd-ctl/internal/registry"
+	"code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/cmd/dcd-ctl/internal/shared"
 	"github.com/spf13/cobra"
 )
 

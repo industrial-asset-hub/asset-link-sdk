@@ -8,8 +8,8 @@
 package main
 
 import (
-	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/cmd/dcd-ctl/cmd"
-	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/logging"
+	"code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/cmd/dcd-ctl/cmd"
+	"code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/logging"
 )
 
 func main() {
