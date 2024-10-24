@@ -1,0 +1,11 @@
+version = 1
+
+[[annotations]]
+path = "**.md"
+SPDX-FileCopyrightText = "2024 Siemens AG"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "specs/*.proto"
+SPDX-FileCopyrightText = "2024 Siemens AG"
+SPDX-License-Identifier = "MIT"
