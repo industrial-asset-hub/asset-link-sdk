@@ -1,6 +1,9 @@
-/*******************************************************************************
-* Copyright (c) Siemens AG 2023 ALL RIGHTS RESERVED.
-*******************************************************************************/
+/*
+ * SPDX-FileCopyrightText: 2024 Siemens AG
+ *
+ * SPDX-License-Identifier: MIT
+ *
+ */
 
 package server
 
