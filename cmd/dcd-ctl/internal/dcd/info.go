@@ -8,8 +8,8 @@
 package dcd
 
 import (
-	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/cmd/dcd-ctl/internal/shared"
-	generated "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/generated/conn_suite_drv_info"
+	"code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/cmd/dcd-ctl/internal/shared"
+	generated "code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/generated/conn_suite_drv_info"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/net/context"
 )

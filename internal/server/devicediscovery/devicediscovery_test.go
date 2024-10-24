@@ -13,7 +13,7 @@ import (
 	"testing"
 	"time"
 
-	generated "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/generated/iah-discovery"
+	generated "code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/generated/iah-discovery"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc/metadata"
 )

@@ -1,6 +1,9 @@
-/*******************************************************************************
-* Copyright (c) Siemens AG 2023 ALL RIGHTS RESERVED.
-*******************************************************************************/
+/*
+ * SPDX-FileCopyrightText: 2024 Siemens AG
+ *
+ * SPDX-License-Identifier: MIT
+ *
+ */
 
 package server
 
@@ -8,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	pb "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/generated/conn_suite_registry"
+	pb "code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/generated/conn_suite_registry"
 	"github.com/stretchr/testify/assert"
 )
 

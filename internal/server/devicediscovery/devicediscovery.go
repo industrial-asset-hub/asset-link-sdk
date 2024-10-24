@@ -13,9 +13,9 @@ import (
 	"errors"
 	"fmt"
 
-	generated "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/generated/iah-discovery"
-	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/internal/features"
-	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/internal/observability"
+	generated "code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/generated/iah-discovery"
+	"code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/internal/features"
+	"code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/internal/observability"
 	"github.com/rs/zerolog/log"
 )
 

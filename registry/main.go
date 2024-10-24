@@ -1,6 +1,9 @@
-/*******************************************************************************
-* Copyright (c) Siemens AG 2022 ALL RIGHTS RESERVED.
-*******************************************************************************/
+/*
+ * SPDX-FileCopyrightText: 2024 Siemens AG
+ *
+ * SPDX-License-Identifier: MIT
+ *
+ */
 
 package main
 
@@ -9,10 +12,10 @@ import (
 	"net"
 	"strings"
 
-	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/logging"
-	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/registry/internal/server"
+	"code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/logging"
+	"code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/registry/internal/server"
 
-	pb "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/generated/conn_suite_registry"
+	pb "code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/generated/conn_suite_registry"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
