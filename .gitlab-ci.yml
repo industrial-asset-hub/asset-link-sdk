@@ -140,7 +140,7 @@ unit-tests:
 
 cookiecutter-setup:
   stage: test
-  needs: []
+  needs: ["generate"]
   image: cr.siemens.com/code-ops/poetry-docker:1.8-py3.11
   variables:
     GIT_STRATEGY: clone
@@ -181,6 +181,10 @@ generate:
     - go generate
     - git diff --exit-code -w -G'(^[^\*# /])|(^#\w)|(^\s+[^\*#/])'
   allow_failure: true
+  cache:
+    key: "$CI_PIPELINE_ID-$CI_COMMIT_REF_SLUG-COOKIECUTTER"
+    paths:
+      - generated/
 
 #TODO: Find a way to upload scan report to Gitlab or Github
 vulncheck:
@@ -191,6 +195,7 @@ vulncheck:
     - go install golang.org/x/vuln/cmd/govulncheck@latest
   script:
     - go version
+    - go generate
     - govulncheck -show color ./...
   allow_failure: true
 
@@ -219,6 +224,7 @@ vulncheck:
 #          and full working released archive.
 cookiecutter-vendor:
   extends: .go-build
+  needs: ["generate", "cookiecutter-setup"]
   variables:
     GIT_STRATEGY: clone
   script:
@@ -263,6 +269,7 @@ cookiecutter-vendor:
     key: "$CI_PIPELINE_ID-$CI_COMMIT_REF_SLUG-COOKIECUTTER"
     paths:
       - $COOKIECUTTER_PROJECT
+      - generated/
     policy: pull-push
 
 # Builds the already bootstrapped Asset Link
