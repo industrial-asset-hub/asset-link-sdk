@@ -52,11 +52,12 @@ func (cb *dcdFeatureBuilder) Build() *DCD {
 
 // Structure of the features
 type DCD struct {
-	metadata         metadata.Metadata
-	discoveryImpl    features.Discovery
-	grpcServer       *grpc.Server
-	registryClient   *registryclient.GrpcServerRegistry
-	driverInfoServer *driverinfo.DriverInfoServerEntity
+	metadata              metadata.Metadata
+	discoveryImpl         features.Discovery
+	customDiscoveryServer generatedDiscoveryServer.DeviceDiscoverApiServer
+	grpcServer            *grpc.Server
+	registryClient        *registryclient.GrpcServerRegistry
+	driverInfoServer      *driverinfo.DriverInfoServerEntity
 }
 
 // Method to start the asset link
@@ -107,11 +108,14 @@ func (d *DCD) Start(grpcServerAddress, registrationAddress, grpcRegistryAddress,
 		Metadata: d.metadata}
 	generatedDriverInfoServer.RegisterDriverInfoApiServer(d.grpcServer, d.driverInfoServer)
 
-	// Select according to selected features
-	if d.discoveryImpl == nil {
-		log.Info().
-			Msg("Discovery feature implementation not found")
-	} else {
+	switch {
+	// if a custom discovery server is provided, register it
+	case d.customDiscoveryServer != nil:
+		log.Info().Msg("Registered existing discovery server")
+		generatedDiscoveryServer.RegisterDeviceDiscoverApiServer(d.grpcServer, d.customDiscoveryServer)
+
+	// if a discovery implementation is provided, register it
+	case d.discoveryImpl != nil:
 		log.Info().
 			Msg("Registered Discovery feature implementation")
 		discoveryServer := &devicediscovery.DiscoverServerEntity{
@@ -119,6 +123,11 @@ func (d *DCD) Start(grpcServerAddress, registrationAddress, grpcRegistryAddress,
 			Discovery:                            d.discoveryImpl,
 		}
 		generatedDiscoveryServer.RegisterDeviceDiscoverApiServer(d.grpcServer, discoveryServer)
+
+	// if no discovery implementation is provided, log it
+	default:
+		log.Info().
+			Msg("Discovery feature implementation not found")
 	}
 
 	log.Info().
