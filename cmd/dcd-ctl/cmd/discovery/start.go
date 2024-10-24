@@ -10,8 +10,8 @@ import (
 	"encoding/json"
 	"os"
 
-	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/cmd/dcd-ctl/internal/dcdconnection"
-	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/cmd/dcd-ctl/internal/shared"
+	"code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/cmd/dcd-ctl/internal/dcdconnection"
+	"code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/cmd/dcd-ctl/internal/shared"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 )

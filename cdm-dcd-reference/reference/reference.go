@@ -13,8 +13,8 @@ import (
 	"strings"
 	"sync/atomic"
 
-	generated "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/generated/iah-discovery"
-	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/model"
+	generated "code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/generated/iah-discovery"
+	"code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/model"
 	"github.com/rs/zerolog/log"
 )
 

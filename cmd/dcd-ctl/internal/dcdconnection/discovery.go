@@ -11,7 +11,7 @@ import (
 	"encoding/json"
 	"io"
 
-	generated "code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/generated/iah-discovery"
+	generated "code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/generated/iah-discovery"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/net/context"
 )

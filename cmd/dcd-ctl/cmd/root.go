@@ -10,13 +10,13 @@ import (
 	"fmt"
 	"os"
 
-	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/cmd/dcd-ctl/cmd/test"
+	"code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/cmd/dcd-ctl/cmd/test"
 
-	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/cmd/dcd-ctl/cmd/info"
+	"code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/cmd/dcd-ctl/cmd/info"
 
-	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/cmd/dcd-ctl/cmd/discovery"
-	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/cmd/dcd-ctl/internal/shared"
-	"code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/logging"
+	"code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/cmd/dcd-ctl/cmd/discovery"
+	"code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/cmd/dcd-ctl/internal/shared"
+	"code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/logging"
 	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
 )
@@ -28,7 +28,7 @@ var (
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "dcd-ctl",
-	Short: "command line interface to interact with device-class-drivers",
+	Short: "command line interface to interact with shared",
 	Long: `This command line interfaces allows to interact with the so called
 	AssetLinks (als).
 

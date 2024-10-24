@@ -125,7 +125,7 @@ To bootstrap your own AL, a template using the well-known
 Run the following command, which provides a text-based questionnaire to set up a skeleton.
 
 ```bash
-$ cookiecutter https://code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk.git
+$ cookiecutter https://code.siemens.com/common-device-management/shared/cdm-dcd-sdk.git
 --directory cookiecutter-project-template [optional -c "branch"]
 al_name [my-asset-link]: custom-asset-link
 author_name [David Device Builder]: David Device Builder
@@ -209,7 +209,7 @@ the following arguments can be provided to test AL:
    example usage: go run cmd/dcd-ctl/dcd-ctl.go test json-schema --schema-path path/to/schema --asset-path path/to/asset
 
 ```bash
-go install code.siemens.com/common-device-management/device-class-drivers/cdm-dcd-sdk/v2/cmd/dcd-ctl@main
+go install code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/cmd/dcd-ctl@main
 ```
 
 ### Observability Webserver
