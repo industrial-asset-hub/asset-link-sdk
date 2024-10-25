@@ -54,19 +54,60 @@ func (d *DiscoverServerEntity) DiscoverDevices(req *generated.DiscoverRequest, s
 	if d.Discovery != nil {
 		// Due to the start as Gouroutine, the d.Start() function can report an error during and can run even longer.
 		startError := make(chan error)
+		log.Info().
+			Str("string", req.String()).
+			Msg("Before start discovery request called")
+
 		// Start custom discovery function
 		go func() {
 			d.Start(jobId, deviceChannel, startError, filter)
+			log.Info().Msg(fmt.Sprintf("Start Error: %v", startError))
 		}()
-		if err := <-startError; err != nil {
-			errMsg := "Error during starting of the discovery job"
-			log.Error().Err(err).Msg(errMsg)
-			return err
-		}
+		// if err := <-startError; err != nil {
+		// 	errMsg := "Error during starting of the discovery job"
+		// 	log.Error().Err(err).Msg(errMsg)
+		// 	return err
+		// }
+		log.Info().
+			Str("string", req.String()).
+			Msg("Returned from start discovery request called")
+		go receiveErrorFromChannel(startError)
+		log.Info().
+			Str("string", req.String()).
+			Msg("After start discovery request called")
 	} else {
 		log.Info().Msg("No Discovery implementation found")
 	}
+	log.Info().
+		Str("string", req.String()).
+		Msg("Going for Publishing the devices")
 	return receiveDevicesFromChannelAndPublishToStream(deviceChannel, m, stream)
+}
+
+func receiveErrorFromChannel(errChan chan error) {
+	for {
+		log.Info().Msgf("Inside for loop for Error received: %v", errChan)
+
+		err, ok := <-errChan
+		log.Info().Msgf("ok: %v ", ok)
+		log.Info().Msgf("Error received: %v", err)
+
+		if err := <-errChan; err != nil {
+			log.Info().Msgf("Inside for loop for Error received: %v", err)
+			errMsg := "Error during starting of the discovery job"
+			log.Error().Err(err).Msg(errMsg)
+		}
+		// else {
+		// 	log.Info().Msg("End of receiveErrorFromChannel")
+		// 	return
+		// }
+
+		if !ok {
+			log.Debug().Msg("No more errors received")
+			log.Info().Msg("Returned from receiveErrorFromChannel")
+			return
+		}
+	}
 }
 
 func receiveDevicesFromChannelAndPublishToStream(deviceChannel chan []*generated.DiscoveredDevice, m *generated.DiscoverResponse, stream generated.DeviceDiscoverApi_DiscoverDevicesServer) error {
