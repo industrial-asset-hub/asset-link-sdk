@@ -7,6 +7,11 @@
 
 package model
 
+import (
+	"crypto/sha1"
+	"encoding/hex"
+)
+
 // AddNameplate Add a digital nameplate to an asset.
 // The nameplate is inspired by IDTA 02006-0-0 Digital Nameplate for industrial equippment
 //
@@ -25,11 +30,16 @@ func (d *DeviceInfo) AddNameplate(manufacturerName string,
 	serialNumber string,
 ) {
 
+	// We hash the manufacturer to get a unique identifier
+	h := sha1.New()
+	h.Write([]byte(manufacturerName))
+	manufacturerId := hex.EncodeToString(h.Sum(nil))
+
 	organisation := Organization{
 		Address:        nil,
 		AlternateNames: nil,
 		ContactPoint:   nil,
-		Id:             "",
+		Id:             manufacturerId,
 		Name:           &manufacturerName,
 	}
 
