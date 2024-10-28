@@ -19,17 +19,21 @@ func (d *DeviceInfo) AddNic(name string, macAddress string) (nicId string) {
 	nicId = uuid.New().String()
 
 	t := EthernetPortConnectionPointTypeEthernetPort
-	nameKey := "name"
 	nic := EthernetPort{
-		ConnectionPointType: &t,
-		Id:                  nicId,
-		InstanceAnnotations: []InstanceAnnotation{InstanceAnnotation{
-			Key:   &nameKey,
-			Value: &name,
-		}},
+		ConnectionPointType:     &t,
+		Id:                      nicId,
 		MacAddress:              &macAddress,
 		RelatedConnectionPoints: nil,
 	}
+
+	nameKey := "name"
+	if name != "" {
+		nic.InstanceAnnotations = []InstanceAnnotation{{
+			Key:   &nameKey,
+			Value: &name,
+		}}
+	}
+
 	d.ConnectionPoints = append(d.ConnectionPoints, nic)
 
 	// automatically an MAC identifier, as it is required currently.
