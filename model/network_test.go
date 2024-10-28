@@ -106,6 +106,20 @@ func TestNetwork(t *testing.T) {
 		assert.Equal(t, 1, found)
 	})
 
+	t.Run("When Name is not present instance annotations not be added", func(t *testing.T) {
+		m := NewDevice("asset", "MyDevice")
+		m.AddNic("", "AA:BB:CC:DD:EE:FF")
+		nics := m.getNics()
+		assert.Nil(t, nics[0].InstanceAnnotations)
+	})
+
+	t.Run("When Name is present instance annotations should be added", func(t *testing.T) {
+		m := NewDevice("asset", "MyDevice")
+		m.AddNic("Test-Nic", "AA:BB:CC:DD:EE:FF")
+		nics := m.getNics()
+		assert.NotNil(t, nics[0].InstanceAnnotations)
+	})
+
 }
 
 // TODO: Use templating
