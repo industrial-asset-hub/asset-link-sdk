@@ -57,8 +57,8 @@ variables:
 .protoc-go: &protoc-go
   - export GOPATH=$HOME/go
   - export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
-  - go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.33.0
-  - go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.3.0
+  - go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.35.1
+  - go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.5.1
 
 # latest is currently broken, there set the last working version
 # https://github.com/omissis/go-jsonschema/issues/131

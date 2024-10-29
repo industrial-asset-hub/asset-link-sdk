@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 ---
-exclude: ^specs/
+exclude: ^(specs/|LICENSES/)
 default_stages: [commit]
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
