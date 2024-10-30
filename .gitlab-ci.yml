@@ -392,6 +392,7 @@ create-release:
   variables:
     COMPONENT_CONTEXT: ""
     COMPONENT_NAME: "registry"
+    DOCKER_FILE: "Dockerfile"
   image:
     name: gcr.io/kaniko-project/executor:v1.23.2-debug@sha256:c3109d5926a997b100c4343944e06c6b30a6804b2f9abe0994d3de6ef92b028e
     entrypoint: [""]
@@ -411,7 +412,7 @@ create-release:
         --build-arg no_proxy="$no_proxy" \
         --build-arg COMPONENT_NAME="$COMPONENT_NAME" \
         --context $CONTEXT \
-        --dockerfile $CONTEXT/Dockerfile \
+        --dockerfile $CI_PROJECT_DIR/$DOCKER_FILE \
         --destination $IMAGE_STORAGE_URL \
         --registry-mirror $CODE_CR_PROXY_HOST
   retry: 1
@@ -435,8 +436,10 @@ create-release:
     - IMAGE_STORAGE_URL=$IMAGE_STORAGE_URL_BASE-$ARCH
     - printf "IMAGE_STORAGE_URL=$IMAGE_STORAGE_URL\n" >> build.env
     - |
+      FULLARCH=$ARCH
       case $ARCH in
           amd64)
+            FULLARCH=amd64_v1
             ;;
           arm64)
             ;;
@@ -451,24 +454,24 @@ create-release:
         --build-arg https_proxy="$https_proxy" \
         --build-arg no_proxy="$no_proxy" \
         --build-arg COMPONENT_NAME="$COMPONENT_NAME" \
-        --build-arg TARGETARCH="$ARCH" \
+        --build-arg TARGETARCH="$FULLARCH" \
         --context $CONTEXT \
-        --dockerfile $CONTEXT/Dockerfile \
+        --dockerfile $CI_PROJECT_DIR/$DOCKER_FILE \
         --destination $IMAGE_STORAGE_URL \
         --registry-mirror $CODE_CR_PROXY_HOST
 
 createRegistryImageAmd64:
   extends: .build_tag_push_containerimage_multiarch
   variables:
-    COMPONENT_CONTEXT: "registry/"
     COMPONENT_NAME: "registry"
+    COMPONENT_CONTEXT: "."
     ARCH: "amd64"
 
 createRegistryImageArm64:
   extends: .build_tag_push_containerimage_multiarch
   variables:
-    COMPONENT_CONTEXT: "registry/"
     COMPONENT_NAME: "registry"
+    COMPONENT_CONTEXT: "."
     ARCH: "arm64"
   tags:
     - DOCKER-AARCH64
