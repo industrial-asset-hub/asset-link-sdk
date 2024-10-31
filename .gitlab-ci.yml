@@ -14,10 +14,10 @@ include:
     file: "shared/clearing.yaml"
   - project: "common-device-management/utils/templates/gitlab-ci"
     ref: main
-    file: "shared/versioning.yaml" # required for containerization of registry
+    file: "shared/containerization.yaml"
   - project: "common-device-management/utils/templates/gitlab-ci"
     ref: main
-    file: "templates/container-image-helper.yaml" # required for containerization of registry
+    file: "templates/container-image-helper.yaml"
 
 stages:
   - check
@@ -384,99 +384,31 @@ create-release:
 ### Stage: containerize
 ###########################################################################################################################################
 
-.container_registry_login: &container_registry_login |
-  echo "{\"auths\":{\"$CODE_CR_PROXY\":{\"username\":\"$GITLAB_USER_LOGIN\",\"password\":\"$CR_PROXY_TOKEN\"}}}" > /kaniko/.docker/config.json
-
-.build_tag_push_containerimage:
+create-registry-image-amd64:
+  extends: .build_tag_push_containerimage_multiarch
   stage: containerize
   variables:
-    COMPONENT_CONTEXT: ""
     COMPONENT_NAME: "registry"
-  image:
-    name: gcr.io/kaniko-project/executor:v1.23.2-debug@sha256:c3109d5926a997b100c4343944e06c6b30a6804b2f9abe0994d3de6ef92b028e
-    entrypoint: [""]
-  # Let GitLab inject a CI JWT token into the build
-  id_tokens:
-    CR_PROXY_TOKEN:
-      aud: https://code.siemens.com
-  script:
-    - *container_registry_login
-    - CONTEXT=$CI_PROJECT_DIR/$COMPONENT_CONTEXT
-    - IMAGE_STORAGE_URL=$CI_REGISTRY_IMAGE/$COMPONENT_NAME:$IMAGE_TAG
-    - printf "IMAGE_STORAGE_URL=$IMAGE_STORAGE_URL\n" >> build.env
-    - >
-      /kaniko/executor \
-        --build-arg http_proxy="$http_proxy" \
-        --build-arg https_proxy="$https_proxy" \
-        --build-arg no_proxy="$no_proxy" \
-        --build-arg COMPONENT_NAME="$COMPONENT_NAME" \
-        --context $CONTEXT \
-        --dockerfile $CONTEXT/Dockerfile \
-        --destination $IMAGE_STORAGE_URL \
-        --registry-mirror $CODE_CR_PROXY_HOST
-  retry: 1
-  artifacts:
-    reports:
-      dotenv: build.env
-
-.build_tag_push_containerimage_multiarch:
-  extends: .build_tag_push_containerimage
-  variables:
-    ARCH: "amd64"
-  # Let GitLab inject a CI JWT token into the build
-  id_tokens:
-    CR_PROXY_TOKEN:
-      aud: https://code.siemens.com
-  script:
-    - *container_registry_login
-    - CONTEXT=$CI_PROJECT_DIR/$COMPONENT_CONTEXT
-    - IMAGE_STORAGE_URL_BASE=$CI_REGISTRY_IMAGE/$COMPONENT_NAME:$IMAGE_TAG
-    - printf "IMAGE_STORAGE_URL_BASE=$IMAGE_STORAGE_URL_BASE\n" >> build.env
-    - IMAGE_STORAGE_URL=$IMAGE_STORAGE_URL_BASE-$ARCH
-    - printf "IMAGE_STORAGE_URL=$IMAGE_STORAGE_URL\n" >> build.env
-    - |
-      case $ARCH in
-          amd64)
-            ;;
-          arm64)
-            ;;
-          *)
-            echo "Unsupported architecture: $ARCH"
-            exit 1
-            ;;
-      esac
-    - >
-      /kaniko/executor \
-        --build-arg http_proxy="$http_proxy" \
-        --build-arg https_proxy="$https_proxy" \
-        --build-arg no_proxy="$no_proxy" \
-        --build-arg COMPONENT_NAME="$COMPONENT_NAME" \
-        --build-arg TARGETARCH="$ARCH" \
-        --context $CONTEXT \
-        --dockerfile $CONTEXT/Dockerfile \
-        --destination $IMAGE_STORAGE_URL \
-        --registry-mirror $CODE_CR_PROXY_HOST
-
-createRegistryImageAmd64:
-  extends: .build_tag_push_containerimage_multiarch
-  variables:
-    COMPONENT_CONTEXT: "registry/"
-    COMPONENT_NAME: "registry"
+    COMPONENT_CONTEXT: "."
     ARCH: "amd64"
 
-createRegistryImageArm64:
+create-registry-image-arm64:
   extends: .build_tag_push_containerimage_multiarch
+  stage: containerize
   variables:
-    COMPONENT_CONTEXT: "registry/"
     COMPONENT_NAME: "registry"
+    COMPONENT_CONTEXT: "."
     ARCH: "arm64"
   tags:
     - DOCKER-AARCH64
 
-createRegistryContainerImageIndex:
+create-registry-container-image-index:
   extends: .createContainerImageIndex
   stage: containerize
+  variables:
+    COMPONENT_NAME: "registry"
+    COMPONENT_CONTEXT: "."
   needs:
     - version
-    - createRegistryImageAmd64
-    - createRegistryImageArm64
+    - create-registry-image-amd64
+    - create-registry-image-arm64
