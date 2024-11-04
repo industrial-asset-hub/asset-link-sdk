@@ -69,6 +69,7 @@ func (m *AssetLinkImplementation) Start(jobId uint32, deviceChannel chan []*gene
 		productVersion,
 		serialNumber)
 
+	deviceInfo.AddSoftware("FirmwareVersion", "1.2.5", "IDTA 02006-2-0")
 	device.AddCapabilities("firmware_update", false)
 
 	randomMacAddress := generateRandomMacAddress()

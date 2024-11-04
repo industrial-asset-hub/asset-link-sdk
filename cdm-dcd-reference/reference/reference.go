@@ -70,7 +70,7 @@ func (m *ReferenceClassDriver) Start(jobId uint32, deviceChannel chan []*generat
 		"1.0.0",
 		serialNumber)
 
-	deviceInfo.AddSoftware("firmware", "1.2.5")
+	deviceInfo.AddSoftware("FirmwareVersion", "1.2.5", "IDTA 02006-2-0")
 	deviceInfo.AddCapabilities("firmware_update", false)
 
 	randomMacAddress := generateRandomMacAddress()

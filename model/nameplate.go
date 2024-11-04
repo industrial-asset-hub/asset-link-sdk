@@ -61,10 +61,11 @@ func (d *DeviceInfo) AddNameplate(manufacturerName string,
 }
 
 // AddSoftware Add software information to an asset
-func (d *DeviceInfo) AddSoftware(name string, version string) {
+func (d *DeviceInfo) AddSoftware(name string, version string, identifierType string) {
 	softwareIdentifier := SoftwareIdentifier{
-		Name:    &name,
-		Version: &version,
+		Name:           &name,
+		Version:        &version,
+		IdentifierType: &identifierType,
 	}
 
 	softwareArtifact := SoftwareArtifact{

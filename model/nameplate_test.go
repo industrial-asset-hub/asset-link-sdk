@@ -41,8 +41,8 @@ func TestSoftwareNameplate(t *testing.T) {
 	t.Run("AddFirmware", func(t *testing.T) {
 		m := NewDevice("", "")
 
-		m.AddSoftware("ArtifactName", "0.1.2")
-		m.AddSoftware("ArtifactName1", "2.1.3")
+		m.AddSoftware("ArtifactName", "0.1.2", "TypeDefinitionName")
+		m.AddSoftware("ArtifactName1", "2.1.3", "TypeDefinitionName_2")
 
 		firmware := m.getFirmware()
 		if len(firmware) != 2 {
@@ -55,6 +55,7 @@ func TestSoftwareNameplate(t *testing.T) {
 				found++
 				assert.Equal(t, "ArtifactName", *v.Artifact.SoftwareIdentifier.Name)
 				assert.Equal(t, "0.1.2", *v.Artifact.SoftwareIdentifier.Version)
+				assert.Equal(t, "TypeDefinitionName", *v.Artifact.SoftwareIdentifier.IdentifierType)
 				break
 			}
 		}
