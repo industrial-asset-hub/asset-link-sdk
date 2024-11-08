@@ -9,6 +9,8 @@ package test
 import (
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
+
+	"code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/cmd/dcd-ctl/internal/shared"
 )
 
 var TestCmd = &cobra.Command{
@@ -38,10 +40,12 @@ var jsonSchemaCmd = &cobra.Command{
 }
 
 var (
-	baseSchemaPath string
-	schemaPath     string
-	assetPath      string
-	targetClass    string
+	baseSchemaPath   string
+	schemaPath       string
+	assetPath        string
+	targetClass      string
+	filters          string
+	options          string
 )
 
 func init() {
@@ -55,6 +59,8 @@ func init() {
 	assetsCmd.Flags().StringVarP(&targetClass, "target-class", "t", "targetClass", "Target class for validation")
 	jsonSchemaCmd.Flags().StringVarP(&schemaPath, "schema-path", "s", "path/to/schema", "Path to the schema file")
 	jsonSchemaCmd.Flags().StringVarP(&assetPath, "asset-path", "a", "path/to/asset", "Path to the asset JSON file")
+	apiCmd.Flags().StringVarP(&filters, "filters", "f", "[]", shared.DiscoveryFiltersDesc)
+	apiCmd.Flags().StringVarP(&options, "options", "o", "[]", shared.DiscoveryOptionsDesc)
 }
 
 func runAssetsTests(cmd *cobra.Command, args []string) {
@@ -65,7 +71,7 @@ func runAssetsTests(cmd *cobra.Command, args []string) {
 }
 
 func runApiTests(cmd *cobra.Command, args []string) {
-	// To DO
+	runTests(shared.AssetLinkEndpoint, filters, options)
 }
 
 func runJsonSchemaValidation(cmd *cobra.Command, args []string) {
