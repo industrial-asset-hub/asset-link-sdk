@@ -8,8 +8,8 @@
 package dcd
 
 import (
-	generatedDiscoveryServer "code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/generated/iah-discovery"
-	"code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/metadata"
+	generatedDiscoveryServer "github.com/industrial-asset-hub/asset-link-sdk/v2/generated/iah-discovery"
+	"github.com/industrial-asset-hub/asset-link-sdk/v2/metadata"
 )
 
 type dcdFeatureBuilderCustomServer struct {

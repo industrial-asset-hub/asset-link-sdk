@@ -15,8 +15,8 @@ import (
 	"sync"
 	"time"
 
-	pb "code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/generated/conn_suite_registry"
-	"code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/registry/internal/shared"
+	pb "github.com/industrial-asset-hub/asset-link-sdk/v2/generated/conn_suite_registry"
+	"github.com/industrial-asset-hub/asset-link-sdk/v2/registry/internal/shared"
 
 	"github.com/rs/zerolog/log"
 	codes "google.golang.org/grpc/codes"

@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	pb "code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/generated/conn_suite_registry"
+	pb "github.com/industrial-asset-hub/asset-link-sdk/v2/generated/conn_suite_registry"
 	"github.com/stretchr/testify/assert"
 )
 

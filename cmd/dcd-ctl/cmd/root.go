@@ -11,13 +11,13 @@ import (
 	"fmt"
 	"os"
 
-	"code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/cmd/dcd-ctl/cmd/test"
+	"github.com/industrial-asset-hub/asset-link-sdk/v2/cmd/dcd-ctl/cmd/test"
 
-	"code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/cmd/dcd-ctl/cmd/info"
+	"github.com/industrial-asset-hub/asset-link-sdk/v2/cmd/dcd-ctl/cmd/info"
 
-	"code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/cmd/dcd-ctl/cmd/discovery"
-	"code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/cmd/dcd-ctl/internal/shared"
-	"code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/logging"
+	"github.com/industrial-asset-hub/asset-link-sdk/v2/cmd/dcd-ctl/cmd/discovery"
+	"github.com/industrial-asset-hub/asset-link-sdk/v2/cmd/dcd-ctl/internal/shared"
+	"github.com/industrial-asset-hub/asset-link-sdk/v2/logging"
 	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
 )

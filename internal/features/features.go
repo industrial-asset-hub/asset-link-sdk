@@ -7,7 +7,7 @@
 
 package features
 
-import generated "code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/generated/iah-discovery"
+import generated "github.com/industrial-asset-hub/asset-link-sdk/v2/generated/iah-discovery"
 
 // This packages provides the interfaces which are needed for a custom asset link
 

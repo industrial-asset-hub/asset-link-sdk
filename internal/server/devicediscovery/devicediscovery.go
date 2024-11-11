@@ -13,9 +13,9 @@ import (
 	"errors"
 	"fmt"
 
-	generated "code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/generated/iah-discovery"
-	"code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/internal/features"
-	"code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/internal/observability"
+	generated "github.com/industrial-asset-hub/asset-link-sdk/v2/generated/iah-discovery"
+	"github.com/industrial-asset-hub/asset-link-sdk/v2/internal/features"
+	"github.com/industrial-asset-hub/asset-link-sdk/v2/internal/observability"
 	"github.com/rs/zerolog/log"
 )
 

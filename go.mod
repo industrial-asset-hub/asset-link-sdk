@@ -1,4 +1,4 @@
-module code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2
+module github.com/industrial-asset-hub/asset-link-sdk/v2
 
 go 1.21
 
