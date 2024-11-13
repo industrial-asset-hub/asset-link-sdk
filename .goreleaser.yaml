@@ -43,9 +43,9 @@ builds:
       - -trimpath
     ldflags:
       - -s -w -extldflags '-static'
-      - -X code.siemens.com/common-device-management/shared/cdm-dcd-sdk/cmd/dcd-ctl/cmd.version={{.Version}}
-        -X code.siemens.com/common-device-management/shared/cdm-dcd-sdk/cmd/dcd-ctl/cmd.commit={{.Commit}}
-        -X code.siemens.com/common-device-management/shared/cdm-dcd-sdk/cmd/dcd-ctl/cmd.date={{.CommitDate}}
+      - -X github.com/industrial-asset-hub/asset-link-sdk/cmd/dcd-ctl/cmd.version={{.Version}}
+        -X github.com/industrial-asset-hub/asset-link-sdk/cmd/dcd-ctl/cmd.commit={{.Commit}}
+        -X github.com/industrial-asset-hub/asset-link-sdk/cmd/dcd-ctl/cmd.date={{.CommitDate}}
     env:
       - CGO_ENABLED=0
     goos:
@@ -167,6 +167,36 @@ nfpms:
       postinstall: "contrib/postinstall.bash"
       postremove: "contrib/postremove.bash"
 
+dockers:
+  - id: registry-image-linux-amd64
+    ids:
+      - registry
+    image_templates:
+      - "ghcr.io/industrial-asset-hub/asset-link-sdk/registry:{{ .Tag }}-linux-amd64"
+    dockerfile: registry/Dockerfile
+    use: buildx
+    goos: linux
+    goarch: amd64
+    build_flag_templates:
+      - "--platform=linux/amd64"
+  - id: registry-image-linux-arm64
+    ids:
+      - registry
+    image_templates:
+      - "ghcr.io/industrial-asset-hub/asset-link-sdk/registry:{{ .Tag }}-linux-arm64"
+    dockerfile: registry/Dockerfile
+    use: buildx
+    goos: linux
+    goarch: amd64
+    build_flag_templates:
+      - "--platform=linux/arm64"
+
+docker_manifests:
+  - name_template: "ghcr.io/industrial-asset-hub/asset-link-sdk/registry:{{ .Tag }}"
+    image_templates:
+      - "ghcr.io/industrial-asset-hub/asset-link-sdk/registry:{{ .Tag }}-linux-amd64"
+      - "ghcr.io/industrial-asset-hub/asset-link-sdk/registry:{{ .Tag }}-linux-arm64"
+
 checksum:
   name_template: "{{.ProjectName}}_{{.Version}}.sha256"
   algorithm: sha256
@@ -192,9 +222,3 @@ changelog:
       - "^chore:"
       - "^ci:"
       - "^Merge branch:"
-
-gitlab_urls:
-  api: https://code.siemens.com/api/v4/
-  download: https://code.siemens.com
-  skip_tls_verify: false
-  use_package_registry: true

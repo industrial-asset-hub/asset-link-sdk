@@ -13,8 +13,8 @@ import (
 	"strconv"
 	"strings"
 
-	"code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/cmd/dcd-ctl/internal/shared"
-	generated "code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/generated/conn_suite_registry"
+	"github.com/industrial-asset-hub/asset-link-sdk/v2/cmd/dcd-ctl/internal/shared"
+	generated "github.com/industrial-asset-hub/asset-link-sdk/v2/generated/conn_suite_registry"
 	"github.com/rs/zerolog/log"
 )
 

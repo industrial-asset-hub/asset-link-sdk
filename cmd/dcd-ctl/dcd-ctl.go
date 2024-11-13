@@ -8,8 +8,8 @@
 package main
 
 import (
-	"code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/cmd/dcd-ctl/cmd"
-	"code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/logging"
+	"github.com/industrial-asset-hub/asset-link-sdk/v2/cmd/dcd-ctl/cmd"
+	"github.com/industrial-asset-hub/asset-link-sdk/v2/logging"
 )
 
 func main() {

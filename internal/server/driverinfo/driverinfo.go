@@ -8,9 +8,9 @@
 package driverinfo
 
 import (
-	generated "code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/generated/conn_suite_drv_info"
-	"code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/metadata"
 	semver "github.com/Masterminds/semver/v3"
+	generated "github.com/industrial-asset-hub/asset-link-sdk/v2/generated/conn_suite_drv_info"
+	"github.com/industrial-asset-hub/asset-link-sdk/v2/metadata"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/net/context"
 )

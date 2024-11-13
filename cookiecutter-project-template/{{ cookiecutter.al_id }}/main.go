@@ -14,12 +14,12 @@ import (
 	"os/signal"
 	"syscall"
 
-	"code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/metadata"
+	"github.com/industrial-asset-hub/asset-link-sdk/v2/metadata"
 	"{{cookiecutter.al_id}}/handler"
 
-	"code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/dcd"
+	"github.com/industrial-asset-hub/asset-link-sdk/v2/dcd"
 
-	"code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/logging"
+	"github.com/industrial-asset-hub/asset-link-sdk/v2/logging"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
