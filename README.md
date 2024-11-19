@@ -134,6 +134,7 @@ $ journalctl logs -f -u custom-asset-link
 ### Command line tool
 
 To ease development or testing of the asset link, the discovery can be interactively triggered using a command line tool. This command will provide the results (i.e., the devices or assets discovered by the asset link) as output.
+For example discovery can be started/stopped, results can be retrieved, api tests can be performed on the Asset Link.
 Moreover, there is also a test suit suite that can be used as follows:
 
 ```bash
@@ -205,6 +206,30 @@ Flags:
   -v, --version            version for dcd-ctl
 
 Use "dcd-ctl [command] --help" for more information about a command.
+```
+
+Examples of actions which can be performed on the Asset Link:
+
+```bash
+# To run the api tests on Asset Link
+dcd-ctl test api -e localhost:8081 -f [] -o []
+# The Asset Link must be running on the provided address, for example here: localhost:8081
+
+# To run discovery on the Asset Link
+dcd-ctl discovery start -e localhost:8081 --filters [] --options []
+
+# To validate the asset against the schema using linkml-validator where schema file should be yaml
+dcd-ctl test assets --base-schema-path <base-schema> --asset-path <asset>
+--schema-path <extended-schema> --target-class <target-class>
+
+Example: dcd-ctl test assets --base-schema-path ./iah_base-v0.7.5.yaml
+--asset-path ./SatController-001.json --schema-path ./cdm_sat.yaml --target-class SatController
+
+# To validate the json schema using json schema validator where the schema file should be json
+dcd-ctl test json-schema --schema-path <schema> --asset-path <asset>
+
+# To explore on more actions to perform on Asset Link
+dcd-ctl --help
 ```
 
 ### Observability Webserver
