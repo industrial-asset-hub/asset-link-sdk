@@ -19,7 +19,7 @@ var ListCmd = &cobra.Command{
 	Short: "List registered asset links",
 	Long:  `This command lists all asset links registered in the registry.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		registry.GetList(shared.RegistryEndpoint)
+		registry.PrintList(shared.RegistryEndpoint)
 	},
 	//Args: cobra.MatchAll(cobra.ExactArgs(1), cobra.OnlyValidArgs),
 }

@@ -9,6 +9,7 @@ package dcd
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 
 	"github.com/industrial-asset-hub/asset-link-sdk/v2/cmd/dcd-ctl/internal/shared"
@@ -17,7 +18,7 @@ import (
 	"golang.org/x/net/context"
 )
 
-func StartDiscovery(endpoint string, option string, filter string) []generated.DiscoverResponse {
+func Discover(endpoint string, option string, filter string) []generated.DiscoverResponse {
 	log.Trace().Str("Endpoint", endpoint).Str("Option", option).Str("Filter", filter).Msg("Starting discovery job")
 	// TODO: Generate option
 	parsedOptions := []*generated.ActiveOption{}
@@ -64,7 +65,8 @@ func StartDiscovery(endpoint string, option string, filter string) []generated.D
 			log.Err(err).Msg("SubscribeDiscovery request returned an error")
 			return nil
 		}
-		log.Info().Interface("response", resp.Devices).Msg("Received Response")
+
+		fmt.Printf("%+v\n", resp.Devices)
 
 		log.Trace().Interface("Devices", resp).Msg("")
 		devices = append(devices, *resp)

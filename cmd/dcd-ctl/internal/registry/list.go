@@ -18,8 +18,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func GetList(endpoint string) string {
-
+func PrintList(endpoint string) {
 	conn := shared.GrpcConnection(endpoint)
 	defer conn.Close()
 
@@ -30,54 +29,47 @@ func GetList(endpoint string) string {
 	response, err := client.QueryRegisteredServices(context.Background(), request)
 	if err != nil {
 		log.Err(err).Msg("registry request returned an error")
-		return ""
+		return
 	} else {
 		var stringBuilder strings.Builder
 
-		for i, info := range response.GetInfos() {
-			if i != 0 {
-				stringBuilder.WriteString("---------------------------\n")
-			}
+		for _, info := range response.GetInfos() {
+			println("Asset Link:")
 
-			putStringValue(&stringBuilder, "App Instance ID", info.GetAppInstanceId())
+			printStringValue("App Instance ID", info.GetAppInstanceId())
 
-			putStringValueArray(&stringBuilder, "App Types", info.GetAppTypes())
-			putStringValueArray(&stringBuilder, "Driver Schema URIs", info.GetDriverSchemaUris())
-			putStringValueArray(&stringBuilder, "Interfaces", info.GetInterfaces())
+			printStringValueArray("App Types", info.GetAppTypes())
+			printStringValueArray("Driver Schema URIs", info.GetDriverSchemaUris())
+			printStringValueArray("Interfaces", info.GetInterfaces())
 
-			putStringValue(&stringBuilder, "gRPC IPv4 Address", info.GetIpv4Address())
-			putStringValue(&stringBuilder, "gRPC DNS Domain Name", info.GetDnsDomainname())
-			putStringValue(&stringBuilder, "gRPC Port Number", strconv.Itoa(int(info.GetGrpcIpPortNumber())))
+			printStringValue("gRPC IPv4 Address", info.GetIpv4Address())
+			printStringValue("gRPC DNS Domain Name", info.GetDnsDomainname())
+			printStringValue("gRPC Port Number", strconv.Itoa(int(info.GetGrpcIpPortNumber())))
 		}
 
 		listText := stringBuilder.String()
 
-		// log.Info().Str("List", listText).Msg("List of registered applications")
 		fmt.Print(listText)
-
-		return listText
 	}
-
 }
 
-func putStringValueArray(stringBuilder *strings.Builder, label string, stringValueArray []string) {
-	if len(stringValueArray) > 0 {
-		stringBuilder.WriteString(label)
-		stringBuilder.WriteString(":\n")
-		for _, aType := range stringValueArray {
-			stringBuilder.WriteString("  ")
-			stringBuilder.WriteString(aType)
-			stringBuilder.WriteString("\n")
+func printStringValueArray(label string, stringValueArray []string) {
+	num := len(stringValueArray)
+	if num > 0 {
+		print("  " + label + ": ")
+		num := len(stringValueArray)
+		for n, aType := range stringValueArray {
+			if n < num-1 {
+				print(aType + ", ")
+			} else {
+				println(aType)
+			}
 		}
 	}
 }
 
-func putStringValue(stringBuilder *strings.Builder, label string, stringValue string) {
+func printStringValue(label string, stringValue string) {
 	if len(stringValue) > 0 {
-		stringBuilder.WriteString(label)
-		stringBuilder.WriteString(":\n")
-		stringBuilder.WriteString("  ")
-		stringBuilder.WriteString(stringValue)
-		stringBuilder.WriteString("\n")
+		println("  " + label + ": " + stringValue)
 	}
 }

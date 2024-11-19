@@ -60,7 +60,7 @@ func init() {
 			zerolog.FatalLevel.String(),
 			zerolog.PanicLevel.String()))
 
-	rootCmd.AddCommand(discovery.DiscoveryCmd)
+	rootCmd.AddCommand(discovery.DiscoverCmd)
 	rootCmd.AddCommand(info.InfoCmd)
 	rootCmd.AddCommand(info.ListCmd)
 	rootCmd.AddCommand(test.TestCmd)

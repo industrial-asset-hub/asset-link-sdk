@@ -21,13 +21,13 @@ var filters string
 var options string
 var outputFile string = ""
 
-// startCmd represents the start command
-var startCmd = &cobra.Command{
-	Use:   "start",
+// discoverCmd represents the discovery command
+var DiscoverCmd = &cobra.Command{
+	Use:   "discover",
 	Short: "Start discovery job",
-	Long:  `This command starts an discovery job.`,
+	Long:  `This command starts an discovery job and prints the result.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		resp := dcd.StartDiscovery(shared.AssetLinkEndpoint, options, filters)
+		resp := dcd.Discover(shared.AssetLinkEndpoint, options, filters)
 
 		log.Trace().Str("File", outputFile).Msg("Saving to file")
 		f, _ := os.Create(outputFile)
@@ -43,14 +43,13 @@ var startCmd = &cobra.Command{
 }
 
 func init() {
-	DiscoveryCmd.AddCommand(startCmd)
-	startCmd.Flags().StringVarP(&outputFile, "output-file", "c", "result.json", "output format")
-	// TODO: introduce examples
-	startCmd.PersistentFlags().StringVarP(&options, "options", "o", "[]",
+	DiscoverCmd.Flags().StringVarP(&outputFile, "output-file", "c", "result.json", "output format")
+
+	DiscoverCmd.PersistentFlags().StringVarP(&options, "options", "o", "[]",
 		shared.DiscoveryOptionsDesc,
 	)
 
-	startCmd.PersistentFlags().StringVarP(&filters, "filters", "f", "[]",
+	DiscoverCmd.PersistentFlags().StringVarP(&filters, "filters", "f", "[]",
 		shared.DiscoveryFiltersDesc,
 	)
 }

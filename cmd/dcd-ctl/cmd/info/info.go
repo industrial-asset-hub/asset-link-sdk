@@ -18,7 +18,7 @@ var InfoCmd = &cobra.Command{
 	Short: "Print asset link information",
 	Long:  `This command prints information on the asset link.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		dcd.GetInfo(shared.AssetLinkEndpoint)
+		dcd.PrintInfo(shared.AssetLinkEndpoint)
 	},
 	// Args: cobra.MatchAll(cobra.ExactArgs(1), cobra.OnlyValidArgs),
 }
