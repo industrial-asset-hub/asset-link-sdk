@@ -37,6 +37,8 @@ func convertToDeviceIdentifiers(valueToConvert reflect.Value, prefixUri string, 
 	switch valueToConvert.Kind() {
 	case reflect.Ptr:
 		if valueToConvert.IsNil() {
+			productIdentifier := convertToDeviceIdentifier(valueToConvert.Interface(), prefixUri)
+			identifiers = append(identifiers, productIdentifier)
 			return identifiers
 		}
 		structIdentifiers := convertToDeviceIdentifiers(valueToConvert.Elem(), prefixUri, level)
@@ -104,26 +106,26 @@ func convertToDeviceIdentifier(value interface{}, identifierUri string) *generat
 		Value:       nil,
 		Classifiers: nil,
 	}
-	switch value.(type) {
+	switch v := value.(type) {
 	case string:
-		if value.(string) != "" {
-			identifier.Value = &generated.DeviceIdentifier_Text{Text: value.(string)}
+		if isNonEmptyValues(value.(string)) {
+			identifier.Value = &generated.DeviceIdentifier_Text{Text: v}
 		}
 	case *string:
-		if *value.(*string) != "" {
-			identifier.Value = &generated.DeviceIdentifier_Text{Text: *value.(*string)}
+		if value.(*string) != nil {
+			identifier.Value = &generated.DeviceIdentifier_Text{Text: *v}
 		}
 	case int64:
-		identifier.Value = &generated.DeviceIdentifier_Int64Value{Int64Value: value.(int64)}
+		identifier.Value = &generated.DeviceIdentifier_Int64Value{Int64Value: v}
 	case uint64:
-		identifier.Value = &generated.DeviceIdentifier_Uint64Value{Uint64Value: value.(uint64)}
+		identifier.Value = &generated.DeviceIdentifier_Uint64Value{Uint64Value: v}
 	case []byte:
-		identifier.Value = &generated.DeviceIdentifier_RawData{RawData: value.([]byte)}
+		identifier.Value = &generated.DeviceIdentifier_RawData{RawData: v}
 	case bool:
 		// TODO: Convert to bool if datatype is available
 		// For now we convert to an string, and accepting a schema violation
 		// Related to, that capabilities may have a separate interface.
-		identifier.Value = &generated.DeviceIdentifier_Text{Text: strconv.FormatBool(value.(bool))}
+		identifier.Value = &generated.DeviceIdentifier_Text{Text: strconv.FormatBool(v)}
 	}
 	if identifier.Value == nil {
 		return nil
@@ -168,4 +170,14 @@ func convertStructTypeToDeviceIdentifiers(valueStruct reflect.Value, prefixUri s
 		structIdentifiers = appendDeviceIdentifiers(structIdentifiers, elementIdentifiers)
 	}
 	return structIdentifiers
+}
+
+func isNonEmptyValues(values ...string) bool {
+	for _, value := range values {
+		if value != "" {
+			return true
+		}
+
+	}
+	return false
 }

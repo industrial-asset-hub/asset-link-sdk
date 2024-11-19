@@ -11,10 +11,13 @@ package model
 //
 // Name can be for example firmware_update, backup or restore.
 func (d *DeviceInfo) AddCapabilities(name string, enabled bool) {
-	opperation := AssetOperation{
-		ActivationFlag: &enabled,
-		OperationName:  &name,
-	}
+	operation := AssetOperation{}
 
-	d.AssetOperations = append(d.AssetOperations, opperation)
+	if isNonEmptyValues(name) {
+		enabled = true
+		operation.OperationName = &name
+		operation.ActivationFlag = &enabled
+
+		d.AssetOperations = append(d.AssetOperations, operation)
+	}
 }

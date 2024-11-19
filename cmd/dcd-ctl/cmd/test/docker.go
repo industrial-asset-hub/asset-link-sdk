@@ -50,7 +50,6 @@ func RunContainer(service string) error {
 func GetServiceDefinition(serviceName string, schemaPath string, assetPath string, targetClass string) Service {
 	currentDir, _ := os.Getwd()
 	baseSchemaVersion, err := getBaseSchemaVersion()
-	baseSchemaVersion = baseSchemaVersion
 	baseSchemaVersion += ".yaml"
 	if err != nil {
 		fmt.Println(err)

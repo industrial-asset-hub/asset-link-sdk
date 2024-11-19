@@ -23,48 +23,54 @@ import (
 // serialNumber: unique combination of numbers and letters used to identify
 // the device once it has been manufactured
 func (d *DeviceInfo) AddNameplate(manufacturerName string,
-	UriOfTheProduct string,
+	uriOfTheProduct string,
 	productArticleNumberOfManufacturer string,
 	manufacturerProductDesignation string,
 	hardwareVersion string,
 	serialNumber string,
 ) {
 
-	// We hash the manufacturer to get a unique identifier
-	h := sha1.New()
-	h.Write([]byte(manufacturerName))
-	manufacturerId := hex.EncodeToString(h.Sum(nil))
+	if isNonEmptyValues(manufacturerName, uriOfTheProduct, productArticleNumberOfManufacturer, manufacturerProductDesignation, hardwareVersion, serialNumber) {
 
-	organisation := Organization{
-		Address:        nil,
-		AlternateNames: nil,
-		ContactPoint:   nil,
-		Id:             manufacturerId,
-		Name:           &manufacturerName,
-	}
+		// We hash the manufacturer to get a unique identifier
+		h := sha1.New()
+		h.Write([]byte(manufacturerName))
+		manufacturerId := hex.EncodeToString(h.Sum(nil))
 
-	mp := Product{
-		Id:             UriOfTheProduct,
-		Manufacturer:   &organisation,
-		Name:           &manufacturerProductDesignation,
-		ProductId:      &productArticleNumberOfManufacturer,
-		ProductVersion: &hardwareVersion,
-	}
-	pi := ProductSerialIdentifier{
-		IdentifierType:        nil,
-		IdentifierUncertainty: nil,
-		ManufacturerProduct:   &mp,
-		SerialNumber:          &serialNumber,
-	}
+		organisation := Organization{
+			Address:        nil,
+			AlternateNames: nil,
+			ContactPoint:   nil,
+			Id:             manufacturerId,
+			Name:           &manufacturerName,
+		}
 
-	d.ProductInstanceIdentifier = &pi
+		mp := Product{
+			Id:             uriOfTheProduct,
+			Manufacturer:   &organisation,
+			Name:           &manufacturerProductDesignation,
+			ProductId:      &productArticleNumberOfManufacturer,
+			ProductVersion: &hardwareVersion,
+		}
+
+		pi := ProductSerialIdentifier{
+			IdentifierType:        nil,
+			IdentifierUncertainty: nil,
+			ManufacturerProduct:   &mp,
+			SerialNumber:          &serialNumber,
+		}
+
+		d.ProductInstanceIdentifier = &pi
+	}
 }
 
 // AddSoftware Add software information to an asset
 func (d *DeviceInfo) AddSoftware(name string, version string) {
-	softwareIdentifier := SoftwareIdentifier{
-		Name:    &name,
-		Version: &version,
+	softwareIdentifier := SoftwareIdentifier{}
+
+	if isNonEmptyValues(name, version) {
+		softwareIdentifier.Name = &name
+		softwareIdentifier.Version = &version
 	}
 
 	softwareArtifact := SoftwareArtifact{

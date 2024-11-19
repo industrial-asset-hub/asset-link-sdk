@@ -9,6 +9,8 @@ package model
 
 import (
 	"time"
+
+	"github.com/rs/zerolog/log"
 )
 
 const (
@@ -17,7 +19,13 @@ const (
 
 // NewDevice Generates a new asset skeleton
 func NewDevice(typeOfAsset string, assetName string) *DeviceInfo {
+
 	d := DeviceInfo{}
+	if !isNonEmptyValues(typeOfAsset) {
+		log.Warn().Msg("Asset type is empty")
+		return &d
+	}
+
 	d.Type = typeOfAsset
 	d.Name = &assetName
 

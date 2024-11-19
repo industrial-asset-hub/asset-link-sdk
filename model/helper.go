@@ -9,13 +9,15 @@ package model
 
 func (d *DeviceInfo) addIdentifier(mac string) {
 
-	identifierUncertainty := 1
-	identifier := MacIdentifier{
-		IdentifierType:        nil,
-		IdentifierUncertainty: &identifierUncertainty,
-		MacAddress:            &mac,
+	if isNonEmptyValues(mac) {
+		identifierUncertainty := 1
+		identifier := MacIdentifier{
+			IdentifierType:        nil,
+			IdentifierUncertainty: &identifierUncertainty,
+			MacAddress:            &mac,
+		}
+		d.MacIdentifiers = append(d.MacIdentifiers, identifier)
 	}
-	d.MacIdentifiers = append(d.MacIdentifiers, identifier)
 }
 
 // Add reachability state to the asset
