@@ -4,54 +4,44 @@
  * SPDX-License-Identifier: MIT
  *
  */
-package reference
+package reference //TODO: remove cdm-dcd-reference implementation or use soft links to cookiecutter template ?!?
 
 import (
-	"errors"
 	"fmt"
 	"math/rand"
 	"strings"
+	"sync"
 	"sync/atomic"
 
 	generated "github.com/industrial-asset-hub/asset-link-sdk/v2/generated/iah-discovery"
 	"github.com/industrial-asset-hub/asset-link-sdk/v2/model"
+	"github.com/industrial-asset-hub/asset-link-sdk/v2/publish"
 	"github.com/rs/zerolog/log"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
-// Implements the features of the DCD.
-// see
+// Implements the Discovery interface and feature
+
 type ReferenceClassDriver struct {
-	discoveryJobRunning bool
+	discoveryLock sync.Mutex
 }
 
 var lastSerialNumber = atomic.Int64{}
 
-// Implementation of the Discovery feature
-
-// Start implements the function, which is called, with the
-// grpc method is executed
-func (m *ReferenceClassDriver) Start(jobId uint32, deviceChannel chan []*generated.DiscoveredDevice, err chan error, filters map[string]string) {
+func (m *ReferenceClassDriver) Discover(filters map[string]string, devicePublisher publish.DevicePublisher) error {
 	log.Info().
 		Msg("Start Discovery")
 
-	log.Debug().
-		Bool("running", m.discoveryJobRunning).
-		Msg("Discovery running?")
-
-	defer close(deviceChannel)
-	// Check if job is already running
-	// We currently support here only one running job
-	if m.discoveryJobRunning {
+	// Check if a job is already running
+	// We currently support only one running job
+	if m.discoveryLock.TryLock() {
+		defer m.discoveryLock.Unlock()
+	} else {
 		errMsg := "Discovery job is already running"
-		err <- errors.New(errMsg)
+		log.Error().Msg(errMsg)
+		return status.Errorf(codes.ResourceExhausted, errMsg)
 	}
-
-	// Thus, this function is executed as Goroutine,
-	// and the gRPC Server methods blocks, until the job is started, we assume at this point,
-	// that the discover job is started successfully
-	err <- nil
-
-	m.discoveryJobRunning = true
 
 	// Just provide a static asset
 	name := "Device"
@@ -78,32 +68,38 @@ func (m *ReferenceClassDriver) Start(jobId uint32, deviceChannel chan []*generat
 	deviceInfo.AddIPv4(id, "192.168.0.1", "255.255.255.0", "")
 	deviceInfo.AddIPv4(id, "10.0.0.1", "255.255.255.0", "")
 
-	discoveredDevice := deviceInfo.ConvertToDiscoveredDevice()
-	devices := make([]*generated.DiscoveredDevice, 0)
-	devices = append(devices, discoveredDevice)
-	deviceChannel <- devices
+	//time.Sleep(20 * time.Second)
 
-	m.discoveryJobRunning = false
+	discoveredDevice := deviceInfo.ConvertToDiscoveredDevice()
+
+	err := devicePublisher.PublishDevice(discoveredDevice)
+	if err != nil {
+		// discovery request was likely cancelled -> terminate discovery and return error
+		log.Error().Msgf("Publishing Error: %v", err)
+		return err
+	}
+
 	log.Debug().
-		Msg("Start function exiting")
+		Msg("Discover function exiting")
+	return nil
 }
 
-func (m *ReferenceClassDriver) FilterTypes(filterTypesChannel chan []*generated.SupportedFilter) {
+func (m *ReferenceClassDriver) FilterTypes() []*generated.SupportedFilter {
 	filterTypes := make([]*generated.SupportedFilter, 0)
 	filterTypes = append(filterTypes, &generated.SupportedFilter{
 		Key:      "type",
 		Datatype: generated.VariantType_VT_BYTES,
 	})
-	filterTypesChannel <- filterTypes
+	return filterTypes
 }
 
-func (m *ReferenceClassDriver) FilterOptions(filterOptionsChannel chan []*generated.SupportedOption) {
+func (m *ReferenceClassDriver) FilterOptions() []*generated.SupportedOption {
 	filterOptions := make([]*generated.SupportedOption, 0)
 	filterOptions = append(filterOptions, &generated.SupportedOption{
 		Key:      "option",
 		Datatype: generated.VariantType_VT_BOOL,
 	})
-	filterOptionsChannel <- filterOptions
+	return filterOptions
 }
 
 func generateRandomMacAddress() string {

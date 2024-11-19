@@ -45,7 +45,6 @@ func ResetGlobalEvents() {
 // Discovery Events
 type DiscoveryEvent struct {
 	Timestamp string `json:"timestamp"`
-	JobId     uint32 `json:"job_id"`
 }
 
 func (e *Events) GetDiscoveryJobsCount() int {
@@ -56,12 +55,11 @@ func (e *Events) GetDiscoveryJobsCount() int {
 
 }
 
-func (e *Events) StartedDiscoveryJob(id uint32) {
+func (e *Events) StartedDiscoveryJob() {
 	e.Lock()
 	defer e.Unlock()
 	e.StartedDiscoveries = append(e.StartedDiscoveries, DiscoveryEvent{
 		Timestamp: timestampNow(),
-		JobId:     id,
 	})
 	e.DiscoveryCount++
 	e.StartedDiscoveries = keepMaxSize(e.StartedDiscoveries)

@@ -22,16 +22,12 @@ func TestEvents(t *testing.T) {
 
 		// when adding items below the cap
 		for n := 0; n < 3; n++ {
-			s.StartedDiscoveryJob(uint32(n))
+			s.StartedDiscoveryJob()
 		}
-		// then exactly the items are tracked
-		jobs := s.GetDiscoveryJobs()
-		jobIds := []uint32{jobs[0].JobId, jobs[1].JobId, jobs[2].JobId}
-		assert.ElementsMatch(t, jobIds, []uint32{0, 1, 2})
 
 		// when adding above the cap
 		for n := 0; n < maxItemsToKeep*2; n++ {
-			s.StartedDiscoveryJob(uint32(n))
+			s.StartedDiscoveryJob()
 		}
 
 		assert.Len(t, s.GetDiscoveryJobs(), maxItemsToKeep, "only the maximum items to keep should be shown")
@@ -59,7 +55,7 @@ func TestEvents(t *testing.T) {
 		s := newEventState()
 
 		for n := 0; n < 3; n++ {
-			s.StartedDiscoveryJob(uint32(n))
+			s.StartedDiscoveryJob()
 		}
 
 		assert.Len(t, s.GetDiscoveryJobs(), 3)
@@ -75,7 +71,7 @@ func addSomeStats(numGoroutines int, count int) {
 		go func() {
 			for n := 0; n < count; n++ {
 				s := GlobalEvents()
-				s.StartedDiscoveryJob(uint32(n))
+				s.StartedDiscoveryJob()
 			}
 			defer wg.Done()
 		}()

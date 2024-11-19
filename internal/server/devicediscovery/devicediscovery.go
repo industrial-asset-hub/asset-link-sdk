@@ -16,7 +16,10 @@ import (
 	generated "github.com/industrial-asset-hub/asset-link-sdk/v2/generated/iah-discovery"
 	"github.com/industrial-asset-hub/asset-link-sdk/v2/internal/features"
 	"github.com/industrial-asset-hub/asset-link-sdk/v2/internal/observability"
+	"github.com/industrial-asset-hub/asset-link-sdk/v2/publish"
 	"github.com/rs/zerolog/log"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type DiscoverServerEntity struct {
@@ -37,53 +40,35 @@ func (d *DiscoverServerEntity) DiscoverDevices(req *generated.DiscoverRequest, s
 		Str("options", fmt.Sprintf("%s", req.GetOptions())).
 		Str("filters", fmt.Sprintf("%s", req.GetFilters())).
 		Str("string", req.String()).
-		Msg("Start discovery request called")
+		Msg("Discovery request")
+
+	// Check if discovery feature implementation is available
+	if d.Discovery == nil {
+		errMsg := "No Discovery implementation found"
+		log.Info().Msg(errMsg)
+		return status.Errorf(codes.Unimplemented, errMsg)
+	}
+
 	// TODO: Think about making the interface more explicit
 	filter := map[string]string{
 		"option": serializeFilterOrOption(req.GetOptions()),
 		"filter": serializeFilterOrOption(req.GetFilters()),
 	}
 
-	var jobId uint32 = 1
-
 	// Observability
-	observability.GlobalEvents().StartedDiscoveryJob(jobId)
-	m := new(generated.DiscoverResponse)
-	deviceChannel := make(chan []*generated.DiscoveredDevice)
-	// Check if discovery feature implementation is available
-	if d.Discovery != nil {
-		// Due to the start as Gouroutine, the d.Start() function can report an error during and can run even longer.
-		startError := make(chan error)
-		// Start custom discovery function
-		go func() {
-			d.Start(jobId, deviceChannel, startError, filter)
-		}()
-		if err := <-startError; err != nil {
-			errMsg := "Error during starting of the discovery job"
-			log.Error().Err(err).Msg(errMsg)
-			return err
-		}
-	} else {
-		log.Info().Msg("No Discovery implementation found")
-	}
-	return receiveDevicesFromChannelAndPublishToStream(deviceChannel, m, stream)
-}
+	observability.GlobalEvents().StartedDiscoveryJob()
 
-func receiveDevicesFromChannelAndPublishToStream(deviceChannel chan []*generated.DiscoveredDevice, m *generated.DiscoverResponse, stream generated.DeviceDiscoverApi_DiscoverDevicesServer) error {
-	for {
-		devices, ok := <-deviceChannel
-		if !ok {
-			log.Debug().Msg("No more devices received")
-			return nil
-		}
-		log.Debug().Msgf("%d devices received", len(devices))
-		m.Devices = devices
-		streamErr := stream.SendMsg(m)
-		if streamErr != nil {
-			log.Error().Msgf("Error sending message: %v", streamErr)
-			return streamErr
-		}
+	// Create a device publisher and pass the response stream
+	devicePublisher := &publish.DevicePublisherImplementation{
+		Stream: stream,
 	}
+
+	err := d.Discover(filter, devicePublisher)
+	if err != nil {
+		errMsg := "Error during starting of the discovery job"
+		log.Error().Err(err).Msg(errMsg)
+	}
+	return err
 }
 
 type GrpcFilterOrOption interface {
@@ -114,18 +99,15 @@ func serializeFilterOrOption[T GrpcFilterOrOption](filters []T) string {
 }
 
 func (d *DiscoverServerEntity) GetFilterTypes(context.Context, *generated.FilterTypesRequest) (*generated.FilterTypesResponse, error) {
-	filterTypesChannel := make(chan []*generated.SupportedFilter)
-	go d.FilterTypes(filterTypesChannel)
-	supportedFilters := <-filterTypesChannel
+	supportedFilters := d.FilterTypes()
 	if len(supportedFilters) == 0 {
 		return &generated.FilterTypesResponse{}, errors.New("no supported filter types")
 	}
 	return &generated.FilterTypesResponse{FilterTypes: supportedFilters}, nil
 }
+
 func (d *DiscoverServerEntity) GetFilterOptions(context.Context, *generated.FilterOptionsRequest) (*generated.FilterOptionsResponse, error) {
-	filterOptionsChannel := make(chan []*generated.SupportedOption)
-	go d.FilterOptions(filterOptionsChannel)
-	supportedFilters := <-filterOptionsChannel
+	supportedFilters := d.FilterOptions()
 	if len(supportedFilters) == 0 {
 		return &generated.FilterOptionsResponse{}, errors.New("no supported filter types")
 	}

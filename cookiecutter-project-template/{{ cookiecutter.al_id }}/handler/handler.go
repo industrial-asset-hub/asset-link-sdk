@@ -12,47 +12,43 @@ import (
 	"fmt"
 	"math/rand"
 	"strings"
+	"sync"
 	"sync/atomic"
 
 	generated "github.com/industrial-asset-hub/asset-link-sdk/v2/generated/iah-discovery"
 	"github.com/industrial-asset-hub/asset-link-sdk/v2/model"
+	"github.com/industrial-asset-hub/asset-link-sdk/v2/publish"
 	"github.com/rs/zerolog/log"
 )
 
-// Implements the features of the DCD.
-// see
+// Implements the Discovery interface and feature
+
 type AssetLinkImplementation struct {
-	discoveryJobRunning bool
+	discoveryLock sync.Mutex
 }
 
 var lastSerialNumber = atomic.Int64{}
 
-// Implementation of the Discovery feature
+func (m *AssetLinkImplementation) Discover(filters map[string]string, devicePublisher publish.DevicePublisher) {
+	log.Info().
+		Msg("Start Discovery")
 
-// Start implements the function, which is called, with the
-// dcdconnection method is executed
-func (m *AssetLinkImplementation) Start(jobId uint32, deviceChannel chan []*generated.DiscoveredDevice, err chan error, filters map[string]string) {
-
-	// Check if job is already running
-	// We currently support here only one running job
-	if m.discoveryJobRunning {
+	// Check if a job is already running
+	// We currently support only one running job
+	if m.discoveryLock.TryLock() {
+		defer m.discoveryLock.Unlock()
+	} else {
 		errMsg := "Discovery job is already running"
-		err <- errors.New(errMsg)
+		log.Error().Msg(errMsg)
+		return status.Errorf(codes.ResourceExhausted, errMsg)
 	}
-	defer close(deviceChannel)
-
-	// Thus, this function is executed as Goroutine,
-	// and the gRPC Server methods blocks, until the job is started, we assume at this point,
-	// that the discover job is started successfully
-	err <- nil
-	m.discoveryJobRunning = true
 
 	//
-	// At here our custom logic to discover our device and fetch the needed information
+	// Add your custom logic here to discover devices and publish them
 	//
 
 	// Fillup the device information
-	device := model.NewDevice("EthernetDevice", "My First Ethernet Device")
+	deviceInfo := model.NewDevice("EthernetDevice", "My First Ethernet Device")
 
 	product := "{{ cookiecutter.al_name }}"
 	orderNumber := "PRODUCT-ONE"
@@ -61,7 +57,7 @@ func (m *AssetLinkImplementation) Start(jobId uint32, deviceChannel chan []*gene
 	lastSerialNumber.Add(1)
 	serialNumber := fmt.Sprint(lastSerialNumber.Load())
 	productUri := fmt.Sprintf("urn:%s/%s", strings.ReplaceAll(vendorName, " ", "_"), strings.ReplaceAll(product, " ", "_"), serialNumber)
-	device.AddNameplate(
+	deviceInfo.AddNameplate(
 		vendorName,
 		productUri,
 		orderNumber,
@@ -69,39 +65,43 @@ func (m *AssetLinkImplementation) Start(jobId uint32, deviceChannel chan []*gene
 		productVersion,
 		serialNumber)
 
-	device.AddCapabilities("firmware_update", false)
+	deviceInfo.AddCapabilities("firmware_update", false)
 
 	randomMacAddress := generateRandomMacAddress()
-	id := device.AddNic("eth0", randomMacAddress)
-	device.AddIPv4(id, "192.168.0.1", "255.255.255.0", "")
+	id := deviceInfo.AddNic("eth0", randomMacAddress)
+	deviceInfo.AddIPv4(id, "192.168.0.1", "255.255.255.0", "")
 
 	// Convert and stream device to upstream system
-	discoveredDevice := device.ConvertToDiscoveredDevice()
-	devices := make([]*generated.DiscoveredDevice, 0)
-	devices = append(devices, discoveredDevice)
-	deviceChannel <- devices
+	discoveredDevice := deviceInfo.ConvertToDiscoveredDevice()
 
-	m.discoveryJobRunning = false
+	err := devicePublisher.PublishDevice(discoveredDevice)
+	if err != nil {
+		// discovery request was likely cancelled -> terminate discovery and return error
+		log.Error().Msgf("Publishing Error: %v", err)
+		return err
+	}
+
 	log.Debug().
-		Msg("Start function exiting")
+		Msg("Discover function exiting")
+	return nil
 }
 
-func (m *AssetLinkImplementation) FilterTypes(filterTypesChannel chan []*generated.SupportedFilter) {
+func (m *AssetLinkImplementation) FilterTypes() []*generated.SupportedFilter {
 	filterTypes := make([]*generated.SupportedFilter, 0)
 	filterTypes = append(filterTypes, &generated.SupportedFilter{
 		Key:      "type",
 		Datatype: generated.VariantType_VT_BYTES,
 	})
-	filterTypesChannel <- filterTypes
+	return filterTypes
 }
 
-func (m *AssetLinkImplementation) FilterOptions(filterOptionsChannel chan []*generated.SupportedOption) {
+func (m *AssetLinkImplementation) FilterOptions() []*generated.SupportedOption {
 	filterOptions := make([]*generated.SupportedOption, 0)
 	filterOptions = append(filterOptions, &generated.SupportedOption{
 		Key:      "option",
 		Datatype: generated.VariantType_VT_BOOL,
 	})
-	filterOptionsChannel <- filterOptions
+	return filterOptions
 }
 
 func generateRandomMacAddress() string {
