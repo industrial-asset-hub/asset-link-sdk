@@ -40,12 +40,12 @@ var jsonSchemaCmd = &cobra.Command{
 }
 
 var (
-	baseSchemaPath   string
-	schemaPath       string
-	assetPath        string
-	targetClass      string
-	filters          string
-	options          string
+	baseSchemaPath string
+	schemaPath     string
+	assetPath      string
+	targetClass    string
+	filters        string
+	options        string
 )
 
 func init() {
@@ -66,7 +66,7 @@ func init() {
 func runAssetsTests(cmd *cobra.Command, args []string) {
 	err := RunContainer("linkml-validator")
 	if err != nil {
-		log.Err(err).Msg("Failed to run container")
+		log.Err(err).Msg("failed to validate asset against schema")
 	}
 }
 

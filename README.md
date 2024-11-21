@@ -218,7 +218,14 @@ dcd-ctl test api -e localhost:8081 -f [] -o []
 # To run discovery on the Asset Link
 dcd-ctl discovery start -e localhost:8081 --filters [] --options []
 
-# To validate the asset against the schema using linkml-validator where schema file should be yaml
+# To validate the asset against the base-schema using linkml-validator where schema file should be yaml
+dcd-ctl test assets --base-schema-path <base-schema> --asset-path <asset>
+--target-class <target-class>
+
+Example: dcd-ctl test assets --base-schema-path ./iah_base-v0.7.5.yaml
+--asset-path ./Asset-001.ld.json --target-class Asset
+
+# To validate the asset against the extended-schema using linkml-validator where schema file should be yaml
 dcd-ctl test assets --base-schema-path <base-schema> --asset-path <asset>
 --schema-path <extended-schema> --target-class <target-class>
 
