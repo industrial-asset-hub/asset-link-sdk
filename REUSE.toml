@@ -20,6 +20,7 @@ path = [
   "renovate.json",
   "registry/Dockerfile",
   "Dockerfile",
+  ".github/*",
   "**.editorconfig",
   "**/go.mod",
   "**/go.sum",
