@@ -1,4 +1,4 @@
-# IAH Asset Link SDK
+# Asset Link SDK
 
 This repository contains commonly used modules for creating your own
 Asset Link (AL).
