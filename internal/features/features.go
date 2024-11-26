@@ -8,6 +8,7 @@
 package features
 
 import (
+	"github.com/industrial-asset-hub/asset-link-sdk/v2/config"
 	generated "github.com/industrial-asset-hub/asset-link-sdk/v2/generated/iah-discovery"
 	"github.com/industrial-asset-hub/asset-link-sdk/v2/publish"
 )
@@ -16,7 +17,7 @@ import (
 
 // Interface Discovery provides the methods used the discovery feature
 type Discovery interface {
-	Discover(filters map[string]string, devicePublisher publish.DevicePublisher) error //TODO: why should we provide a string map here instead of the filters/options themselfes (like everywhere else)
+	Discover(discoveryConfig config.DiscoveryConfig, devicePublisher publish.DevicePublisher) error
 	FilterTypes() []*generated.SupportedFilter
 	FilterOptions() []*generated.SupportedOption
 }

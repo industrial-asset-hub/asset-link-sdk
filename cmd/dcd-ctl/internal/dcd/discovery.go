@@ -8,46 +8,38 @@
 package dcd
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 
 	"github.com/industrial-asset-hub/asset-link-sdk/v2/cmd/dcd-ctl/internal/shared"
+	"github.com/industrial-asset-hub/asset-link-sdk/v2/config"
 	generated "github.com/industrial-asset-hub/asset-link-sdk/v2/generated/iah-discovery"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/net/context"
 )
 
-func Discover(endpoint string, option string, filter string) []generated.DiscoverResponse {
-	log.Trace().Str("Endpoint", endpoint).Str("Option", option).Str("Filter", filter).Msg("Starting discovery job")
-	// TODO: Generate option
-	parsedOptions := []*generated.ActiveOption{}
-	err := json.Unmarshal([]byte(option), &parsedOptions)
-	if err != nil {
-		log.Err(err).Msg("Parsing of the discovery option returned an error")
-		return nil
-	}
-	log.Trace().Interface("Options", parsedOptions).Msg("Parsed discovery options")
+func Discover(endpoint string, discoveryFile string) []generated.DiscoverResponse {
+	log.Info().Str("Endpoint", endpoint).Str("Discovery Request Config File", discoveryFile).Msg("Starting discovery job")
 
-	// TODO: Generate Filter
-	parsedFilters := []*generated.ActiveFilter{}
-	err = json.Unmarshal([]byte(filter), &parsedFilters)
-	if err != nil {
-		log.Err(err).Msg("Parsing of the discovery filter returned an error")
-		return nil
+	discoveryConfig := config.NewDiscoveryConfigWithDefaults()
+
+	if discoveryFile != "" {
+		var configError error
+		discoveryConfig, configError = config.NewDiscoveryConfigFromFile(discoveryFile)
+		if configError != nil {
+			log.Err(configError).Msg("Failed to read config file")
+			return nil
+		}
 	}
-	log.Trace().Interface("Filters", parsedFilters).Msg("Parsed discovery filter")
+
+	discoveryRequest := discoveryConfig.GetDiscoveryRequest()
 
 	conn := shared.GrpcConnection(endpoint)
 	defer conn.Close()
 
 	client := generated.NewDeviceDiscoverApiClient(conn)
 	ctx := context.Background()
-	stream, err := client.DiscoverDevices(ctx, &generated.DiscoverRequest{
-		Filters: parsedFilters,
-		Options: parsedOptions,
-		Target:  nil,
-	})
+	stream, err := client.DiscoverDevices(ctx, discoveryRequest)
 
 	if err != nil {
 		log.Err(err).Msg("StartDeviceDiscovery request returned an error")

@@ -17,8 +17,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var filters string
-var options string
+var discoveryFile string = ""
 var outputFile string = ""
 
 // discoverCmd represents the discovery command
@@ -27,7 +26,7 @@ var DiscoverCmd = &cobra.Command{
 	Short: "Start discovery job",
 	Long:  `This command starts an discovery job and prints the result.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		resp := dcd.Discover(shared.AssetLinkEndpoint, options, filters)
+		resp := dcd.Discover(shared.AssetLinkEndpoint, discoveryFile)
 
 		log.Trace().Str("File", outputFile).Msg("Saving to file")
 		f, _ := os.Create(outputFile)
@@ -43,13 +42,6 @@ var DiscoverCmd = &cobra.Command{
 }
 
 func init() {
-	DiscoverCmd.Flags().StringVarP(&outputFile, "output-file", "c", "result.json", "output format")
-
-	DiscoverCmd.PersistentFlags().StringVarP(&options, "options", "o", "[]",
-		shared.DiscoveryOptionsDesc,
-	)
-
-	DiscoverCmd.PersistentFlags().StringVarP(&filters, "filters", "f", "[]",
-		shared.DiscoveryFiltersDesc,
-	)
+	DiscoverCmd.Flags().StringVarP(&outputFile, "output-file", "o", "result.json", "output file")
+	DiscoverCmd.Flags().StringVarP(&discoveryFile, "discovery-file", "d", "", shared.DiscoveryFileDesc)
 }

@@ -9,10 +9,10 @@ package devicediscovery
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 
+	"github.com/industrial-asset-hub/asset-link-sdk/v2/config"
 	generated "github.com/industrial-asset-hub/asset-link-sdk/v2/generated/iah-discovery"
 	"github.com/industrial-asset-hub/asset-link-sdk/v2/internal/features"
 	"github.com/industrial-asset-hub/asset-link-sdk/v2/internal/observability"
@@ -25,14 +25,6 @@ import (
 type DiscoverServerEntity struct {
 	generated.UnimplementedDeviceDiscoverApiServer
 	features.Discovery
-}
-
-type FilterOrOption struct {
-	Key      string `json:"key"`
-	Operator string `json:"operator"`
-	Value    struct {
-		RawData string `json:"raw_data"`
-	} `json:"value"`
 }
 
 func (d *DiscoverServerEntity) DiscoverDevices(req *generated.DiscoverRequest, stream generated.DeviceDiscoverApi_DiscoverDevicesServer) error {
@@ -49,12 +41,6 @@ func (d *DiscoverServerEntity) DiscoverDevices(req *generated.DiscoverRequest, s
 		return status.Errorf(codes.Unimplemented, errMsg)
 	}
 
-	// TODO: Think about making the interface more explicit
-	filter := map[string]string{
-		"option": serializeFilterOrOption(req.GetOptions()),
-		"filter": serializeFilterOrOption(req.GetFilters()),
-	}
-
 	// Observability
 	observability.GlobalEvents().StartedDiscoveryJob()
 
@@ -63,11 +49,14 @@ func (d *DiscoverServerEntity) DiscoverDevices(req *generated.DiscoverRequest, s
 		Stream: stream,
 	}
 
-	err := d.Discover(filter, devicePublisher)
+	discoveryConfig := config.NewDiscoveryConfigFromDiscoveryRequest(req)
+
+	err := d.Discover(discoveryConfig, devicePublisher)
 	if err != nil {
 		errMsg := "Error during starting of the discovery job"
 		log.Error().Err(err).Msg(errMsg)
 	}
+
 	return err
 }
 
@@ -75,27 +64,6 @@ type GrpcFilterOrOption interface {
 	GetKey() string
 	GetOperator() generated.ComparisonOperator
 	GetValue() *generated.Variant
-}
-
-func serializeFilterOrOption[T GrpcFilterOrOption](filters []T) string {
-	var filterList []FilterOrOption
-	for _, filter := range filters {
-		filterList = append(filterList, FilterOrOption{
-			Key:      filter.GetKey(),
-			Operator: filter.GetOperator().String(),
-			Value: struct {
-				RawData string `json:"raw_data"`
-			}{
-				RawData: string(filter.GetValue().GetRawData()),
-			},
-		})
-	}
-	b, err := json.Marshal(filterList)
-	if err != nil {
-		log.Error().Any("filters", filters).Err(err).Msg("Failed to serialize filters")
-		return ""
-	}
-	return string(b)
 }
 
 func (d *DiscoverServerEntity) GetFilterTypes(context.Context, *generated.FilterTypesRequest) (*generated.FilterTypesResponse, error) {

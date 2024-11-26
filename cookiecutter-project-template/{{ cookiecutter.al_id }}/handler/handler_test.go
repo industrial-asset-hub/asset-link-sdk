@@ -21,11 +21,11 @@ func TestDiscovery(t *testing.T) {
 
 		devicePublisher := &publish.DevicePublisherMock{}
 
-		var filters map[string]string
+		discoveryConfig := config.NewDiscoveryConfigWithDefaults()
 
 		driver := &AssetLinkImplementation{}
 
-		assert.NoError(t, driver.Discover(filters, devicePublisher))
+		assert.NoError(t, driver.Discover(discoveryConfig, devicePublisher))
 		assert.NotEmpty(t, devicePublisher.GetDevices())
 	})
 
@@ -35,11 +35,11 @@ func TestDiscovery(t *testing.T) {
 		err := status.Errorf(codes.Canceled, "Discovery was canceled")
 		devicePublisher.SetError(err)
 
-		var filters map[string]string
+		discoveryConfig := config.NewDiscoveryConfigWithDefaults()
 
 		driver := &AssetLinkImplementation{}
 
-		assert.Error(t, err, driver.Discover(filters, devicePublisher))
+		assert.Error(t, err, driver.Discover(discoveryConfig, devicePublisher))
 		assert.Empty(t, devicePublisher.GetDevices())
 	})
 }

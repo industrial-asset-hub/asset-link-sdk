@@ -10,9 +10,9 @@ import (
 	"fmt"
 )
 
-type testFuncs func(string, string, string) bool
+type testFuncs func(string, string) bool
 
-func RunApiMockTests(address, filters, options string) {
+func RunApiMockTests(address, discoveryFile string) {
 	// Add all the test functions here
 	allTests := []testFuncs{
 		TestStartDiscovery,
@@ -21,7 +21,7 @@ func RunApiMockTests(address, filters, options string) {
 	}
 	testPassed := 0
 	for _, test := range allTests {
-		if !test(address, filters, options) {
+		if !test(address, discoveryFile) {
 			fmt.Println("Test failed")
 			continue
 		}

@@ -12,7 +12,7 @@ import (
 	apimock "github.com/industrial-asset-hub/asset-link-sdk/v2/cmd/dcd-ctl/internal/api-mock-test"
 )
 
-func runTests(address, filters, options string) {
+func runTests(address, discoveryFile string) {
 	fmt.Println("Running tests")
-	apimock.RunApiMockTests(address, filters, options)
+	apimock.RunApiMockTests(address, discoveryFile)
 }

@@ -10,6 +10,7 @@ package reference
 import (
 	"testing"
 
+	"github.com/industrial-asset-hub/asset-link-sdk/v2/config"
 	"github.com/industrial-asset-hub/asset-link-sdk/v2/publish"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc/codes"
@@ -21,11 +22,11 @@ func TestDiscovery(t *testing.T) {
 
 		devicePublisher := &publish.DevicePublisherMock{}
 
-		var filters map[string]string
+		discoveryConfig := config.NewDiscoveryConfigWithDefaults()
 
 		driver := &ReferenceClassDriver{}
 
-		assert.NoError(t, driver.Discover(filters, devicePublisher))
+		assert.NoError(t, driver.Discover(discoveryConfig, devicePublisher))
 		assert.NotEmpty(t, devicePublisher.GetDevices())
 	})
 
@@ -35,11 +36,11 @@ func TestDiscovery(t *testing.T) {
 		err := status.Errorf(codes.Canceled, "Discovery was Canceled")
 		devicePublisher.SetError(err)
 
-		var filters map[string]string
+		discoveryConfig := config.NewDiscoveryConfigWithDefaults()
 
 		driver := &ReferenceClassDriver{}
 
-		assert.Error(t, err, driver.Discover(filters, devicePublisher))
+		assert.Error(t, err, driver.Discover(discoveryConfig, devicePublisher))
 		assert.Empty(t, devicePublisher.GetDevices())
 	})
 }

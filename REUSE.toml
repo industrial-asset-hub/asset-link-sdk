@@ -18,6 +18,7 @@ SPDX-License-Identifier = "MIT"
 [[annotations]]
 path = [
   "renovate.json",
+  "discovery.json",
   "registry/Dockerfile",
   "Dockerfile",
   ".github/*",

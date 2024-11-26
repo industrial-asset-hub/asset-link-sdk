@@ -11,10 +11,10 @@ type observabilityFeatures struct {
 	HttpObservabilityServer bool
 }
 
-var config = ObservabilityFeaturesNew()
+var observabilityConfig = ObservabilityFeaturesNew()
 
 func ObservabilityFeatures() *observabilityFeatures {
-	return config
+	return observabilityConfig
 }
 
 func ObservabilityFeaturesNew() *observabilityFeatures {

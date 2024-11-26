@@ -29,7 +29,7 @@ type AssetLinkImplementation struct {
 
 var lastSerialNumber = atomic.Int64{}
 
-func (m *AssetLinkImplementation) Discover(filters map[string]string, devicePublisher publish.DevicePublisher) {
+func (m *AssetLinkImplementation) Discover(discoveryConfig config.DiscoveryConfig, devicePublisher publish.DevicePublisher) {
 	log.Info().
 		Msg("Start Discovery")
 

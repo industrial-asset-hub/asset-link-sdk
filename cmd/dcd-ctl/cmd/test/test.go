@@ -44,8 +44,7 @@ var (
 	schemaPath     string
 	assetPath      string
 	targetClass    string
-	filters        string
-	options        string
+	discoveryFile  string
 )
 
 func init() {
@@ -59,8 +58,7 @@ func init() {
 	assetsCmd.Flags().StringVarP(&targetClass, "target-class", "t", "targetClass", "Target class for validation")
 	jsonSchemaCmd.Flags().StringVarP(&schemaPath, "schema-path", "s", "path/to/schema", "Path to the schema file")
 	jsonSchemaCmd.Flags().StringVarP(&assetPath, "asset-path", "a", "path/to/asset", "Path to the asset JSON file")
-	apiCmd.Flags().StringVarP(&filters, "filters", "f", "[]", shared.DiscoveryFiltersDesc)
-	apiCmd.Flags().StringVarP(&options, "options", "o", "[]", shared.DiscoveryOptionsDesc)
+	apiCmd.Flags().StringVarP(&discoveryFile, "discovery-file", "d", "", shared.DiscoveryFileDesc)
 }
 
 func runAssetsTests(cmd *cobra.Command, args []string) {
@@ -71,7 +69,7 @@ func runAssetsTests(cmd *cobra.Command, args []string) {
 }
 
 func runApiTests(cmd *cobra.Command, args []string) {
-	runTests(shared.AssetLinkEndpoint, filters, options)
+	runTests(shared.AssetLinkEndpoint, discoveryFile)
 }
 
 func runJsonSchemaValidation(cmd *cobra.Command, args []string) {
