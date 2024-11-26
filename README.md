@@ -133,9 +133,8 @@ $ journalctl logs -f -u custom-asset-link
 
 ### Command line tool
 
-To ease development or testing of the asset link, the discovery can be interactively triggered using a command line tool.
-For example, a discovery can be started/stopped or even the results are retrieved,
-the test-suite can be used as follows:
+To ease development or testing of the asset link, the discovery can be interactively triggered using a command line tool. This command will provide the results (i.e., the devices or assets discovered by the asset link) as output.
+Moreover, there is also a test suit suite that can be used as follows:
 
 ```bash
 go run cmd/dcd-ctl/dcd-ctl.go test
