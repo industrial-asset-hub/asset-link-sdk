@@ -164,8 +164,48 @@ the following arguments can be provided to test asset link:
    go run cmd/dcd-ctl/dcd-ctl.go test json-schema --schema-path path/to/schema --asset-path path/to/asset
    ```
 
+### Command Line Tool for Local Debugging
+
+As mentioned above, the asset link can be interactively triggered using a command line tool.
+Build it locally or install it by running:
+
 ```bash
-go install https://github.com/industrial-asset-hub/asset-link-sdk/tree/main/cmd/dcd-ctl@main
+# build
+go build ./cmd/dcd-ctl/dcd-ctl.go
+# install
+go install github.com/industrial-asset-hub/asset-link-sdk/v2/cmd/dcd-ctl@main
+```
+
+By running the `dcd-ctl` with the `--help` argument will give you a description of the available commands.
+
+```bash
+dcd-ctl --help
+
+This command line interfaces allows to interact with the so called
+        AssetLinks (als).
+
+This can be useful for validation purposes inside CI/CD pipelines or just
+to ease development efforts.
+
+Usage:
+  dcd-ctl [command]
+
+Available Commands:
+  completion  Generate the autocompletion script for the specified shell
+  discovery   Use discovery feature of an DCD
+  help        Help about any command
+  info        Print asset link information
+  list        List registered asset links
+  test        Test suite for asset-link
+
+Flags:
+  -e, --endpoint string    gRPC Server Address of the AssetLink (default "localhost:8081")
+  -h, --help               help for dcd-ctl
+      --log-level string   set log level. one of: trace,debug,info,warn,error,fatal,panic (default "info")
+  -r, --registry string    gRPC Server Address of the Registry (default "localhost:50051")
+  -v, --version            version for dcd-ctl
+
+Use "dcd-ctl [command] --help" for more information about a command.
 ```
 
 ### Observability Webserver
