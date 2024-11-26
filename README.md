@@ -117,7 +117,7 @@ $ journalctl logs -f -u custom-asset-link
 
 ### Command line tool
 
-To ease development or testing, the asset link can be interactively triggered using a command line tool.
+To ease development or testing of the asset link, the discovery can be interactively triggered using a command line tool.
 For example, a discovery can be started/stopped or even the results are retrieved,
 the test-suite can be used as follows:
 
