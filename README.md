@@ -167,9 +167,9 @@ HTTP paths are currently available.
 
 | Path     | comment                |
 | -------- | ---------------------- |
-| /health  | Health state of the AL |
+| /health  | Health state of the asset link |
 | /version | Version                |
-| /stats   | observability endpoint |
+| /stats   | Observability endpoint |
 
 ## Roadmap
 
