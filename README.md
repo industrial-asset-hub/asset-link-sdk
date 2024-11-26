@@ -155,8 +155,8 @@ go install https://github.com/industrial-asset-hub/asset-link-sdk/tree/main/cmd/
 ### Observability Webserver
 
 The asset link also starts a web server that contains a REST API for observability reasons.
-The following endpoints are currently available. The web server is enabled
-for the **GoReleaser** builds by default.
+The web server is enabled
+for the **GoReleaser** builds by default and the following endpoints are currently available:
 
 To enable the web server, the Go build
 constraint `webserver` is used (see [Go build contraints](https://pkg.go.dev/cmd/go#hdr-Build_constraints)).
