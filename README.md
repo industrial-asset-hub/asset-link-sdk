@@ -39,7 +39,23 @@ For discovery these clients need to be implemented:
 - [DrvierInfo](specs/conn_suite_drv_info.proto)
 - [Discovery](specs/iah_discover.proto)
 
-> You can download and use the [Asset Gateway](https://github.com/industrial-asset-hub/asset-gateway) from the Siemens Industrial asset hub for that
+> You can download and use the [Asset Gateway](https://github.com/industrial-asset-hub/asset-gateway) from the
+> Siemens Industrial Asset Hub (IAH) for that
+
+To ease local development an implementation for a registry server is provided [here](registry/). Additionally,
+a command line tool called [dcd-ctl](cmd/dcd-ctl/dcd-ctl.go) is provided to locally run and test the asset links.
+
+Use `go` command to build or run these components:
+
+```bash
+# to start the registry
+go run ./registry/main.go
+
+# to start the dcd-ctl
+go run ./cmd/dcd-ctl/dcd-ctl.go
+# or
+go run ./cmd/dcd-ctl/dcd-ctl.go  --help
+```
 
 ### Bootstrapping your own Asset Link
 
