@@ -12,7 +12,7 @@ It contains everything you need to set up your own Asset Link.
 ### Overview
 
 The SDK is designed in such a way that to create a new asset link, you need to implement the
-interfaces of the feature that the particular AL is intended to provide.
+interfaces of the feature that the particular asset link is intended to provide.
 Currently, one interface is supported:
 
 1. Discovery: Perform a device scan and return a filled `model.DeviceInfo` for each device found.
