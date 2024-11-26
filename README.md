@@ -1,106 +1,27 @@
-# IAH Asset Link SDK
+# Asset Link SDK
 
 This repository contains commonly used modules for creating your own
 Asset Link (AL).
 
 ## Introduction
 
-This package provides an easy-to-use SDK for David, the device builder.
+This package provides an easy-to-use software development kit (SDK) for a device builder.
 
 It contains everything you need to set up your own Asset Link.
 
 ### Overview
 
-```plantuml
-package "cdm-dcd-sdk" #DAE8FC {
-package "features" {
-interface Discovery
-
-Discovery : Start(jobId uint32, deviceChannel chan []*generated.DiscoveredDevice, err chan error, filters map[string]string)
-Discovery : Cancel(jobId uint32) error
-Discovery : FilterTypes(filterTypesChannel chan []*generated.SupportedFilter)
-Discovery : FilterOptions(filterOptionsChannel chan []*generated.SupportedOption)
-
-}
-
-package "logging" {
-class zerolog
-
-}
-
-package "internals" {
-package "registry" {
-class grpcRegistry
-}
-
-package "server" {
-class devicediscovery
-class status
-class webserver
-
-}
-
-package "observability" {
-class observability
-
-}
-}
-
-package "assetLink" {
-AssetLink -- assetLinkBuilder : creates
-AssetLink *-u- grpcRegistry
-
-assetLinkBuilder : string name
-assetLinkBuilder : features.Discovery discovery
-assetLinkBuilder : New(name)
-assetLinkBuilder : Discovery(discoImplementation)
-assetLinkBuilder : Build() -> AssetLink
-
-AssetLink : string name
-AssetLink : discoveryImpl features.Discovery
-AssetLink : grpcServer *grpc.Server
-AssetLink : registryClient *registryclient.GrpcServerRegistry
-AssetLink : Start(grpcServerAddr, grpcRegistryAddr,)
-AssetLink : Stop()
-
-
-}
-
-
-package "model" {
-struct DeviceInfo
-DeviceInfo .d[hidden]. Discovery
-
-DeviceInfo : Fields from json schema
-}
-}
-
-package "Device builder implementations" #D5E8D4 {
-SpecificDriver -u- AssetLink : starts
-SpecificDriver -u- assetLinkBuilder : uses
-SpecificDriver .u.|> Discovery
-}
-```
-
-> Remark:
-> For simplicity, details within the packages "internals" and "models" have been omitted for brevity.
-
-The SDK is designed in such a way that to create a new Asset Link, you must implement the
-interfaces of the feature that the particular AL is intended to provide.
-Currently, two interfaces are supported:
+The SDK is designed in such a way that to create a new asset link, you need to implement the
+interfaces of the feature that the particular asset link is intended to provide.
+Currently, one interface is supported:
 
 1. Discovery: Perform a device scan and return a filled `model.DeviceInfo` for each device found.
 
-Once the interfaces are implemented, the specific AssetLink uses the `assetLinkBuilder` to construct a `AssetLink` with the
-implemented features.
-On `AssetLink.Start()` the Asset Link will start the grpc server allowing Industrial Asset Hub (IAH) to interact with it.
+Once the interfaces are implemented, the specific Asset Link uses the `assetLinkBuilder` to construct a `AssetLink` with
+the implemented features.
+On `AssetLink.Start()` the Asset Link will start the grpc server allowing a device management to interact with it.
 
 ### Pre-requisites
-
-Industrial Asset Hub:
-
-- [Asset Gateway](https://code.siemens.com/common-device-management/gateway/cdm-agent)
-- and of course, access to an IAH tenant, with an on-boarded Asset Gateway.
 
 Tooling:
 
@@ -108,28 +29,47 @@ Tooling:
 - [cookiecutter](https://github.com/cookiecutter/cookiecutter)
 - [GoReleaser](https://goreleaser.com/)
 
-It is recommended to use a ~/.netrc file, with https access tokens for code.siemens.com.
-See [netrc-file](https://www.gnu.org/software/inetutils/manual/html_node/The-_002enetrc-file.html#:~:text=The%20.netrc%20file%20contains%20login%20and%20initialization%20information,be%20set%20using%20the%20environment%20variable%20NETRC%20.)
+Gateway:
 
-On a Windows machine, the netrc file must be named as **\_netrc** instead of **.netrc**.
+Have a gateway stack running to connect the asset link to. The gateway needs to
+implement server for the [grpcRegistry](specs/conn_suite_registry.proto) and implement the
+necessary clients for the specific asset link capabilities.
+For discovery these clients need to be implemented:
+
+- [DrvierInfo](specs/conn_suite_drv_info.proto)
+- [Discovery](specs/iah_discover.proto)
+
+> You can download and use the [Asset Gateway](https://github.com/industrial-asset-hub/asset-gateway) from the
+> Siemens Industrial Asset Hub (IAH) for that
+
+To ease local development an implementation for a registry server is provided [here](registry/). Additionally,
+a command line tool called [dcd-ctl](cmd/dcd-ctl/dcd-ctl.go) is provided to locally run and test the asset links.
+
+Use `go` command to build or run these components:
 
 ```bash
-echo "machine code.siemens.com login gitlab-ci-token password $PERSONAL_ACCCESS_TOKEN" >> ~/.netrc
+# to start the registry
+go run ./registry/main.go
+
+# to start the dcd-ctl
+go run ./cmd/dcd-ctl/dcd-ctl.go
+# or
+go run ./cmd/dcd-ctl/dcd-ctl.go  --help
 ```
 
 ### Bootstrapping your own Asset Link
 
-To bootstrap your own AL, a template using the well-known
+To bootstrap your own asset link, a template using the well-known
 [cookiecutter](https://github.com/cookiecutter/cookiecutter/) is available in this repository.
 
 Run the following command, which provides a text-based questionnaire to set up a skeleton.
 
 ```bash
-$ cookiecutter https://code.siemens.com/common-device-management/shared/cdm-dcd-sdk.git
+$ cookiecutter https://github.com/industrial-asset-hub/asset-link-sdk.git
 --directory cookiecutter-project-template [optional -c "branch"]
 al_name [my-asset-link]: custom-asset-link
-author_name [David Device Builder]: David Device Builder
-author_email [david@device-builder.local]: david@device-builder.local
+author_name [David Device Builder]: Device Builder
+author_email [david@device-builder.local]: me@device-builder.local
 company [Machine Builder AG]: Machine Builder AG
 company_url [https://www.device-builder.local]: https://www.device-builder.local
 year [2023]: 2023
@@ -153,9 +93,9 @@ $ go run main.go --grpc-server-address=$(hostname -i):8080 --grpc-server-endpoin
 [...]
 ```
 
-This registers the AL as **custom-asset-link** in the registry provided by the **IAH Asset Gateway**.
-The AL starts a gRPC server on your machine on port 8080. The example AL creates a device,
-after running a discovery job using the the IAH user interface.
+This registers the asset link as **custom-asset-link** in the registry provided by your gateway, e.g. the IAH Asset Gateway.
+The asset link starts a gRPC server on your machine on port 8080. The example asset link creates a device whenever a
+discovery is started via the gRPC interface or the CLI.
 
 > Security remark:\
 > The command above binds the Asset Link to a publicly accessible IP address on your host.
@@ -193,30 +133,85 @@ $ journalctl logs -f -u custom-asset-link
 
 ### Command line tool
 
-To ease development or testing, the AL can be interactively triggered using a command line tool.
-For example, a discovery can be started/stopped or even the results are retrieved,
-the test-suite can be used as follows:
-go run cmd/dcd-ctl/dcd-ctl.go test
-the following arguments can be provided to test AL:
-
-1. assets: to validate the asset against the schema using linkml-validator
-   example usage: go run cmd/dcd-ctl/dcd-ctl.go test assets --base-schema-path path/to/base/schema --ass
-   et-path path/to/asset
-   --schema-path path/to/schema --target-class target_class_name
-2. api: to validate the api (tests are to be added)
-   example usage: go run cmd/dcd-ctl/dcd-ctl.go test api
-3. json-schema: to validate the json schema using json schema validator
-   example usage: go run cmd/dcd-ctl/dcd-ctl.go test json-schema --schema-path path/to/schema --asset-path path/to/asset
+To ease development or testing of the asset link, the discovery can be interactively triggered using a command line tool. This command will provide the results (i.e., the devices or assets discovered by the asset link) as output.
+Moreover, there is also a test suit suite that can be used as follows:
 
 ```bash
-go install code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/cmd/dcd-ctl@main
+go run cmd/dcd-ctl/dcd-ctl.go test
+```
+
+the following arguments can be provided to test asset link:
+
+1. assets: to validate the asset against the schema using linkml-validator
+   example usage:
+
+   ```bash
+   go run cmd/dcd-ctl/dcd-ctl.go test assets --base-schema-path path/to/base/schema --ass
+   et-path path/to/asset
+   --schema-path path/to/schema --target-class target_class_name```
+2. api: to validate the api (tests are to be added)
+   example usage:
+
+   ```bash
+   go run cmd/dcd-ctl/dcd-ctl.go test api
+   ```
+
+3. json-schema: to validate the json schema using json schema validator
+   example usage:
+
+   ```bash
+   go run cmd/dcd-ctl/dcd-ctl.go test json-schema --schema-path path/to/schema --asset-path path/to/asset
+   ```
+
+### Command Line Tool for Local Debugging
+
+As mentioned above, the asset link can be interactively triggered using a command line tool.
+Build it locally or install it by running:
+
+```bash
+# build
+go build ./cmd/dcd-ctl/dcd-ctl.go
+# install
+go install github.com/industrial-asset-hub/asset-link-sdk/v2/cmd/dcd-ctl@main
+```
+
+By running the `dcd-ctl` with the `--help` argument will give you a description of the available commands.
+
+```bash
+dcd-ctl --help
+
+This command line interfaces allows to interact with the so called
+        AssetLinks (als).
+
+This can be useful for validation purposes inside CI/CD pipelines or just
+to ease development efforts.
+
+Usage:
+  dcd-ctl [command]
+
+Available Commands:
+  completion  Generate the autocompletion script for the specified shell
+  discovery   Use discovery feature of an DCD
+  help        Help about any command
+  info        Print asset link information
+  list        List registered asset links
+  test        Test suite for asset-link
+
+Flags:
+  -e, --endpoint string    gRPC Server Address of the AssetLink (default "localhost:8081")
+  -h, --help               help for dcd-ctl
+      --log-level string   set log level. one of: trace,debug,info,warn,error,fatal,panic (default "info")
+  -r, --registry string    gRPC Server Address of the Registry (default "localhost:50051")
+  -v, --version            version for dcd-ctl
+
+Use "dcd-ctl [command] --help" for more information about a command.
 ```
 
 ### Observability Webserver
 
-The AL also starts a web server that contains a RestAPI for observability reasons.
-The following endpoints are currently available. The web server is enabled
-for the **GoReleaser** builds by default.
+The asset link also starts a web server that contains a REST API for observability reasons.
+The web server is enabled
+for the **GoReleaser** builds by default and the following endpoints are currently available:
 
 To enable the web server, the Go build
 constraint `webserver` is used (see [Go build contraints](https://pkg.go.dev/cmd/go#hdr-Build_constraints)).
@@ -227,6 +222,16 @@ HTTP paths are currently available.
 
 | Path     | comment                |
 | -------- | ---------------------- |
-| /health  | Health state of the AL |
+| /health  | Health state of the asset link |
 | /version | Version                |
-| /stats   | observability endpoint |
+| /stats   | Observability endpoint |
+
+## Roadmap
+
+The roadmap is tracked via [Github issues](https://github.com/industrial-asset-hub/asset-link-sdk/issues).
+
+## Contributing
+
+Contributions are encouraged and welcome!
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
