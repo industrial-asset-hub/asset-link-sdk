@@ -9,7 +9,7 @@ package apimock
 import (
 	"fmt"
 
-	"code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/cmd/dcd-ctl/internal/dcd"
+	"github.com/industrial-asset-hub/asset-link-sdk/v2/cmd/dcd-ctl/internal/dcd"
 )
 
 func TestStartDiscovery(address, filters, options string) bool {

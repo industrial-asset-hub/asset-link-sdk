@@ -9,7 +9,7 @@ package test
 import (
 	"fmt"
 
-	apimock "code.siemens.com/common-device-management/shared/cdm-dcd-sdk/v2/cmd/dcd-ctl/internal/api-mock-test"
+	apimock "github.com/industrial-asset-hub/asset-link-sdk/v2/cmd/dcd-ctl/internal/api-mock-test"
 )
 
 func runTests(address, filters, options string) {

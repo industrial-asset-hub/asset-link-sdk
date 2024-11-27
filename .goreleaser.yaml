@@ -82,29 +82,6 @@ builds:
       - goos: windows
         goarch: arm64
     mod_timestamp: "{{ .CommitTimestamp }}"
-  - id: registry
-    binary: registry
-    main: ./registry/main.go
-    flags:
-      - -trimpath
-    ldflags:
-      - -s -w -extldflags '-static'
-      - -X main.version={{.Version}}
-        -X main.commit={{.Commit}}
-        -X main.date={{.CommitDate}}
-    env:
-      - CGO_ENABLED=0
-    goos:
-      - linux
-      - darwin
-      - windows
-    goarch:
-      - amd64
-      - arm64
-    ignore:
-      - goos: windows
-        goarch: arm64
-    mod_timestamp: "{{ .CommitTimestamp }}"
 
 archives:
   - id: dcd-ctl
