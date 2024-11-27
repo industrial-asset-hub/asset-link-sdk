@@ -67,6 +67,10 @@ Check with your employer when not working on your own!
             maintained indefinitely and may be redistributed consistent with
             this project or the open source license(s) involved.
 
+## Changelog
+
+The changelog will automatically be generated using the [GitHub release process](https://docs.github.com/en/repositories/releasing-projects-on-github/automatically-generated-release-notes)
+
 ## Contribution Integration Process
 
 1. Create a pull request on Github.
