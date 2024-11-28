@@ -44,18 +44,18 @@ func (d *discoveryConfigImplementation) internalGetFilterSetting(filterKey strin
 		return defaultValue, nil
 	} else if len(filters) > 1 {
 		return defaultValue, errors.New("More than one filter for setting " + filterKey)
-	} else {
-		filter := filters[0]
-		if filter.GetOperator().Type() == generated.ComparisonOperator_EQUAL.Type() {
-			if reflect.TypeOf(filter.GetValue().Value) == reflect.TypeOf(defaultValue.Value) {
-				return filter.GetValue(), nil
-			} else {
-				return defaultValue, errors.New("Type for filter setting " + filterKey + " does not match")
-			}
-		} else {
-			return defaultValue, errors.New("Operation for filter setting " + filterKey + " is not EQUAL")
-		}
 	}
+
+	filter := filters[0]
+	if filter.GetOperator().Type() != generated.ComparisonOperator_EQUAL.Type() {
+		return defaultValue, errors.New("Operation for filter setting " + filterKey + " is not EQUAL")
+	}
+
+	if reflect.TypeOf(filter.GetValue().Value) != reflect.TypeOf(defaultValue.Value) {
+		return defaultValue, errors.New("Type for filter setting " + filterKey + " does not match")
+	}
+
+	return filter.GetValue(), nil
 }
 
 func (d *discoveryConfigImplementation) GetFilterSettingString(filterKey string, defaultValue string) (string, error) {
@@ -96,18 +96,18 @@ func (d *discoveryConfigImplementation) internalGetOptionSetting(optionKey strin
 		return defaultValue, nil
 	} else if len(options) > 1 {
 		return defaultValue, errors.New("More than one option for setting " + optionKey)
-	} else {
-		option := options[0]
-		if option.GetOperator().Type() == generated.ComparisonOperator_EQUAL.Type() {
-			if reflect.TypeOf(option.GetValue().Value) == reflect.TypeOf(defaultValue.Value) {
-				return option.GetValue(), nil
-			} else {
-				return defaultValue, errors.New("Type for option setting " + optionKey + " does not match")
-			}
-		} else {
-			return defaultValue, errors.New("Operation for option setting " + optionKey + " is not EQUAL")
-		}
 	}
+
+	option := options[0]
+	if option.GetOperator().Type() != generated.ComparisonOperator_EQUAL.Type() {
+		return defaultValue, errors.New("Operation for option setting " + optionKey + " is not EQUAL")
+	}
+
+	if reflect.TypeOf(option.GetValue().Value) != reflect.TypeOf(defaultValue.Value) {
+		return defaultValue, errors.New("Type for option setting " + optionKey + " does not match")
+	}
+
+	return option.GetValue(), nil
 }
 
 func (d *discoveryConfigImplementation) GetOptionSettingString(optionKey string, defaultValue string) (string, error) {

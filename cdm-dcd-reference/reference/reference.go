@@ -69,8 +69,6 @@ func (m *ReferenceClassDriver) Discover(discoveryConfig config.DiscoveryConfig, 
 	}
 
 	if alInterface == "" || alInterface == "eth0" {
-		//time.Sleep(20 * time.Second)
-
 		// "scan" for devices connected to eth0 ...
 		deviceNIC := "enp0"
 		deviceIPs := []string{"192.168.0.123", "10.0.0.1"}

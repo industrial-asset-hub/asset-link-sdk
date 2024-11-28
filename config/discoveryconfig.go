@@ -28,8 +28,6 @@ type DiscoveryConfig interface {
 	GetOptionSettingInt64(filterKey string, defaultValue int64) (int64, error)
 	GetOptionSettingFloat64(filterKey string, defaultValue float64) (float64, error)
 
-	// TODO: maybe add filter functions ?!?
-
 	// GetTarget() []*generated.Destination
 
 	GetDiscoveryRequest() *generated.DiscoverRequest
