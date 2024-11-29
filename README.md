@@ -12,7 +12,7 @@ It contains everything you need to set up your own Asset Link.
 ### Overview
 
 The SDK is designed in such a way that to create a new asset link, you need to implement the
-interfaces of the feature that the particular asset link is intended to provide.
+interfaces of the feature that the particular asset link is intended to provide
 Currently, one interface is supported:
 
 1. Discovery: Perform a device scan and return a filled `model.DeviceInfo` for each device found.
@@ -36,7 +36,7 @@ implement server for the [grpcRegistry](specs/conn_suite_registry.proto) and imp
 necessary clients for the specific asset link capabilities.
 For discovery these clients need to be implemented:
 
-- [DrvierInfo](specs/conn_suite_drv_info.proto)
+- [DriverInfo](specs/conn_suite_drv_info.proto)
 - [Discovery](specs/iah_discover.proto)
 
 > You can download and use the [Asset Gateway](https://github.com/industrial-asset-hub/asset-gateway) from the
@@ -134,6 +134,7 @@ $ journalctl logs -f -u custom-asset-link
 ### Command line tool
 
 To ease development or testing of the asset link, the discovery can be interactively triggered using a command line tool. This command will provide the results (i.e., the devices or assets discovered by the asset link) as output.
+For example discovery can be started/stopped, results can be retrieved, api tests can be performed on the Asset Link.
 Moreover, there is also a test suit suite that can be used as follows:
 
 ```bash
@@ -207,11 +208,42 @@ Flags:
 Use "dcd-ctl [command] --help" for more information about a command.
 ```
 
+Examples of actions which can be performed on the Asset Link:
+
+```bash
+# To run the api tests on Asset Link
+dcd-ctl test api -e localhost:8081 -f [] -o []
+# The Asset Link must be running on the provided address, for example here: localhost:8081
+
+# To run discovery on the Asset Link
+dcd-ctl discovery start -e localhost:8081 --filters [] --options []
+
+# To validate the asset against the base-schema using linkml-validator where schema file should be yaml
+dcd-ctl test assets --base-schema-path <base-schema> --asset-path <asset>
+--target-class <target-class>
+
+Example: dcd-ctl test assets --base-schema-path ./iah_base-v0.7.5.yaml
+--asset-path ./Asset-001.ld.json --target-class Asset
+
+# To validate the asset against the extended-schema using linkml-validator where schema file should be yaml
+dcd-ctl test assets --base-schema-path <base-schema> --asset-path <asset>
+--schema-path <extended-schema> --target-class <target-class>
+
+Example: dcd-ctl test assets --base-schema-path ./iah_base-v0.7.5.yaml
+--asset-path ./SatController-001.json --schema-path ./cdm_sat.yaml --target-class SatController
+
+# To validate the json schema using json schema validator where the schema file should be json
+dcd-ctl test json-schema --schema-path <schema> --asset-path <asset>
+
+# To explore on more actions to perform on Asset Link
+dcd-ctl --help
+```
+
 ### Observability Webserver
 
 The asset link also starts a web server that contains a REST API for observability reasons.
 The web server is enabled
-for the **GoReleaser** builds by default and the following endpoints are currently available:
+for the **GoReleaser** builds by default and the following endpoints are currently available
 
 To enable the web server, the Go build
 constraint `webserver` is used (see [Go build contraints](https://pkg.go.dev/cmd/go#hdr-Build_constraints)).

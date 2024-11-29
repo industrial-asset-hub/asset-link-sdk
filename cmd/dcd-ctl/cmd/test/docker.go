@@ -7,7 +7,6 @@
 package test
 
 import (
-	"bytes"
 	"fmt"
 	"os"
 	"os/exec"
@@ -15,12 +14,18 @@ import (
 )
 
 const (
-	linkmlValidateImage = "linkml/linkml"
+	linkmlValidateImage           = "linkml/linkml"
+	extendedSchemaFileName        = "schema.yaml"
+	assetFileName                 = "asset.json"
+	defaultValueForExtendedSchema = "path/to/schema"
 )
 
 func RunContainer(service string) error {
-	serviceDef := GetServiceDefinition(service, schemaPath, assetPath, targetClass)
-	cmdArgs := []string{"run", "-d"}
+	serviceDef, err := GetServiceDefinition(schemaPath, assetPath, targetClass)
+	if err != nil {
+		return err
+	}
+	cmdArgs := []string{"run", "-i"}
 	for _, port := range serviceDef.Ports {
 		cmdArgs = append(cmdArgs, "-p", port)
 	}
@@ -36,43 +41,43 @@ func RunContainer(service string) error {
 	}
 	fmt.Println("Running command:", cmdArgs)
 	cmd := exec.Command("docker", cmdArgs...)
-	var output bytes.Buffer
-	cmd.Stdout = &output
-	cmd.Stderr = &output
-	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("error running docker run for %s: %w, output: %s", service, err, output.String())
-	}
-
-	fmt.Printf("Container for %s started successfully.\n", service)
-	return nil
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	err = cmd.Run()
+	return err
 }
 
-func GetServiceDefinition(serviceName string, schemaPath string, assetPath string, targetClass string) Service {
+func GetServiceDefinition(schemaPath string, assetPath string, targetClass string) (service *Service, err error) {
 	currentDir, _ := os.Getwd()
-	baseSchemaVersion, err := getBaseSchemaVersion()
-	baseSchemaVersion = baseSchemaVersion
-	baseSchemaVersion += ".yaml"
-	if err != nil {
-		fmt.Println(err)
-		return Service{}
-	}
-	Services := map[string]Service{
-		"linkml-validator": {
-			Image: linkmlValidateImage,
-			Volumes: []string{
-				filepath.Join(currentDir, schemaPath) + ":/app/src/cdm/schema.yaml",
-				filepath.Join(currentDir, assetPath) + ":/app/src/cdm/asset.json",
-				filepath.Join(currentDir, baseSchemaPath) + fmt.Sprintf(":/app/src/cdm/%s", baseSchemaVersion),
-			},
-			Entrypoint: []string{
-				"linkml-validate",
-				"--include-range-class-descendants",
-				fmt.Sprintf("--target-class=%s", targetClass),
-				"-s",
-				"/app/src/cdm/schema.yaml",
-				"/app/src/cdm/asset.json",
-			},
+	Service := Service{
+		Image: linkmlValidateImage,
+		Volumes: []string{
+			filepath.Join(currentDir, assetPath) + ":/app/src/cdm/asset.json",
+		},
+		Entrypoint: []string{
+			"linkml-validate",
+			"--include-range-class-descendants",
+			"-D",
+			fmt.Sprintf("--target-class=%s", targetClass),
 		},
 	}
-	return Services[serviceName]
+	var baseSchemaFileName string
+	switch schemaPath {
+	case "", defaultValueForExtendedSchema:
+		baseSchemaFileName = filepath.Base(baseSchemaPath)
+		addVolumeInService(&Service, currentDir, baseSchemaPath, baseSchemaFileName)
+		addSchemaEntrypointInService(&Service, baseSchemaFileName)
+	default:
+		baseSchemaFileName, err := getBaseSchemaVersionFromExtendedSchema()
+		if err != nil {
+			fmt.Println(err)
+			return nil, err
+		}
+		baseSchemaFileName += ".yaml"
+		addVolumeInService(&Service, currentDir, baseSchemaPath, baseSchemaFileName)
+		addVolumeInService(&Service, currentDir, schemaPath, extendedSchemaFileName)
+		addSchemaEntrypointInService(&Service, extendedSchemaFileName)
+	}
+	addAssetEntrypointInService(&Service, assetFileName)
+	return &Service, nil
 }

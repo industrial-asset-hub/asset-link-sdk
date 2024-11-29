@@ -71,3 +71,35 @@ func StartDiscovery(endpoint string, option string, filter string) []generated.D
 	}
 	return devices
 }
+
+func GetFilterTypes(endpoint string) *generated.FilterTypesResponse {
+	log.Trace().Str("Endpoint", endpoint).Msg("Getting filter types")
+	conn := shared.GrpcConnection(endpoint)
+	defer conn.Close()
+
+	client := generated.NewDeviceDiscoverApiClient(conn)
+	ctx := context.Background()
+	resp, err := client.GetFilterTypes(ctx, &generated.FilterTypesRequest{})
+	if err != nil {
+		log.Err(err).Msg("GetFilterTypes request returned an error")
+		return nil
+	}
+	log.Trace().Interface("Response", resp).Msg("Received Response")
+	return resp
+}
+
+func GetFilterOptions(endpoint string) *generated.FilterOptionsResponse {
+	log.Trace().Str("Endpoint", endpoint).Msg("Getting filter options")
+	conn := shared.GrpcConnection(endpoint)
+	defer conn.Close()
+
+	client := generated.NewDeviceDiscoverApiClient(conn)
+	ctx := context.Background()
+	resp, err := client.GetFilterOptions(ctx, &generated.FilterOptionsRequest{})
+	if err != nil {
+		log.Err(err).Msg("GetFilterOptions request returned an error")
+		return nil
+	}
+	log.Trace().Interface("Response", resp).Msg("Received Response")
+	return resp
+}
