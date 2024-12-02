@@ -15,7 +15,7 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	"github.com/industrial-asset-hub/asset-link-sdk/v2/metadata"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/metadata"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

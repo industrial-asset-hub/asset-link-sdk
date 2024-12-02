@@ -8,8 +8,8 @@
 package main
 
 import (
-	"github.com/industrial-asset-hub/asset-link-sdk/v2/cmd/dcd-ctl/cmd"
-	"github.com/industrial-asset-hub/asset-link-sdk/v2/logging"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/dcd-ctl/cmd"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/logging"
 )
 
 func main() {

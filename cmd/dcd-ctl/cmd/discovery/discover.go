@@ -11,8 +11,8 @@ import (
 	"encoding/json"
 	"os"
 
-	"github.com/industrial-asset-hub/asset-link-sdk/v2/cmd/dcd-ctl/internal/dcd"
-	"github.com/industrial-asset-hub/asset-link-sdk/v2/cmd/dcd-ctl/internal/shared"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/dcd-ctl/internal/dcd"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/dcd-ctl/internal/shared"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 )

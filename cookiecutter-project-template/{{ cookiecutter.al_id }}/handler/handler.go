@@ -15,9 +15,9 @@ import (
 	"sync"
 	"sync/atomic"
 
-	generated "github.com/industrial-asset-hub/asset-link-sdk/v2/generated/iah-discovery"
-	"github.com/industrial-asset-hub/asset-link-sdk/v2/model"
-	"github.com/industrial-asset-hub/asset-link-sdk/v2/publish"
+	generated "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/model"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/publish"
 	"github.com/rs/zerolog/log"
 )
 

@@ -9,7 +9,7 @@ package test
 import (
 	"fmt"
 
-	apimock "github.com/industrial-asset-hub/asset-link-sdk/v2/cmd/dcd-ctl/internal/api-mock-test"
+	apimock "github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/dcd-ctl/internal/api-mock-test"
 )
 
 func runTests(address, discoveryFile string) {

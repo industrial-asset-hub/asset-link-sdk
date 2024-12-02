@@ -10,9 +10,9 @@ package dcd
 import (
 	"fmt"
 
-	"github.com/industrial-asset-hub/asset-link-sdk/v2/cmd/dcd-ctl/internal/shared"
-	driverinfo "github.com/industrial-asset-hub/asset-link-sdk/v2/generated/conn_suite_drv_info"
-	discovery "github.com/industrial-asset-hub/asset-link-sdk/v2/generated/iah-discovery"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/dcd-ctl/internal/shared"
+	driverinfo "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/conn_suite_drv_info"
+	discovery "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"

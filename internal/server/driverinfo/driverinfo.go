@@ -9,8 +9,8 @@ package driverinfo
 
 import (
 	semver "github.com/Masterminds/semver/v3"
-	generated "github.com/industrial-asset-hub/asset-link-sdk/v2/generated/conn_suite_drv_info"
-	"github.com/industrial-asset-hub/asset-link-sdk/v2/metadata"
+	generated "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/conn_suite_drv_info"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/metadata"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/net/context"
 )

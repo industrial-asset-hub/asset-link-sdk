@@ -173,7 +173,7 @@ Build it locally or install it by running:
 # build
 go build ./cmd/dcd-ctl/dcd-ctl.go
 # install
-go install github.com/industrial-asset-hub/asset-link-sdk/v2/cmd/dcd-ctl@main
+go install github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/dcd-ctl@main
 ```
 
 By running the `dcd-ctl` with the `--help` argument will give you a description of the available commands.

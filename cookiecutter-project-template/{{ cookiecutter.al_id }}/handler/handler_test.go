@@ -10,7 +10,7 @@ package handler
 import (
 	"testing"
 
-	"github.com/industrial-asset-hub/asset-link-sdk/v2/publish"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/publish"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

@@ -12,8 +12,8 @@ import (
 
 	"github.com/gin-contrib/logger"
 	"github.com/gin-gonic/gin"
-	"github.com/industrial-asset-hub/asset-link-sdk/v2/internal/observability"
-	"github.com/industrial-asset-hub/asset-link-sdk/v2/metadata"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/internal/observability"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/metadata"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )

@@ -8,8 +8,8 @@
 package dcd
 
 import (
-	generatedDiscoveryServer "github.com/industrial-asset-hub/asset-link-sdk/v2/generated/iah-discovery"
-	"github.com/industrial-asset-hub/asset-link-sdk/v2/metadata"
+	generatedDiscoveryServer "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/metadata"
 )
 
 type dcdFeatureBuilderCustomServer struct {

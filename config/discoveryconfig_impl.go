@@ -15,7 +15,7 @@ import (
 	"os"
 	"reflect"
 
-	generated "github.com/industrial-asset-hub/asset-link-sdk/v2/generated/iah-discovery"
+	generated "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/protobuf/encoding/protojson"
 )

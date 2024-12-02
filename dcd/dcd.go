@@ -12,15 +12,15 @@ import (
 	"net"
 	"os"
 
-	"github.com/industrial-asset-hub/asset-link-sdk/v2/internal/server/webserver"
-	"github.com/industrial-asset-hub/asset-link-sdk/v2/metadata"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/internal/server/webserver"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/metadata"
 
-	generatedDriverInfoServer "github.com/industrial-asset-hub/asset-link-sdk/v2/generated/conn_suite_drv_info"
-	generatedDiscoveryServer "github.com/industrial-asset-hub/asset-link-sdk/v2/generated/iah-discovery"
-	"github.com/industrial-asset-hub/asset-link-sdk/v2/internal/features"
-	"github.com/industrial-asset-hub/asset-link-sdk/v2/internal/registryclient"
-	"github.com/industrial-asset-hub/asset-link-sdk/v2/internal/server/devicediscovery"
-	"github.com/industrial-asset-hub/asset-link-sdk/v2/internal/server/driverinfo"
+	generatedDriverInfoServer "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/conn_suite_drv_info"
+	generatedDiscoveryServer "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/internal/features"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/internal/registryclient"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/internal/server/devicediscovery"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/internal/server/driverinfo"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
 )

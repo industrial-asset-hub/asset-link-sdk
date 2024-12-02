@@ -18,7 +18,6 @@ env:
   TEST_PROJECT_NAME: al-test
 
 jobs:
-
   reuse:
     runs-on: ubuntu-latest
     steps:
@@ -65,7 +64,7 @@ jobs:
       - name: Vulnerability Check
         uses: golang/govulncheck-action@v1
         with:
-            go-package: ./...
+          go-package: ./...
 
   build-sdk:
     runs-on: ubuntu-latest
@@ -87,7 +86,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        go-version: [ '1.21', '1.22', '1.23', 'stable' ]
+        go-version: ["1.21", "1.22", "1.23", "stable"]
     steps:
       - uses: actions/checkout@v4
       - name: Prepare Environment
@@ -122,10 +121,10 @@ jobs:
           cd $TEST_PROJECT/$TEST_PROJECT_NAME/
           if [ "{{ github.ref_type }}" == "tag" ]; then
             echo "detected tag build"
-            go get github.com/${GITHUB_REPOSITORY}/v2@${GITHUB_REF}
+            go get github.com/${GITHUB_REPOSITORY}/v3@${GITHUB_REF}
           else
             echo "detected non-tag build"
-            go get github.com/${GITHUB_REPOSITORY}/v2@${GITHUB_SHA}
+            go get github.com/${GITHUB_REPOSITORY}/v3@${GITHUB_SHA}
           fi
           go mod edit -go=$GO_MINIMAL_VERSION
           go mod edit -toolchain=none
@@ -137,7 +136,7 @@ jobs:
 
   release-sdk:
     runs-on: ubuntu-latest
-    needs: [ reuse, generate, lint, test, check, build-sdk, build-asset-link ]
+    needs: [reuse, generate, lint, test, check, build-sdk, build-asset-link]
     if: github.ref_type == 'tag'
     steps:
       - uses: actions/checkout@v4
@@ -155,14 +154,14 @@ jobs:
         uses: goreleaser/goreleaser-action@v6
         with:
           distribution: goreleaser
-          version: '~> v2'
+          version: "~> v2"
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   release-sdk-dry-run:
     runs-on: ubuntu-latest
-    needs: [ reuse, generate, lint, test, check, build-sdk, build-asset-link ]
+    needs: [reuse, generate, lint, test, check, build-sdk, build-asset-link]
     if: github.ref_type != 'tag'
     steps:
       - uses: actions/checkout@v4
@@ -174,7 +173,7 @@ jobs:
         uses: goreleaser/goreleaser-action@v6
         with:
           distribution: goreleaser
-          version: '~> v2'
+          version: "~> v2"
           args: release --clean --snapshot
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

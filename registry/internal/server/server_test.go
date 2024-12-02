@@ -16,7 +16,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	pb "github.com/industrial-asset-hub/asset-link-sdk/v2/generated/conn_suite_registry"
+	pb "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/conn_suite_registry"
 	"github.com/stretchr/testify/assert"
 )
 

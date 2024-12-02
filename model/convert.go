@@ -14,7 +14,7 @@ import (
 
 	"github.com/rs/zerolog/log"
 
-	generated "github.com/industrial-asset-hub/asset-link-sdk/v2/generated/iah-discovery"
+	generated "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
 )
 
 func (d *DeviceInfo) ConvertToDiscoveredDevice() *generated.DiscoveredDevice {

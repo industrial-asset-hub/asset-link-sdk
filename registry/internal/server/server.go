@@ -15,8 +15,8 @@ import (
 	"sync"
 	"time"
 
-	pb "github.com/industrial-asset-hub/asset-link-sdk/v2/generated/conn_suite_registry"
-	"github.com/industrial-asset-hub/asset-link-sdk/v2/registry/internal/shared"
+	pb "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/conn_suite_registry"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/registry/internal/shared"
 
 	"github.com/rs/zerolog/log"
 	codes "google.golang.org/grpc/codes"

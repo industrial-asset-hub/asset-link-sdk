@@ -12,10 +12,10 @@ import (
 	"net"
 	"strings"
 
-	"github.com/industrial-asset-hub/asset-link-sdk/v2/logging"
-	"github.com/industrial-asset-hub/asset-link-sdk/v2/registry/internal/server"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/logging"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/registry/internal/server"
 
-	pb "github.com/industrial-asset-hub/asset-link-sdk/v2/generated/conn_suite_registry"
+	pb "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/conn_suite_registry"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"

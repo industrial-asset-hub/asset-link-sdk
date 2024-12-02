@@ -14,12 +14,12 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/industrial-asset-hub/asset-link-sdk/v2/metadata"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/metadata"
 	"{{cookiecutter.al_id}}/handler"
 
-	"github.com/industrial-asset-hub/asset-link-sdk/v2/dcd"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/dcd"
 
-	"github.com/industrial-asset-hub/asset-link-sdk/v2/logging"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/logging"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"

@@ -11,9 +11,9 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/industrial-asset-hub/asset-link-sdk/v2/cmd/dcd-ctl/internal/shared"
-	"github.com/industrial-asset-hub/asset-link-sdk/v2/config"
-	generated "github.com/industrial-asset-hub/asset-link-sdk/v2/generated/iah-discovery"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/dcd-ctl/internal/shared"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/config"
+	generated "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/net/context"
 )
