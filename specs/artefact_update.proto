@@ -1,0 +1,44 @@
+// Artefact update interface
+// This is the interface for pushing and pulling
+// artefacts to and from drivers.
+// The driver is responsible for the actual
+// transfer of the artefact to the target device.
+
+syntax = "proto3";
+
+package factory_x.artefact_update.v1;
+
+service ArtefactUpdateApi {
+  // Push an artifact to a driver
+  rpc PushArtefact(stream FileChunk) returns (Status) {}
+  // Load an artifact from a driver
+  rpc PullArtefact(ArtefactType) returns (stream FileChunk) {}
+}
+
+message FileChunk {
+  oneof data {
+    bytes file_content = 1;
+    Status status = 2;
+  }
+}
+
+// Prefix with AS == Artefact status
+// to be globally unique
+enum TransferStatus {
+  AS_OK = 0;
+  AS_FAIL = 1;
+  AS_IDENTITY_CHECK_FAIL = 2;
+  AS_INCOMPATIBLE = 3;
+}
+
+message Status {
+  TransferStatus status = 1;
+  string message = 2;
+}
+
+enum ArtefactTypes {
+  AT_FIRMWARE = 0;
+  AT_BACKUP = 1;
+}
+
+message ArtefactType { ArtefactTypes type = 1; }
