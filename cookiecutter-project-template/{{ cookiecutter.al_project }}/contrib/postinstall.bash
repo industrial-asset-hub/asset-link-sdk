@@ -7,6 +7,6 @@ set -xeu
 
 systemctl daemon-reload
 # shellcheck disable=SC1083
-systemctl enable {{ cookiecutter.al_name }}.service
+systemctl enable {{ cookiecutter.al_project }}.service
 # shellcheck disable=SC1083
-systemctl start {{ cookiecutter.al_name }}.service
+systemctl start {{ cookiecutter.al_project }}.service

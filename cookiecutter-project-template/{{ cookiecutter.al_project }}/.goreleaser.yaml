@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 ---
-project_name: {{ cookiecutter.al_name }}
+project_name: {{ cookiecutter.al_project }}
 
 before:
   hooks:
@@ -10,8 +10,8 @@ before:
     - go mod vendor
 
 builds:
-  - id: {{ cookiecutter.al_name }}
-    binary: {{ cookiecutter.al_name }}
+  - id: {{ cookiecutter.al_project }}
+    binary: {{ cookiecutter.al_project }}
     tags:
       - webserver
     flags:
@@ -54,15 +54,15 @@ archives:
 {% endraw %}
 
 nfpms:
-  - id: {{ cookiecutter.al_name }}
-    package_name: {{ cookiecutter.al_name }}
+  - id: {{ cookiecutter.al_project }}
+    package_name: {{ cookiecutter.al_project }}
     builds:
-      - {{ cookiecutter.al_name }}
+      - {{ cookiecutter.al_project }}
     vendor: {{cookiecutter.company }}
     homepage: {{ cookiecutter.company_url }}
     maintainer: {{ cookiecutter.author_name }} <{{ cookiecutter.author_email }}>
     description: |-
-      IAH Asset Link {{ cookiecutter.al_name }}
+      {{ cookiecutter.al_name }}
     license: {{ cookiecutter.company }} {{ cookiecutter.year }}
     formats:
       - deb
@@ -71,8 +71,8 @@ nfpms:
     section: default
     priority: extra
     contents:
-      - src: contrib/{{ cookiecutter.al_name }}.service
-        dst: /lib/systemd/system/{{ cookiecutter.al_name }}.service
+      - src: contrib/{{ cookiecutter.al_project }}.service
+        dst: /lib/systemd/system/{{ cookiecutter.al_project }}.service
         type: "config"
     scripts:
       postinstall: "contrib/postinstall.bash"

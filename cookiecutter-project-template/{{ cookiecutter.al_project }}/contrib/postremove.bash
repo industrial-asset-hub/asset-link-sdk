@@ -5,6 +5,6 @@
 
 set -xeu
 # shellcheck disable=SC1083
-systemctl stop {{ cookiecutter.al_name }}
+systemctl stop {{ cookiecutter.al_project }}
 
 systemctl daemon-reload

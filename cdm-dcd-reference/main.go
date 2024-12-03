@@ -64,8 +64,8 @@ func main() {
 	myAssetLinkImplementation := new(reference.ReferenceClassDriver)
 	dcdImpl := dcd.New(metadata.Metadata{
 		Version: metadata.Version{Version: version, Commit: commit, Date: date},
-		DcdId:   "cdm-dcd-reference",
-		DcdName: "CDM DCD Reference Implementation",
+		DcdId:   "siemens.cdm.dcd.reference",
+		DcdName: "Reference Asset Link",
 		Vendor:  "Siemens AG",
 	}).
 		Discovery(myAssetLinkImplementation).

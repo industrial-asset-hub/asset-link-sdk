@@ -15,7 +15,7 @@ import (
 	"syscall"
 
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/metadata"
-	"{{cookiecutter.al_id}}/handler"
+	"{{cookiecutter.al_project}}/handler"
 
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/dcd"
 
@@ -30,6 +30,8 @@ var (
 	version = "dev"
 	commit  = "unknown"
 	date    = "unknown"
+
+	// values provided by cookiecutter
 	dcdId   = "{{cookiecutter.al_id}}"
 	dcdName = "{{cookiecutter.al_name}}"
 	vendor  = "{{cookiecutter.company}}"
