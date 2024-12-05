@@ -4,9 +4,9 @@
 dist/
 result.json
 # Automatically generated and updated inside CI/CD pipeline
-cookiecutter-project-template/{{ cookiecutter.al_id }}/go.mod
-cookiecutter-project-template/{{ cookiecutter.al_id }}/vendor/
-cookiecutter-project-template/{{ cookiecutter.al_id }}/cdm-dcd-sdk/
+cookiecutter-project-template/{{ cookiecutter.al_project }}/go.mod
+cookiecutter-project-template/{{ cookiecutter.al_project }}/vendor/
+cookiecutter-project-template/{{ cookiecutter.al_project }}/cdm-dcd-sdk/
 cookiecutter-test/
 
 .idea/*

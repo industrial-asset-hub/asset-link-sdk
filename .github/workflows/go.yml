@@ -15,7 +15,7 @@ env:
   GOPRIVATE: github.com/industrial-asset-hub
   GO_MINIMAL_VERSION: 1.21
   TEST_PROJECT: cookiecutter-test/
-  TEST_PROJECT_NAME: al-test
+  TEST_PROJECT_NAME: test-asset-link
 
 jobs:
   reuse:

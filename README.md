@@ -67,12 +67,14 @@ Run the following command, which provides a text-based questionnaire to set up a
 ```bash
 $ cookiecutter https://github.com/industrial-asset-hub/asset-link-sdk.git
 --directory cookiecutter-project-template [optional -c "branch"]
-al_name [my-asset-link]: custom-asset-link
-author_name [David Device Builder]: Device Builder
-author_email [david@device-builder.local]: me@device-builder.local
-company [Machine Builder AG]: Machine Builder AG
-company_url [https://www.device-builder.local]: https://www.device-builder.local
-year [2023]: 2023
+[1/8] al_name (Dummy Asset Link): Custom Asset Link
+[2/8] al_id (machinebuilder.cdm.dcd.dummy): machinebuilder.cdm.dcd.custom
+[3/8] al_project (dummy-asset-link): custom-asset-link
+[4/8] author_name (David Device Builder): Device Builder
+[5/8] author_email (david@david-builder.local): me@device-builder.local
+[6/8] company (Machine Builder AG): Machine Builder AG
+[7/8] company_url (https://www.device-builder.local): https://www.device-builder.local
+[8/8] year (2024): 2024
 ```
 
 There should now be a directory called **custom-asset-link**.

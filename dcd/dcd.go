@@ -63,7 +63,7 @@ type DCD struct {
 // Method to start the asset link
 func (d *DCD) Start(grpcServerAddress, registrationAddress, grpcRegistryAddress, httpServerAddress string) error {
 	log.Info().
-		Str("Name", d.metadata.DcdId).
+		Str("ID", d.metadata.DcdId).
 		Str("gRPC Address", grpcServerAddress).
 		Str("grpcRegistryAddress", grpcRegistryAddress).
 		Str("registrationName", registrationAddress).

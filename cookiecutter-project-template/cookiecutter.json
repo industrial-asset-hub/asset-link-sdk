@@ -1,6 +1,7 @@
 {
-  "al_name": "my-asset-link",
-  "al_id": "UUID-of-the-Asset-Link",
+  "al_name": "Dummy Asset Link",
+  "al_id": "machinebuilder.cdm.dcd.dummy",
+  "al_project": "dummy-asset-link",
   "author_name": "David Device Builder",
   "author_email": "david@david-builder.local",
   "company": "Machine Builder AG",
