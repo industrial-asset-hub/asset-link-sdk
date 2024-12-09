@@ -132,7 +132,13 @@ jobs:
           go mod download
           go mod edit -replace=github.com/${GITHUB_REPOSITORY}/v3=${GITHUB_WORKSPACE}
       - name: Build Asset Link
-        run: go build -v ./...
+        run: |
+          cd $TEST_PROJECT/$TEST_PROJECT_NAME/
+          go build -v ./...
+      - name: Test Asset Link
+        run: |
+          cd $TEST_PROJECT/$TEST_PROJECT_NAME/
+          go test -v ./...
 
   release-sdk:
     runs-on: ubuntu-latest
