@@ -18,6 +18,6 @@ import (
 // Interface Discovery provides the methods used the discovery feature
 type Discovery interface {
 	Discover(discoveryConfig config.DiscoveryConfig, devicePublisher publish.DevicePublisher) error
-	FilterTypes() []*generated.SupportedFilter
-	FilterOptions() []*generated.SupportedOption
+	GetSupportedFilters() []*generated.SupportedFilter
+	GetSupportedOptions() []*generated.SupportedOption
 }

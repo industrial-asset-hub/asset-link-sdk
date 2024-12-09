@@ -45,16 +45,16 @@ func TestDiscovery(t *testing.T) {
 	})
 }
 
-func TestOptions(t *testing.T) {
-	t.Run("requestFilterOptions", func(t *testing.T) {
+func TestConfig(t *testing.T) {
+	t.Run("requestSupportedFilters", func(t *testing.T) {
 		driver := &ReferenceClassDriver{}
 
-		driver.FilterOptions()
+		driver.GetSupportedFilters()
 	})
 
-	t.Run("requestOptionTypes", func(t *testing.T) {
+	t.Run("requestSupportedOptions", func(t *testing.T) {
 		driver := &ReferenceClassDriver{}
 
-		driver.FilterTypes()
+		driver.GetSupportedOptions()
 	})
 }

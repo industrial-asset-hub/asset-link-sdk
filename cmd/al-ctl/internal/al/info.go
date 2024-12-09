@@ -63,19 +63,19 @@ func printDiscoveryOptions(conn *grpc.ClientConn) {
 
 	foResp, foErr := client.GetFilterOptions(context.Background(), &discovery.FilterOptionsRequest{})
 	if foErr != nil {
-		log.Err(foErr).Msg("filter options request returned error")
+		log.Err(foErr).Msg("requesting supported options returned an error")
 		return
 	}
 
 	ftResp, ftErr := client.GetFilterTypes(context.Background(), &discovery.FilterTypesRequest{})
 	if ftErr != nil {
-		log.Err(ftErr).Msg("filter types request returned error")
+		log.Err(ftErr).Msg("requesting supported filters returned an error")
 		return
 	}
 
 	fos := foResp.GetFilterOptions()
 	if len(fos) > 0 {
-		println("Filter Options:")
+		println("Supported Options:")
 		for _, fo := range fos {
 			println("  " + fo.GetKey() + " (" + fo.GetDatatype().String() + ")")
 		}
@@ -83,7 +83,7 @@ func printDiscoveryOptions(conn *grpc.ClientConn) {
 
 	fts := ftResp.GetFilterTypes()
 	if len(fts) > 0 {
-		println("Filter Types:")
+		println("Supported Filters:")
 		for _, ft := range fts {
 			println("  " + ft.GetKey() + " (" + ft.GetDatatype().String() + ")")
 		}

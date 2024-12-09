@@ -39,7 +39,7 @@ func (m *ReferenceClassDriver) Discover(discoveryConfig config.DiscoveryConfig, 
 	if m.discoveryLock.TryLock() {
 		defer m.discoveryLock.Unlock()
 	} else {
-		errMsg := "Discovery job is already running"
+		const errMsg string = "Discovery job is already running"
 		log.Error().Msg(errMsg)
 		return status.Errorf(codes.ResourceExhausted, errMsg)
 	}
@@ -107,22 +107,22 @@ func (m *ReferenceClassDriver) Discover(discoveryConfig config.DiscoveryConfig, 
 	return nil
 }
 
-func (m *ReferenceClassDriver) FilterTypes() []*generated.SupportedFilter {
-	filterTypes := make([]*generated.SupportedFilter, 0)
-	filterTypes = append(filterTypes, &generated.SupportedFilter{
+func (m *ReferenceClassDriver) GetSupportedFilters() []*generated.SupportedFilter {
+	supportedFilters := make([]*generated.SupportedFilter, 0)
+	supportedFilters = append(supportedFilters, &generated.SupportedFilter{
 		Key:      "ip_range",
 		Datatype: generated.VariantType_VT_STRING,
 	})
-	return filterTypes
+	return supportedFilters
 }
 
-func (m *ReferenceClassDriver) FilterOptions() []*generated.SupportedOption {
-	filterOptions := make([]*generated.SupportedOption, 0)
-	filterOptions = append(filterOptions, &generated.SupportedOption{
+func (m *ReferenceClassDriver) GetSupportedOptions() []*generated.SupportedOption {
+	supportedOptions := make([]*generated.SupportedOption, 0)
+	supportedOptions = append(supportedOptions, &generated.SupportedOption{
 		Key:      "interface",
 		Datatype: generated.VariantType_VT_STRING,
 	})
-	return filterOptions
+	return supportedOptions
 }
 
 func generateRandomMacAddress() string {

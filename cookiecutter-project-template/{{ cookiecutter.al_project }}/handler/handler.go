@@ -40,14 +40,29 @@ func (m *AssetLinkImplementation) Discover(discoveryConfig config.DiscoveryConfi
 	if m.discoveryLock.TryLock() {
 		defer m.discoveryLock.Unlock()
 	} else {
-		errMsg := "Discovery job is already running"
+		const errMsg string = "Discovery job is already running"
 		log.Error().Msg(errMsg)
 		return status.Errorf(codes.ResourceExhausted, errMsg)
 	}
 
 	//
-	// Add your custom logic here to discover devices and publish them
+	// Add your custom logic here to retrieve discovery config, discover devices, and publish them
 	//
+
+	filterSetting, filterErr := discoveryConfig.GetFilterSettingString("filter", "default")
+	if filterErr != nil {
+		log.Error().Err(filterErr)
+		return filterErr
+	}
+
+	optionSetting, optionErr := discoveryConfig.GetOptionSettingBool("option", false)
+	if optionErr != nil {
+		log.Error().Err(optionErr)
+		return optionErr
+	}
+
+	_ = filterSetting
+	_ = optionSetting
 
 	// Fillup the device information
 	deviceInfo := model.NewDevice("EthernetDevice", "My First Ethernet Device")
@@ -58,7 +73,7 @@ func (m *AssetLinkImplementation) Discover(discoveryConfig config.DiscoveryConfi
 	vendorName := "{{ cookiecutter.company }}"
 	lastSerialNumber.Add(1)
 	serialNumber := fmt.Sprint(lastSerialNumber.Load())
-	productUri := fmt.Sprintf("urn:%s/%s", strings.ReplaceAll(vendorName, " ", "_"), strings.ReplaceAll(product, " ", "_"), serialNumber)
+	productUri := fmt.Sprintf("urn:%s/%s/%s", strings.ReplaceAll(vendorName, " ", "_"), strings.ReplaceAll(product, " ", "_"), serialNumber)
 	deviceInfo.AddNameplate(
 		vendorName,
 		productUri,
@@ -73,7 +88,7 @@ func (m *AssetLinkImplementation) Discover(discoveryConfig config.DiscoveryConfi
 	id := deviceInfo.AddNic("eth0", randomMacAddress)
 	deviceInfo.AddIPv4(id, "192.168.0.1", "255.255.255.0", "")
 
-	// Convert and stream device to upstream system
+	// Convert and publish device
 	discoveredDevice := deviceInfo.ConvertToDiscoveredDevice()
 
 	err := devicePublisher.PublishDevice(discoveredDevice)
@@ -88,22 +103,22 @@ func (m *AssetLinkImplementation) Discover(discoveryConfig config.DiscoveryConfi
 	return nil
 }
 
-func (m *AssetLinkImplementation) FilterTypes() []*generated.SupportedFilter {
-	filterTypes := make([]*generated.SupportedFilter, 0)
-	filterTypes = append(filterTypes, &generated.SupportedFilter{
-		Key:      "type",
-		Datatype: generated.VariantType_VT_BYTES,
+func (m *AssetLinkImplementation) GetSupportedFilters() []*generated.SupportedFilter {
+	supportedFilters := make([]*generated.SupportedFilter, 0)
+	supportedFilters = append(supportedFilters, &generated.SupportedFilter{
+		Key:      "filter",
+		Datatype: generated.VariantType_VT_STRING,
 	})
-	return filterTypes
+	return supportedFilters
 }
 
-func (m *AssetLinkImplementation) FilterOptions() []*generated.SupportedOption {
-	filterOptions := make([]*generated.SupportedOption, 0)
-	filterOptions = append(filterOptions, &generated.SupportedOption{
+func (m *AssetLinkImplementation) GetSupportedOptions() []*generated.SupportedOption {
+	supportedOptions := make([]*generated.SupportedOption, 0)
+	supportedOptions = append(supportedOptions, &generated.SupportedOption{
 		Key:      "option",
 		Datatype: generated.VariantType_VT_BOOL,
 	})
-	return filterOptions
+	return supportedOptions
 }
 
 func generateRandomMacAddress() string {

@@ -43,7 +43,7 @@ func ValidateJsonSchema(schemaPath string, dataPath string) error {
 		for _, err := range result.Errors() {
 			errorMsg += fmt.Sprintf("\n- %s", err)
 		}
-		return fmt.Errorf(errorMsg)
+		return fmt.Errorf("%s", errorMsg)
 	}
 
 	fmt.Println("The JSON data is valid")

@@ -111,7 +111,7 @@ func (s *Server) RegisterService(ctx context.Context, in *pb.RegisterServiceRequ
 	}
 
 	// Set default interfaces if not set
-	if in.Info.Interfaces == nil || len(in.Info.Interfaces) == 0 {
+	if len(in.Info.Interfaces) == 0 {
 		log.Info().
 			Msg("No interfaces configured. Set default interfaces for the given app types.")
 		for _, appType := range in.Info.AppTypes {

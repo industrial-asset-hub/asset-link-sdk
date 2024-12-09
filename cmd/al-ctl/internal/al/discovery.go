@@ -18,7 +18,7 @@ import (
 	"golang.org/x/net/context"
 )
 
-func Discover(endpoint string, discoveryFile string) []generated.DiscoverResponse {
+func Discover(endpoint string, discoveryFile string) []*generated.DiscoverResponse {
 	log.Info().Str("Endpoint", endpoint).Str("Discovery Request Config File", discoveryFile).Msg("Starting discovery job")
 
 	discoveryConfig := config.NewDiscoveryConfigWithDefaults()
@@ -46,13 +46,14 @@ func Discover(endpoint string, discoveryFile string) []generated.DiscoverRespons
 		return nil
 	}
 
-	devices := make([]generated.DiscoverResponse, 0)
+	devices := make([]*generated.DiscoverResponse, 0)
 	for {
 		resp, err := stream.Recv()
 
 		if err == io.EOF {
 			break
 		}
+
 		if err != nil {
 			log.Err(err).Msg("SubscribeDiscovery request returned an error")
 			return nil
@@ -61,7 +62,7 @@ func Discover(endpoint string, discoveryFile string) []generated.DiscoverRespons
 		fmt.Printf("%+v\n", resp.Devices)
 
 		log.Trace().Interface("Devices", resp).Msg("")
-		devices = append(devices, *resp)
+		devices = append(devices, resp)
 	}
 	return devices
 }

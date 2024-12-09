@@ -78,6 +78,11 @@ func (d *discoveryConfigImplementation) GetFilterSettingFloat64(filterKey string
 	return variant.GetFloat64Value(), err
 }
 
+func (d *discoveryConfigImplementation) GetFilterSettingBool(filterKey string, defaultValue bool) (bool, error) {
+	variant, err := d.internalGetFilterSetting(filterKey, &generated.Variant{Value: &generated.Variant_BoolValue{BoolValue: defaultValue}})
+	return variant.GetBoolValue(), err
+}
+
 func (d *discoveryConfigImplementation) GetAllOptions() []*generated.ActiveOption {
 	return d.discoveryRequest.GetOptions()
 }
@@ -130,6 +135,11 @@ func (d *discoveryConfigImplementation) GetOptionSettingFloat64(optionKey string
 	return variant.GetFloat64Value(), err
 }
 
+func (d *discoveryConfigImplementation) GetOptionSettingBool(optionKey string, defaultValue bool) (bool, error) {
+	variant, err := d.internalGetOptionSetting(optionKey, &generated.Variant{Value: &generated.Variant_BoolValue{BoolValue: defaultValue}})
+	return variant.GetBoolValue(), err
+}
+
 // func (d *DiscoveryConfigImplementation) GetTarget() []*generated.Destination {
 // 	return d.discoveryRequest.GetTarget()
 // }
@@ -170,7 +180,7 @@ func (d *discoveryConfigImplementation) JSON() (string, error) {
 		return "", mErr
 	}
 
-	stringResult := string(result[:])
+	stringResult := string(result)
 	log.Info().Str("Marshal Result", stringResult).Msg("Marshal Result")
 	return stringResult, nil
 }

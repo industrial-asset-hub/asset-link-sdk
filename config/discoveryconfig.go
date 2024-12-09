@@ -19,6 +19,7 @@ type DiscoveryConfig interface {
 	GetFilterSettingUint64(filterKey string, defaultValue uint64) (uint64, error)
 	GetFilterSettingInt64(filterKey string, defaultValue int64) (int64, error)
 	GetFilterSettingFloat64(filterKey string, defaultValue float64) (float64, error)
+	GetFilterSettingBool(filterKey string, defaultValue bool) (bool, error)
 
 	GetAllOptions() []*generated.ActiveOption
 	GetOptions(optionKey string) []*generated.ActiveOption
@@ -27,6 +28,7 @@ type DiscoveryConfig interface {
 	GetOptionSettingUint64(filterKey string, defaultValue uint64) (uint64, error)
 	GetOptionSettingInt64(filterKey string, defaultValue int64) (int64, error)
 	GetOptionSettingFloat64(filterKey string, defaultValue float64) (float64, error)
+	GetOptionSettingBool(filterKey string, defaultValue bool) (bool, error)
 
 	// GetTarget() []*generated.Destination
 

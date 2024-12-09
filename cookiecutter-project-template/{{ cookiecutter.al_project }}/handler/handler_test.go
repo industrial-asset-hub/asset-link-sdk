@@ -10,6 +10,7 @@ package handler
 import (
 	"testing"
 
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/config"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/publish"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc/codes"
@@ -44,16 +45,16 @@ func TestDiscovery(t *testing.T) {
 	})
 }
 
-func TestOptions(t *testing.T) {
-	t.Run("requestFilterOptions", func(t *testing.T) {
+func TestConfig(t *testing.T) {
+	t.Run("requestSupportedFilters", func(t *testing.T) {
 		driver := &AssetLinkImplementation{}
 
-		driver.FilterOptions()
+		driver.GetSupportedFilters()
 	})
 
-	t.Run("requestOptionTypes", func(t *testing.T) {
+	t.Run("requestSupportedOptions", func(t *testing.T) {
 		driver := &AssetLinkImplementation{}
 
-		driver.FilterTypes()
+		driver.GetSupportedOptions()
 	})
 }

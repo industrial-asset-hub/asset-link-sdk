@@ -36,7 +36,7 @@ func (d *DiscoverServerEntity) DiscoverDevices(req *generated.DiscoverRequest, s
 
 	// Check if discovery feature implementation is available
 	if d.Discovery == nil {
-		errMsg := "No Discovery implementation found"
+		const errMsg string = "No Discovery implementation found"
 		log.Info().Msg(errMsg)
 		return status.Errorf(codes.Unimplemented, errMsg)
 	}
@@ -67,17 +67,17 @@ type GrpcFilterOrOption interface {
 }
 
 func (d *DiscoverServerEntity) GetFilterTypes(context.Context, *generated.FilterTypesRequest) (*generated.FilterTypesResponse, error) {
-	supportedFilters := d.FilterTypes()
+	supportedFilters := d.GetSupportedFilters()
 	if len(supportedFilters) == 0 {
-		return &generated.FilterTypesResponse{}, errors.New("no supported filter types")
+		return &generated.FilterTypesResponse{}, errors.New("no supported filters")
 	}
 	return &generated.FilterTypesResponse{FilterTypes: supportedFilters}, nil
 }
 
 func (d *DiscoverServerEntity) GetFilterOptions(context.Context, *generated.FilterOptionsRequest) (*generated.FilterOptionsResponse, error) {
-	supportedFilters := d.FilterOptions()
+	supportedFilters := d.GetSupportedOptions()
 	if len(supportedFilters) == 0 {
-		return &generated.FilterOptionsResponse{}, errors.New("no supported filter types")
+		return &generated.FilterOptionsResponse{}, errors.New("no supported options")
 	}
 	return &generated.FilterOptionsResponse{FilterOptions: supportedFilters}, nil
 }
