@@ -8,17 +8,19 @@
 package handler
 
 import (
-	"errors"
 	"fmt"
 	"math/rand"
 	"strings"
 	"sync"
 	"sync/atomic"
 
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/config"
 	generated "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/model"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/publish"
 	"github.com/rs/zerolog/log"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 // Implements the Discovery interface and feature
@@ -29,7 +31,7 @@ type AssetLinkImplementation struct {
 
 var lastSerialNumber = atomic.Int64{}
 
-func (m *AssetLinkImplementation) Discover(discoveryConfig config.DiscoveryConfig, devicePublisher publish.DevicePublisher) {
+func (m *AssetLinkImplementation) Discover(discoveryConfig config.DiscoveryConfig, devicePublisher publish.DevicePublisher) error {
 	log.Info().
 		Msg("Start Discovery")
 
