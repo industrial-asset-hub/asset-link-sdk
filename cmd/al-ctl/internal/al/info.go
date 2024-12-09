@@ -5,12 +5,12 @@
  *
  */
 
-package dcd
+package al
 
 import (
 	"fmt"
 
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/dcd-ctl/internal/shared"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/shared"
 	driverinfo "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/conn_suite_drv_info"
 	discovery "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
 	"github.com/rs/zerolog/log"

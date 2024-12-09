@@ -6,5 +6,5 @@
 set -xeu
 
 systemctl daemon-reload
-systemctl enable cdm-dcd-reference.service
-systemctl start cdm-dcd-reference.service
+systemctl enable cdm-al-reference.service
+systemctl start cdm-al-reference.service

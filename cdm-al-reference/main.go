@@ -16,8 +16,8 @@ import (
 
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/metadata"
 
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/cdm-dcd-reference/reference"
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/dcd"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/assetlink"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/cdm-al-reference/reference"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/logging"
 
 	"github.com/rs/zerolog"
@@ -37,7 +37,7 @@ func main() {
 		Str("Version", version).
 		Str("commit", commit).
 		Str("date", date).
-		Msg("Starting cdm-dcd-reference implementation")
+		Msg("Starting cdm-al-reference implementation")
 
 	// Setup log of log infrastructure
 	var logLevel string
@@ -60,12 +60,12 @@ func main() {
 
 	// Set log level
 	logging.AdjustLogLevel(logLevel)
-	// Register dcd implementation
+	// Register al implementation
 	myAssetLinkImplementation := new(reference.ReferenceClassDriver)
-	dcdImpl := dcd.New(metadata.Metadata{
+	alImpl := assetlink.New(metadata.Metadata{
 		Version: metadata.Version{Version: version, Commit: commit, Date: date},
-		DcdId:   "siemens.cdm.dcd.reference",
-		DcdName: "Reference Asset Link",
+		AlId:    "siemens.cdm.al.reference",
+		AlName:  "Reference Asset Link",
 		Vendor:  "Siemens AG",
 	}).
 		Discovery(myAssetLinkImplementation).
@@ -74,15 +74,15 @@ func main() {
 	// Signal handler for a proper shutdown
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
-	go func(d *dcd.DCD) {
+	go func(d *assetlink.AssetLink) {
 		<-c
 		log.Info().Msg("Received SIGTERM. Exiting.")
 		d.Stop()
 		os.Exit(1)
-	}(dcdImpl)
+	}(alImpl)
 
 	// Start asset link
-	if err := dcdImpl.Start(grpcServerAddress, grpcServerEndpointAddress, registryAddress, httpServerAddress); err != nil {
+	if err := alImpl.Start(grpcServerAddress, grpcServerEndpointAddress, registryAddress, httpServerAddress); err != nil {
 		log.Fatal().Err(err).Msg("Could not start asset link instance")
 	}
 }

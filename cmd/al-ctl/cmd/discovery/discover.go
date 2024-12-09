@@ -11,8 +11,8 @@ import (
 	"encoding/json"
 	"os"
 
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/dcd-ctl/internal/dcd"
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/dcd-ctl/internal/shared"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/al"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/shared"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 )
@@ -26,7 +26,7 @@ var DiscoverCmd = &cobra.Command{
 	Short: "Start discovery job",
 	Long:  `This command starts an discovery job and prints the result.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		resp := dcd.Discover(shared.AssetLinkEndpoint, discoveryFile)
+		resp := al.Discover(shared.AssetLinkEndpoint, discoveryFile)
 
 		log.Trace().Str("File", outputFile).Msg("Saving to file")
 		f, _ := os.Create(outputFile)

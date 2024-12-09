@@ -33,7 +33,7 @@ func (apptypes appTypes) String() string {
 }
 
 type GrpcServerRegistry struct {
-	dcdId                     string
+	alId                      string
 	grpcServerRegistryAddress string
 	grpcAddress               string
 	appInstanceId             string
@@ -47,9 +47,9 @@ const (
 )
 
 // Create new GRPC Registry client
-func New(registryAddress string, dcdId string, grpcAddress string) *GrpcServerRegistry {
+func New(registryAddress string, alId string, grpcAddress string) *GrpcServerRegistry {
 	return &GrpcServerRegistry{grpcServerRegistryAddress: registryAddress,
-		dcdId:       dcdId,
+		alId:        alId,
 		grpcAddress: grpcAddress,
 	}
 }
@@ -163,11 +163,11 @@ func (r *GrpcServerRegistry) register() (error, uint32) {
 		return err, retryRegistrationInterval
 	}
 
-	r.appInstanceId = CDM_DEVICE_CLASS_DRIVER.String() + "-" + r.dcdId
+	r.appInstanceId = CDM_DEVICE_CLASS_DRIVER.String() + "-" + r.alId
 	register := pb.RegisterServiceRequest{Info: &pb.ServiceInfo{
 		AppTypes:         []string{APP_TYPE_CS_IAH_DISCOVER_V1},
 		AppInstanceId:    r.appInstanceId,
-		DriverSchemaUris: []string{r.dcdId},
+		DriverSchemaUris: []string{r.alId},
 		GrpcIpPortNumber: uint32(portNumber),
 	}}
 	// Check if IP or DNS name

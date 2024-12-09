@@ -8,8 +8,8 @@
 package metadata
 
 type Metadata struct {
-	DcdId   string
-	DcdName string
+	AlId    string
+	AlName  string
 	Version Version
 	Vendor  string
 }
