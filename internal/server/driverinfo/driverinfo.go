@@ -40,7 +40,7 @@ func (o *DriverInfoServerEntity) GetVersionInfo(c context.Context, request *gene
 		}
 	}
 
-	var product = o.Metadata.DcdName
+	var product = o.Metadata.AlName
 	var vendor = o.Metadata.Vendor
 	// Currently not used.
 	var docu = ""

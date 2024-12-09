@@ -4,6 +4,6 @@
 # SPDX-License-Identifier: MIT
 
 set -xeu
-systemctl stop cdm-dcd-reference
+systemctl stop cdm-al-reference
 
 systemctl daemon-reload

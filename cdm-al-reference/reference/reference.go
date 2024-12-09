@@ -78,7 +78,7 @@ func (m *ReferenceClassDriver) Discover(discoveryConfig config.DiscoveryConfig, 
 			lastSerialNumber.Add(1)
 			manufacturer := "Siemens AG"
 			serialNumber := fmt.Sprint(lastSerialNumber.Load())
-			product := "cdm-reference-dcd-test2"
+			product := "cdm-reference-al-test2"
 			deviceInfo := model.NewDevice("EthernetDevice", name)
 
 			uriOfTheProduct := fmt.Sprintf("https://%s/%s-%s", strings.ReplaceAll(manufacturer, " ", "_"), strings.ReplaceAll(product, " ", "_"), serialNumber)

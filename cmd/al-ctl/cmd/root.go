@@ -11,12 +11,12 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/dcd-ctl/cmd/test"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/cmd/test"
 
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/dcd-ctl/cmd/info"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/cmd/info"
 
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/dcd-ctl/cmd/discovery"
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/dcd-ctl/internal/shared"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/cmd/discovery"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/shared"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/logging"
 	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
@@ -28,10 +28,9 @@ var (
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "dcd-ctl",
-	Short: "command line interface to interact with device-class-drivers",
-	Long: `This command line interfaces allows to interact with the so called
-	AssetLinks (als).
+	Use:   "al-ctl",
+	Short: "command line interface to interact with Asset Links",
+	Long: `This command line interfaces allows to interact with the so called Asset Links (AL).
 
 This can be useful for validation purposes inside CI/CD pipelines or just
 to ease development efforts.`,

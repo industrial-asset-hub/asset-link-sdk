@@ -5,10 +5,10 @@
 To bootstrap your own IAH Asset Link, use cookiecutter to generate the boilerplate code.
 
 ```bash
-$ tar xzf cdm-dcd-sdk.tar.gz
+$ tar xzf cdm-al-sdk.tar.gz
 $ cookiecutter cookiecutter-project-template/
 [1/8] al_name (Dummy Asset Link): Custom Asset Link
-[2/8] al_id (machinebuilder.cdm.dcd.dummy): machinebuilder.cdm.dcd.custom
+[2/8] al_id (machinebuilder.cdm.al.dummy): machinebuilder.cdm.al.custom
 [3/8] al_project (dummy-asset-link): custom-asset-link
 [4/8] author_name (David Device Builder): Device Builder
 [5/8] author_email (david@david-builder.local): me@device-builder.local

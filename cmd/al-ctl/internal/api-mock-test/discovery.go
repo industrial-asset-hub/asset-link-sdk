@@ -8,24 +8,23 @@ package apimock
 
 import (
 	"fmt"
-
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/dcd-ctl/internal/dcd"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/al"
 )
 
 func TestStartDiscovery(address, discoveryFile string) bool {
 	fmt.Println("Running test for StartDiscovery")
-	data := dcd.Discover(address, discoveryFile)
+	data := al.Discover(address, discoveryFile)
 	return data != nil
 }
 
 func TestGetFilterTypes(address, discoveryFile string) bool {
 	fmt.Println("Running test for GetFilterTypes")
-	data := dcd.GetFilterTypes(address)
+	data := al.GetFilterTypes(address)
 	return data != nil
 }
 
 func TestGetFilterOptions(address, discoveryFile string) bool {
 	fmt.Println("Running test for GetFilterOptions")
-	data := dcd.GetFilterOptions(address)
+	data := al.GetFilterOptions(address)
 	return data != nil
 }

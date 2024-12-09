@@ -19,7 +19,7 @@ func TestConvertToDiscoveredDevice(t *testing.T) {
 	timestamp := createTimestamp()
 	Name := "Device"
 	device.Name = &Name
-	product := "test-dcd"
+	product := "test-product"
 	version := "1.0.0"
 	vendorName := "test-vendor"
 	serialNumber := "test"

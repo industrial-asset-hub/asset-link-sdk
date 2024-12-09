@@ -5,30 +5,30 @@
  *
  */
 
-package dcd
+package assetlink
 
 import (
 	generatedDiscoveryServer "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/metadata"
 )
 
-type dcdFeatureBuilderCustomServer struct {
-	dcdFeatureBuilder
+type alFeatureBuilderCustomServer struct {
+	alFeatureBuilder
 	generatedDiscoveryServer.DeviceDiscoverApiServer
 }
 
 // Builder for custom implemented DeviceDiscoverApiServer
 func NewWithCustomDiscoveryServer(metadata metadata.Metadata,
 	server generatedDiscoveryServer.DeviceDiscoverApiServer,
-) *dcdFeatureBuilderCustomServer {
-	return &dcdFeatureBuilderCustomServer{
-		dcdFeatureBuilder:       dcdFeatureBuilder{metadata: metadata},
+) *alFeatureBuilderCustomServer {
+	return &alFeatureBuilderCustomServer{
+		alFeatureBuilder:        alFeatureBuilder{metadata: metadata},
 		DeviceDiscoverApiServer: server,
 	}
 }
 
-func (cb *dcdFeatureBuilderCustomServer) Build() *DCD {
-	return &DCD{
+func (cb *alFeatureBuilderCustomServer) Build() *AssetLink {
+	return &AssetLink{
 		discoveryImpl:         cb.discovery,
 		metadata:              cb.metadata,
 		customDiscoveryServer: cb.DeviceDiscoverApiServer,

@@ -1,7 +1,7 @@
 {
   "cookiecutter": {
     "al_name": "Test Asset Link",
-    "al_id": "siemens.cdm.dcd.test",
+    "al_id": "siemens.cdm.al.test",
     "al_project": "test-asset-link",
     "author_name": "John Doe",
     "author_email": "john.doe@siemens.local",

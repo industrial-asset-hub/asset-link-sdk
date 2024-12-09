@@ -5,7 +5,7 @@
  *
  */
 
-package dcd
+package assetlink
 
 import (
 	"fmt"
@@ -27,31 +27,31 @@ import (
 
 // Asset Link feature builder, according to the GoF build pattern
 // The pattern provides methods to register new features in an easy
-type dcdFeatureBuilder struct {
+type alFeatureBuilder struct {
 	metadata  metadata.Metadata
 	discovery features.Discovery
 }
 
 // Methods to register new features
-func (cb *dcdFeatureBuilder) Discovery(f features.Discovery) *dcdFeatureBuilder {
+func (cb *alFeatureBuilder) Discovery(f features.Discovery) *alFeatureBuilder {
 	cb.discovery = f
 	return cb
 }
 
 // Builder
-func New(metadata metadata.Metadata) *dcdFeatureBuilder {
-	return &dcdFeatureBuilder{metadata: metadata}
+func New(metadata metadata.Metadata) *alFeatureBuilder {
+	return &alFeatureBuilder{metadata: metadata}
 }
 
-func (cb *dcdFeatureBuilder) Build() *DCD {
-	return &DCD{
+func (cb *alFeatureBuilder) Build() *AssetLink {
+	return &AssetLink{
 		discoveryImpl: cb.discovery,
 		metadata:      cb.metadata,
 	}
 }
 
 // Structure of the features
-type DCD struct {
+type AssetLink struct {
 	metadata              metadata.Metadata
 	discoveryImpl         features.Discovery
 	customDiscoveryServer generatedDiscoveryServer.DeviceDiscoverApiServer
@@ -61,9 +61,9 @@ type DCD struct {
 }
 
 // Method to start the asset link
-func (d *DCD) Start(grpcServerAddress, registrationAddress, grpcRegistryAddress, httpServerAddress string) error {
+func (d *AssetLink) Start(grpcServerAddress, registrationAddress, grpcRegistryAddress, httpServerAddress string) error {
 	log.Info().
-		Str("ID", d.metadata.DcdId).
+		Str("ID", d.metadata.AlId).
 		Str("gRPC Address", grpcServerAddress).
 		Str("grpcRegistryAddress", grpcRegistryAddress).
 		Str("registrationName", registrationAddress).
@@ -97,7 +97,7 @@ func (d *DCD) Start(grpcServerAddress, registrationAddress, grpcRegistryAddress,
 		log.Fatal().Err(err).Msg("Could not determine port of gRPC server address")
 	}
 
-	d.registryClient = registryclient.New(grpcRegistryAddress, d.metadata.DcdId, fmt.Sprintf("%s:%s", registrationAddress, portNumberString))
+	d.registryClient = registryclient.New(grpcRegistryAddress, d.metadata.AlId, fmt.Sprintf("%s:%s", registrationAddress, portNumberString))
 	d.registryClient.Register()
 
 	// Start GRPC server
@@ -140,7 +140,7 @@ func (d *DCD) Start(grpcServerAddress, registrationAddress, grpcRegistryAddress,
 	return nil
 }
 
-func (d *DCD) Stop() {
+func (d *AssetLink) Stop() {
 	log.Info().Msg("Stop asset link")
 
 	d.registryClient.Stop()
