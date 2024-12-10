@@ -1,0 +1,11 @@
+{
+  "al_name": "Dummy Asset Link",
+  "al_id": "machinebuilder.cdm.al.dummy",
+  "al_project": "dummy-asset-link",
+  "author_name": "David Device Builder",
+  "author_email": "david@david-builder.local",
+  "company": "Machine Builder AG",
+  "company_url": "https://www.device-builder.local",
+  "year": "2024",
+  "_copy_without_render": ["*vendor", "cdm-al-sdk"]
+}

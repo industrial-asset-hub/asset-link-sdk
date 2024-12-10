@@ -1,0 +1,224 @@
+# SPDX-FileCopyrightText: 2024 Siemens AG
+#
+# SPDX-License-Identifier: MIT
+---
+project_name: cdm-al-sdk
+
+version: 2
+
+before:
+  hooks:
+    - go generate ./...
+    - go mod download
+
+builds:
+  - id: cdm-al-reference
+    binary: cdm-al-reference
+    main: ./cdm-al-reference/main.go
+    tags:
+      - webserver
+    flags:
+      - -trimpath
+      - -mod=readonly
+    ldflags:
+      - -s -w -extldflags '-static'
+      - -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.CommitDate}}
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ignore:
+      - goos: windows
+        goarch: arm64
+    mod_timestamp: "{{ .CommitTimestamp }}"
+  - id: al-ctl
+    binary: al-ctl
+    main: ./cmd/al-ctl/al-ctl.go
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -extldflags '-static'
+      - -X github.com/industrial-asset-hub/asset-link-sdk/cmd/al-ctl/cmd.version={{.Version}}
+        -X github.com/industrial-asset-hub/asset-link-sdk/cmd/al-ctl/cmd.commit={{.Commit}}
+        -X github.com/industrial-asset-hub/asset-link-sdk/cmd/al-ctl/cmd.date={{.CommitDate}}
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ignore:
+      - goos: windows
+        goarch: arm64
+    mod_timestamp: "{{ .CommitTimestamp }}"
+  - id: registry
+    binary: registry
+    main: ./registry/main.go
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -extldflags '-static'
+      - -X main.version={{.Version}}
+        -X main.commit={{.Commit}}
+        -X main.date={{.CommitDate}}
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ignore:
+      - goos: windows
+        goarch: arm64
+    mod_timestamp: "{{ .CommitTimestamp }}"
+
+archives:
+  - id: al-ctl
+    builds:
+      - al-ctl
+    format: tar.gz
+    name_template: >-
+      {{  "al-ctl" }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+    format_overrides:
+      - goos: windows
+        format: zip
+    files: []
+
+  - id: registry
+    builds:
+      - registry
+    format: tar.gz
+    name_template: >-
+      {{  "registry" }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+    format_overrides:
+      - goos: windows
+        format: zip
+    files: []
+
+  - id: cdm-al-reference
+    builds:
+      - cdm-al-reference
+    format: tar.gz
+    name_template: >-
+      {{  "cdm-al-reference" }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+    format_overrides:
+      - goos: windows
+        format: zip
+    files: []
+
+  - id: cdm-al-sdk
+    meta: true
+    format: tar.gz
+    wrap_in_directory: false
+    files:
+      - README.SDK.md
+      - cookiecutter-project-template/
+    name_template: >-
+      {{ .ProjectName }}
+
+nfpms:
+  - id: cdm-al-reference
+    package_name: cdm-al-reference
+    builds:
+      - cdm-al-reference
+    vendor: Siemens AG
+    homepage: https://www.siemens.com/
+    maintainer: Heiko Schabert <heiko.schabert@siemens.com>
+    description: |-
+      IAH Asset Link Reference Implementation.
+    license: Siemens AG 2023
+    formats:
+      - deb
+    bindir: /usr/bin
+    version_metadata: git
+    section: default
+    priority: extra
+    contents:
+      - src: contrib/cdm-al-reference.service
+        dst: /lib/systemd/system/cdm-al-reference.service
+        type: "config"
+    scripts:
+      postinstall: "contrib/postinstall.bash"
+      postremove: "contrib/postremove.bash"
+
+dockers:
+  - id: registry-image-linux-amd64
+    ids:
+      - registry
+    image_templates:
+      - "ghcr.io/industrial-asset-hub/asset-link-sdk/registry:{{ .Tag }}-linux-amd64"
+    dockerfile: registry/Dockerfile
+    use: buildx
+    goos: linux
+    goarch: amd64
+    build_flag_templates:
+      - "--platform=linux/amd64"
+  - id: registry-image-linux-arm64
+    ids:
+      - registry
+    image_templates:
+      - "ghcr.io/industrial-asset-hub/asset-link-sdk/registry:{{ .Tag }}-linux-arm64"
+    dockerfile: registry/Dockerfile
+    use: buildx
+    goos: linux
+    goarch: amd64
+    build_flag_templates:
+      - "--platform=linux/arm64"
+
+docker_manifests:
+  - name_template: "ghcr.io/industrial-asset-hub/asset-link-sdk/registry:{{ .Tag }}"
+    image_templates:
+      - "ghcr.io/industrial-asset-hub/asset-link-sdk/registry:{{ .Tag }}-linux-amd64"
+      - "ghcr.io/industrial-asset-hub/asset-link-sdk/registry:{{ .Tag }}-linux-arm64"
+
+checksum:
+  name_template: "{{.ProjectName}}_{{.Version}}.sha256"
+  algorithm: sha256
+
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+
+changelog:
+  sort: asc
+  groups:
+    - title: Features
+      regexp: "^.*feat[(\\w)]*:+.*$"
+      order: 0
+    - title: "Bug fixes"
+      regexp: "^.*fix[(\\w)]*:+.*$"
+      order: 1
+    - title: Others
+      order: 999
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^chore:"
+      - "^ci:"
+      - "^Merge branch:"

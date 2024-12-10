@@ -1,0 +1,2650 @@
+{
+  "$defs": {
+    "ArtifactChecksum": {
+      "additionalProperties": false,
+      "description": "Artifact identifier based on the artifact checksum.\nSuch an identifier is good to confirm the identity of an artifact, but not so good to find that artifact.",
+      "properties": {
+        "asset_identifier_type": {
+          "description": "Type designator that provides support for polymorphism using asset identifiers.",
+          "enum": ["ArtifactChecksum"],
+          "type": "string"
+        },
+        "checksum": {
+          "description": "The checksum string as a URN. The URN scheme for checksums is \"urn:<format>:<checksum>\", being format the checksum format (MD5, SHA1,...).",
+          "type": "string"
+        },
+        "identifier_type": {
+          "description": "Type of an items identifier.",
+          "type": "string"
+        },
+        "identifier_uncertainty": {
+          "description": "Number that tells how uncertain an identifier is compared with other identifiers provided by an Asset Link. The highest the number, the more uncertain the identification must be considered. This number has to be considered relative to the other identifiers for the same element. The default value is 0, meaning no uncertainty.\nThis index helps decide across Asset Links which identifiers are better suited for deduplication. The identifier provided by two different Asset Links with the lowest uncertainty should be chosen for deduplication purposes.",
+          "type": "integer"
+        }
+      },
+      "title": "ArtifactChecksum",
+      "type": "object"
+    },
+    "Asset": {
+      "additionalProperties": false,
+      "description": "An asset is the representation of a functional object with a technical function that is known to Industrial Asset Hub (IAH). Industrial Asset Hub (IAH) might want to manage the asset, to model its relationships with other assets, it might know the asset and ignore it,...\nThe only attributes that an instance of this class must provide are an ID to refer to it and the asset management state.\nAn asset instance might represent a physical object (like a Raspberry Pi or an application running on a system) or a virtual object (like a router in a network topology, no matter which physical device it is). In both cases an identifier for the object being represented is needed.",
+      "properties": {
+        "asset_identifiers": {
+          "description": "An asset identifier is an asset attribute that provides enough information to unequivocally identify the represented object.\nIn some cases the ID attribute acts simultaneously as a reference for the asset instance and as identifier for the represented object, otherwise at least one asset identifier is needed.\nThere can be multiple asset_identifiers with different goals. For example, the information of a metal nameplate can be used by a human-being to identify a device represented by an asset instance, but a software certificate provided by a device might help a software component identify the device in the network,...\nAn asset identifier might have an identifier_type, that defines its format and possibly even semantics.",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/AssetIdentifier"
+              },
+              {
+                "$ref": "#/$defs/SoftwareIdentifier"
+              },
+              {
+                "$ref": "#/$defs/ArtifactChecksum"
+              },
+              {
+                "$ref": "#/$defs/ProductSerialIdentifier"
+              },
+              {
+                "$ref": "#/$defs/MacIdentifier"
+              },
+              {
+                "$ref": "#/$defs/Ipv4Identifier"
+              },
+              {
+                "$ref": "#/$defs/Ipv6Identifier"
+              },
+              {
+                "$ref": "#/$defs/GatewayIdentifier"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        "asset_operations": {
+          "description": "List of device management operations supported by an asset. Each operation type might appear only once.",
+          "items": {
+            "$ref": "#/$defs/AssetOperation"
+          },
+          "type": "array"
+        },
+        "connection_points": {
+          "description": "An asset might have a connection point that can be used to connect with the asset. In the case of devices, at least one connection point is required. It might be a connection point needed for AssetManagement for interaction with the asset or for other connections of the asset related to the asset function but not to device management.",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/ConnectionPoint"
+              },
+              {
+                "$ref": "#/$defs/Ipv4Connectivity"
+              },
+              {
+                "$ref": "#/$defs/Ipv6Connectivity"
+              },
+              {
+                "$ref": "#/$defs/EthernetPort"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        "custom_ui_properties": {
+          "description": "Metadata associated with Asset in User Interface",
+          "items": {
+            "$ref": "#/$defs/CustomProperty"
+          },
+          "type": "array"
+        },
+        "functional_object_type": {
+          "description": "Type designator that provides support for polymorphism using functional parts.",
+          "enum": ["Asset"],
+          "type": "string"
+        },
+        "functional_parts": {
+          "description": "The functional objects that an asset is composed of, in case such a level of decomposition is desired. This is enables having assets composed of other assets and even devices composed of other devices and assets.\nAn Asset must be addressable independently from other Assets (therefore they need to have an \"id\") and are therefore individually modeled. But not all parts of an Asset that are modeled need to be individually addressable, these are FunctionalObjects, but not Assets.\nProbably those functional_parts of an Asset providing some function for the Asset will be modeled here. Therefore an Asset can delegate the Interactions that it's offering to its functional_parts.",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/Asset"
+              },
+              {
+                "$ref": "#/$defs/Device"
+              },
+              {
+                "$ref": "#/$defs/SoftwareAsset"
+              },
+              {
+                "$ref": "#/$defs/SoftwareArtifact"
+              },
+              {
+                "$ref": "#/$defs/RunningSoftware"
+              },
+              {
+                "$ref": "#/$defs/AssetLink"
+              },
+              {
+                "$ref": "#/$defs/Dcd"
+              },
+              {
+                "$ref": "#/$defs/Gateway"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        "id": {
+          "description": "The identifier property represents any kind of identifier for any kind of Thing, such as ISBNs, GTIN codes, UUIDs etc. Schema.org provides dedicated properties for representing many of these, either as textual strings or as URL (URI) links.",
+          "type": "string"
+        },
+        "instance_annotations": {
+          "description": "Metadata associated to an object.",
+          "items": {
+            "$ref": "#/$defs/InstanceAnnotation"
+          },
+          "type": "array"
+        },
+        "last_modified_timestamp": {
+          "description": "Timestamp of last asset modification",
+          "format": "date-time",
+          "type": "string"
+        },
+        "management_state": {
+          "$ref": "#/$defs/ManagementState",
+          "description": "A manage state is an attribute of an asset that specifies how an asset is being regarded by an asset management system (is it being regarded or ignored). Some assets might be known to the Industrial Asset Hub (for example, discovered through a network scan), but want to be ignored for different reasons.\nThe goals of this attribute are: to avoid rediscovering assets being ignored and to focus management activities on those assets being regarded.\nAssets that can be discovered, but not supported, might evolve from an \"ignored\" to a \"regarded\" state, once supported."
+        },
+        "name": {
+          "description": "The name of the item.",
+          "type": "string"
+        },
+        "other_states": {
+          "description": "Specify the state of other aspects apart from management state.",
+          "items": {
+            "$ref": "#/$defs/State"
+          },
+          "type": "array"
+        },
+        "product_instance_identifier": {
+          "$ref": "#/$defs/ProductSerialIdentifier",
+          "description": "Identifier of a device based on its serial number."
+        },
+        "reachability_state": {
+          "$ref": "#/$defs/ReachabilityState",
+          "description": "A slot to track the last observed reachability state and when it was observed."
+        },
+        "software_components": {
+          "description": "An asset can host software artifacts that might want to be tracked. This can be used simply to keep track of the firmware version or to keep a full-blown Software Bill of Material (SBOM).\nPlease notice that this attribute is not meant to model relationships between the different software assets available in a device. Static relationships implicit to the SoftwareAssets themselves (like \"firmware image A contains package X\" or \"package X depends on package Y\") might be modeled on the Software Assets, if desired. Although it probably goes beyond the purpose of asset modeling. Deployment dependent relationships (like \"firmware image needs to be installed before installing app\") might be modeled as external AssetLinks, if desired. Once again it probably goes beyond the purpose of asset modeling.",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/SoftwareAsset"
+              },
+              {
+                "$ref": "#/$defs/SoftwareArtifact"
+              },
+              {
+                "$ref": "#/$defs/RunningSoftware"
+              },
+              {
+                "$ref": "#/$defs/AssetLink"
+              },
+              {
+                "$ref": "#/$defs/Dcd"
+              },
+              {
+                "$ref": "#/$defs/Gateway"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        "zone": {
+          "description": "Provides references to the different zones that an asset belongs to.\nZones are typically used to group assets logically mostly for the purpose of access control. That way it is possible to give certain roles or persons specific permissions to all assets associated to a zone.",
+          "type": "string"
+        }
+      },
+      "required": ["management_state", "id"],
+      "title": "Asset",
+      "type": "object"
+    },
+    "AssetIdentifier": {
+      "additionalProperties": false,
+      "description": "An Identifier that provides an unambiguous identification of an asset instance.",
+      "properties": {
+        "asset_identifier_type": {
+          "description": "Type designator that provides support for polymorphism using asset identifiers.",
+          "enum": ["AssetIdentifier"],
+          "type": "string"
+        },
+        "identifier_type": {
+          "description": "Type of an items identifier.",
+          "type": "string"
+        },
+        "identifier_uncertainty": {
+          "description": "Number that tells how uncertain an identifier is compared with other identifiers provided by an Asset Link. The highest the number, the more uncertain the identification must be considered. This number has to be considered relative to the other identifiers for the same element. The default value is 0, meaning no uncertainty.\nThis index helps decide across Asset Links which identifiers are better suited for deduplication. The identifier provided by two different Asset Links with the lowest uncertainty should be chosen for deduplication purposes.",
+          "type": "integer"
+        }
+      },
+      "title": "AssetIdentifier",
+      "type": "object"
+    },
+    "AssetLink": {
+      "additionalProperties": false,
+      "description": "Asset Link (AL) running and registered.",
+      "properties": {
+        "artifact": {
+          "$ref": "#/$defs/SoftwareArtifact",
+          "description": "Reference to the software artifact which the running software has been instantiated from.\nAs of now the combination of multiple software artifacts into a running software (for example with plug-ins) is not supported and can not be natively modeled. Instance annotations need to be used for that purpose."
+        },
+        "asset_identifiers": {
+          "description": "An asset identifier is an asset attribute that provides enough information to unequivocally identify the represented object.\nIn some cases the ID attribute acts simultaneously as a reference for the asset instance and as identifier for the represented object, otherwise at least one asset identifier is needed.\nThere can be multiple asset_identifiers with different goals. For example, the information of a metal nameplate can be used by a human-being to identify a device represented by an asset instance, but a software certificate provided by a device might help a software component identify the device in the network,...\nAn asset identifier might have an identifier_type, that defines its format and possibly even semantics.",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/AssetIdentifier"
+              },
+              {
+                "$ref": "#/$defs/SoftwareIdentifier"
+              },
+              {
+                "$ref": "#/$defs/ArtifactChecksum"
+              },
+              {
+                "$ref": "#/$defs/ProductSerialIdentifier"
+              },
+              {
+                "$ref": "#/$defs/MacIdentifier"
+              },
+              {
+                "$ref": "#/$defs/Ipv4Identifier"
+              },
+              {
+                "$ref": "#/$defs/Ipv6Identifier"
+              },
+              {
+                "$ref": "#/$defs/GatewayIdentifier"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        "asset_operations": {
+          "description": "List of device management operations supported by an asset. Each operation type might appear only once.",
+          "items": {
+            "$ref": "#/$defs/AssetOperation"
+          },
+          "type": "array"
+        },
+        "connection_points": {
+          "description": "An asset might have a connection point that can be used to connect with the asset. In the case of devices, at least one connection point is required. It might be a connection point needed for AssetManagement for interaction with the asset or for other connections of the asset related to the asset function but not to device management.",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/ConnectionPoint"
+              },
+              {
+                "$ref": "#/$defs/Ipv4Connectivity"
+              },
+              {
+                "$ref": "#/$defs/Ipv6Connectivity"
+              },
+              {
+                "$ref": "#/$defs/EthernetPort"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        "custom_running_software_type": {
+          "description": "Custom running software type.",
+          "type": "string"
+        },
+        "custom_ui_properties": {
+          "description": "Metadata associated with Asset in User Interface",
+          "items": {
+            "$ref": "#/$defs/CustomProperty"
+          },
+          "type": "array"
+        },
+        "functional_object_type": {
+          "description": "Type designator that provides support for polymorphism using functional parts.",
+          "enum": ["AssetLink"],
+          "type": "string"
+        },
+        "functional_parts": {
+          "description": "The functional objects that an asset is composed of, in case such a level of decomposition is desired. This is enables having assets composed of other assets and even devices composed of other devices and assets.\nAn Asset must be addressable independently from other Assets (therefore they need to have an \"id\") and are therefore individually modeled. But not all parts of an Asset that are modeled need to be individually addressable, these are FunctionalObjects, but not Assets.\nProbably those functional_parts of an Asset providing some function for the Asset will be modeled here. Therefore an Asset can delegate the Interactions that it's offering to its functional_parts.",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/Asset"
+              },
+              {
+                "$ref": "#/$defs/Device"
+              },
+              {
+                "$ref": "#/$defs/SoftwareAsset"
+              },
+              {
+                "$ref": "#/$defs/SoftwareArtifact"
+              },
+              {
+                "$ref": "#/$defs/RunningSoftware"
+              },
+              {
+                "$ref": "#/$defs/AssetLink"
+              },
+              {
+                "$ref": "#/$defs/Dcd"
+              },
+              {
+                "$ref": "#/$defs/Gateway"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        "id": {
+          "description": "The identifier property represents any kind of identifier for any kind of Thing, such as ISBNs, GTIN codes, UUIDs etc. Schema.org provides dedicated properties for representing many of these, either as textual strings or as URL (URI) links.",
+          "type": "string"
+        },
+        "instance_annotations": {
+          "description": "Metadata associated to an object.",
+          "items": {
+            "$ref": "#/$defs/InstanceAnnotation"
+          },
+          "type": "array"
+        },
+        "last_modified_timestamp": {
+          "description": "Timestamp of last asset modification",
+          "format": "date-time",
+          "type": "string"
+        },
+        "management_state": {
+          "$ref": "#/$defs/ManagementState",
+          "description": "A manage state is an attribute of an asset that specifies how an asset is being regarded by an asset management system (is it being regarded or ignored). Some assets might be known to the Industrial Asset Hub (for example, discovered through a network scan), but want to be ignored for different reasons.\nThe goals of this attribute are: to avoid rediscovering assets being ignored and to focus management activities on those assets being regarded.\nAssets that can be discovered, but not supported, might evolve from an \"ignored\" to a \"regarded\" state, once supported."
+        },
+        "name": {
+          "description": "The name of the item.",
+          "type": "string"
+        },
+        "other_states": {
+          "description": "Specify the state of other aspects apart from management state.",
+          "items": {
+            "$ref": "#/$defs/State"
+          },
+          "type": "array"
+        },
+        "product_instance_identifier": {
+          "$ref": "#/$defs/ProductSerialIdentifier",
+          "description": "Identifier of a device based on its serial number."
+        },
+        "reachability_state": {
+          "$ref": "#/$defs/ReachabilityState",
+          "description": "A slot to track the last observed reachability state and when it was observed."
+        },
+        "running_software_type": {
+          "$ref": "#/$defs/RunningSoftwareValues",
+          "description": "Type of running software."
+        },
+        "running_sw_id": {
+          "description": "Identifier for a running software instance.",
+          "type": "string"
+        },
+        "software_components": {
+          "description": "An asset can host software artifacts that might want to be tracked. This can be used simply to keep track of the firmware version or to keep a full-blown Software Bill of Material (SBOM).\nPlease notice that this attribute is not meant to model relationships between the different software assets available in a device. Static relationships implicit to the SoftwareAssets themselves (like \"firmware image A contains package X\" or \"package X depends on package Y\") might be modeled on the Software Assets, if desired. Although it probably goes beyond the purpose of asset modeling. Deployment dependent relationships (like \"firmware image needs to be installed before installing app\") might be modeled as external AssetLinks, if desired. Once again it probably goes beyond the purpose of asset modeling.",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/SoftwareAsset"
+              },
+              {
+                "$ref": "#/$defs/SoftwareArtifact"
+              },
+              {
+                "$ref": "#/$defs/RunningSoftware"
+              },
+              {
+                "$ref": "#/$defs/AssetLink"
+              },
+              {
+                "$ref": "#/$defs/Dcd"
+              },
+              {
+                "$ref": "#/$defs/Gateway"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        "zone": {
+          "description": "Provides references to the different zones that an asset belongs to.\nZones are typically used to group assets logically mostly for the purpose of access control. That way it is possible to give certain roles or persons specific permissions to all assets associated to a zone.",
+          "type": "string"
+        }
+      },
+      "required": ["management_state", "id"],
+      "title": "AssetLink",
+      "type": "object"
+    },
+    "AssetOperation": {
+      "additionalProperties": false,
+      "description": "Operations that can be performed on the asset",
+      "properties": {
+        "activation_flag": {
+          "description": "Attribute for specifying if the operation is available in terms of true or false",
+          "type": "boolean"
+        },
+        "operation_name": {
+          "description": "Name of a device management operation.",
+          "type": "string"
+        }
+      },
+      "title": "AssetOperation",
+      "type": "object"
+    },
+    "AssetRelationship": {
+      "additionalProperties": false,
+      "description": "Relationship between two different assets.",
+      "properties": {
+        "object": {
+          "description": "The target of a relationship between two assets.",
+          "type": "string"
+        },
+        "predicate": {
+          "$ref": "#/$defs/PredicateValues",
+          "description": "A relationship type."
+        },
+        "subject": {
+          "description": "The origin of a relationship between two assets.",
+          "type": "string"
+        }
+      },
+      "title": "AssetRelationship",
+      "type": "object"
+    },
+    "ConnectionPoint": {
+      "additionalProperties": false,
+      "description": "A connection point is a hardware or software interface that enables an asset to communicate with other assets.\nAs of now this schema doesn't specify the structure of common connection points like Ethernet ports. But it will probably be added in future versions of this schema. Otherwise the details will be provided on specialized schemas.",
+      "properties": {
+        "connection_point_type": {
+          "description": "Type designator that provides support for polymorphism using connection points.",
+          "enum": ["ConnectionPoint"],
+          "type": "string"
+        },
+        "id": {
+          "description": "The identifier property represents any kind of identifier for any kind of Thing, such as ISBNs, GTIN codes, UUIDs etc. Schema.org provides dedicated properties for representing many of these, either as textual strings or as URL (URI) links.",
+          "type": "string"
+        },
+        "instance_annotations": {
+          "description": "Metadata associated to an object.",
+          "items": {
+            "$ref": "#/$defs/InstanceAnnotation"
+          },
+          "type": "array"
+        },
+        "related_connection_points": {
+          "description": "A connection point might rely on another connection point to work.\nExamples: a TCP/IP connection can only work if there is some kind of connection point at physical level (e.g. Ethernet Port, Bluetooth Port), a container might be connected over a virtual ethernet to a software bridge, a software bridge might be directly connected to an ethernet port.\nThis attribute enables modeling these kind of dependencies in a limited way. Other modeling mechanisms might be needed to model complex networking set-ups.",
+          "items": {
+            "$ref": "#/$defs/RelatedConnectionPoint"
+          },
+          "type": "array"
+        }
+      },
+      "required": ["id"],
+      "title": "ConnectionPoint",
+      "type": "object"
+    },
+    "ContactPoint": {
+      "additionalProperties": false,
+      "description": "A contact point\u2014for example, a Customer Complaints department.",
+      "properties": {
+        "email": {
+          "description": "Email address.",
+          "type": "string"
+        },
+        "id": {
+          "description": "The identifier property represents any kind of identifier for any kind of Thing, such as ISBNs, GTIN codes, UUIDs etc. Schema.org provides dedicated properties for representing many of these, either as textual strings or as URL (URI) links.",
+          "type": "string"
+        },
+        "name": {
+          "description": "The name of the item.",
+          "type": "string"
+        },
+        "telephone": {
+          "description": "The telephone number.",
+          "type": "string"
+        }
+      },
+      "required": ["id"],
+      "title": "ContactPoint",
+      "type": "object"
+    },
+    "CountryCode": {
+      "description": "Two-letter ISO 3166-1 alpha-2 country code.",
+      "enum": [
+        "af",
+        "ax",
+        "al",
+        "dz",
+        "as",
+        "ad",
+        "ao",
+        "ai",
+        "aq",
+        "ag",
+        "ar",
+        "am",
+        "aw",
+        "au",
+        "at",
+        "az",
+        "bs",
+        "bh",
+        "bd",
+        "bb",
+        "by",
+        "be",
+        "bz",
+        "bj",
+        "bm",
+        "bt",
+        "bo",
+        "bq",
+        "ba",
+        "bw",
+        "bv",
+        "br",
+        "io",
+        "bn",
+        "bg",
+        "bf",
+        "bi",
+        "kh",
+        "cm",
+        "ca",
+        "cv",
+        "ky",
+        "cf",
+        "td",
+        "cl",
+        "cn",
+        "cx",
+        "cc",
+        "co",
+        "km",
+        "cg",
+        "cd",
+        "ck",
+        "cr",
+        "ci",
+        "hr",
+        "cu",
+        "cw",
+        "cy",
+        "cz",
+        "dk",
+        "dj",
+        "dm",
+        "do",
+        "ec",
+        "eg",
+        "sv",
+        "gq",
+        "er",
+        "ee",
+        "et",
+        "fk",
+        "fo",
+        "fj",
+        "fi",
+        "fr",
+        "gf",
+        "pf",
+        "tf",
+        "ga",
+        "gm",
+        "ge",
+        "de",
+        "gh",
+        "gi",
+        "gr",
+        "gl",
+        "gd",
+        "gp",
+        "gu",
+        "gt",
+        "gg",
+        "gn",
+        "gw",
+        "gy",
+        "ht",
+        "hm",
+        "va",
+        "hn",
+        "hk",
+        "hu",
+        "is",
+        "in",
+        "id",
+        "ir",
+        "iq",
+        "ie",
+        "im",
+        "il",
+        "it",
+        "jm",
+        "jp",
+        "je",
+        "jo",
+        "kz",
+        "ke",
+        "ki",
+        "kp",
+        "kr",
+        "kw",
+        "kg",
+        "la",
+        "lv",
+        "lb",
+        "ls",
+        "lr",
+        "ly",
+        "li",
+        "lt",
+        "lu",
+        "mo",
+        "mk",
+        "mg",
+        "mw",
+        "my",
+        "mv",
+        "ml",
+        "mt",
+        "mh",
+        "mq",
+        "mr",
+        "mu",
+        "yt",
+        "mx",
+        "fm",
+        "md",
+        "mc",
+        "mn",
+        "me",
+        "ms",
+        "ma",
+        "mz",
+        "mm",
+        "na",
+        "nr",
+        "np",
+        "nl",
+        "nc",
+        "nz",
+        "ni",
+        "ne",
+        "ng",
+        "nu",
+        "nf",
+        "mp",
+        "no",
+        "om",
+        "pk",
+        "pw",
+        "ps",
+        "pa",
+        "pg",
+        "py",
+        "pe",
+        "ph",
+        "pn",
+        "pl",
+        "pt",
+        "pr",
+        "qa",
+        "re",
+        "ro",
+        "ru",
+        "rw",
+        "bl",
+        "sh",
+        "kn",
+        "lc",
+        "mf",
+        "pm",
+        "vc",
+        "ws",
+        "sm",
+        "st",
+        "sa",
+        "sn",
+        "rs",
+        "sc",
+        "sl",
+        "sg",
+        "sx",
+        "sk",
+        "si",
+        "sb",
+        "so",
+        "za",
+        "gs",
+        "ss",
+        "es",
+        "lk",
+        "sd",
+        "sr",
+        "sj",
+        "sz",
+        "se",
+        "ch",
+        "sy",
+        "tw",
+        "tj",
+        "tz",
+        "th",
+        "tl",
+        "tg",
+        "tk",
+        "to",
+        "tt",
+        "tn",
+        "tr",
+        "tm",
+        "tc",
+        "tv",
+        "ug",
+        "ua",
+        "ae",
+        "gb",
+        "us",
+        "um",
+        "uy",
+        "uz",
+        "vu",
+        "ve",
+        "vn",
+        "vg",
+        "vi",
+        "wf",
+        "eh",
+        "ye",
+        "zm",
+        "zw"
+      ],
+      "title": "CountryCode",
+      "type": "string"
+    },
+    "CustomProperty": {
+      "additionalProperties": false,
+      "description": "Instance annotation hosting a custom property with a label.",
+      "properties": {
+        "key": {
+          "description": "The identifier of a key/value pair.",
+          "type": "string"
+        },
+        "label": {
+          "description": "Human readable label to show the property in the UI.",
+          "type": "string"
+        },
+        "value": {
+          "description": "The real metadata of a key/value pair.",
+          "type": "string"
+        }
+      },
+      "title": "CustomProperty",
+      "type": "object"
+    },
+    "Dcd": {
+      "additionalProperties": false,
+      "description": "Device Class Driver (DCD) running and registered.",
+      "properties": {
+        "artifact": {
+          "$ref": "#/$defs/SoftwareArtifact",
+          "description": "Reference to the software artifact which the running software has been instantiated from.\nAs of now the combination of multiple software artifacts into a running software (for example with plug-ins) is not supported and can not be natively modeled. Instance annotations need to be used for that purpose."
+        },
+        "asset_identifiers": {
+          "description": "An asset identifier is an asset attribute that provides enough information to unequivocally identify the represented object.\nIn some cases the ID attribute acts simultaneously as a reference for the asset instance and as identifier for the represented object, otherwise at least one asset identifier is needed.\nThere can be multiple asset_identifiers with different goals. For example, the information of a metal nameplate can be used by a human-being to identify a device represented by an asset instance, but a software certificate provided by a device might help a software component identify the device in the network,...\nAn asset identifier might have an identifier_type, that defines its format and possibly even semantics.",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/AssetIdentifier"
+              },
+              {
+                "$ref": "#/$defs/SoftwareIdentifier"
+              },
+              {
+                "$ref": "#/$defs/ArtifactChecksum"
+              },
+              {
+                "$ref": "#/$defs/ProductSerialIdentifier"
+              },
+              {
+                "$ref": "#/$defs/MacIdentifier"
+              },
+              {
+                "$ref": "#/$defs/Ipv4Identifier"
+              },
+              {
+                "$ref": "#/$defs/Ipv6Identifier"
+              },
+              {
+                "$ref": "#/$defs/GatewayIdentifier"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        "asset_operations": {
+          "description": "List of device management operations supported by an asset. Each operation type might appear only once.",
+          "items": {
+            "$ref": "#/$defs/AssetOperation"
+          },
+          "type": "array"
+        },
+        "connection_points": {
+          "description": "An asset might have a connection point that can be used to connect with the asset. In the case of devices, at least one connection point is required. It might be a connection point needed for AssetManagement for interaction with the asset or for other connections of the asset related to the asset function but not to device management.",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/ConnectionPoint"
+              },
+              {
+                "$ref": "#/$defs/Ipv4Connectivity"
+              },
+              {
+                "$ref": "#/$defs/Ipv6Connectivity"
+              },
+              {
+                "$ref": "#/$defs/EthernetPort"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        "custom_running_software_type": {
+          "description": "Custom running software type.",
+          "type": "string"
+        },
+        "custom_ui_properties": {
+          "description": "Metadata associated with Asset in User Interface",
+          "items": {
+            "$ref": "#/$defs/CustomProperty"
+          },
+          "type": "array"
+        },
+        "functional_object_type": {
+          "description": "Type designator that provides support for polymorphism using functional parts.",
+          "enum": ["Dcd"],
+          "type": "string"
+        },
+        "functional_parts": {
+          "description": "The functional objects that an asset is composed of, in case such a level of decomposition is desired. This is enables having assets composed of other assets and even devices composed of other devices and assets.\nAn Asset must be addressable independently from other Assets (therefore they need to have an \"id\") and are therefore individually modeled. But not all parts of an Asset that are modeled need to be individually addressable, these are FunctionalObjects, but not Assets.\nProbably those functional_parts of an Asset providing some function for the Asset will be modeled here. Therefore an Asset can delegate the Interactions that it's offering to its functional_parts.",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/Asset"
+              },
+              {
+                "$ref": "#/$defs/Device"
+              },
+              {
+                "$ref": "#/$defs/SoftwareAsset"
+              },
+              {
+                "$ref": "#/$defs/SoftwareArtifact"
+              },
+              {
+                "$ref": "#/$defs/RunningSoftware"
+              },
+              {
+                "$ref": "#/$defs/AssetLink"
+              },
+              {
+                "$ref": "#/$defs/Dcd"
+              },
+              {
+                "$ref": "#/$defs/Gateway"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        "id": {
+          "description": "The identifier property represents any kind of identifier for any kind of Thing, such as ISBNs, GTIN codes, UUIDs etc. Schema.org provides dedicated properties for representing many of these, either as textual strings or as URL (URI) links.",
+          "type": "string"
+        },
+        "instance_annotations": {
+          "description": "Metadata associated to an object.",
+          "items": {
+            "$ref": "#/$defs/InstanceAnnotation"
+          },
+          "type": "array"
+        },
+        "last_modified_timestamp": {
+          "description": "Timestamp of last asset modification",
+          "format": "date-time",
+          "type": "string"
+        },
+        "management_state": {
+          "$ref": "#/$defs/ManagementState",
+          "description": "A manage state is an attribute of an asset that specifies how an asset is being regarded by an asset management system (is it being regarded or ignored). Some assets might be known to the Industrial Asset Hub (for example, discovered through a network scan), but want to be ignored for different reasons.\nThe goals of this attribute are: to avoid rediscovering assets being ignored and to focus management activities on those assets being regarded.\nAssets that can be discovered, but not supported, might evolve from an \"ignored\" to a \"regarded\" state, once supported."
+        },
+        "name": {
+          "description": "The name of the item.",
+          "type": "string"
+        },
+        "other_states": {
+          "description": "Specify the state of other aspects apart from management state.",
+          "items": {
+            "$ref": "#/$defs/State"
+          },
+          "type": "array"
+        },
+        "product_instance_identifier": {
+          "$ref": "#/$defs/ProductSerialIdentifier",
+          "description": "Identifier of a device based on its serial number."
+        },
+        "reachability_state": {
+          "$ref": "#/$defs/ReachabilityState",
+          "description": "A slot to track the last observed reachability state and when it was observed."
+        },
+        "running_software_type": {
+          "$ref": "#/$defs/RunningSoftwareValues",
+          "description": "Type of running software."
+        },
+        "running_sw_id": {
+          "description": "Identifier for a running software instance.",
+          "type": "string"
+        },
+        "software_components": {
+          "description": "An asset can host software artifacts that might want to be tracked. This can be used simply to keep track of the firmware version or to keep a full-blown Software Bill of Material (SBOM).\nPlease notice that this attribute is not meant to model relationships between the different software assets available in a device. Static relationships implicit to the SoftwareAssets themselves (like \"firmware image A contains package X\" or \"package X depends on package Y\") might be modeled on the Software Assets, if desired. Although it probably goes beyond the purpose of asset modeling. Deployment dependent relationships (like \"firmware image needs to be installed before installing app\") might be modeled as external AssetLinks, if desired. Once again it probably goes beyond the purpose of asset modeling.",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/SoftwareAsset"
+              },
+              {
+                "$ref": "#/$defs/SoftwareArtifact"
+              },
+              {
+                "$ref": "#/$defs/RunningSoftware"
+              },
+              {
+                "$ref": "#/$defs/AssetLink"
+              },
+              {
+                "$ref": "#/$defs/Dcd"
+              },
+              {
+                "$ref": "#/$defs/Gateway"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        "zone": {
+          "description": "Provides references to the different zones that an asset belongs to.\nZones are typically used to group assets logically mostly for the purpose of access control. That way it is possible to give certain roles or persons specific permissions to all assets associated to a zone.",
+          "type": "string"
+        }
+      },
+      "required": ["management_state", "id"],
+      "title": "Dcd",
+      "type": "object"
+    },
+    "Device": {
+      "additionalProperties": false,
+      "description": "A device is a special type of asset that can be managed with some asset management system. In order to be manageable, it requires at least one connection point for the asset management to communicate with the device and software capable of interacting with the asset management.",
+      "properties": {
+        "asset_identifiers": {
+          "description": "An asset identifier is an asset attribute that provides enough information to unequivocally identify the represented object.\nIn some cases the ID attribute acts simultaneously as a reference for the asset instance and as identifier for the represented object, otherwise at least one asset identifier is needed.\nThere can be multiple asset_identifiers with different goals. For example, the information of a metal nameplate can be used by a human-being to identify a device represented by an asset instance, but a software certificate provided by a device might help a software component identify the device in the network,...\nAn asset identifier might have an identifier_type, that defines its format and possibly even semantics.",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/AssetIdentifier"
+              },
+              {
+                "$ref": "#/$defs/SoftwareIdentifier"
+              },
+              {
+                "$ref": "#/$defs/ArtifactChecksum"
+              },
+              {
+                "$ref": "#/$defs/ProductSerialIdentifier"
+              },
+              {
+                "$ref": "#/$defs/MacIdentifier"
+              },
+              {
+                "$ref": "#/$defs/Ipv4Identifier"
+              },
+              {
+                "$ref": "#/$defs/Ipv6Identifier"
+              },
+              {
+                "$ref": "#/$defs/GatewayIdentifier"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        "asset_operations": {
+          "description": "List of device management operations supported by an asset. Each operation type might appear only once.",
+          "items": {
+            "$ref": "#/$defs/AssetOperation"
+          },
+          "type": "array"
+        },
+        "connection_points": {
+          "description": "An asset might have a connection point that can be used to connect with the asset. In the case of devices, at least one connection point is required. It might be a connection point needed for AssetManagement for interaction with the asset or for other connections of the asset related to the asset function but not to device management.",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/ConnectionPoint"
+              },
+              {
+                "$ref": "#/$defs/Ipv4Connectivity"
+              },
+              {
+                "$ref": "#/$defs/Ipv6Connectivity"
+              },
+              {
+                "$ref": "#/$defs/EthernetPort"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        "custom_ui_properties": {
+          "description": "Metadata associated with Asset in User Interface",
+          "items": {
+            "$ref": "#/$defs/CustomProperty"
+          },
+          "type": "array"
+        },
+        "functional_object_type": {
+          "description": "Type designator that provides support for polymorphism using functional parts.",
+          "enum": ["Device"],
+          "type": "string"
+        },
+        "functional_parts": {
+          "description": "The functional objects that an asset is composed of, in case such a level of decomposition is desired. This is enables having assets composed of other assets and even devices composed of other devices and assets.\nAn Asset must be addressable independently from other Assets (therefore they need to have an \"id\") and are therefore individually modeled. But not all parts of an Asset that are modeled need to be individually addressable, these are FunctionalObjects, but not Assets.\nProbably those functional_parts of an Asset providing some function for the Asset will be modeled here. Therefore an Asset can delegate the Interactions that it's offering to its functional_parts.",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/Asset"
+              },
+              {
+                "$ref": "#/$defs/Device"
+              },
+              {
+                "$ref": "#/$defs/SoftwareAsset"
+              },
+              {
+                "$ref": "#/$defs/SoftwareArtifact"
+              },
+              {
+                "$ref": "#/$defs/RunningSoftware"
+              },
+              {
+                "$ref": "#/$defs/AssetLink"
+              },
+              {
+                "$ref": "#/$defs/Dcd"
+              },
+              {
+                "$ref": "#/$defs/Gateway"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        "id": {
+          "description": "The identifier property represents any kind of identifier for any kind of Thing, such as ISBNs, GTIN codes, UUIDs etc. Schema.org provides dedicated properties for representing many of these, either as textual strings or as URL (URI) links.",
+          "type": "string"
+        },
+        "instance_annotations": {
+          "description": "Metadata associated to an object.",
+          "items": {
+            "$ref": "#/$defs/InstanceAnnotation"
+          },
+          "type": "array"
+        },
+        "last_modified_timestamp": {
+          "description": "Timestamp of last asset modification",
+          "format": "date-time",
+          "type": "string"
+        },
+        "management_state": {
+          "$ref": "#/$defs/ManagementState",
+          "description": "A manage state is an attribute of an asset that specifies how an asset is being regarded by an asset management system (is it being regarded or ignored). Some assets might be known to the Industrial Asset Hub (for example, discovered through a network scan), but want to be ignored for different reasons.\nThe goals of this attribute are: to avoid rediscovering assets being ignored and to focus management activities on those assets being regarded.\nAssets that can be discovered, but not supported, might evolve from an \"ignored\" to a \"regarded\" state, once supported."
+        },
+        "name": {
+          "description": "The name of the item.",
+          "type": "string"
+        },
+        "other_states": {
+          "description": "Specify the state of other aspects apart from management state.",
+          "items": {
+            "$ref": "#/$defs/State"
+          },
+          "type": "array"
+        },
+        "product_instance_identifier": {
+          "$ref": "#/$defs/ProductSerialIdentifier",
+          "description": "Identifier of a device based on its serial number."
+        },
+        "reachability_state": {
+          "$ref": "#/$defs/ReachabilityState",
+          "description": "A slot to track the last observed reachability state and when it was observed."
+        },
+        "software_components": {
+          "description": "An asset can host software artifacts that might want to be tracked. This can be used simply to keep track of the firmware version or to keep a full-blown Software Bill of Material (SBOM).\nPlease notice that this attribute is not meant to model relationships between the different software assets available in a device. Static relationships implicit to the SoftwareAssets themselves (like \"firmware image A contains package X\" or \"package X depends on package Y\") might be modeled on the Software Assets, if desired. Although it probably goes beyond the purpose of asset modeling. Deployment dependent relationships (like \"firmware image needs to be installed before installing app\") might be modeled as external AssetLinks, if desired. Once again it probably goes beyond the purpose of asset modeling.",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/SoftwareAsset"
+              },
+              {
+                "$ref": "#/$defs/SoftwareArtifact"
+              },
+              {
+                "$ref": "#/$defs/RunningSoftware"
+              },
+              {
+                "$ref": "#/$defs/AssetLink"
+              },
+              {
+                "$ref": "#/$defs/Dcd"
+              },
+              {
+                "$ref": "#/$defs/Gateway"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        "zone": {
+          "description": "Provides references to the different zones that an asset belongs to.\nZones are typically used to group assets logically mostly for the purpose of access control. That way it is possible to give certain roles or persons specific permissions to all assets associated to a zone.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "software_components",
+        "reachability_state",
+        "management_state",
+        "id"
+      ],
+      "title": "Device",
+      "type": "object"
+    },
+    "EthernetPort": {
+      "additionalProperties": false,
+      "description": "A hardware ConnectionPoint that supports one of the Ethernet networking protocol as defined in the standard [IEEE 802.3](https://en.wikipedia.org/wiki/IEEE_802.3).",
+      "properties": {
+        "connection_point_type": {
+          "const": "EthernetPort",
+          "description": "Type designator that provides support for polymorphism using connection points.",
+          "enum": ["EthernetPort"],
+          "type": "string"
+        },
+        "id": {
+          "description": "The identifier property represents any kind of identifier for any kind of Thing, such as ISBNs, GTIN codes, UUIDs etc. Schema.org provides dedicated properties for representing many of these, either as textual strings or as URL (URI) links.",
+          "type": "string"
+        },
+        "instance_annotations": {
+          "description": "Metadata associated to an object.",
+          "items": {
+            "$ref": "#/$defs/InstanceAnnotation"
+          },
+          "type": "array"
+        },
+        "mac_address": {
+          "description": "The MAC address of the port. It is expected to be fixed, but in some ethernet ports it can be changed.\nAn asset instance must provide for each ethernet port the default MAC address.",
+          "pattern": "^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$",
+          "type": "string"
+        },
+        "related_connection_points": {
+          "description": "A connection point might rely on another connection point to work.\nExamples: a TCP/IP connection can only work if there is some kind of connection point at physical level (e.g. Ethernet Port, Bluetooth Port), a container might be connected over a virtual ethernet to a software bridge, a software bridge might be directly connected to an ethernet port.\nThis attribute enables modeling these kind of dependencies in a limited way. Other modeling mechanisms might be needed to model complex networking set-ups.",
+          "items": {
+            "$ref": "#/$defs/RelatedConnectionPoint"
+          },
+          "type": "array"
+        }
+      },
+      "required": ["id"],
+      "title": "EthernetPort",
+      "type": "object"
+    },
+    "FunctionalObject": {
+      "additionalProperties": false,
+      "description": "A part of a system, and has a function whose realization contributes to the performance of the system as a whole.",
+      "properties": {
+        "functional_object_type": {
+          "description": "Type designator that provides support for polymorphism using functional parts.",
+          "enum": ["FunctionalObject"],
+          "type": "string"
+        },
+        "id": {
+          "description": "The identifier property represents any kind of identifier for any kind of Thing, such as ISBNs, GTIN codes, UUIDs etc. Schema.org provides dedicated properties for representing many of these, either as textual strings or as URL (URI) links.",
+          "type": "string"
+        },
+        "instance_annotations": {
+          "description": "Metadata associated to an object.",
+          "items": {
+            "$ref": "#/$defs/InstanceAnnotation"
+          },
+          "type": "array"
+        },
+        "name": {
+          "description": "The name of the item.",
+          "type": "string"
+        }
+      },
+      "required": ["id"],
+      "title": "FunctionalObject",
+      "type": "object"
+    },
+    "Gateway": {
+      "additionalProperties": false,
+      "description": "Gateway as a software asset can be mapped using the class",
+      "properties": {
+        "artifact": {
+          "$ref": "#/$defs/SoftwareArtifact",
+          "description": "Reference to the software artifact which the running software has been instantiated from.\nAs of now the combination of multiple software artifacts into a running software (for example with plug-ins) is not supported and can not be natively modeled. Instance annotations need to be used for that purpose."
+        },
+        "asset_identifiers": {
+          "description": "An asset identifier is an asset attribute that provides enough information to unequivocally identify the represented object.\nIn some cases the ID attribute acts simultaneously as a reference for the asset instance and as identifier for the represented object, otherwise at least one asset identifier is needed.\nThere can be multiple asset_identifiers with different goals. For example, the information of a metal nameplate can be used by a human-being to identify a device represented by an asset instance, but a software certificate provided by a device might help a software component identify the device in the network,...\nAn asset identifier might have an identifier_type, that defines its format and possibly even semantics.",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/AssetIdentifier"
+              },
+              {
+                "$ref": "#/$defs/SoftwareIdentifier"
+              },
+              {
+                "$ref": "#/$defs/ArtifactChecksum"
+              },
+              {
+                "$ref": "#/$defs/ProductSerialIdentifier"
+              },
+              {
+                "$ref": "#/$defs/MacIdentifier"
+              },
+              {
+                "$ref": "#/$defs/Ipv4Identifier"
+              },
+              {
+                "$ref": "#/$defs/Ipv6Identifier"
+              },
+              {
+                "$ref": "#/$defs/GatewayIdentifier"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        "asset_operations": {
+          "description": "List of device management operations supported by an asset. Each operation type might appear only once.",
+          "items": {
+            "$ref": "#/$defs/AssetOperation"
+          },
+          "type": "array"
+        },
+        "connection_points": {
+          "description": "An asset might have a connection point that can be used to connect with the asset. In the case of devices, at least one connection point is required. It might be a connection point needed for AssetManagement for interaction with the asset or for other connections of the asset related to the asset function but not to device management.",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/ConnectionPoint"
+              },
+              {
+                "$ref": "#/$defs/Ipv4Connectivity"
+              },
+              {
+                "$ref": "#/$defs/Ipv6Connectivity"
+              },
+              {
+                "$ref": "#/$defs/EthernetPort"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        "custom_running_software_type": {
+          "description": "Custom running software type.",
+          "type": "string"
+        },
+        "custom_ui_properties": {
+          "description": "Metadata associated with Asset in User Interface",
+          "items": {
+            "$ref": "#/$defs/CustomProperty"
+          },
+          "type": "array"
+        },
+        "functional_object_type": {
+          "description": "Type designator that provides support for polymorphism using functional parts.",
+          "enum": ["Gateway"],
+          "type": "string"
+        },
+        "functional_parts": {
+          "description": "The functional objects that an asset is composed of, in case such a level of decomposition is desired. This is enables having assets composed of other assets and even devices composed of other devices and assets.\nAn Asset must be addressable independently from other Assets (therefore they need to have an \"id\") and are therefore individually modeled. But not all parts of an Asset that are modeled need to be individually addressable, these are FunctionalObjects, but not Assets.\nProbably those functional_parts of an Asset providing some function for the Asset will be modeled here. Therefore an Asset can delegate the Interactions that it's offering to its functional_parts.",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/Asset"
+              },
+              {
+                "$ref": "#/$defs/Device"
+              },
+              {
+                "$ref": "#/$defs/SoftwareAsset"
+              },
+              {
+                "$ref": "#/$defs/SoftwareArtifact"
+              },
+              {
+                "$ref": "#/$defs/RunningSoftware"
+              },
+              {
+                "$ref": "#/$defs/AssetLink"
+              },
+              {
+                "$ref": "#/$defs/Dcd"
+              },
+              {
+                "$ref": "#/$defs/Gateway"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        "gateway_identifier": {
+          "$ref": "#/$defs/GatewayIdentifier",
+          "description": "Provides an AssetIdentifier for Gateways that uses the ID of the certificate used to onboard the Gateway."
+        },
+        "id": {
+          "description": "The identifier property represents any kind of identifier for any kind of Thing, such as ISBNs, GTIN codes, UUIDs etc. Schema.org provides dedicated properties for representing many of these, either as textual strings or as URL (URI) links.",
+          "type": "string"
+        },
+        "instance_annotations": {
+          "description": "Metadata associated to an object.",
+          "items": {
+            "$ref": "#/$defs/InstanceAnnotation"
+          },
+          "type": "array"
+        },
+        "last_modified_timestamp": {
+          "description": "Timestamp of last asset modification",
+          "format": "date-time",
+          "type": "string"
+        },
+        "management_state": {
+          "$ref": "#/$defs/ManagementState",
+          "description": "A manage state is an attribute of an asset that specifies how an asset is being regarded by an asset management system (is it being regarded or ignored). Some assets might be known to the Industrial Asset Hub (for example, discovered through a network scan), but want to be ignored for different reasons.\nThe goals of this attribute are: to avoid rediscovering assets being ignored and to focus management activities on those assets being regarded.\nAssets that can be discovered, but not supported, might evolve from an \"ignored\" to a \"regarded\" state, once supported."
+        },
+        "name": {
+          "description": "The name of the item.",
+          "type": "string"
+        },
+        "other_states": {
+          "description": "Specify the state of other aspects apart from management state.",
+          "items": {
+            "$ref": "#/$defs/State"
+          },
+          "type": "array"
+        },
+        "product_instance_identifier": {
+          "$ref": "#/$defs/ProductSerialIdentifier",
+          "description": "Identifier of a device based on its serial number."
+        },
+        "reachability_state": {
+          "$ref": "#/$defs/ReachabilityState",
+          "description": "A slot to track the last observed reachability state and when it was observed."
+        },
+        "running_asset_links": {
+          "description": "List of Link Assets running on an Asset Gateway and registered.",
+          "items": {
+            "$ref": "#/$defs/AssetLink"
+          },
+          "type": "array"
+        },
+        "running_dcds": {
+          "description": "List of Link Assets running on an Asset Gateway and registered.",
+          "items": {
+            "$ref": "#/$defs/Dcd"
+          },
+          "type": "array"
+        },
+        "running_software_type": {
+          "$ref": "#/$defs/RunningSoftwareValues",
+          "description": "Type of running software."
+        },
+        "running_sw_id": {
+          "description": "Identifier for a running software instance.",
+          "type": "string"
+        },
+        "software_components": {
+          "description": "An asset can host software artifacts that might want to be tracked. This can be used simply to keep track of the firmware version or to keep a full-blown Software Bill of Material (SBOM).\nPlease notice that this attribute is not meant to model relationships between the different software assets available in a device. Static relationships implicit to the SoftwareAssets themselves (like \"firmware image A contains package X\" or \"package X depends on package Y\") might be modeled on the Software Assets, if desired. Although it probably goes beyond the purpose of asset modeling. Deployment dependent relationships (like \"firmware image needs to be installed before installing app\") might be modeled as external AssetLinks, if desired. Once again it probably goes beyond the purpose of asset modeling.",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/SoftwareAsset"
+              },
+              {
+                "$ref": "#/$defs/SoftwareArtifact"
+              },
+              {
+                "$ref": "#/$defs/RunningSoftware"
+              },
+              {
+                "$ref": "#/$defs/AssetLink"
+              },
+              {
+                "$ref": "#/$defs/Dcd"
+              },
+              {
+                "$ref": "#/$defs/Gateway"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        "trust_established_state": {
+          "$ref": "#/$defs/TrustEstablishedState",
+          "description": "A slot to track the trust establishment of the asset"
+        },
+        "zone": {
+          "description": "Provides references to the different zones that an asset belongs to.\nZones are typically used to group assets logically mostly for the purpose of access control. That way it is possible to give certain roles or persons specific permissions to all assets associated to a zone.",
+          "type": "string"
+        }
+      },
+      "required": ["management_state", "id"],
+      "title": "Gateway",
+      "type": "object"
+    },
+    "GatewayIdentifier": {
+      "additionalProperties": false,
+      "description": "GatewayId and Base64 encoded version of certificate subject key identifer will be the identifier for the Gateway.",
+      "properties": {
+        "asset_identifier_type": {
+          "description": "Type designator that provides support for polymorphism using asset identifiers.",
+          "enum": ["GatewayIdentifier"],
+          "type": "string"
+        },
+        "certificate_id": {
+          "description": "Base64 encoded version of certificate subject key identifer",
+          "type": "string"
+        },
+        "identifier_type": {
+          "description": "Type of an items identifier.",
+          "type": "string"
+        },
+        "identifier_uncertainty": {
+          "description": "Number that tells how uncertain an identifier is compared with other identifiers provided by an Asset Link. The highest the number, the more uncertain the identification must be considered. This number has to be considered relative to the other identifiers for the same element. The default value is 0, meaning no uncertainty.\nThis index helps decide across Asset Links which identifiers are better suited for deduplication. The identifier provided by two different Asset Links with the lowest uncertainty should be chosen for deduplication purposes.",
+          "type": "integer"
+        }
+      },
+      "title": "GatewayIdentifier",
+      "type": "object"
+    },
+    "Identifier": {
+      "additionalProperties": false,
+      "description": "An element that provides an unambiguous identification of an item.\nIt can be an object, in which case the combination of the attributes specified as \"unique keys\" must be unique.",
+      "properties": {
+        "identifier_type": {
+          "description": "Type of an items identifier.",
+          "type": "string"
+        },
+        "identifier_uncertainty": {
+          "description": "Number that tells how uncertain an identifier is compared with other identifiers provided by an Asset Link. The highest the number, the more uncertain the identification must be considered. This number has to be considered relative to the other identifiers for the same element. The default value is 0, meaning no uncertainty.\nThis index helps decide across Asset Links which identifiers are better suited for deduplication. The identifier provided by two different Asset Links with the lowest uncertainty should be chosen for deduplication purposes.",
+          "type": "integer"
+        }
+      },
+      "title": "Identifier",
+      "type": "object"
+    },
+    "IdentifierType": {
+      "additionalProperties": false,
+      "description": "Provides the context needed to interpret an identifier based on standards, code tables,...\nCreating an Identifier subclass provides a more powerful mechanism to specify an identifier type. Since it supports the addition of further slots and patterns for the Identifiers.",
+      "properties": {
+        "id": {
+          "description": "The identifier property represents any kind of identifier for any kind of Thing, such as ISBNs, GTIN codes, UUIDs etc. Schema.org provides dedicated properties for representing many of these, either as textual strings or as URL (URI) links.",
+          "type": "string"
+        }
+      },
+      "required": ["id"],
+      "title": "IdentifierType",
+      "type": "object"
+    },
+    "InstanceAnnotation": {
+      "additionalProperties": false,
+      "description": "Key/value pair that can be used to add metadata to an object.",
+      "properties": {
+        "key": {
+          "description": "The identifier of a key/value pair.",
+          "type": "string"
+        },
+        "value": {
+          "description": "The real metadata of a key/value pair.",
+          "type": "string"
+        }
+      },
+      "title": "InstanceAnnotation",
+      "type": "object"
+    },
+    "Intangible": {
+      "additionalProperties": false,
+      "description": "A utility class that serves as the umbrella for a number of 'intangible' things such as quantities, structured values, etc.",
+      "properties": {
+        "id": {
+          "description": "The identifier property represents any kind of identifier for any kind of Thing, such as ISBNs, GTIN codes, UUIDs etc. Schema.org provides dedicated properties for representing many of these, either as textual strings or as URL (URI) links.",
+          "type": "string"
+        },
+        "name": {
+          "description": "The name of the item.",
+          "type": "string"
+        }
+      },
+      "required": ["id"],
+      "title": "Intangible",
+      "type": "object"
+    },
+    "Ipv4Connectivity": {
+      "additionalProperties": false,
+      "description": "Configuration of an IP port. Please notice that the configuration of an IP address is independent of the Ethernet port configuration.",
+      "properties": {
+        "connection_point_type": {
+          "const": "Ipv4Connectivity",
+          "description": "Type designator that provides support for polymorphism using connection points.",
+          "enum": ["Ipv4Connectivity"],
+          "type": "string"
+        },
+        "id": {
+          "description": "The identifier property represents any kind of identifier for any kind of Thing, such as ISBNs, GTIN codes, UUIDs etc. Schema.org provides dedicated properties for representing many of these, either as textual strings or as URL (URI) links.",
+          "type": "string"
+        },
+        "instance_annotations": {
+          "description": "Metadata associated to an object.",
+          "items": {
+            "$ref": "#/$defs/InstanceAnnotation"
+          },
+          "type": "array"
+        },
+        "ipv4_address": {
+          "description": "The IP v4 address of a device port.",
+          "pattern": "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
+          "type": "string"
+        },
+        "network_mask": {
+          "description": "The mask that segregates IPs v4 belonging to the same sub-network from the rest.",
+          "pattern": "^(255)\\.(0|128|192|224|240|248|252|254|255)\\.(0|128|192|224|240|248|252|254|255)\\.(0|128|192|224|240|248|252|254|255)$",
+          "type": "string"
+        },
+        "related_connection_points": {
+          "description": "A connection point might rely on another connection point to work.\nExamples: a TCP/IP connection can only work if there is some kind of connection point at physical level (e.g. Ethernet Port, Bluetooth Port), a container might be connected over a virtual ethernet to a software bridge, a software bridge might be directly connected to an ethernet port.\nThis attribute enables modeling these kind of dependencies in a limited way. Other modeling mechanisms might be needed to model complex networking set-ups.",
+          "items": {
+            "$ref": "#/$defs/RelatedConnectionPoint"
+          },
+          "type": "array"
+        },
+        "router_ipv4_address": {
+          "description": "The IPv4 address of the router (AKA gateway) corresponding to a IPv4 address.",
+          "pattern": "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
+          "type": "string"
+        }
+      },
+      "required": ["id"],
+      "title": "Ipv4Connectivity",
+      "type": "object"
+    },
+    "Ipv4Identifier": {
+      "additionalProperties": false,
+      "description": "Identifier for an Asset instance using one IPv4 address assigned to it.",
+      "properties": {
+        "asset_identifier_type": {
+          "description": "Type designator that provides support for polymorphism using asset identifiers.",
+          "enum": ["Ipv4Identifier"],
+          "type": "string"
+        },
+        "identifier_type": {
+          "description": "Type of an items identifier.",
+          "type": "string"
+        },
+        "identifier_uncertainty": {
+          "description": "Number that tells how uncertain an identifier is compared with other identifiers provided by an Asset Link. The highest the number, the more uncertain the identification must be considered. This number has to be considered relative to the other identifiers for the same element. The default value is 0, meaning no uncertainty.\nThis index helps decide across Asset Links which identifiers are better suited for deduplication. The identifier provided by two different Asset Links with the lowest uncertainty should be chosen for deduplication purposes.",
+          "type": "integer"
+        },
+        "ipv4_address": {
+          "description": "The IP v4 address of a device port.",
+          "pattern": "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
+          "type": "string"
+        }
+      },
+      "title": "Ipv4Identifier",
+      "type": "object"
+    },
+    "Ipv6Connectivity": {
+      "additionalProperties": false,
+      "description": "Configuration of an IP port. Please notice that the configuration of an IP address is independent of the Ethernet port configuration.",
+      "properties": {
+        "connection_point_type": {
+          "const": "Ipv6Connectivity",
+          "description": "Type designator that provides support for polymorphism using connection points.",
+          "enum": ["Ipv6Connectivity"],
+          "type": "string"
+        },
+        "id": {
+          "description": "The identifier property represents any kind of identifier for any kind of Thing, such as ISBNs, GTIN codes, UUIDs etc. Schema.org provides dedicated properties for representing many of these, either as textual strings or as URL (URI) links.",
+          "type": "string"
+        },
+        "instance_annotations": {
+          "description": "Metadata associated to an object.",
+          "items": {
+            "$ref": "#/$defs/InstanceAnnotation"
+          },
+          "type": "array"
+        },
+        "ipv6_address": {
+          "description": "The IP v6 address of a device port.",
+          "pattern": "^(?:[a-fA-F0-9]{1,4}:){7}[a-fA-F0-9]{1,4}$",
+          "type": "string"
+        },
+        "ipv6_network_prefix": {
+          "description": "Prefix of the subnetwork in which the IP address is located.",
+          "pattern": "^[a-fA-F0-9]{1,4}:(?:[a-fA-F0-9]{0,4}:){1,7}/([0-9]{1,2}|1[01][0-9]|12[0-8])$",
+          "type": "string"
+        },
+        "related_connection_points": {
+          "description": "A connection point might rely on another connection point to work.\nExamples: a TCP/IP connection can only work if there is some kind of connection point at physical level (e.g. Ethernet Port, Bluetooth Port), a container might be connected over a virtual ethernet to a software bridge, a software bridge might be directly connected to an ethernet port.\nThis attribute enables modeling these kind of dependencies in a limited way. Other modeling mechanisms might be needed to model complex networking set-ups.",
+          "items": {
+            "$ref": "#/$defs/RelatedConnectionPoint"
+          },
+          "type": "array"
+        },
+        "router_ipv6_address": {
+          "description": "The IP v6 address of the default IP v6 router (AKA gateway).",
+          "pattern": "^(?:[a-fA-F0-9]{0,4}:){1,7}[a-fA-F0-9]{1,4}$",
+          "type": "string"
+        }
+      },
+      "required": ["id"],
+      "title": "Ipv6Connectivity",
+      "type": "object"
+    },
+    "Ipv6Identifier": {
+      "additionalProperties": false,
+      "description": "Identifier for an Asset instance using one IPv6 address assigned to it.",
+      "properties": {
+        "asset_identifier_type": {
+          "description": "Type designator that provides support for polymorphism using asset identifiers.",
+          "enum": ["Ipv6Identifier"],
+          "type": "string"
+        },
+        "identifier_type": {
+          "description": "Type of an items identifier.",
+          "type": "string"
+        },
+        "identifier_uncertainty": {
+          "description": "Number that tells how uncertain an identifier is compared with other identifiers provided by an Asset Link. The highest the number, the more uncertain the identification must be considered. This number has to be considered relative to the other identifiers for the same element. The default value is 0, meaning no uncertainty.\nThis index helps decide across Asset Links which identifiers are better suited for deduplication. The identifier provided by two different Asset Links with the lowest uncertainty should be chosen for deduplication purposes.",
+          "type": "integer"
+        },
+        "ipv6_address": {
+          "description": "The IP v6 address of a device port.",
+          "pattern": "^(?:[a-fA-F0-9]{1,4}:){7}[a-fA-F0-9]{1,4}$",
+          "type": "string"
+        }
+      },
+      "title": "Ipv6Identifier",
+      "type": "object"
+    },
+    "MacIdentifier": {
+      "additionalProperties": false,
+      "description": "Identifier for an Asset instance using the mac address.",
+      "properties": {
+        "asset_identifier_type": {
+          "description": "Type designator that provides support for polymorphism using asset identifiers.",
+          "enum": ["MacIdentifier"],
+          "type": "string"
+        },
+        "identifier_type": {
+          "description": "Type of an items identifier.",
+          "type": "string"
+        },
+        "identifier_uncertainty": {
+          "description": "Number that tells how uncertain an identifier is compared with other identifiers provided by an Asset Link. The highest the number, the more uncertain the identification must be considered. This number has to be considered relative to the other identifiers for the same element. The default value is 0, meaning no uncertainty.\nThis index helps decide across Asset Links which identifiers are better suited for deduplication. The identifier provided by two different Asset Links with the lowest uncertainty should be chosen for deduplication purposes.",
+          "type": "integer"
+        },
+        "mac_address": {
+          "description": "The MAC address of the port. It is expected to be fixed, but in some ethernet ports it can be changed.\nAn asset instance must provide for each ethernet port the default MAC address.",
+          "pattern": "^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$",
+          "type": "string"
+        }
+      },
+      "title": "MacIdentifier",
+      "type": "object"
+    },
+    "ManagementState": {
+      "additionalProperties": false,
+      "description": "Documents if the asset is being regarded (managed) by any AssetManagement or not. AssetManagement systems regarding the asset will be listed in the \"managedBy\" property.",
+      "properties": {
+        "state_timestamp": {
+          "description": "Time when the current state has been observed.",
+          "format": "date-time",
+          "type": "string"
+        },
+        "state_value": {
+          "$ref": "#/$defs/ManagementStateValues",
+          "description": "The state of an object."
+        }
+      },
+      "title": "ManagementState",
+      "type": "object"
+    },
+    "ManagementStateValues": {
+      "description": "Possible management states.",
+      "enum": ["regarded", "ignored", "unknown"],
+      "title": "ManagementStateValues",
+      "type": "string"
+    },
+    "Organization": {
+      "additionalProperties": false,
+      "description": "An organization such as a school, NGO, corporation, club, etc.",
+      "properties": {
+        "address": {
+          "$ref": "#/$defs/PostalAddress",
+          "description": "Physical address of the item."
+        },
+        "alternate_names": {
+          "description": "An alias for the item.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "contact_point": {
+          "$ref": "#/$defs/ContactPoint",
+          "description": "A contact point for a person or organization."
+        },
+        "id": {
+          "description": "The identifier property represents any kind of identifier for any kind of Thing, such as ISBNs, GTIN codes, UUIDs etc. Schema.org provides dedicated properties for representing many of these, either as textual strings or as URL (URI) links.",
+          "type": "string"
+        },
+        "name": {
+          "description": "The name of the item.",
+          "type": "string"
+        }
+      },
+      "required": ["id"],
+      "title": "Organization",
+      "type": "object"
+    },
+    "Person": {
+      "additionalProperties": false,
+      "description": "A person (alive, dead, undead, or fictional).",
+      "properties": {
+        "contact_point": {
+          "$ref": "#/$defs/ContactPoint",
+          "description": "A contact point for a person or organization."
+        },
+        "family_name": {
+          "description": "Family name. In the U.S., the last name of a Person.",
+          "type": "string"
+        },
+        "given_name": {
+          "description": "Given name. In the U.S., the first name of a Person.",
+          "type": "string"
+        },
+        "id": {
+          "description": "The identifier property represents any kind of identifier for any kind of Thing, such as ISBNs, GTIN codes, UUIDs etc. Schema.org provides dedicated properties for representing many of these, either as textual strings or as URL (URI) links.",
+          "type": "string"
+        },
+        "name": {
+          "description": "The name of the item.",
+          "type": "string"
+        }
+      },
+      "required": ["id"],
+      "title": "Person",
+      "type": "object"
+    },
+    "PostalAddress": {
+      "additionalProperties": false,
+      "description": "The mailing address.",
+      "properties": {
+        "address_country": {
+          "$ref": "#/$defs/CountryCode",
+          "description": "2-letter code of the country."
+        },
+        "address_locality": {
+          "description": "Locality name in the local language.",
+          "type": "string"
+        },
+        "address_region": {
+          "description": "Region name in the local language.",
+          "type": "string"
+        },
+        "email": {
+          "description": "Email address.",
+          "type": "string"
+        },
+        "id": {
+          "description": "The identifier property represents any kind of identifier for any kind of Thing, such as ISBNs, GTIN codes, UUIDs etc. Schema.org provides dedicated properties for representing many of these, either as textual strings or as URL (URI) links.",
+          "type": "string"
+        },
+        "name": {
+          "description": "The name of the item.",
+          "type": "string"
+        },
+        "postal_code": {
+          "description": "Postal code (AKA ZIP-code) of the address.",
+          "type": "string"
+        },
+        "street_address": {
+          "description": "Street and number of the address.",
+          "type": "string"
+        },
+        "telephone": {
+          "description": "The telephone number.",
+          "type": "string"
+        }
+      },
+      "required": ["id"],
+      "title": "PostalAddress",
+      "type": "object"
+    },
+    "PredicateValues": {
+      "description": "Possible relationship predicates.",
+      "enum": ["related_to"],
+      "title": "PredicateValues",
+      "type": "string"
+    },
+    "Product": {
+      "additionalProperties": false,
+      "description": "Any offered product or service that might have different versions for the same product ID.",
+      "properties": {
+        "id": {
+          "description": "The identifier property represents any kind of identifier for any kind of Thing, such as ISBNs, GTIN codes, UUIDs etc. Schema.org provides dedicated properties for representing many of these, either as textual strings or as URL (URI) links.",
+          "type": "string"
+        },
+        "manufacturer": {
+          "$ref": "#/$defs/Organization",
+          "description": "The manufacturer of the product."
+        },
+        "name": {
+          "description": "The name of the item.",
+          "type": "string"
+        },
+        "product_id": {
+          "description": "The product identifiers, such as ISBN.",
+          "type": "string"
+        },
+        "product_version": {
+          "description": "Some products might have different versions under the same product ID, the product version helps differentiating the different versions of a product, if multiple exist.",
+          "type": "string"
+        }
+      },
+      "required": ["id"],
+      "title": "Product",
+      "type": "object"
+    },
+    "ProductSerialIdentifier": {
+      "additionalProperties": false,
+      "description": "Identifier for an Asset instance using the product (asset class) identifier and serial number.",
+      "properties": {
+        "asset_identifier_type": {
+          "description": "Type designator that provides support for polymorphism using asset identifiers.",
+          "enum": ["ProductSerialIdentifier"],
+          "type": "string"
+        },
+        "identifier_type": {
+          "description": "Type of an items identifier.",
+          "type": "string"
+        },
+        "identifier_uncertainty": {
+          "description": "Number that tells how uncertain an identifier is compared with other identifiers provided by an Asset Link. The highest the number, the more uncertain the identification must be considered. This number has to be considered relative to the other identifiers for the same element. The default value is 0, meaning no uncertainty.\nThis index helps decide across Asset Links which identifiers are better suited for deduplication. The identifier provided by two different Asset Links with the lowest uncertainty should be chosen for deduplication purposes.",
+          "type": "integer"
+        },
+        "manufacturer_product": {
+          "$ref": "#/$defs/Product",
+          "description": "A way to identify a product based on the manufacturer and the product identifier given by the manufacturer."
+        },
+        "serial_number": {
+          "description": "The serial number or any alphanumeric identifier of a particular product. When attached to an offer, it is a shortcut for the serial number of the product included in the offer.",
+          "type": "string"
+        }
+      },
+      "title": "ProductSerialIdentifier",
+      "type": "object"
+    },
+    "ReachabilityState": {
+      "additionalProperties": false,
+      "description": "The reachability_state based on when an asset that can be contacted (typically a device) was reached (or not) for the last time.",
+      "properties": {
+        "state_timestamp": {
+          "description": "Time when the current state has been observed.",
+          "format": "date-time",
+          "type": "string"
+        },
+        "state_value": {
+          "$ref": "#/$defs/ReachabilityStateValues",
+          "description": "The state of an object."
+        }
+      },
+      "title": "ReachabilityState",
+      "type": "object"
+    },
+    "ReachabilityStateValues": {
+      "description": "Possible reachability states.",
+      "enum": ["reached", "failed", "unknown"],
+      "title": "ReachabilityStateValues",
+      "type": "string"
+    },
+    "RelatedConnectionPoint": {
+      "additionalProperties": false,
+      "description": "Relationship of a ConnectionPoint with another one. This relationship could be of the type \"ConnectionPoint A relies on the connectivity of ConnectionPoint B to work\".",
+      "properties": {
+        "connection_point": {
+          "description": "Reference to the related ConnectionPoint.",
+          "type": "string"
+        },
+        "custom_relationship": {
+          "description": "Type of relationship in an unstructured format.",
+          "type": "string"
+        }
+      },
+      "title": "RelatedConnectionPoint",
+      "type": "object"
+    },
+    "RunningSoftware": {
+      "additionalProperties": false,
+      "description": "Software asset representing running software.\nPlease, notice the difference with SoftwareArtifacts used to instance running software out of them. Multiple RunningSoftware items can be instantiated from a single SoftwareArtifact. For example, multiple containers can be instantiated from a single container image.",
+      "properties": {
+        "artifact": {
+          "$ref": "#/$defs/SoftwareArtifact",
+          "description": "Reference to the software artifact which the running software has been instantiated from.\nAs of now the combination of multiple software artifacts into a running software (for example with plug-ins) is not supported and can not be natively modeled. Instance annotations need to be used for that purpose."
+        },
+        "asset_identifiers": {
+          "description": "An asset identifier is an asset attribute that provides enough information to unequivocally identify the represented object.\nIn some cases the ID attribute acts simultaneously as a reference for the asset instance and as identifier for the represented object, otherwise at least one asset identifier is needed.\nThere can be multiple asset_identifiers with different goals. For example, the information of a metal nameplate can be used by a human-being to identify a device represented by an asset instance, but a software certificate provided by a device might help a software component identify the device in the network,...\nAn asset identifier might have an identifier_type, that defines its format and possibly even semantics.",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/AssetIdentifier"
+              },
+              {
+                "$ref": "#/$defs/SoftwareIdentifier"
+              },
+              {
+                "$ref": "#/$defs/ArtifactChecksum"
+              },
+              {
+                "$ref": "#/$defs/ProductSerialIdentifier"
+              },
+              {
+                "$ref": "#/$defs/MacIdentifier"
+              },
+              {
+                "$ref": "#/$defs/Ipv4Identifier"
+              },
+              {
+                "$ref": "#/$defs/Ipv6Identifier"
+              },
+              {
+                "$ref": "#/$defs/GatewayIdentifier"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        "asset_operations": {
+          "description": "List of device management operations supported by an asset. Each operation type might appear only once.",
+          "items": {
+            "$ref": "#/$defs/AssetOperation"
+          },
+          "type": "array"
+        },
+        "connection_points": {
+          "description": "An asset might have a connection point that can be used to connect with the asset. In the case of devices, at least one connection point is required. It might be a connection point needed for AssetManagement for interaction with the asset or for other connections of the asset related to the asset function but not to device management.",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/ConnectionPoint"
+              },
+              {
+                "$ref": "#/$defs/Ipv4Connectivity"
+              },
+              {
+                "$ref": "#/$defs/Ipv6Connectivity"
+              },
+              {
+                "$ref": "#/$defs/EthernetPort"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        "custom_running_software_type": {
+          "description": "Custom running software type.",
+          "type": "string"
+        },
+        "custom_ui_properties": {
+          "description": "Metadata associated with Asset in User Interface",
+          "items": {
+            "$ref": "#/$defs/CustomProperty"
+          },
+          "type": "array"
+        },
+        "functional_object_type": {
+          "description": "Type designator that provides support for polymorphism using functional parts.",
+          "enum": ["RunningSoftware"],
+          "type": "string"
+        },
+        "functional_parts": {
+          "description": "The functional objects that an asset is composed of, in case such a level of decomposition is desired. This is enables having assets composed of other assets and even devices composed of other devices and assets.\nAn Asset must be addressable independently from other Assets (therefore they need to have an \"id\") and are therefore individually modeled. But not all parts of an Asset that are modeled need to be individually addressable, these are FunctionalObjects, but not Assets.\nProbably those functional_parts of an Asset providing some function for the Asset will be modeled here. Therefore an Asset can delegate the Interactions that it's offering to its functional_parts.",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/Asset"
+              },
+              {
+                "$ref": "#/$defs/Device"
+              },
+              {
+                "$ref": "#/$defs/SoftwareAsset"
+              },
+              {
+                "$ref": "#/$defs/SoftwareArtifact"
+              },
+              {
+                "$ref": "#/$defs/RunningSoftware"
+              },
+              {
+                "$ref": "#/$defs/AssetLink"
+              },
+              {
+                "$ref": "#/$defs/Dcd"
+              },
+              {
+                "$ref": "#/$defs/Gateway"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        "id": {
+          "description": "The identifier property represents any kind of identifier for any kind of Thing, such as ISBNs, GTIN codes, UUIDs etc. Schema.org provides dedicated properties for representing many of these, either as textual strings or as URL (URI) links.",
+          "type": "string"
+        },
+        "instance_annotations": {
+          "description": "Metadata associated to an object.",
+          "items": {
+            "$ref": "#/$defs/InstanceAnnotation"
+          },
+          "type": "array"
+        },
+        "last_modified_timestamp": {
+          "description": "Timestamp of last asset modification",
+          "format": "date-time",
+          "type": "string"
+        },
+        "management_state": {
+          "$ref": "#/$defs/ManagementState",
+          "description": "A manage state is an attribute of an asset that specifies how an asset is being regarded by an asset management system (is it being regarded or ignored). Some assets might be known to the Industrial Asset Hub (for example, discovered through a network scan), but want to be ignored for different reasons.\nThe goals of this attribute are: to avoid rediscovering assets being ignored and to focus management activities on those assets being regarded.\nAssets that can be discovered, but not supported, might evolve from an \"ignored\" to a \"regarded\" state, once supported."
+        },
+        "name": {
+          "description": "The name of the item.",
+          "type": "string"
+        },
+        "other_states": {
+          "description": "Specify the state of other aspects apart from management state.",
+          "items": {
+            "$ref": "#/$defs/State"
+          },
+          "type": "array"
+        },
+        "product_instance_identifier": {
+          "$ref": "#/$defs/ProductSerialIdentifier",
+          "description": "Identifier of a device based on its serial number."
+        },
+        "reachability_state": {
+          "$ref": "#/$defs/ReachabilityState",
+          "description": "A slot to track the last observed reachability state and when it was observed."
+        },
+        "running_software_type": {
+          "$ref": "#/$defs/RunningSoftwareValues",
+          "description": "Type of running software."
+        },
+        "running_sw_id": {
+          "description": "Identifier for a running software instance.",
+          "type": "string"
+        },
+        "software_components": {
+          "description": "An asset can host software artifacts that might want to be tracked. This can be used simply to keep track of the firmware version or to keep a full-blown Software Bill of Material (SBOM).\nPlease notice that this attribute is not meant to model relationships between the different software assets available in a device. Static relationships implicit to the SoftwareAssets themselves (like \"firmware image A contains package X\" or \"package X depends on package Y\") might be modeled on the Software Assets, if desired. Although it probably goes beyond the purpose of asset modeling. Deployment dependent relationships (like \"firmware image needs to be installed before installing app\") might be modeled as external AssetLinks, if desired. Once again it probably goes beyond the purpose of asset modeling.",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/SoftwareAsset"
+              },
+              {
+                "$ref": "#/$defs/SoftwareArtifact"
+              },
+              {
+                "$ref": "#/$defs/RunningSoftware"
+              },
+              {
+                "$ref": "#/$defs/AssetLink"
+              },
+              {
+                "$ref": "#/$defs/Dcd"
+              },
+              {
+                "$ref": "#/$defs/Gateway"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        "zone": {
+          "description": "Provides references to the different zones that an asset belongs to.\nZones are typically used to group assets logically mostly for the purpose of access control. That way it is possible to give certain roles or persons specific permissions to all assets associated to a zone.",
+          "type": "string"
+        }
+      },
+      "required": ["management_state", "id"],
+      "title": "RunningSoftware",
+      "type": "object"
+    },
+    "RunningSoftwareValues": {
+      "description": "Possible running software types.",
+      "enum": ["cdm_gateway", "iah_gateway", "other"],
+      "title": "RunningSoftwareValues",
+      "type": "string"
+    },
+    "SchemaOrgProduct": {
+      "additionalProperties": false,
+      "description": "Any offered product or service. For example: a pair of shoes; a concert ticket; the rental of a car; a haircut; or an episode of a TV show streamed online.",
+      "properties": {
+        "id": {
+          "description": "The identifier property represents any kind of identifier for any kind of Thing, such as ISBNs, GTIN codes, UUIDs etc. Schema.org provides dedicated properties for representing many of these, either as textual strings or as URL (URI) links.",
+          "type": "string"
+        },
+        "manufacturer": {
+          "$ref": "#/$defs/Organization",
+          "description": "The manufacturer of the product."
+        },
+        "name": {
+          "description": "The name of the item.",
+          "type": "string"
+        },
+        "product_id": {
+          "description": "The product identifiers, such as ISBN.",
+          "type": "string"
+        }
+      },
+      "required": ["id"],
+      "title": "SchemaOrgProduct",
+      "type": "object"
+    },
+    "SoftwareArtifact": {
+      "additionalProperties": false,
+      "description": "Software asset representing software on rest.",
+      "properties": {
+        "asset_identifiers": {
+          "description": "An asset identifier is an asset attribute that provides enough information to unequivocally identify the represented object.\nIn some cases the ID attribute acts simultaneously as a reference for the asset instance and as identifier for the represented object, otherwise at least one asset identifier is needed.\nThere can be multiple asset_identifiers with different goals. For example, the information of a metal nameplate can be used by a human-being to identify a device represented by an asset instance, but a software certificate provided by a device might help a software component identify the device in the network,...\nAn asset identifier might have an identifier_type, that defines its format and possibly even semantics.",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/AssetIdentifier"
+              },
+              {
+                "$ref": "#/$defs/SoftwareIdentifier"
+              },
+              {
+                "$ref": "#/$defs/ArtifactChecksum"
+              },
+              {
+                "$ref": "#/$defs/ProductSerialIdentifier"
+              },
+              {
+                "$ref": "#/$defs/MacIdentifier"
+              },
+              {
+                "$ref": "#/$defs/Ipv4Identifier"
+              },
+              {
+                "$ref": "#/$defs/Ipv6Identifier"
+              },
+              {
+                "$ref": "#/$defs/GatewayIdentifier"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        "asset_operations": {
+          "description": "List of device management operations supported by an asset. Each operation type might appear only once.",
+          "items": {
+            "$ref": "#/$defs/AssetOperation"
+          },
+          "type": "array"
+        },
+        "checksum_identifier": {
+          "$ref": "#/$defs/ArtifactChecksum",
+          "description": "Provides an AssetIdentifier based on a SoftwareArtifact checksum"
+        },
+        "connection_points": {
+          "description": "An asset might have a connection point that can be used to connect with the asset. In the case of devices, at least one connection point is required. It might be a connection point needed for AssetManagement for interaction with the asset or for other connections of the asset related to the asset function but not to device management.",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/ConnectionPoint"
+              },
+              {
+                "$ref": "#/$defs/Ipv4Connectivity"
+              },
+              {
+                "$ref": "#/$defs/Ipv6Connectivity"
+              },
+              {
+                "$ref": "#/$defs/EthernetPort"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        "custom_ui_properties": {
+          "description": "Metadata associated with Asset in User Interface",
+          "items": {
+            "$ref": "#/$defs/CustomProperty"
+          },
+          "type": "array"
+        },
+        "functional_object_type": {
+          "description": "Type designator that provides support for polymorphism using functional parts.",
+          "enum": ["SoftwareArtifact"],
+          "type": "string"
+        },
+        "functional_parts": {
+          "description": "The functional objects that an asset is composed of, in case such a level of decomposition is desired. This is enables having assets composed of other assets and even devices composed of other devices and assets.\nAn Asset must be addressable independently from other Assets (therefore they need to have an \"id\") and are therefore individually modeled. But not all parts of an Asset that are modeled need to be individually addressable, these are FunctionalObjects, but not Assets.\nProbably those functional_parts of an Asset providing some function for the Asset will be modeled here. Therefore an Asset can delegate the Interactions that it's offering to its functional_parts.",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/Asset"
+              },
+              {
+                "$ref": "#/$defs/Device"
+              },
+              {
+                "$ref": "#/$defs/SoftwareAsset"
+              },
+              {
+                "$ref": "#/$defs/SoftwareArtifact"
+              },
+              {
+                "$ref": "#/$defs/RunningSoftware"
+              },
+              {
+                "$ref": "#/$defs/AssetLink"
+              },
+              {
+                "$ref": "#/$defs/Dcd"
+              },
+              {
+                "$ref": "#/$defs/Gateway"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        "id": {
+          "description": "The identifier property represents any kind of identifier for any kind of Thing, such as ISBNs, GTIN codes, UUIDs etc. Schema.org provides dedicated properties for representing many of these, either as textual strings or as URL (URI) links.",
+          "type": "string"
+        },
+        "instance_annotations": {
+          "description": "Metadata associated to an object.",
+          "items": {
+            "$ref": "#/$defs/InstanceAnnotation"
+          },
+          "type": "array"
+        },
+        "last_modified_timestamp": {
+          "description": "Timestamp of last asset modification",
+          "format": "date-time",
+          "type": "string"
+        },
+        "management_state": {
+          "$ref": "#/$defs/ManagementState",
+          "description": "A manage state is an attribute of an asset that specifies how an asset is being regarded by an asset management system (is it being regarded or ignored). Some assets might be known to the Industrial Asset Hub (for example, discovered through a network scan), but want to be ignored for different reasons.\nThe goals of this attribute are: to avoid rediscovering assets being ignored and to focus management activities on those assets being regarded.\nAssets that can be discovered, but not supported, might evolve from an \"ignored\" to a \"regarded\" state, once supported."
+        },
+        "name": {
+          "description": "The name of the item.",
+          "type": "string"
+        },
+        "other_states": {
+          "description": "Specify the state of other aspects apart from management state.",
+          "items": {
+            "$ref": "#/$defs/State"
+          },
+          "type": "array"
+        },
+        "product_instance_identifier": {
+          "$ref": "#/$defs/ProductSerialIdentifier",
+          "description": "Identifier of a device based on its serial number."
+        },
+        "reachability_state": {
+          "$ref": "#/$defs/ReachabilityState",
+          "description": "A slot to track the last observed reachability state and when it was observed."
+        },
+        "software_components": {
+          "description": "An asset can host software artifacts that might want to be tracked. This can be used simply to keep track of the firmware version or to keep a full-blown Software Bill of Material (SBOM).\nPlease notice that this attribute is not meant to model relationships between the different software assets available in a device. Static relationships implicit to the SoftwareAssets themselves (like \"firmware image A contains package X\" or \"package X depends on package Y\") might be modeled on the Software Assets, if desired. Although it probably goes beyond the purpose of asset modeling. Deployment dependent relationships (like \"firmware image needs to be installed before installing app\") might be modeled as external AssetLinks, if desired. Once again it probably goes beyond the purpose of asset modeling.",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/SoftwareAsset"
+              },
+              {
+                "$ref": "#/$defs/SoftwareArtifact"
+              },
+              {
+                "$ref": "#/$defs/RunningSoftware"
+              },
+              {
+                "$ref": "#/$defs/AssetLink"
+              },
+              {
+                "$ref": "#/$defs/Dcd"
+              },
+              {
+                "$ref": "#/$defs/Gateway"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        "software_identifier": {
+          "$ref": "#/$defs/SoftwareIdentifier",
+          "description": "Identifier for a software artifact based on the well-established pattern name and version."
+        },
+        "zone": {
+          "description": "Provides references to the different zones that an asset belongs to.\nZones are typically used to group assets logically mostly for the purpose of access control. That way it is possible to give certain roles or persons specific permissions to all assets associated to a zone.",
+          "type": "string"
+        }
+      },
+      "required": ["management_state", "id"],
+      "title": "SoftwareArtifact",
+      "type": "object"
+    },
+    "SoftwareAsset": {
+      "additionalProperties": false,
+      "description": "Any kind of software element that needs to be considered. From artifacts (executables, libraries, archives,...) to running software (process, container, virtual machine,...).",
+      "properties": {
+        "asset_identifiers": {
+          "description": "An asset identifier is an asset attribute that provides enough information to unequivocally identify the represented object.\nIn some cases the ID attribute acts simultaneously as a reference for the asset instance and as identifier for the represented object, otherwise at least one asset identifier is needed.\nThere can be multiple asset_identifiers with different goals. For example, the information of a metal nameplate can be used by a human-being to identify a device represented by an asset instance, but a software certificate provided by a device might help a software component identify the device in the network,...\nAn asset identifier might have an identifier_type, that defines its format and possibly even semantics.",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/AssetIdentifier"
+              },
+              {
+                "$ref": "#/$defs/SoftwareIdentifier"
+              },
+              {
+                "$ref": "#/$defs/ArtifactChecksum"
+              },
+              {
+                "$ref": "#/$defs/ProductSerialIdentifier"
+              },
+              {
+                "$ref": "#/$defs/MacIdentifier"
+              },
+              {
+                "$ref": "#/$defs/Ipv4Identifier"
+              },
+              {
+                "$ref": "#/$defs/Ipv6Identifier"
+              },
+              {
+                "$ref": "#/$defs/GatewayIdentifier"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        "asset_operations": {
+          "description": "List of device management operations supported by an asset. Each operation type might appear only once.",
+          "items": {
+            "$ref": "#/$defs/AssetOperation"
+          },
+          "type": "array"
+        },
+        "connection_points": {
+          "description": "An asset might have a connection point that can be used to connect with the asset. In the case of devices, at least one connection point is required. It might be a connection point needed for AssetManagement for interaction with the asset or for other connections of the asset related to the asset function but not to device management.",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/ConnectionPoint"
+              },
+              {
+                "$ref": "#/$defs/Ipv4Connectivity"
+              },
+              {
+                "$ref": "#/$defs/Ipv6Connectivity"
+              },
+              {
+                "$ref": "#/$defs/EthernetPort"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        "custom_ui_properties": {
+          "description": "Metadata associated with Asset in User Interface",
+          "items": {
+            "$ref": "#/$defs/CustomProperty"
+          },
+          "type": "array"
+        },
+        "functional_object_type": {
+          "description": "Type designator that provides support for polymorphism using functional parts.",
+          "enum": ["SoftwareAsset"],
+          "type": "string"
+        },
+        "functional_parts": {
+          "description": "The functional objects that an asset is composed of, in case such a level of decomposition is desired. This is enables having assets composed of other assets and even devices composed of other devices and assets.\nAn Asset must be addressable independently from other Assets (therefore they need to have an \"id\") and are therefore individually modeled. But not all parts of an Asset that are modeled need to be individually addressable, these are FunctionalObjects, but not Assets.\nProbably those functional_parts of an Asset providing some function for the Asset will be modeled here. Therefore an Asset can delegate the Interactions that it's offering to its functional_parts.",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/Asset"
+              },
+              {
+                "$ref": "#/$defs/Device"
+              },
+              {
+                "$ref": "#/$defs/SoftwareAsset"
+              },
+              {
+                "$ref": "#/$defs/SoftwareArtifact"
+              },
+              {
+                "$ref": "#/$defs/RunningSoftware"
+              },
+              {
+                "$ref": "#/$defs/AssetLink"
+              },
+              {
+                "$ref": "#/$defs/Dcd"
+              },
+              {
+                "$ref": "#/$defs/Gateway"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        "id": {
+          "description": "The identifier property represents any kind of identifier for any kind of Thing, such as ISBNs, GTIN codes, UUIDs etc. Schema.org provides dedicated properties for representing many of these, either as textual strings or as URL (URI) links.",
+          "type": "string"
+        },
+        "instance_annotations": {
+          "description": "Metadata associated to an object.",
+          "items": {
+            "$ref": "#/$defs/InstanceAnnotation"
+          },
+          "type": "array"
+        },
+        "last_modified_timestamp": {
+          "description": "Timestamp of last asset modification",
+          "format": "date-time",
+          "type": "string"
+        },
+        "management_state": {
+          "$ref": "#/$defs/ManagementState",
+          "description": "A manage state is an attribute of an asset that specifies how an asset is being regarded by an asset management system (is it being regarded or ignored). Some assets might be known to the Industrial Asset Hub (for example, discovered through a network scan), but want to be ignored for different reasons.\nThe goals of this attribute are: to avoid rediscovering assets being ignored and to focus management activities on those assets being regarded.\nAssets that can be discovered, but not supported, might evolve from an \"ignored\" to a \"regarded\" state, once supported."
+        },
+        "name": {
+          "description": "The name of the item.",
+          "type": "string"
+        },
+        "other_states": {
+          "description": "Specify the state of other aspects apart from management state.",
+          "items": {
+            "$ref": "#/$defs/State"
+          },
+          "type": "array"
+        },
+        "product_instance_identifier": {
+          "$ref": "#/$defs/ProductSerialIdentifier",
+          "description": "Identifier of a device based on its serial number."
+        },
+        "reachability_state": {
+          "$ref": "#/$defs/ReachabilityState",
+          "description": "A slot to track the last observed reachability state and when it was observed."
+        },
+        "software_components": {
+          "description": "An asset can host software artifacts that might want to be tracked. This can be used simply to keep track of the firmware version or to keep a full-blown Software Bill of Material (SBOM).\nPlease notice that this attribute is not meant to model relationships between the different software assets available in a device. Static relationships implicit to the SoftwareAssets themselves (like \"firmware image A contains package X\" or \"package X depends on package Y\") might be modeled on the Software Assets, if desired. Although it probably goes beyond the purpose of asset modeling. Deployment dependent relationships (like \"firmware image needs to be installed before installing app\") might be modeled as external AssetLinks, if desired. Once again it probably goes beyond the purpose of asset modeling.",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/SoftwareAsset"
+              },
+              {
+                "$ref": "#/$defs/SoftwareArtifact"
+              },
+              {
+                "$ref": "#/$defs/RunningSoftware"
+              },
+              {
+                "$ref": "#/$defs/AssetLink"
+              },
+              {
+                "$ref": "#/$defs/Dcd"
+              },
+              {
+                "$ref": "#/$defs/Gateway"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        "zone": {
+          "description": "Provides references to the different zones that an asset belongs to.\nZones are typically used to group assets logically mostly for the purpose of access control. That way it is possible to give certain roles or persons specific permissions to all assets associated to a zone.",
+          "type": "string"
+        }
+      },
+      "required": ["management_state", "id"],
+      "title": "SoftwareAsset",
+      "type": "object"
+    },
+    "SoftwareIdentifier": {
+      "additionalProperties": false,
+      "description": "Well established",
+      "properties": {
+        "asset_identifier_type": {
+          "description": "Type designator that provides support for polymorphism using asset identifiers.",
+          "enum": ["SoftwareIdentifier"],
+          "type": "string"
+        },
+        "identifier_type": {
+          "description": "Type of an items identifier.",
+          "type": "string"
+        },
+        "identifier_uncertainty": {
+          "description": "Number that tells how uncertain an identifier is compared with other identifiers provided by an Asset Link. The highest the number, the more uncertain the identification must be considered. This number has to be considered relative to the other identifiers for the same element. The default value is 0, meaning no uncertainty.\nThis index helps decide across Asset Links which identifiers are better suited for deduplication. The identifier provided by two different Asset Links with the lowest uncertainty should be chosen for deduplication purposes.",
+          "type": "integer"
+        },
+        "name": {
+          "description": "The name of the item.",
+          "type": "string"
+        },
+        "version": {
+          "description": "Version of a software artifact.",
+          "type": "string"
+        }
+      },
+      "title": "SoftwareIdentifier",
+      "type": "object"
+    },
+    "State": {
+      "additionalProperties": false,
+      "description": "State in which a certain item be.",
+      "properties": {
+        "state_timestamp": {
+          "description": "Time when the current state has been observed.",
+          "format": "date-time",
+          "type": "string"
+        },
+        "state_value": {
+          "description": "The state of an object.",
+          "type": "string"
+        }
+      },
+      "title": "State",
+      "type": "object"
+    },
+    "StructuredValue": {
+      "additionalProperties": false,
+      "description": "Structured values are used when the value of a property has a more complex structure than simply being a textual value or a reference to another thing.",
+      "properties": {
+        "id": {
+          "description": "The identifier property represents any kind of identifier for any kind of Thing, such as ISBNs, GTIN codes, UUIDs etc. Schema.org provides dedicated properties for representing many of these, either as textual strings or as URL (URI) links.",
+          "type": "string"
+        },
+        "name": {
+          "description": "The name of the item.",
+          "type": "string"
+        }
+      },
+      "required": ["id"],
+      "title": "StructuredValue",
+      "type": "object"
+    },
+    "TrustEstablishedState": {
+      "additionalProperties": false,
+      "description": "The trust establishment state is based on if the asset is a trusted asset or not.",
+      "properties": {
+        "state_timestamp": {
+          "description": "Time when the current state has been observed.",
+          "format": "date-time",
+          "type": "string"
+        },
+        "state_value": {
+          "$ref": "#/$defs/TrustEstablishedStateValues",
+          "description": "The state of an object."
+        }
+      },
+      "title": "TrustEstablishedState",
+      "type": "object"
+    },
+    "TrustEstablishedStateValues": {
+      "description": "Possible trust establishment states.",
+      "enum": ["trusted", "failed", "pending"],
+      "title": "TrustEstablishedStateValues",
+      "type": "string"
+    }
+  },
+  "$id": "https://common-device-management.code.siemens.io/documentation/asset-modeling/base-schema/v0.8.4/iah-base.jsonld",
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "additionalProperties": true,
+  "metamodel_version": "1.7.0",
+  "title": "IAH-Base",
+  "type": "object",
+  "version": "0.8.4"
+}

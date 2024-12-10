@@ -1,0 +1,162 @@
+// ------------------------------------------------------------------
+// Connectivity Suite Driver Version Service
+// ------------------------------------------------------------------
+//
+// Naming convention according:
+// https://cloud.google.com/apis/design/naming_convention
+//
+// ------------------------------------------------------------------
+
+syntax = "proto3";
+
+package siemens.connectivitysuite.drvinfo.v1;
+
+//===================================================================
+// Driver Info Interface Definitions
+//===================================================================
+
+
+// ===========================================
+// The Services Definition
+//
+service DriverInfoApi
+{
+    // Possible return values
+    // - OK
+    //
+    rpc GetVersionInfo( GetVersionInfoRequest ) returns ( GetVersionInfoResponse ) {};
+
+    // Possible return values
+    // - OK
+    // - FAILED_PRECONDITION - no local configuration available (or accessible)
+    //
+    rpc GetConfigSchema( GetConfigSchemaRequest ) returns ( GetConfigSchemaResponse ) {};
+
+    // implementation of this call is optional
+    // Possible return values
+    // - OK
+    // - UNIMPLEMENTED - function not supported
+    // - INVALID_ARGUMENT - parameters are wrong
+    // - FAILED_PRECONDITION - icon not available
+    rpc GetAppIcon( GetAppIconRequest ) returns ( GetAppIconResponse ) {};
+}
+
+
+// ==================================================================
+// Driver Version
+//
+message GetVersionInfoRequest {
+    // void
+}
+
+message GetVersionInfoResponse {
+    // version information
+    VersionInfo version = 1;
+}
+
+// Version Info
+message VersionInfo {
+
+    // Version numbering according 'Semantic Versioning'
+    // (see https://semver.org/)
+    // Major - increment for incompatible API changes
+    uint32 major = 1;
+    // Minor - increment for added functionality in a backwards compatible manner
+    uint32 minor = 2;
+    // Patch - increment for backwards compatible bug fixes
+    uint32 patch = 3;
+    // Suffix - containing Build number and/or pre-release version.
+    // According to the version definition of Industrial Edge OR to https://semver.org/
+    // Don't expect the string to strictly follow semver, especially for checking
+    // which version is newer!!!!!
+    // Can be an empty string.
+    // Industrial Edge always uses "-" as the first character which is a violation of semver!
+    // Here some examples for Industrial Edge version suffixes:
+    //  - ""
+    //  - "-0"
+    //  - "-1"
+    //  - "-rc.1"
+    //  - "-rc.1.alpha.23773115"
+    //  - "-beta.2.rc.23652691"
+    //  - "-3.0"
+    string suffix = 7;
+
+    // vendor name, e.g. "Siemens AG"
+    string vendor_name = 4;
+    // product name, e.g. "SIMATIC S7+ Connector"
+    string product_name = 5;
+    // description of the application, e.g. "Connector for SIMATIC S7-1200 and S7-1500 PLCs using S7+ protocol"
+    string product_description = 9;
+    // the documentation URL of the driver
+    // e.g. the company webpage with a deep link directly the docu
+    string docu_url = 6;
+    // feedback url for customers, it's different for different products
+    string feedback_url = 8;
+}
+
+// ==================================================================
+// Config Schema
+//
+message GetConfigSchemaRequest {
+    // void
+}
+
+message ConfigSchema {
+    // URI of the schema
+    string uri = 1;
+    // JSON string with configuration schema
+    string schema = 2;
+}
+
+message GetConfigSchemaResponse {
+    // configuration schema(s)
+    repeated ConfigSchema schemas = 1;
+}
+
+// ==================================================================
+// Get Icon
+//
+message GetAppIconRequest {
+  // List of supported image formats by the client
+  // e.g. ["svg+xml", "png"]
+  // The list is sorted in the order of preferences (most preferred at the beginning).
+  // Support of "png" is mandatory by the server and the client,
+  // that means it shall always be contained in this list.
+  // When the client omits "png" from the list, the server is
+  // nervertheless allowed to return "png" because this is mandatory.
+  // For all other image formats the server shall only return a
+  // format which is contained in the list and fall back to "png"
+  // when nothing else matches.
+  // The format names are according to image mime-type defined by
+  //   https://www.iana.org/assignments/media-types/media-types.xhtml#image
+  //   but without the "image/" prefix because that is obligatory.
+  //repeated string supported_image_formats = 1;
+
+  // Requested resolution.
+  // The images are square therefore only a
+  // single dimension value is given here.
+  // For pure vector formats like SVG the resolution might be ignored.
+  // The server will return the best fitting images size it has,
+  // it doesn't need to exactly match the requested size and will be scaled
+  // accordingly by the client.
+  // e.g. provide 150 for a 150x150 pixel PNG
+  //int32 resolution = 2;
+}
+
+message GetAppIconResponse  {
+  // Image format of the returned image.
+  // The aspect rate of the image shall be 1:1 that means a square image.
+  // Server should select the format with best fit for the client request
+  // (best effort, don't scale the image to this size!).
+  // The format names are according to image mime-type defined by
+  //   https://www.iana.org/assignments/media-types/media-types.xhtml#image
+  //   but without the "image/" prefix because that is obligatory.
+  // e.g. "png" or "svg+xml"
+  // At the moment the only supported format is "png". We will decide in future
+  // if we support more formats and introduce 'supported_image_formats'
+  // in the request then.
+  string image_format = 1;
+
+  // Byte array containing the image data
+  bytes image_data = 2;
+}

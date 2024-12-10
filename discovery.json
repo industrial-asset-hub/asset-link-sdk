@@ -1,0 +1,14 @@
+{
+    "options": [
+        {
+            "key": "interface",
+            "value": { "text": "eth0" }
+        }
+    ],
+    "filters": [
+        {
+            "key": "ip_range",
+            "value": { "text": "192.168.0.10-192.168.0.128" }
+        }
+    ]
+}

@@ -1,0 +1,55 @@
+// ------------------------------------------------------------------
+// Common definition of types used by several APIs
+// ------------------------------------------------------------------
+//
+
+syntax = "proto3";
+
+package siemens.common.types.v1;
+
+//===================================================================
+// Definition of a variant
+//===================================================================
+
+enum VariantType {
+  VT_UNSPECIFIED  = 0;
+  VT_BOOL         = 1;
+  VT_INT64        = 2;
+  VT_UINT64       = 3;
+  VT_DOUBLE       = 4;
+  VT_STRING       = 5;
+  VT_BYTES        = 6;
+  VT_FILE         = 7;
+}
+
+message Variant {
+  oneof value {
+      // Simple bool value
+      bool bool_value = 1;
+      // Integer value up to 64 bit
+      int64 int64_value = 2;
+      // Unsigned integer value up to 64 bit
+      uint64 uint64_value = 3;
+      // Floating point value
+      double float64_value = 4;
+      // UTF8-text
+      string text = 5;
+      // Array of bytes
+      // Example for raw-data: S7-1500 system diagnosis data
+      bytes raw_data = 6;
+      // A file (in addition to raw_data there is a content type and a file name)
+      VariantFile file = 7;
+  }
+}
+
+message VariantFile {
+  // the content of the file
+  bytes data = 1;
+
+  // mime content type of the file, e.g. "application/x-x509-ca-cert",
+  //  "application/x-pem-file", "image/jpeg", "image/png", "application/json"
+  string content_type = 2;
+
+  // optional: file name
+  string file_name = 3;
+}

@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# SPDX-FileCopyrightText: {{cookiecutter.year}} {{cookiecutter.company}}
+#
+# SPDX-License-Identifier: MIT
+
+[Unit]
+Description={{ cookiecutter.al_name }}
+After=network.target
+
+[Service]
+ExecStartPre=/bin/sh -c "systemctl set-environment IAH_AssetLink_IP=$(hostname -i)"
+ExecStart=/usr/bin/{{ cookiecutter.al_project }} --grpc-registry-address=localhost:50051 --grpc-server-address=${IAH_AssetLink_IP}:8080 --grpc-server-endpoint-address=${IAH_AssetLink_IP}
+Restart=on-failure
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target
