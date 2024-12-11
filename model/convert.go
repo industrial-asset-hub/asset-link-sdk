@@ -68,7 +68,7 @@ func convertToDeviceIdentifiers(valueToConvert reflect.Value, prefixUri string, 
 		identifier := convertToDeviceIdentifier(valueToConvert.Bool(), prefixUri)
 		identifiers = appendDeviceIdentifiers(identifiers, []*generated.DeviceIdentifier{identifier})
 	default:
-		log.Warn().Msgf(fmt.Sprintf("Coudn't process value of kind %v and type %s", valueToConvert.Kind(), valueToConvert.Type()))
+		log.Warn().Msgf("Coudn't process value of kind %v and type %s", valueToConvert.Kind(), valueToConvert.Type())
 	}
 	return identifiers
 }
@@ -177,7 +177,6 @@ func isNonEmptyValues(values ...string) bool {
 		if value != "" {
 			return true
 		}
-
 	}
 	return false
 }
