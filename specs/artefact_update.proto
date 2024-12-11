@@ -10,16 +10,30 @@ package factory_x.artefact_update.v1;
 
 service ArtefactUpdateApi {
   // Push an artifact to a driver
-  rpc PushArtefact(stream FileChunk) returns (Status) {}
+  rpc PushArtefact(stream ArtefactChunk) returns (stream ArtefactUpdateStatus) {
+  }
   // Load an artifact from a driver
-  rpc PullArtefact(ArtefactType) returns (stream FileChunk) {}
+  rpc PullArtefact(ArtefactType) returns (stream ArtefactChunk) {}
 }
 
-message FileChunk {
+message ArtefactChunk {
   oneof data {
-    bytes file_content = 1;
-    Status status = 2;
+    ArtefactMetaData metaDate = 1;
+    bytes file_content = 2;
+    Status status = 3;
   }
+}
+
+message ArtefactMetaData {
+  oneof meta {
+    ArtefactCredentials credential = 1;
+    bytes device_connection_information = 2;
+  }
+}
+
+message ArtefactCredentials {
+  string credential_type = 1;
+  bytes credentials = 2;
 }
 
 // Prefix with AS == Artefact status
@@ -39,6 +53,20 @@ message Status {
 enum ArtefactTypes {
   AT_FIRMWARE = 0;
   AT_BACKUP = 1;
+  AT_CONFIGURATION = 2;
 }
 
 message ArtefactType { ArtefactTypes type = 1; }
+
+enum ArtefactUpdateState {
+  AUS_IDLE = 0;
+  AUS_DOWNLOAD = 1;
+  AUS_INSTALLATION = 2;
+  AUS_ACTIVATION = 3;
+}
+
+message ArtefactUpdateStatus {
+  Status status = 1;
+  ArtefactUpdateState state = 2;
+  int32 progress = 3;
+}
