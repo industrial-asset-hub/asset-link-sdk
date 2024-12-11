@@ -48,9 +48,10 @@ const (
 
 // Create new GRPC Registry client
 func New(registryAddress string, alId string, grpcAddress string) *GrpcServerRegistry {
-	return &GrpcServerRegistry{grpcServerRegistryAddress: registryAddress,
-		alId:        alId,
-		grpcAddress: grpcAddress,
+	return &GrpcServerRegistry{
+		grpcServerRegistryAddress: registryAddress,
+		alId:                      alId,
+		grpcAddress:               grpcAddress,
 	}
 }
 
@@ -64,6 +65,7 @@ func (r *GrpcServerRegistry) connect() error {
 	r.client = pb.NewRegistryApiClient(r.connection)
 	return nil
 }
+
 func (r *GrpcServerRegistry) Stop() {
 	log.Debug().
 		Msg("Stop gRPC Registry Client")
@@ -157,13 +159,17 @@ func (r *GrpcServerRegistry) register() (error, uint32) {
 			Str("IP or Hostname", hostName).
 			Msg("No valid Hostname given. Should be an IP or DNS name.")
 	}
-	portNumber, _ := strconv.Atoi(portNumberString)
 	if err != nil {
 		log.Warn().Err(err).Msg("Could parse GRPC server address")
 		return err, retryRegistrationInterval
 	}
 
 	r.appInstanceId = CDM_DEVICE_CLASS_DRIVER.String() + "-" + r.alId
+	portNumber, err := strconv.ParseUint(portNumberString, 10, 32)
+	if err != nil {
+		log.Warn().Err(err).Msg("Could not parse port")
+		return err, retryRegistrationInterval
+	}
 	register := pb.RegisterServiceRequest{Info: &pb.ServiceInfo{
 		AppTypes:         []string{APP_TYPE_CS_IAH_DISCOVER_V1},
 		AppInstanceId:    r.appInstanceId,
@@ -174,13 +180,13 @@ func (r *GrpcServerRegistry) register() (error, uint32) {
 	if r := net.ParseIP(hostName); r == nil {
 		log.Debug().
 			Str("Given IP/Hostname", hostName).
-			Uint32("Port", uint32(portNumber)).
+			Uint64("Port", portNumber).
 			Msg("Hostname seems to be an DNS name.")
 		register.Info.GrpcIp = &pb.ServiceInfo_DnsDomainname{DnsDomainname: hostName}
 	} else {
 		log.Debug().
 			Str("Given IP/Hostname", hostName).
-			Uint32("Port", uint32(portNumber)).
+			Uint64("Port", portNumber).
 			Msg("Hostname seems to be an IP address name.")
 		register.Info.GrpcIp = &pb.ServiceInfo_Ipv4Address{Ipv4Address: hostName}
 	}
