@@ -234,9 +234,6 @@ $ al-ctl test assets --base-schema-path <base-schema> --asset-path <asset>
 # Example: al-ctl test assets --base-schema-path ./iah_base-v0.7.5.yaml
 --asset-path ./SatController-001.json --schema-path ./cdm_sat.yaml --target-class SatController
 
-# To validate the json schema using json schema validator where the schema file should be json
-$ al-ctl test json-schema --schema-path <schema> --asset-path <asset>
-
 # To explore on more actions to perform on Asset Link
 $ al-ctl --help
 ```

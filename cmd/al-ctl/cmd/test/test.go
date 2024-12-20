@@ -33,12 +33,6 @@ var apiCmd = &cobra.Command{
 	Run:   runApiTests,
 }
 
-var jsonSchemaCmd = &cobra.Command{
-	Use:   "json-schema",
-	Short: "Validate JSON schema",
-	Run:   runJsonSchemaValidation,
-}
-
 var (
 	baseSchemaPath string
 	schemaPath     string
@@ -50,14 +44,11 @@ var (
 func init() {
 	TestCmd.AddCommand(assetsCmd)
 	TestCmd.AddCommand(apiCmd)
-	TestCmd.AddCommand(jsonSchemaCmd)
 
 	assetsCmd.Flags().StringVarP(&baseSchemaPath, "base-schema-path", "b", "path/to/base/schema", "Path to the base schema YAML file")
 	assetsCmd.Flags().StringVarP(&schemaPath, "schema-path", "s", "path/to/schema", "Path to the schema file")
 	assetsCmd.Flags().StringVarP(&assetPath, "asset-path", "a", "path/to/asset", "Path to the asset JSON file")
 	assetsCmd.Flags().StringVarP(&targetClass, "target-class", "t", "targetClass", "Target class for validation")
-	jsonSchemaCmd.Flags().StringVarP(&schemaPath, "schema-path", "s", "path/to/schema", "Path to the schema file")
-	jsonSchemaCmd.Flags().StringVarP(&assetPath, "asset-path", "a", "path/to/asset", "Path to the asset JSON file")
 	apiCmd.Flags().StringVarP(&discoveryFile, "discovery-file", "d", "", shared.DiscoveryFileDesc)
 }
 
@@ -70,11 +61,4 @@ func runAssetsTests(cmd *cobra.Command, args []string) {
 
 func runApiTests(cmd *cobra.Command, args []string) {
 	runTests(shared.AssetLinkEndpoint, discoveryFile)
-}
-
-func runJsonSchemaValidation(cmd *cobra.Command, args []string) {
-	err := ValidateJsonSchema(schemaPath, assetPath)
-	if err != nil {
-		log.Err(err).Msg("Failed to validate JSON schema")
-	}
 }
