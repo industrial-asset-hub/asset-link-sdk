@@ -13,6 +13,7 @@ import (
 	"sync"
 	"sync/atomic"
 
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/artefact"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/config"
 	generated "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/model"
@@ -123,6 +124,16 @@ func (m *ReferenceClassDriver) GetSupportedOptions() []*generated.SupportedOptio
 		Datatype: generated.VariantType_VT_STRING,
 	})
 	return supportedOptions
+}
+
+func (m *ReferenceClassDriver) HandlePushArtefact(artefactReceiver *artefact.ArtefactReceiver) error {
+	// TODO: implement
+	return nil
+}
+
+func (m *ReferenceClassDriver) HandlePullArtefact(artefactIdentifier *artefact.ArtefactIdentifier, artefactTransmitter *artefact.ArtefactTransmitter) error {
+	// TODO: implement
+	return nil
 }
 
 func generateRandomMacAddress() string {

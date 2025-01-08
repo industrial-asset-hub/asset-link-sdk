@@ -60,12 +60,6 @@ func (d *DiscoverServerEntity) DiscoverDevices(req *generated.DiscoverRequest, s
 	return err
 }
 
-type GrpcFilterOrOption interface {
-	GetKey() string
-	GetOperator() generated.ComparisonOperator
-	GetValue() *generated.Variant
-}
-
 func (d *DiscoverServerEntity) GetFilterTypes(context.Context, *generated.FilterTypesRequest) (*generated.FilterTypesResponse, error) {
 	supportedFilters := d.GetSupportedFilters()
 	if len(supportedFilters) == 0 {
