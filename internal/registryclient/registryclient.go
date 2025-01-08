@@ -171,7 +171,7 @@ func (r *GrpcServerRegistry) register() (uint32, error) {
 		return retryRegistrationInterval, err
 	}
 	register := pb.RegisterServiceRequest{Info: &pb.ServiceInfo{
-		AppTypes:         []string{APP_TYPE_CS_IAH_DISCOVER_V1},
+		AppTypes:         []string{APP_TYPE_CS_IAH_DISCOVER_V1}, // TODO: add more app types here or register more services (artefact handling) ?
 		AppInstanceId:    r.appInstanceId,
 		DriverSchemaUris: []string{r.alId},
 		GrpcIpPortNumber: uint32(portNumber),
