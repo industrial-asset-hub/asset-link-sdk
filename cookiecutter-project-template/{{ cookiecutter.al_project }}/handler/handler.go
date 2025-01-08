@@ -14,6 +14,7 @@ import (
 	"sync"
 	"sync/atomic"
 
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/artefact"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/config"
 	generated "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/model"
@@ -119,6 +120,16 @@ func (m *AssetLinkImplementation) GetSupportedOptions() []*generated.SupportedOp
 		Datatype: generated.VariantType_VT_BOOL,
 	})
 	return supportedOptions
+}
+
+func (m *AssetLinkImplementation) HandlePushArtefact(artefactReceiver *artefact.ArtefactReceiver) error {
+	// TODO: implement
+	return nil
+}
+
+func (m *AssetLinkImplementation) HandlePullArtefact(artefactIdentifier *artefact.ArtefactIdentifier, artefactTransmitter *artefact.ArtefactTransmitter) error {
+	// TODO: implement
+	return nil
 }
 
 func generateRandomMacAddress() string {
