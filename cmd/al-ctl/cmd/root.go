@@ -9,8 +9,10 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/cmd/test"
 	"os"
+
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/cmd/artefact"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/cmd/test"
 
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/cmd/info"
 
@@ -62,8 +64,10 @@ func init() {
 	rootCmd.AddCommand(info.InfoCmd)
 	rootCmd.AddCommand(info.ListCmd)
 	rootCmd.AddCommand(test.TestCmd)
-
+	rootCmd.AddCommand(artefact.ArtefactPullCommand)
+	rootCmd.AddCommand(artefact.ArtefactPushCommand)
 }
+
 func initHandlers() {
 	logging.SetupLogging()
 	logging.AdjustLogLevel(logLevel)
