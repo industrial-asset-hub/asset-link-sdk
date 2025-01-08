@@ -152,16 +152,16 @@ func (r *GrpcServerRegistry) register() (error, uint32) {
 
 	// Split into host and port
 	hostName, portNumberString, err := net.SplitHostPort(r.grpcAddress)
+	if err != nil {
+		log.Warn().Err(err).Msg("Could not parse GRPC server address")
+		return err, retryRegistrationInterval
+	}
 
 	// Catch if no host part is given e.g. *:8080
 	if hostName == "" {
 		log.Fatal().
 			Str("IP or Hostname", hostName).
 			Msg("No valid Hostname given. Should be an IP or DNS name.")
-	}
-	if err != nil {
-		log.Warn().Err(err).Msg("Could not parse GRPC server address")
-		return err, retryRegistrationInterval
 	}
 
 	r.appInstanceId = CDM_DEVICE_CLASS_DRIVER.String() + "-" + r.alId
