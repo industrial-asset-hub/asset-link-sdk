@@ -160,7 +160,7 @@ func (r *GrpcServerRegistry) register() (error, uint32) {
 			Msg("No valid Hostname given. Should be an IP or DNS name.")
 	}
 	if err != nil {
-		log.Warn().Err(err).Msg("Could parse GRPC server address")
+		log.Warn().Err(err).Msg("Could not parse GRPC server address")
 		return err, retryRegistrationInterval
 	}
 
