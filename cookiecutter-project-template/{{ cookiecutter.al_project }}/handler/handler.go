@@ -14,6 +14,7 @@ import (
 	"sync"
 	"sync/atomic"
 
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/artefact"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/config"
 	generated "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/model"
@@ -119,6 +120,30 @@ func (m *AssetLinkImplementation) GetSupportedOptions() []*generated.SupportedOp
 		Datatype: generated.VariantType_VT_BOOL,
 	})
 	return supportedOptions
+}
+
+func (m *AssetLinkImplementation) HandlePushArtefact(artefactReceiver *artefact.ArtefactReceiver) error {
+	log.Info().Msg("Handle Push Artefact by receiving the artefact")
+
+	err := artefactReceiver.ReceiveArtefactToFile("artefact_file")
+	if err != nil {
+		log.Err(err).Msg("Failed to receive artefact file")
+		return err
+	}
+
+	return nil
+}
+
+func (m *AssetLinkImplementation) HandlePullArtefact(artefactIdentifier *artefact.ArtefactIdentifier, artefactTransmitter *artefact.ArtefactTransmitter) error {
+	log.Info().Msg("Handle Pull Artefact by transmitting the arefact")
+
+	err := artefactTransmitter.TransmitArtefactFromFile("artefact_file", 1024)
+	if err != nil {
+		log.Err(err).Msg("Failed to transmit artefact file")
+		return err
+	}
+
+	return nil
 }
 
 func generateRandomMacAddress() string {
