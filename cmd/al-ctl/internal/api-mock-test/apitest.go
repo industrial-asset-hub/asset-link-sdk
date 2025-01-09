@@ -25,7 +25,7 @@ type Test struct {
 
 func RunApiMockTests(address, discoveryFile string) {
 	allTests := []Test{
-		{"TestDiscoverDevices", TestDiscoverDevices},
+		{"TestStartDiscovery", TestStartDiscovery},
 		{"TestGetFilterTypes", TestGetFilterTypes},
 		{"TestGetFilterOptions", TestGetFilterOptions},
 	}
@@ -38,7 +38,7 @@ func RunApiMockTests(address, discoveryFile string) {
 		}
 		fmt.Println("Test passed")
 		testPassed++
-		if test.name == "TestDiscoverDevices" && shared.AssetValidationRequired {
+		if test.name == "TestStartDiscovery" && shared.AssetValidationRequired {
 			createAssetFileFromDiscoveryResponse(data)
 		}
 		fmt.Printf("Total tests passed: %d/%d, failed: %d\n", testPassed, len(allTests), len(allTests)-testPassed)
@@ -48,8 +48,8 @@ func RunApiMockTests(address, discoveryFile string) {
 
 func createAssetFileFromDiscoveryResponse(data interface{}) {
 	discoveryResponse := data.([]iah_discovery.DiscoverResponse)
-	for i := range discoveryResponse {
-		for _, discoveredDevice := range discoveryResponse[i].Devices {
+	for _, discoveryResponse := range discoveryResponse {
+		for _, discoveredDevice := range discoveryResponse.Devices {
 			transformedDevice := shared.TransformDevice(discoveredDevice, "URI")
 			// Add a unique id to the transformed device
 			transformedDevice["id"] = uuid.New().String()
