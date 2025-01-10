@@ -65,7 +65,7 @@ func generateDevice(typeOfAsset string, assetName string) *DeviceInfo {
 	timestamp := createTimestamp()
 	Name := "Device"
 	device.Name = &Name
-	product := "test-product"
+	product := "test-dcd"
 	version := "1.0.0"
 	vendorName := "test-vendor"
 	serialNumber := "test"
