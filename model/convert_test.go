@@ -8,6 +8,7 @@
 package model
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/google/uuid"
@@ -15,11 +16,54 @@ import (
 )
 
 func TestConvertToDiscoveredDevice(t *testing.T) {
-	device := NewDevice("Profinet", "Device")
+	device := generateDevice("Profinet", "Device")
+	discoveredDevice := device.ConvertToDiscoveredDevice()
+	assert.Equal(t, 16, len(discoveredDevice.Identifiers))
+	assert.Equal(t, "URI", discoveredDevice.Identifiers[0].Classifiers[0].GetType())
+	assert.Equal(t, "https://schema.industrial-assets.io/base/v0.9.0/Asset#@type", discoveredDevice.Identifiers[0].Classifiers[0].GetValue())
+}
+
+func TestConvertFromDerivedSchemaToDiscoveredDevice(t *testing.T) {
+	schemaUri := "https://schema.industrial-assets.io/sat/v0.8.2"
+	device := generateDevice("SatController", "Device")
+	discoveredDevice := ConvertFromDerivedSchemaToDiscoveredDevice(device, schemaUri, "SatController")
+	assert.Equal(t, 16, len(discoveredDevice.Identifiers))
+	assert.Equal(t, "URI", discoveredDevice.Identifiers[0].Classifiers[0].GetType())
+	assert.Equal(t, "https://schema.industrial-assets.io/sat/v0.8.2/SatController#@type", discoveredDevice.Identifiers[0].Classifiers[0].GetValue())
+}
+
+type DerivedDeviceInfo struct {
+	DeviceInfo
+	PasswordProtected *bool `json:"password_protected,omitempty"`
+}
+
+func TestConvertDerivedSchemaToDiscoveredDevice(t *testing.T) {
+	var satDevice *DerivedDeviceInfo
+	device := generateDevice("SatController", "Device")
+	satDevice = &DerivedDeviceInfo{
+		DeviceInfo:        *device,
+		PasswordProtected: new(bool),
+	}
+	*satDevice.PasswordProtected = true
+
+	discoveredDevice := ConvertFromDerivedSchemaToDiscoveredDevice(satDevice, "https://schema.industrial-assets.io/sat/v0.8.2", "SatController")
+	assert.Equal(t, 17, len(discoveredDevice.Identifiers))
+	passwordProtectedFound := false
+	for _, identifier := range discoveredDevice.Identifiers {
+		if strings.Contains(identifier.Classifiers[0].GetValue(), "password_protected") {
+			passwordProtectedFound = true
+			assert.Equal(t, "true", identifier.GetText())
+		}
+	}
+	assert.True(t, passwordProtectedFound)
+}
+
+func generateDevice(typeOfAsset string, assetName string) *DeviceInfo {
+	device := NewDevice(typeOfAsset, assetName)
 	timestamp := createTimestamp()
 	Name := "Device"
 	device.Name = &Name
-	product := "test-product"
+	product := "test-dcd"
 	version := "1.0.0"
 	vendorName := "test-vendor"
 	serialNumber := "test"
@@ -105,8 +149,5 @@ func TestConvertToDiscoveredDevice(t *testing.T) {
 		StateValue:     &reachabilityStateValue,
 	}
 	device.ReachabilityState = &reachabilityState
-	discoveredDevice := device.ConvertToDiscoveredDevice()
-	assert.Equal(t, 16, len(discoveredDevice.Identifiers))
-	assert.Equal(t, "URI", discoveredDevice.Identifiers[0].Classifiers[0].GetType())
-	assert.Equal(t, "https://schema.industrial-assets.io/base/v0.8.3/Asset#@type", discoveredDevice.Identifiers[0].Classifiers[0].GetValue())
+	return device
 }
