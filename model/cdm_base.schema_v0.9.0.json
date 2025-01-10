@@ -37,6 +37,9 @@
                 "$ref": "#/$defs/AssetIdentifier"
               },
               {
+                "$ref": "#/$defs/IdLink"
+              },
+              {
                 "$ref": "#/$defs/SoftwareIdentifier"
               },
               {
@@ -56,6 +59,9 @@
               },
               {
                 "$ref": "#/$defs/GatewayIdentifier"
+              },
+              {
+                "$ref": "#/$defs/SiemensIdLink"
               }
             ]
           },
@@ -243,6 +249,9 @@
                 "$ref": "#/$defs/AssetIdentifier"
               },
               {
+                "$ref": "#/$defs/IdLink"
+              },
+              {
                 "$ref": "#/$defs/SoftwareIdentifier"
               },
               {
@@ -262,6 +271,9 @@
               },
               {
                 "$ref": "#/$defs/GatewayIdentifier"
+              },
+              {
+                "$ref": "#/$defs/SiemensIdLink"
               }
             ]
           },
@@ -809,6 +821,9 @@
                 "$ref": "#/$defs/AssetIdentifier"
               },
               {
+                "$ref": "#/$defs/IdLink"
+              },
+              {
                 "$ref": "#/$defs/SoftwareIdentifier"
               },
               {
@@ -828,6 +843,9 @@
               },
               {
                 "$ref": "#/$defs/GatewayIdentifier"
+              },
+              {
+                "$ref": "#/$defs/SiemensIdLink"
               }
             ]
           },
@@ -1002,6 +1020,9 @@
                 "$ref": "#/$defs/AssetIdentifier"
               },
               {
+                "$ref": "#/$defs/IdLink"
+              },
+              {
                 "$ref": "#/$defs/SoftwareIdentifier"
               },
               {
@@ -1021,6 +1042,9 @@
               },
               {
                 "$ref": "#/$defs/GatewayIdentifier"
+              },
+              {
+                "$ref": "#/$defs/SiemensIdLink"
               }
             ]
           },
@@ -1259,6 +1283,9 @@
                 "$ref": "#/$defs/AssetIdentifier"
               },
               {
+                "$ref": "#/$defs/IdLink"
+              },
+              {
                 "$ref": "#/$defs/SoftwareIdentifier"
               },
               {
@@ -1278,6 +1305,9 @@
               },
               {
                 "$ref": "#/$defs/GatewayIdentifier"
+              },
+              {
+                "$ref": "#/$defs/SiemensIdLink"
               }
             ]
           },
@@ -1485,6 +1515,31 @@
         }
       },
       "title": "GatewayIdentifier",
+      "type": "object"
+    },
+    "IdLink": {
+      "additionalProperties": false,
+      "description": "Asset identifier based on the ID-Link standard (IEC 61406).",
+      "properties": {
+        "asset_identifier_type": {
+          "description": "Type designator that provides support for polymorphism using asset identifiers.",
+          "enum": ["IdLink"],
+          "type": "string"
+        },
+        "id_link": {
+          "description": "Link to identify the asset. It can also provide information about the product.",
+          "type": "string"
+        },
+        "identifier_type": {
+          "description": "Type of an items identifier.",
+          "type": "string"
+        },
+        "identifier_uncertainty": {
+          "description": "Number that tells how uncertain an identifier is compared with other identifiers provided by an Asset Link. The highest the number, the more uncertain the identification must be considered. This number has to be considered relative to the other identifiers for the same element. The default value is 0, meaning no uncertainty.\nThis index helps decide across Asset Links which identifiers are better suited for deduplication. The identifier provided by two different Asset Links with the lowest uncertainty should be chosen for deduplication purposes.",
+          "type": "integer"
+        }
+      },
+      "title": "IdLink",
       "type": "object"
     },
     "Identifier": {
@@ -1878,6 +1933,10 @@
           "description": "The product identifiers, such as ISBN.",
           "type": "string"
         },
+        "product_link": {
+          "description": "Link to identify a product. It can also provide additional information about the product.",
+          "type": "string"
+        },
         "product_version": {
           "description": "Some products might have different versions under the same product ID, the product version helps differentiating the different versions of a product, if multiple exist.",
           "type": "string"
@@ -1971,6 +2030,9 @@
                 "$ref": "#/$defs/AssetIdentifier"
               },
               {
+                "$ref": "#/$defs/IdLink"
+              },
+              {
                 "$ref": "#/$defs/SoftwareIdentifier"
               },
               {
@@ -1990,6 +2052,9 @@
               },
               {
                 "$ref": "#/$defs/GatewayIdentifier"
+              },
+              {
+                "$ref": "#/$defs/SiemensIdLink"
               }
             ]
           },
@@ -2183,6 +2248,32 @@
       "title": "SchemaOrgProduct",
       "type": "object"
     },
+    "SiemensIdLink": {
+      "additionalProperties": false,
+      "description": "Asset identifier based on the ID-Link standard (IEC 61406).",
+      "properties": {
+        "asset_identifier_type": {
+          "description": "Type designator that provides support for polymorphism using asset identifiers.",
+          "enum": ["SiemensIdLink"],
+          "type": "string"
+        },
+        "id_link": {
+          "description": "Link to identify the asset. It can also provide information about the product.",
+          "pattern": "^https://i\\.siemens\\.com((/1P(.*?)\\+S(.*?)(\\+23S(.*?))?(\\+30P(.*?))?)|(\\?1P=(.*?)&S=(.*?)(&23S=(.*?))?(&30P=(.*?))?))$",
+          "type": "string"
+        },
+        "identifier_type": {
+          "description": "Type of an items identifier.",
+          "type": "string"
+        },
+        "identifier_uncertainty": {
+          "description": "Number that tells how uncertain an identifier is compared with other identifiers provided by an Asset Link. The highest the number, the more uncertain the identification must be considered. This number has to be considered relative to the other identifiers for the same element. The default value is 0, meaning no uncertainty.\nThis index helps decide across Asset Links which identifiers are better suited for deduplication. The identifier provided by two different Asset Links with the lowest uncertainty should be chosen for deduplication purposes.",
+          "type": "integer"
+        }
+      },
+      "title": "SiemensIdLink",
+      "type": "object"
+    },
     "SoftwareArtifact": {
       "additionalProperties": false,
       "description": "Software asset representing software on rest.",
@@ -2193,6 +2284,9 @@
             "anyOf": [
               {
                 "$ref": "#/$defs/AssetIdentifier"
+              },
+              {
+                "$ref": "#/$defs/IdLink"
               },
               {
                 "$ref": "#/$defs/SoftwareIdentifier"
@@ -2214,6 +2308,9 @@
               },
               {
                 "$ref": "#/$defs/GatewayIdentifier"
+              },
+              {
+                "$ref": "#/$defs/SiemensIdLink"
               }
             ]
           },
@@ -2305,6 +2402,10 @@
           },
           "type": "array"
         },
+        "is_firmware": {
+          "description": "Flag that marks that the software artifact is being provided by a hardware manufacturer for one or more of its devices.\nIn contrast with other software artifacts, updating the software of firmware requires contacting the source specified by the device manufacturer.\nDue to this definition, firmware in IAH has a much wider scope than in some domains, where firmware is only meant to be close-to-the-silicon software.",
+          "type": "boolean"
+        },
         "last_modified_timestamp": {
           "description": "Timestamp of last asset modification",
           "format": "date-time",
@@ -2384,6 +2485,9 @@
                 "$ref": "#/$defs/AssetIdentifier"
               },
               {
+                "$ref": "#/$defs/IdLink"
+              },
+              {
                 "$ref": "#/$defs/SoftwareIdentifier"
               },
               {
@@ -2403,6 +2507,9 @@
               },
               {
                 "$ref": "#/$defs/GatewayIdentifier"
+              },
+              {
+                "$ref": "#/$defs/SiemensIdLink"
               }
             ]
           },
@@ -2640,11 +2747,11 @@
       "type": "string"
     }
   },
-  "$id": "https://common-device-management.code.siemens.io/documentation/asset-modeling/base-schema/v0.8.4/iah-base.jsonld",
+  "$id": "https://common-device-management.code.siemens.io/documentation/asset-modeling/base-schema/v0.9.0/iah-base.jsonld",
   "$schema": "https://json-schema.org/draft/2019-09/schema",
   "additionalProperties": true,
   "metamodel_version": "1.7.0",
   "title": "IAH-Base",
   "type": "object",
-  "version": "0.8.4"
+  "version": "0.9.0"
 }

@@ -17,18 +17,27 @@ import (
 	generated "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
 )
 
-func (d *DeviceInfo) ConvertToDiscoveredDevice() *generated.DiscoveredDevice {
+func ConvertFromDerivedSchemaToDiscoveredDevice[T interface{}](d *T, schemaUri string, deviceClass string) *generated.DiscoveredDevice {
 	device := generated.DiscoveredDevice{
-		Identifiers:            convertDeviceInfoToDeviceIdentifiers(d),
+		Identifiers:            convertDeviceInfoToDeviceIdentifiers(d, schemaUri, deviceClass),
 		ConnectionParameterSet: nil,
 		Timestamp:              19347439483904,
 	}
 	return &device
 }
 
-func convertDeviceInfoToDeviceIdentifiers(d *DeviceInfo) []*generated.DeviceIdentifier {
+func (d *DeviceInfo) ConvertToDiscoveredDevice() *generated.DiscoveredDevice {
+	device := generated.DiscoveredDevice{
+		Identifiers:            convertDeviceInfoToDeviceIdentifiers(d, baseSchemaPrefix, "Asset"),
+		ConnectionParameterSet: nil,
+		Timestamp:              19347439483904,
+	}
+	return &device
+}
+
+func convertDeviceInfoToDeviceIdentifiers[T interface{}](d *T, uri string, deviceClass string) []*generated.DeviceIdentifier {
 	valueOfDeviceInfo := reflect.ValueOf(d)
-	assetIdentifierUri := fmt.Sprintf("%s/Asset#", baseSchemaPrefix)
+	assetIdentifierUri := fmt.Sprintf("%s/%s#", uri, deviceClass)
 	return convertStructTypeToDeviceIdentifiers(valueOfDeviceInfo.Elem(), assetIdentifierUri, 0)
 }
 
