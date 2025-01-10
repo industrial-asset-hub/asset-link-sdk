@@ -8,6 +8,7 @@
 package model
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
@@ -18,9 +19,10 @@ import (
 func TestConvertToDiscoveredDevice(t *testing.T) {
 	device := generateDevice("Profinet", "Device")
 	discoveredDevice := device.ConvertToDiscoveredDevice()
+	discoveredDeviceType := fmt.Sprintf("%s/%s", baseSchemaPrefix, "Asset#@type")
 	assert.Equal(t, 16, len(discoveredDevice.Identifiers))
 	assert.Equal(t, "URI", discoveredDevice.Identifiers[0].Classifiers[0].GetType())
-	assert.Equal(t, "https://schema.industrial-assets.io/base/v0.9.0/Asset#@type", discoveredDevice.Identifiers[0].Classifiers[0].GetValue())
+	assert.Equal(t, discoveredDeviceType, discoveredDevice.Identifiers[0].Classifiers[0].GetValue())
 }
 
 func TestConvertFromDerivedSchemaToDiscoveredDevice(t *testing.T) {
@@ -63,7 +65,7 @@ func generateDevice(typeOfAsset string, assetName string) *DeviceInfo {
 	timestamp := createTimestamp()
 	Name := "Device"
 	device.Name = &Name
-	product := "test-dcd"
+	product := "test-product"
 	version := "1.0.0"
 	vendorName := "test-vendor"
 	serialNumber := "test"
