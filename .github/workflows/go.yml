@@ -6,6 +6,7 @@ name: Go
 
 on:
   push:
+  pull_request:
 
 permissions:
   contents: write
@@ -118,18 +119,12 @@ jobs:
       - name: Adjust Dependencies
         run: |
           cd $TEST_PROJECT/$TEST_PROJECT_NAME/
-          if [[ "${{ github.ref }}" =~ ^refs/tags/ ]]; then
-            echo "detected tag build"
-            go get github.com/${GITHUB_REPOSITORY}/v3@${{ github.ref_name }}
-          else
-            echo "detected non-tag build"
-            go get github.com/${GITHUB_REPOSITORY}/v3@${GITHUB_SHA}
-          fi
+          go get github.com/${GITHUB_REPOSITORY}/v3
+          go mod edit -replace=github.com/${GITHUB_REPOSITORY}/v3=${GITHUB_WORKSPACE}
           go mod edit -go=$GO_MINIMAL_VERSION
           go mod edit -toolchain=none
           go mod tidy
           go mod download
-          go mod edit -replace=github.com/${GITHUB_REPOSITORY}/v3=${GITHUB_WORKSPACE}
       - name: Build Asset Link
         run: |
           cd $TEST_PROJECT/$TEST_PROJECT_NAME/
@@ -142,7 +137,7 @@ jobs:
   release-sdk:
     runs-on: ubuntu-latest
     needs: [reuse, generate, lint, test, check, build-sdk, build-asset-link]
-    if: github.ref_type == 'tag'
+    if: github.event_name != 'pull_request' && github.ref_type == 'tag'
     steps:
       - uses: actions/checkout@v4
       - name: Prepare Environment
@@ -167,7 +162,7 @@ jobs:
   release-sdk-dry-run:
     runs-on: ubuntu-latest
     needs: [reuse, generate, lint, test, check, build-sdk, build-asset-link]
-    if: github.ref_type != 'tag'
+    if: github.event_name == 'pull_request' || github.ref_type != 'tag'
     steps:
       - uses: actions/checkout@v4
       - name: Prepare Environment
