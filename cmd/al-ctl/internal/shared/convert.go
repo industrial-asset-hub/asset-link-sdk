@@ -226,18 +226,16 @@ func mapPropertiesIntoChildObjects(identifiers []*generated.DeviceIdentifier,
 				child := make(map[string]interface{})
 				childrenContainer = append(childrenContainer, child)
 			}
-		} else {
+		} else if identifierIndex == 0 {
 			// still in array context, but no index in property path, so we assume just one element is present
 			// Sooo turns out this branch is actually in use
 			// this part works by specifying the same children container once for every child
 			// therefor each container specification should only result in one child
 			// we work around this, by saying that only the first child property created its own container object
-			if identifierIndex == 0 {
-				child := make(map[string]interface{})
-				childrenContainer = append(childrenContainer, child)
-				arrayContext.ArrayIndex = len(childrenContainer) - 1
-				arrayContext.IsInArray = true
-			}
+			child := make(map[string]interface{})
+			childrenContainer = append(childrenContainer, child)
+			arrayContext.ArrayIndex = len(childrenContainer) - 1
+			arrayContext.IsInArray = true
 		}
 		// hand down array element to insert properties into
 		device := childrenContainer[arrayContext.ArrayIndex]
