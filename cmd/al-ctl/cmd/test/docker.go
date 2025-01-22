@@ -8,6 +8,7 @@ package test
 
 import (
 	"fmt"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/shared"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -21,7 +22,7 @@ const (
 )
 
 func RunContainer(service string) error {
-	serviceDef, err := GetServiceDefinition(schemaPath, assetPath, targetClass)
+	serviceDef, err := GetServiceDefinition(schemaPath, shared.AssetJsonPath, targetClass)
 	if err != nil {
 		return err
 	}

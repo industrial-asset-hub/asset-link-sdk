@@ -1,11 +1,11 @@
 /*
- * SPDX-FileCopyrightText: 2024 Siemens AG
+ * SPDX-FileCopyrightText: 2025 Siemens AG
  *
  * SPDX-License-Identifier: MIT
  *
  */
 
-package shared
+package model
 
 import (
 	"fmt"
@@ -175,9 +175,6 @@ func mapPropertiesIntoDevice(identifiers []*generated.DeviceIdentifier,
 		switch identifier.GetValue().(type) {
 		case *generated.DeviceIdentifier_Text:
 			{
-				// special case mapping for profinet devices to map their semantic name to our asset name
-				semanticProfinetNameMapping(keys, identifier.GetText(), device)
-				semanticProfinetFirmwareVersionMapping(keys, identifier.GetText(), device)
 				transformKeys(keys, identifier.GetText(), device)
 			}
 		case *generated.DeviceIdentifier_Children:
@@ -226,18 +223,16 @@ func mapPropertiesIntoChildObjects(identifiers []*generated.DeviceIdentifier,
 				child := make(map[string]interface{})
 				childrenContainer = append(childrenContainer, child)
 			}
-		} else {
+		} else if identifierIndex == 0 {
 			// still in array context, but no index in property path, so we assume just one element is present
 			// Sooo turns out this branch is actually in use
 			// this part works by specifying the same children container once for every child
 			// therefor each container specification should only result in one child
 			// we work around this, by saying that only the first child property created its own container object
-			if identifierIndex == 0 {
-				child := make(map[string]interface{})
-				childrenContainer = append(childrenContainer, child)
-				arrayContext.ArrayIndex = len(childrenContainer) - 1
-				arrayContext.IsInArray = true
-			}
+			child := make(map[string]interface{})
+			childrenContainer = append(childrenContainer, child)
+			arrayContext.ArrayIndex = len(childrenContainer) - 1
+			arrayContext.IsInArray = true
 		}
 		// hand down array element to insert properties into
 		device := childrenContainer[arrayContext.ArrayIndex]
@@ -246,9 +241,6 @@ func mapPropertiesIntoChildObjects(identifiers []*generated.DeviceIdentifier,
 		switch identifier.GetValue().(type) {
 		case *generated.DeviceIdentifier_Text:
 			{
-				// special case mapping for profinet devices to map their semantic name to our asset name
-				semanticProfinetNameMapping(keys, identifier.GetText(), device)
-				semanticProfinetFirmwareVersionMapping(keys, identifier.GetText(), device)
 				transformKeys(keys, identifier.GetText(), device)
 			}
 		case *generated.DeviceIdentifier_Children:
@@ -296,34 +288,6 @@ func createChildProperty(identifier *generated.DeviceIdentifier, device map[stri
 
 	// this should rather work like the recursive property level creation in <transformKeys>
 	transformKeys(keys, arrayProperty, device)
-}
-
-func semanticProfinetNameMapping(keys []string, identifierTextValue string, device map[string]interface{}) {
-	for _, v := range keys {
-		if v == "profinet_name" {
-			device["name"] = identifierTextValue
-		}
-	}
-
-}
-
-func semanticProfinetFirmwareVersionMapping(keys []string, identifierTextValue string, device map[string]interface{}) {
-	// firmware%2Fsoftware_identifier%2Fversion -> firmware/software_identifier/version
-	// to instance_annotations: [{"key": "firmware_version", "value": "1.0.0"}]
-	if (len(keys) == 3 && keys[0] == "firmware") && (keys[1] == "software_identifier") && (keys[2] == "version") {
-		// check if instance_annotations already exists
-		instanceAnnotations, ok := device["instance_annotations"].([]interface{})
-		if ok {
-			instanceAnnotations = append(instanceAnnotations, map[string]interface{}{"key": "firmware_version", "value": identifierTextValue})
-			device["instance_annotations"] = instanceAnnotations
-			return
-		}
-
-		// if not create them
-		newAnnotations := []interface{}{}
-		newAnnotations = append(newAnnotations, map[string]interface{}{"key": "firmware_version", "value": identifierTextValue})
-		device["instance_annotations"] = newAnnotations
-	}
 }
 
 func adjustClassifierFormatForSchemaTransformation(classifierValue string) string {

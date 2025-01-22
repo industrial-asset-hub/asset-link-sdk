@@ -8,8 +8,10 @@
 package shared
 
 var (
-	RegistryEndpoint  string
-	AssetLinkEndpoint string
+	RegistryEndpoint        string
+	AssetLinkEndpoint       string
+	AssetJsonPath           string
+	AssetValidationRequired bool
 )
 
 const (
