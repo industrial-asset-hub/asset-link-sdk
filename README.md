@@ -12,11 +12,13 @@ It contains everything you need to set up your own Asset Link.
 ### Overview
 
 The SDK is designed in such a way that to create a new asset link, you need to implement the
-interfaces of the feature that the particular asset link is intended to provide.
-Discovery Interface (allows device discoveries and consists of three functions):
-  1. Discover: Performs a device scan and returns/publishes all the devices found.
-  2. GetSupportedFilters: Returns a list of supported filters for the discovery.
-  3. GetSupportedOptions: Returns a list of supported options for the discovery.
+interfaces of the feature that the particular asset link is intended to provide
+Currently, one interface is supported:
+
+**Discovery Interface** (allows device discoveries and consists of three functions):
+  1. `Discover`: Performs a device scan and returns/publishes all the devices found.
+  2. `GetSupportedFilters`: Returns a list of supported filters for the discovery.
+  3. `GetSupportedOptions`: Returns a list of supported options for the discovery.
 
 Once the interfaces are implemented, the specific Asset Link uses the `assetLinkBuilder` to construct a `AssetLink` with
 the implemented features.
@@ -217,25 +219,25 @@ Examples of actions which can be performed on the Asset Link:
 
 ```bash
 # To run the api tests on Asset Link
-$ al-ctl test api -e localhost:8081 -d <discovery-config>
+$ al-ctl test api -e localhost:8081 [-d <discovery-config>]
 # The Asset Link must be running on the provided address, for example here: localhost:8081
 
 # To run discovery on the Asset Link
-$ al-ctl discover -e localhost:8081 -d <discovery-config> -o <output-file>
+$ al-ctl discover -e localhost:8081 [-d <discovery-config>] [-o <output-file>]
 
 # To validate the asset against the base-schema using linkml-validator where schema file should be yaml
 $ al-ctl test assets --base-schema-path <base-schema> --asset-path <asset>
 --target-class <target-class>
 
-# Example: al-ctl test assets --base-schema-path ./iah_base-v0.7.5.yaml --asset-path ./Asset-001.ld.json --target-class Asset
+# Example: al-ctl test assets --base-schema-path ./iah_base-v0.9.0.yaml --asset-path ./Asset-001.ld.json --target-class Asset
 
 # To validate the asset against the extended-schema using linkml-validator where schema file should be yaml
 $ al-ctl test assets --base-schema-path <base-schema> --asset-path <asset>
 --schema-path <extended-schema> --target-class <target-class>
 
-# Example: al-ctl test assets --base-schema-path ./iah_base-v0.7.5.yaml --asset-path ./SatController-001.json --schema-path ./cdm_sat.yaml --target-class SatController
+# Example: al-ctl test assets --base-schema-path ./iah_base-v0.9.0.yaml --asset-path ./SatController-001.json --schema-path ./cdm_sat.yaml --target-class SatController
 
-# To explore on more actions to perform on Asset Link
+# To explore actions to perform with the command line tool
 $ al-ctl --help
 ```
 
