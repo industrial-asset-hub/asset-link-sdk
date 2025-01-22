@@ -48,8 +48,8 @@ func RunApiMockTests(address, discoveryFile string) {
 
 func createAssetFileFromDiscoveryResponse(data interface{}) {
 	discoveryResponse := data.([]iah_discovery.DiscoverResponse)
-	for _, discoveryResponse := range discoveryResponse {
-		for _, discoveredDevice := range discoveryResponse.Devices {
+	for i := range discoveryResponse {
+		for _, discoveredDevice := range discoveryResponse[i].Devices {
 			transformedDevice := shared.TransformDevice(discoveredDevice, "URI")
 			// Add a unique id to the transformed device
 			transformedDevice["id"] = uuid.New().String()

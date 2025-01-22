@@ -60,7 +60,6 @@ func addAssetEntrypointInService(service *Service, assetFileName string) {
 }
 
 func transformSemanticIdentifierToAsset() error {
-	testDevice := map[string]interface{}{}
 	var discoveryResponse generated.DiscoverResponse
 	// Read the asset JSON file
 	file, err := os.Open(shared.AssetJsonPath)
@@ -85,7 +84,7 @@ func transformSemanticIdentifierToAsset() error {
 		return err
 	}
 	// Transform the semantic-identifiers to asset
-	testDevice = shared.TransformDevice(discoveryResponse.Devices[0], "URI")
+	testDevice := shared.TransformDevice(discoveryResponse.Devices[0], "URI")
 	file, err = os.Create("test.json")
 	if err != nil {
 		log.Err(err).Msg("failed to create test json file")
