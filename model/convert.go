@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: MIT
  *
  */
+
 package model
 
 import (
@@ -357,9 +358,6 @@ func mapPropertiesIntoDevice(identifiers []*generated.DeviceIdentifier,
 		switch identifier.GetValue().(type) {
 		case *generated.DeviceIdentifier_Text:
 			{
-				// special case mapping for profinet devices to map their semantic name to our asset name
-				semanticProfinetNameMapping(keys, identifier.GetText(), device)
-				semanticProfinetFirmwareVersionMapping(keys, identifier.GetText(), device)
 				transformKeys(keys, identifier.GetText(), device)
 			}
 		case *generated.DeviceIdentifier_Children:
@@ -426,9 +424,6 @@ func mapPropertiesIntoChildObjects(identifiers []*generated.DeviceIdentifier,
 		switch identifier.GetValue().(type) {
 		case *generated.DeviceIdentifier_Text:
 			{
-				// special case mapping for profinet devices to map their semantic name to our asset name
-				semanticProfinetNameMapping(keys, identifier.GetText(), device)
-				semanticProfinetFirmwareVersionMapping(keys, identifier.GetText(), device)
 				transformKeys(keys, identifier.GetText(), device)
 			}
 		case *generated.DeviceIdentifier_Children:
@@ -476,34 +471,6 @@ func createChildProperty(identifier *generated.DeviceIdentifier, device map[stri
 
 	// this should rather work like the recursive property level creation in <transformKeys>
 	transformKeys(keys, arrayProperty, device)
-}
-
-func semanticProfinetNameMapping(keys []string, identifierTextValue string, device map[string]interface{}) {
-	for _, v := range keys {
-		if v == "profinet_name" {
-			device["name"] = identifierTextValue
-		}
-	}
-
-}
-
-func semanticProfinetFirmwareVersionMapping(keys []string, identifierTextValue string, device map[string]interface{}) {
-	// firmware%2Fsoftware_identifier%2Fversion -> firmware/software_identifier/version
-	// to instance_annotations: [{"key": "firmware_version", "value": "1.0.0"}]
-	if (len(keys) == 3 && keys[0] == "firmware") && (keys[1] == "software_identifier") && (keys[2] == "version") {
-		// check if instance_annotations already exists
-		instanceAnnotations, ok := device["instance_annotations"].([]interface{})
-		if ok {
-			instanceAnnotations = append(instanceAnnotations, map[string]interface{}{"key": "firmware_version", "value": identifierTextValue})
-			device["instance_annotations"] = instanceAnnotations
-			return
-		}
-
-		// if not create them
-		newAnnotations := []interface{}{}
-		newAnnotations = append(newAnnotations, map[string]interface{}{"key": "firmware_version", "value": identifierTextValue})
-		device["instance_annotations"] = newAnnotations
-	}
 }
 
 func adjustClassifierFormatForSchemaTransformation(classifierValue string) string {
