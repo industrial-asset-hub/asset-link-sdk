@@ -25,7 +25,7 @@ type Test struct {
 
 func RunApiMockTests(address, discoveryFile string) {
 	allTests := []Test{
-		{"TestStartDiscovery", TestStartDiscovery},
+		{"TestDiscoverDevices", TestDiscoverDevices},
 		{"TestGetFilterTypes", TestGetFilterTypes},
 		{"TestGetFilterOptions", TestGetFilterOptions},
 	}
@@ -38,7 +38,7 @@ func RunApiMockTests(address, discoveryFile string) {
 		}
 		fmt.Println("Test passed")
 		testPassed++
-		if test.name == "TestStartDiscovery" && shared.AssetValidationRequired {
+		if test.name == "TestDiscoverDevices" && shared.AssetValidationRequired {
 			createAssetFileFromDiscoveryResponse(data)
 		}
 		fmt.Printf("Total tests passed: %d/%d, failed: %d\n", testPassed, len(allTests), len(allTests)-testPassed)

@@ -11,7 +11,7 @@ import (
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/al"
 )
 
-func TestStartDiscovery(address, discoveryFile string) interface{} {
+func TestDiscoverDevices(address, discoveryFile string) interface{} {
 	fmt.Println("Running Test for StartDiscovery")
 	data := al.Discover(address, discoveryFile)
 	return data
