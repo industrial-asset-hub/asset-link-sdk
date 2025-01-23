@@ -11,20 +11,20 @@ import (
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/al"
 )
 
-func TestStartDiscovery(address, discoveryFile string) bool {
-	fmt.Println("Running test for StartDiscovery")
+func TestDiscoverDevices(address, discoveryFile string) interface{} {
+	fmt.Println("Running Test for StartDiscovery")
 	data := al.Discover(address, discoveryFile)
-	return data != nil
+	return data
 }
 
-func TestGetFilterTypes(address, discoveryFile string) bool {
-	fmt.Println("Running test for GetFilterTypes")
+func TestGetFilterTypes(address, discoveryFile string) interface{} {
+	fmt.Println("Running Test for GetFilterTypes")
 	data := al.GetFilterTypes(address)
-	return data != nil
+	return data
 }
 
-func TestGetFilterOptions(address, discoveryFile string) bool {
-	fmt.Println("Running test for GetFilterOptions")
+func TestGetFilterOptions(address, discoveryFile string) interface{} {
+	fmt.Println("Running Test for GetFilterOptions")
 	data := al.GetFilterOptions(address)
-	return data != nil
+	return data
 }
