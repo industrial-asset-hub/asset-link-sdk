@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/shared"
 	generated "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/model"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/protobuf/encoding/protojson"
 	"os"
@@ -20,7 +21,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func getBaseSchemaVersionFromExtendedSchema() (string, error) {
+func GetBaseSchemaVersionFromExtendedSchema() (string, error) {
 	file, err := os.Open(schemaPath)
 	if err != nil {
 		fmt.Println(err)
@@ -84,7 +85,7 @@ func transformSemanticIdentifierToAsset() error {
 		return err
 	}
 	// Transform the semantic-identifiers to asset
-	testDevice := shared.TransformDevice(discoveryResponse.Devices[0], "URI")
+	testDevice := model.TransformDevice(discoveryResponse.Devices[0], "URI")
 	file, err = os.Create("test.json")
 	if err != nil {
 		log.Err(err).Msg("failed to create test json file")

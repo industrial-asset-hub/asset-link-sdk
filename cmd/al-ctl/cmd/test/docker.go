@@ -69,7 +69,7 @@ func GetServiceDefinition(schemaPath string, assetPath string, targetClass strin
 		addVolumeInService(&Service, currentDir, baseSchemaPath, baseSchemaFileName)
 		addSchemaEntrypointInService(&Service, baseSchemaFileName)
 	default:
-		baseSchemaFileName, err := getBaseSchemaVersionFromExtendedSchema()
+		baseSchemaFileName, err := GetBaseSchemaVersionFromExtendedSchema()
 		if err != nil {
 			fmt.Println(err)
 			return nil, err

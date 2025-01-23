@@ -12,6 +12,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/shared"
 	iah_discovery "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/model"
 	"github.com/rs/zerolog/log"
 	"os"
 )
@@ -50,7 +51,7 @@ func createAssetFileFromDiscoveryResponse(data interface{}) {
 	discoveryResponse := data.([]iah_discovery.DiscoverResponse)
 	for i := range discoveryResponse {
 		for _, discoveredDevice := range discoveryResponse[i].Devices {
-			transformedDevice := shared.TransformDevice(discoveredDevice, "URI")
+			transformedDevice := model.TransformDevice(discoveredDevice, "URI")
 			// Add a unique id to the transformed device
 			transformedDevice["id"] = uuid.New().String()
 			jsonDevice, err := json.Marshal(transformedDevice)
