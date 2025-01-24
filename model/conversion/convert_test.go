@@ -1146,7 +1146,7 @@ func TestCheckConversionForFile(t *testing.T) {
 			t.Fatalf("failed to decode JSON: %v", err)
 		}
 		// do the actual schema transformation
-		testDevice = TransformDevice(scannedPnasResponse.Devices[0], "URI", "")
+		testDevice := TransformDevice(scannedPnasResponse.Devices[0], "URI", "")
 
 		// Write the result to the output file
 		jsonWriter := json.NewEncoder(resultFile)

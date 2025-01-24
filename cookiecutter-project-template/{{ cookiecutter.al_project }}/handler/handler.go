@@ -9,6 +9,7 @@ package handler
 
 import (
 	"fmt"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/model/conversion"
 	"math/rand"
 	"strings"
 	"sync"
@@ -89,7 +90,7 @@ func (m *AssetLinkImplementation) Discover(discoveryConfig config.DiscoveryConfi
 	deviceInfo.AddIPv4(id, "192.168.0.1", "255.255.255.0", "")
 
 	// Convert and publish device
-	discoveredDevice := ConvertToDiscoveredDevice(deviceInfo)
+	discoveredDevice := conversion.ConvertToDiscoveredDevice(deviceInfo)
 
 	err := devicePublisher.PublishDevice(discoveredDevice)
 	if err != nil {
