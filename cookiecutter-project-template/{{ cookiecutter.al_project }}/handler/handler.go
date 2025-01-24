@@ -89,7 +89,7 @@ func (m *AssetLinkImplementation) Discover(discoveryConfig config.DiscoveryConfi
 	deviceInfo.AddIPv4(id, "192.168.0.1", "255.255.255.0", "")
 
 	// Convert and publish device
-	discoveredDevice := deviceInfo.ConvertToDiscoveredDevice()
+	discoveredDevice := ConvertToDiscoveredDevice(deviceInfo)
 
 	err := devicePublisher.PublishDevice(discoveredDevice)
 	if err != nil {
