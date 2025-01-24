@@ -120,7 +120,7 @@ func registerDriversForAutocomplete() (validService int) {
 	s := NewServer()
 	ctx := context.Background()
 
-	// Adding drivers with app types but without interfaces, to testsuite autocomplete
+	// Adding drivers with app types but without interfaces, to test autocomplete
 	serviceInfo := &pb.ServiceInfo{
 		AppInstanceId:    "driver-autocomplete1",
 		AppTypes:         []string{"iah-discover"},
@@ -190,7 +190,7 @@ func TestRegisterService(t *testing.T) {
 				Info: &pb.ServiceInfo{
 					AppInstanceId: "Instance B",
 					GrpcIp: &pb.ServiceInfo_DnsDomainname{
-						DnsDomainname: "iah.testsuite",
+						DnsDomainname: "iah.test",
 					},
 					GrpcIpPortNumber: 1234,
 				}},
@@ -217,7 +217,7 @@ func TestRegisterService(t *testing.T) {
 				Info: &pb.ServiceInfo{
 					AppInstanceId: "Instance B",
 					GrpcIp: &pb.ServiceInfo_DnsDomainname{
-						DnsDomainname: "iah.testsuite",
+						DnsDomainname: "iah.test",
 					},
 				}},
 			expected: expectation{
