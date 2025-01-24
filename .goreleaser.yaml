@@ -38,7 +38,7 @@ builds:
     mod_timestamp: "{{ .CommitTimestamp }}"
   - id: al-ctl
     binary: al-ctl
-    main: ./cmd/al-ctl/al-ctl.go
+    main: ./al-ctl/al-ctl.go
     flags:
       - -trimpath
     ldflags:
