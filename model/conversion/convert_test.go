@@ -5,12 +5,13 @@
  *
  */
 
-package model
+package conversion
 
 import (
 	"encoding/json"
 	"fmt"
 	generated "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/model"
 	"google.golang.org/protobuf/encoding/protojson"
 	"os"
 	"strings"
@@ -22,7 +23,7 @@ import (
 
 func TestConvertToDiscoveredDevice(t *testing.T) {
 	device := generateDevice("Profinet", "Device")
-	discoveredDevice := device.ConvertToDiscoveredDevice()
+	discoveredDevice := ConvertToDiscoveredDevice(device)
 	discoveredDeviceType := fmt.Sprintf("%s/%s", baseSchemaPrefix, "Asset#@type")
 	assert.Equal(t, 16, len(discoveredDevice.Identifiers))
 	assert.Equal(t, "URI", discoveredDevice.Identifiers[0].Classifiers[0].GetType())
@@ -39,7 +40,7 @@ func TestConvertFromDerivedSchemaToDiscoveredDevice(t *testing.T) {
 }
 
 type DerivedDeviceInfo struct {
-	DeviceInfo
+	model.DeviceInfo
 	PasswordProtected *bool `json:"password_protected,omitempty"`
 }
 
@@ -64,26 +65,26 @@ func TestConvertDerivedSchemaToDiscoveredDevice(t *testing.T) {
 	assert.True(t, passwordProtectedFound)
 }
 
-func generateDevice(typeOfAsset string, assetName string) *DeviceInfo {
-	device := NewDevice(typeOfAsset, assetName)
-	timestamp := createTimestamp()
+func generateDevice(typeOfAsset string, assetName string) *model.DeviceInfo {
+	device := model.NewDevice(typeOfAsset, assetName)
+	timestamp := model.CreateTimestamp()
 	Name := "Device"
 	device.Name = &Name
 	product := "test-product"
 	version := "1.0.0"
 	vendorName := "test-vendor"
 	serialNumber := "test"
-	vendor := Organization{
+	vendor := model.Organization{
 		Address:        nil,
 		AlternateNames: nil,
 		ContactPoint:   nil,
 		Id:             "",
 		Name:           &vendorName,
 	}
-	productSerialidentifier := ProductSerialIdentifier{
+	productSerialidentifier := model.ProductSerialIdentifier{
 		IdentifierType:        nil,
 		IdentifierUncertainty: nil,
-		ManufacturerProduct: &Product{
+		ManufacturerProduct: &model.Product{
 			Id:             uuid.New().String(),
 			Manufacturer:   &vendor,
 			Name:           &Name,
@@ -96,26 +97,26 @@ func generateDevice(typeOfAsset string, assetName string) *DeviceInfo {
 
 	randomMacAddress := "12:12:12:12:12:12"
 	identifierUncertainty := 1
-	device.MacIdentifiers = append(device.MacIdentifiers, MacIdentifier{
+	device.MacIdentifiers = append(device.MacIdentifiers, model.MacIdentifier{
 		MacAddress:            &randomMacAddress,
 		IdentifierUncertainty: &identifierUncertainty,
 	})
 
-	connectionPointType := Ipv4ConnectivityConnectionPointTypeIpv4Connectivity
+	connectionPointType := model.Ipv4ConnectivityConnectionPointTypeIpv4Connectivity
 	Ipv4Address := "192.168.0.1"
 	Ipv4NetMask := "255.255.255.0"
 	connectionPoint := "EthernetPort"
-	connectionPointTypeIpv6 := Ipv6ConnectivityConnectionPointTypeIpv6Connectivity
+	connectionPointTypeIpv6 := model.Ipv6ConnectivityConnectionPointTypeIpv6Connectivity
 	routerIpv6Address := "fd12:3456:789a::1"
 	Ipv6Address := "fd12:3456:789a::1"
 	conPoint := "eth0"
-	relatedConnectionPoint := RelatedConnectionPoint{
+	relatedConnectionPoint := model.RelatedConnectionPoint{
 		ConnectionPoint:    &conPoint,
 		CustomRelationship: &connectionPoint,
 	}
-	relatedConnectionPoints := make([]RelatedConnectionPoint, 0)
+	relatedConnectionPoints := make([]model.RelatedConnectionPoint, 0)
 	relatedConnectionPoints = append(relatedConnectionPoints, relatedConnectionPoint)
-	Ipv4Connectivity := Ipv4Connectivity{
+	Ipv4Connectivity := model.Ipv4Connectivity{
 		ConnectionPointType:     &connectionPointType,
 		Id:                      "1",
 		InstanceAnnotations:     nil,
@@ -125,7 +126,7 @@ func generateDevice(typeOfAsset string, assetName string) *DeviceInfo {
 		RouterIpv4Address:       nil,
 	}
 	device.ConnectionPoints = append(device.ConnectionPoints, Ipv4Connectivity)
-	Ipv6Connectivity := Ipv6Connectivity{
+	Ipv6Connectivity := model.Ipv6Connectivity{
 		ConnectionPointType:     &connectionPointTypeIpv6,
 		Id:                      "2",
 		InstanceAnnotations:     nil,
@@ -134,23 +135,23 @@ func generateDevice(typeOfAsset string, assetName string) *DeviceInfo {
 		RouterIpv6Address:       &routerIpv6Address,
 	}
 	device.ConnectionPoints = append(device.ConnectionPoints, Ipv6Connectivity)
-	ethernetType := EthernetPortConnectionPointTypeEthernetPort
-	EthernetPort := EthernetPort{
+	ethernetType := model.EthernetPortConnectionPointTypeEthernetPort
+	EthernetPort := model.EthernetPort{
 		Id:                  "3",
 		ConnectionPointType: &ethernetType,
 		MacAddress:          &randomMacAddress,
 	}
 	device.ConnectionPoints = append(device.ConnectionPoints, EthernetPort)
 
-	state := ManagementStateValuesUnknown
-	State := ManagementState{
+	state := model.ManagementStateValuesUnknown
+	State := model.ManagementState{
 		StateTimestamp: &timestamp,
 		StateValue:     &state,
 	}
 	device.ManagementState = State
 
-	reachabilityStateValue := ReachabilityStateValuesReached
-	reachabilityState := ReachabilityState{
+	reachabilityStateValue := model.ReachabilityStateValuesReached
+	reachabilityState := model.ReachabilityState{
 		StateTimestamp: &timestamp,
 		StateValue:     &reachabilityStateValue,
 	}
@@ -178,7 +179,7 @@ func TestDeviceTransformation(t *testing.T) {
 			Timestamp: 1000010000100010,
 		}
 		expectedType := "URI"
-		actualResult := TransformDevice(testDeviceForText, expectedType)
+		actualResult := TransformDevice(testDeviceForText, expectedType, "v0.7.5")
 		expectedResult := map[string]interface{}{
 			"@type": "ProfinetDevice",
 			"management_state": map[string]interface{}{
@@ -205,45 +206,6 @@ func TestDeviceTransformation(t *testing.T) {
 	},
 	)
 
-	t.Run("TransformDevice when provided a device with identifier text value of profinet name transforms it successfully as asset name",
-		func(t *testing.T) {
-			testDeviceForText := &generated.DiscoveredDevice{
-				Identifiers: []*generated.DeviceIdentifier{{
-					Value: &generated.DeviceIdentifier_Text{
-						Text: "test-profinet-station-name",
-					},
-					Classifiers: []*generated.SemanticClassifier{{
-						Type: "URI",
-						Value: fullProfinetSchemaPrefix +
-							"profinet_name",
-					}},
-				},
-				},
-				Timestamp: 1000010000100010,
-			}
-			expectedType := "URI"
-			actualResult := TransformDevice(testDeviceForText, expectedType)
-			expectedResult := map[string]interface{}{
-				"@type": "ProfinetDevice",
-				"name":  "test-profinet-station-name",
-				"management_state": map[string]interface{}{
-					"state_value":     "unknown",
-					"state_timestamp": convertTimestampToRFC339(1000010000100010),
-				},
-				"@context": map[string]interface{}{
-					"base":      baseSchema,
-					"linkml":    "https://w3id.org/linkml/",
-					"lis":       "http://rds.posccaesar.org/ontology/lis14/rdl/",
-					"schemaorg": "https://schema.org/",
-					"skos":      "http://www.w3.org/2004/02/skos/core#",
-					"@vocab":    baseSchema,
-				},
-				"profinet_name": "test-profinet-station-name",
-			}
-			assert.Equal(t, expectedResult, actualResult)
-		},
-	)
-
 	t.Run("TransformDevice when provided a device with identifier value of type int64 transforms it successfully", func(t *testing.T) {
 		testDeviceForInt := &generated.DiscoveredDevice{
 			Identifiers: []*generated.DeviceIdentifier{{
@@ -259,7 +221,7 @@ func TestDeviceTransformation(t *testing.T) {
 			Timestamp: 1000010000100010,
 		}
 		expectedType := "URI"
-		actualResult := TransformDevice(testDeviceForInt, expectedType)
+		actualResult := TransformDevice(testDeviceForInt, expectedType, "v0.7.5")
 		expectedResult := map[string]interface{}{
 			"@type": "ProfinetDevice",
 			"management_state": map[string]interface{}{
@@ -294,7 +256,7 @@ func TestDeviceTransformation(t *testing.T) {
 			Timestamp: 1000010000100010,
 		}
 		expectedType := "URI"
-		actualResult := TransformDevice(testDeviceForFloat, expectedType)
+		actualResult := TransformDevice(testDeviceForFloat, expectedType, "v0.7.5")
 		expectedResult := map[string]interface{}{
 			"@type": "ProfinetDevice",
 			"management_state": map[string]interface{}{
@@ -333,7 +295,7 @@ func TestDeviceTransformation(t *testing.T) {
 			Timestamp: 1000010000100010,
 		}
 		expectedType := "URI"
-		actualResult := TransformDevice(testDeviceForRawData, expectedType)
+		actualResult := TransformDevice(testDeviceForRawData, expectedType, "v0.7.5")
 		expectedResult := map[string]interface{}{
 			"@type": "ProfinetDevice",
 			"management_state": map[string]interface{}{
@@ -384,7 +346,7 @@ func TestDeviceTransformation(t *testing.T) {
 			Timestamp: 1000010000100010,
 		}
 		expectedType := "URI"
-		actualResult := TransformDevice(testDeviceForChildren, expectedType)
+		actualResult := TransformDevice(testDeviceForChildren, expectedType, "v0.7.5")
 		expectedResult := map[string]interface{}{
 			"@type": "ProfinetDevice",
 			"@context": map[string]interface{}{
@@ -463,7 +425,7 @@ func TestDeviceTransformation(t *testing.T) {
 			Timestamp: 1000010000100010,
 		}
 		expectedType := "URI"
-		actualResult := TransformDevice(testDevice, expectedType)
+		actualResult := TransformDevice(testDevice, expectedType, "v0.7.5")
 		expectedResult := map[string]interface{}{
 			"@type": "ProfinetDevice",
 			"@context": map[string]interface{}{
@@ -488,72 +450,6 @@ func TestDeviceTransformation(t *testing.T) {
 		assert.Equal(t, expectedResult, actualResult)
 	},
 	)
-}
-
-func TestSemanticProfinetMapping(t *testing.T) {
-	t.Run("SemanticProfinetNameMapping when provided with a valid identifier maps it to a correct device property", func(t *testing.T) {
-		testIdentifierValue := "profinet device name"
-		testKeys := []string{"profinet_name"}
-		device := make(map[string]interface{})
-		semanticProfinetNameMapping(testKeys, testIdentifierValue, device)
-		assert.Equal(t, testIdentifierValue, device["name"])
-	})
-
-	t.Run("SemanticProfinetNameMapping when provided with a non relevant identifier does not map anything into the device", func(t *testing.T) {
-		testIdentifierValue := "profinet device name"
-		testKeys := []string{"product_instance_identifier", "manufacturer_product", "manufacturer", "name"}
-		device := make(map[string]interface{})
-		semanticProfinetNameMapping(testKeys, testIdentifierValue, device)
-		assert.Nil(t, device["name"])
-	})
-
-	t.Run("SemanticProfinetFirmwareVersionMapping maps profinet name to device name property when provided with a valid identifier", func(t *testing.T) {
-		testIdentifierValue := "V1.0.0-rc134"
-		testKeys := []string{"firmware", "software_identifier", "version"}
-		device := make(map[string]interface{})
-		semanticProfinetFirmwareVersionMapping(testKeys, testIdentifierValue, device)
-		instanceAnnotations, ok := device["instance_annotations"].([]interface{})
-		firstInstanceAnnotation, typeOk := instanceAnnotations[0].(map[string]interface{})
-		assert.True(t, ok && typeOk)
-		assert.Equal(t, testIdentifierValue, firstInstanceAnnotation["value"])
-	})
-
-	t.Run("SemanticProfinetFirmwareVersionMapping does not map anything when provided with a property path that includes additional values, ", func(t *testing.T) {
-		testIdentifierValue := "V1.0.0-rc135"
-		testKeys := []string{"firmware", "software_identifier", "version", "additional"}
-		device := make(map[string]interface{})
-		semanticProfinetFirmwareVersionMapping(testKeys, testIdentifierValue, device)
-		assert.Nil(t, device["instance_annotations"])
-	})
-
-	t.Run("SemanticProfinetFirmwareVersionMapping when provided with a valid identifier and a device with an existing instance annotation maps it to a correct device property", func(t *testing.T) {
-		testIdentifierValue := "V1.0.0-rc135"
-		testKeys := []string{"firmware", "software_identifier", "version"}
-		device := make(map[string]interface{})
-		device["instance_annotations"] = []interface{}{}
-		device["instance_annotations"] = append(device["instance_annotations"].([]interface{}),
-			map[string]interface{}{"key": "test", "value": "test"})
-		semanticProfinetFirmwareVersionMapping(testKeys, testIdentifierValue, device)
-		instanceAnnotations, _ := device["instance_annotations"].([]interface{})
-		assert.Equal(t, 2, len(instanceAnnotations))
-		var firmwareVersionInstanceAnnotation map[string]interface{}
-		for _, instanceAnnotation := range instanceAnnotations {
-			mapInstanceAnnotation, typeOk := instanceAnnotation.(map[string]interface{})
-			assert.True(t, typeOk)
-			if mapInstanceAnnotation["key"] == "firmware_version" {
-				firmwareVersionInstanceAnnotation = mapInstanceAnnotation
-			}
-		}
-		assert.Equal(t, testIdentifierValue, firmwareVersionInstanceAnnotation["value"])
-	})
-
-	t.Run("SemanticProfinetFirmwareVersionMapping does not map anything into the device when provided with a non relevant identifier", func(t *testing.T) {
-		testIdentifierValue := ""
-		testKeys := []string{"product_instance_identifier", "manufacturer_product", "manufacturer", "name"}
-		device := make(map[string]interface{})
-		semanticProfinetFirmwareVersionMapping(testKeys, testIdentifierValue, device)
-		assert.Nil(t, device["instance_annotations"])
-	})
 }
 
 func TestFilter(t *testing.T) {
@@ -731,7 +627,7 @@ func TestMapManyArrayElementsViaMultipleArrayContainersIntoIahDevice(t *testing.
 			},
 		},
 	}
-	iahDevice := TransformDevice(&discoveredDevice, "URI")
+	iahDevice := TransformDevice(&discoveredDevice, "URI", "")
 	assert.Equal(t, len(iahDevice["array"].([]map[string]interface{})), 2)
 	assert.Equal(t, len(iahDevice["array"].([]map[string]interface{})[0]), 2)
 	assert.Equal(t, len(iahDevice["array"].([]map[string]interface{})[1]), 2)
@@ -787,7 +683,7 @@ func TestMapManyArrayElementsIntoIahDevice(t *testing.T) {
 				Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#array",
 			}},
 		}}}
-	iahDevice := TransformDevice(&discoveredDevice, "URI")
+	iahDevice := TransformDevice(&discoveredDevice, "URI", "")
 
 	arrayProperty, ok := iahDevice["array"].([]map[string]interface{})
 	assert.True(t, ok)
@@ -848,7 +744,7 @@ func TestMapManyMixedArrayElementsIntoIahDevice(t *testing.T) {
 				Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#array",
 			}},
 		}}}
-	iahDevice := TransformDevice(&discoveredDevice, "URI")
+	iahDevice := TransformDevice(&discoveredDevice, "URI", "")
 	arrayProperty, ok := iahDevice["array"].([]map[string]interface{})
 	assert.True(t, ok)
 	assert.Equal(t, 2, len(arrayProperty))
@@ -908,7 +804,7 @@ func TestMapManyDeepArrayElementsIntoIahDevice(t *testing.T) {
 				Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#a%2Fdeeper%2Farray",
 			}},
 		}}}
-	iahDevice := TransformDevice(&discoveredDevice, "URI")
+	iahDevice := TransformDevice(&discoveredDevice, "URI", "")
 	arrayProperty, ok := iahDevice["a"].(map[string]interface{})["deeper"].(map[string]interface{})["array"].([]map[string]interface{})
 	assert.True(t, ok)
 	assert.Equal(t, 2, len(arrayProperty))
@@ -968,7 +864,7 @@ func TestMapManyDeepArrayElementsWithDeepPathsIntoIahDevice(t *testing.T) {
 				Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#a%2Fdeeper%2Farray",
 			}},
 		}}}
-	iahDevice := TransformDevice(&discoveredDevice, "URI")
+	iahDevice := TransformDevice(&discoveredDevice, "URI", "")
 
 	arrayProperty, ok := iahDevice["a"].(map[string]interface{})["deeper"].(map[string]interface{})["array"].([]map[string]interface{})
 	assert.True(t, ok)
@@ -1200,7 +1096,7 @@ func TestMapManyDeepArrayElementsWithDeepPathsThatContainArraysIntoIahDevice(t *
 				Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#a%2Fdeeper%2Farray",
 			}},
 		}}, Timestamp: 1000010000100010}
-	iahDevice := TransformDevice(&discoveredDevice, "URI")
+	iahDevice := TransformDevice(&discoveredDevice, "URI", "v0.7.5")
 
 	assert.Equal(t, expectedResult, iahDevice)
 }
@@ -1251,7 +1147,7 @@ func TestCheckConversionForFile(t *testing.T) {
 			t.Fatalf("failed to decode JSON: %v", err)
 		}
 		// do the actual schema transformation
-		testDevice = TransformDevice(scannedPnasResponse.Devices[0], "URI")
+		testDevice = TransformDevice(scannedPnasResponse.Devices[0], "URI", "")
 
 		// Write the result to the output file
 		jsonWriter := json.NewEncoder(resultFile)

@@ -30,7 +30,7 @@ func (d *DeviceInfo) AddNameplate(manufacturerName string,
 	serialNumber string,
 ) {
 
-	if isNonEmptyValues(manufacturerName, uriOfTheProduct, productArticleNumberOfManufacturer, manufacturerProductDesignation, hardwareVersion, serialNumber) {
+	if IsNonEmptyValues(manufacturerName, uriOfTheProduct, productArticleNumberOfManufacturer, manufacturerProductDesignation, hardwareVersion, serialNumber) {
 
 		// We hash the manufacturer to get a unique identifier
 		h := sha1.New()
@@ -68,7 +68,7 @@ func (d *DeviceInfo) AddNameplate(manufacturerName string,
 func (d *DeviceInfo) AddSoftware(name string, version string) {
 	softwareIdentifier := SoftwareIdentifier{}
 
-	if isNonEmptyValues(name, version) {
+	if IsNonEmptyValues(name, version) {
 		softwareIdentifier.Name = &name
 		softwareIdentifier.Version = &version
 	}

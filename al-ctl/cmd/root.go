@@ -9,17 +9,12 @@ package cmd
 
 import (
 	"fmt"
-	"os"
-
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/cmd/test"
-
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/cmd/info"
-
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/cmd/discovery"
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/shared"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/al-ctl/shared"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/al-ctl/testsuite"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/logging"
 	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
+	"os"
 )
 
 var (
@@ -59,10 +54,10 @@ func init() {
 			zerolog.FatalLevel.String(),
 			zerolog.PanicLevel.String()))
 
-	rootCmd.AddCommand(discovery.DiscoverCmd)
-	rootCmd.AddCommand(info.InfoCmd)
-	rootCmd.AddCommand(info.ListCmd)
-	rootCmd.AddCommand(test.TestCmd)
+	rootCmd.AddCommand(DiscoverCmd)
+	rootCmd.AddCommand(InfoCmd)
+	rootCmd.AddCommand(ListCmd)
+	rootCmd.AddCommand(testsuite.TestCmd)
 
 }
 func initHandlers() {

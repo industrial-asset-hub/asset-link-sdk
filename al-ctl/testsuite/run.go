@@ -4,17 +4,17 @@
  * SPDX-License-Identifier: MIT
  *
  */
-package test
+
+package testsuite
 
 import (
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/al-ctl/shared"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
-
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/shared"
 )
 
 var TestCmd = &cobra.Command{
-	Use:   "test",
+	Use:   "testsuite",
 	Short: "Test suite for asset-link",
 	Long: `Run tests for asset-link.
 You can run tests for validation of Assets and API.
@@ -33,31 +33,22 @@ var apiCmd = &cobra.Command{
 	Run:   runApiTests,
 }
 
-var (
-	baseSchemaPath              string
-	schemaPath                  string
-	assetPath                   string
-	targetClass                 string
-	discoveryFile               string
-	semanticIdentifierInputType bool
-)
-
 func init() {
 	TestCmd.AddCommand(assetsCmd)
 	TestCmd.AddCommand(apiCmd)
 
-	assetsCmd.Flags().StringVarP(&baseSchemaPath, "base-schema-path", "b", "", "Path to the base schema YAML file")
-	assetsCmd.Flags().StringVarP(&schemaPath, "extended-schema-path", "s", "", "Path to the extended schema YAML file")
+	assetsCmd.Flags().StringVarP(&BaseSchemaPath, "base-schema-path", "b", "", "Path to the base schema YAML file")
+	assetsCmd.Flags().StringVarP(&SchemaPath, "extended-schema-path", "s", "", "Path to the extended schema YAML file")
 	assetsCmd.Flags().StringVarP(&assetPath, "asset-path", "a", "", "Path to the asset JSON file")
 	assetsCmd.Flags().BoolVarP(&semanticIdentifierInputType, "semantic-identifier-input-type", "i", false,
 		"should be true if asset input is of type semantic identifiers")
-	assetsCmd.Flags().StringVarP(&targetClass, "target-class", "t", "", "Target class for validation of asset")
+	assetsCmd.Flags().StringVarP(&TargetClass, "target-class", "t", "", "Target class for validation of asset")
 	apiCmd.Flags().StringVarP(&discoveryFile, "discovery-file", "d", "", shared.DiscoveryFileDesc)
 	apiCmd.Flags().BoolVarP(&shared.AssetValidationRequired, "validate-asset-against-schema", "v", false,
 		"should be true if discovered asset is to be validated against schema")
-	apiCmd.Flags().StringVarP(&baseSchemaPath, "base-schema-path", "b", "", "Path to the base schema YAML file")
-	apiCmd.Flags().StringVarP(&schemaPath, "extended-schema-path", "s", "", "Path to the extended schema YAML file")
-	apiCmd.Flags().StringVarP(&targetClass, "target-class", "t", "", "Target class for validation")
+	apiCmd.Flags().StringVarP(&BaseSchemaPath, "base-schema-path", "b", "", "Path to the base schema YAML file")
+	apiCmd.Flags().StringVarP(&SchemaPath, "extended-schema-path", "s", "", "Path to the extended schema YAML file")
+	apiCmd.Flags().StringVarP(&TargetClass, "target-class", "t", "", "Target class for validation")
 }
 
 func runAssetsTests(cmd *cobra.Command, args []string) {
@@ -76,7 +67,7 @@ func runAssetsTests(cmd *cobra.Command, args []string) {
 }
 
 func runApiTests(cmd *cobra.Command, args []string) {
-	runTests(shared.AssetLinkEndpoint, discoveryFile)
+	RunApiMockTests(shared.AssetLinkEndpoint, discoveryFile)
 	if shared.AssetValidationRequired {
 		runAssetsTests(cmd, args)
 	}

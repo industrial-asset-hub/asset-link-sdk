@@ -9,9 +9,10 @@ package al
 
 import (
 	"fmt"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/al-ctl/shared"
+	"google.golang.org/grpc"
 	"io"
 
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/shared"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/config"
 	generated "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
 	"github.com/rs/zerolog/log"
@@ -35,7 +36,12 @@ func Discover(endpoint string, discoveryFile string) []*generated.DiscoverRespon
 	discoveryRequest := discoveryConfig.GetDiscoveryRequest()
 
 	conn := shared.GrpcConnection(endpoint)
-	defer conn.Close()
+	defer func(conn *grpc.ClientConn) {
+		err := conn.Close()
+		if err != nil {
+			log.Err(err).Msg("Error closing connection")
+		}
+	}(conn)
 
 	client := generated.NewDeviceDiscoverApiClient(conn)
 	ctx := context.Background()
@@ -70,7 +76,12 @@ func Discover(endpoint string, discoveryFile string) []*generated.DiscoverRespon
 func GetFilterTypes(endpoint string) *generated.FilterTypesResponse {
 	log.Trace().Str("Endpoint", endpoint).Msg("Getting filter types")
 	conn := shared.GrpcConnection(endpoint)
-	defer conn.Close()
+	defer func(conn *grpc.ClientConn) {
+		err := conn.Close()
+		if err != nil {
+			log.Err(err).Msg("Error closing connection")
+		}
+	}(conn)
 
 	client := generated.NewDeviceDiscoverApiClient(conn)
 	ctx := context.Background()
@@ -86,7 +97,12 @@ func GetFilterTypes(endpoint string) *generated.FilterTypesResponse {
 func GetFilterOptions(endpoint string) *generated.FilterOptionsResponse {
 	log.Trace().Str("Endpoint", endpoint).Msg("Getting filter options")
 	conn := shared.GrpcConnection(endpoint)
-	defer conn.Close()
+	defer func(conn *grpc.ClientConn) {
+		err := conn.Close()
+		if err != nil {
+			log.Err(err).Msg("Error closing connection")
+		}
+	}(conn)
 
 	client := generated.NewDeviceDiscoverApiClient(conn)
 	ctx := context.Background()

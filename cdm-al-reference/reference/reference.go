@@ -8,6 +8,7 @@ package reference
 
 import (
 	"fmt"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/model/conversion"
 	"math/rand"
 	"strings"
 	"sync"
@@ -91,7 +92,7 @@ func (m *ReferenceClassDriver) Discover(discoveryConfig config.DiscoveryConfig, 
 			id := deviceInfo.AddNic(deviceNIC, randomMacAddress)
 			deviceInfo.AddIPv4(id, deviceIPs[0], "255.255.255.0", "")
 			deviceInfo.AddIPv4(id, deviceIPs[1], "255.255.255.0", "")
-			discoveredDevice := deviceInfo.ConvertToDiscoveredDevice()
+			discoveredDevice := conversion.ConvertToDiscoveredDevice(deviceInfo)
 
 			err := devicePublisher.PublishDevice(discoveredDevice)
 			if err != nil {

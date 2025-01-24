@@ -4,15 +4,17 @@
  * SPDX-License-Identifier: MIT
  *
  */
-package apimock
+
+package testsuite
 
 import (
 	"encoding/json"
 	"fmt"
 	"github.com/google/uuid"
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/shared"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/al-ctl/al"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/al-ctl/shared"
 	iah_discovery "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/model"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/model/conversion"
 	"github.com/rs/zerolog/log"
 	"os"
 )
@@ -49,9 +51,14 @@ func RunApiMockTests(address, discoveryFile string) {
 
 func createAssetFileFromDiscoveryResponse(data interface{}) {
 	discoveryResponse := data.([]iah_discovery.DiscoverResponse)
+	baseSchemaVersion, err := GetBaseSchemaVersionFromExtendedSchema()
+	if err != nil {
+		log.Err(err).Msg("failed to get base schema baseSchemaVersion from extended schema defaulting to v0.9.0")
+		baseSchemaVersion = "v0.9.0"
+	}
 	for i := range discoveryResponse {
 		for _, discoveredDevice := range discoveryResponse[i].Devices {
-			transformedDevice := model.TransformDevice(discoveredDevice, "URI")
+			transformedDevice := conversion.TransformDevice(discoveredDevice, "URI", baseSchemaVersion)
 			// Add a unique id to the transformed device
 			transformedDevice["id"] = uuid.New().String()
 			jsonDevice, err := json.Marshal(transformedDevice)
@@ -71,4 +78,22 @@ func createAssetFileFromDiscoveryResponse(data interface{}) {
 			shared.AssetJsonPath = "Test.json"
 		}
 	}
+}
+
+func TestDiscoverDevices(address, discoveryFile string) interface{} {
+	fmt.Println("Running Test for StartDiscovery")
+	data := al.Discover(address, discoveryFile)
+	return data
+}
+
+func TestGetFilterTypes(address, discoveryFile string) interface{} {
+	fmt.Println("Running Test for GetFilterTypes")
+	data := al.GetFilterTypes(address)
+	return data
+}
+
+func TestGetFilterOptions(address, discoveryFile string) interface{} {
+	fmt.Println("Running Test for GetFilterOptions")
+	data := al.GetFilterOptions(address)
+	return data
 }

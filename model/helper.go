@@ -9,7 +9,7 @@ package model
 
 func (d *DeviceInfo) addIdentifier(mac string) {
 
-	if isNonEmptyValues(mac) {
+	if IsNonEmptyValues(mac) {
 		identifierUncertainty := 1
 		identifier := MacIdentifier{
 			IdentifierType:        nil,
@@ -22,7 +22,7 @@ func (d *DeviceInfo) addIdentifier(mac string) {
 
 // Add reachability state to the asset
 func (d *DeviceInfo) addReachabilityState() {
-	timestamp := createTimestamp()
+	timestamp := CreateTimestamp()
 	state := ReachabilityStateValuesReached
 
 	reachabilityState := ReachabilityState{
@@ -37,7 +37,7 @@ func (d *DeviceInfo) addReachabilityState() {
 // Only used internal
 func (d *DeviceInfo) addManagementState() {
 
-	timestamp := createTimestamp()
+	timestamp := CreateTimestamp()
 	state := ManagementStateValuesUnknown
 
 	mgmtState := ManagementState{
@@ -46,4 +46,13 @@ func (d *DeviceInfo) addManagementState() {
 	}
 
 	d.ManagementState = mgmtState
+}
+
+func IsNonEmptyValues(values ...string) bool {
+	for _, value := range values {
+		if value != "" {
+			return true
+		}
+	}
+	return false
 }

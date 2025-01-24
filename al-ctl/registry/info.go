@@ -5,12 +5,11 @@
  *
  */
 
-package al
+package registry
 
 import (
 	"fmt"
-
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/shared"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/al-ctl/shared"
 	driverinfo "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/conn_suite_drv_info"
 	discovery "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
 	"github.com/rs/zerolog/log"
@@ -22,7 +21,12 @@ func PrintInfo(endpoint string) {
 	log.Trace().Str("Endpoint", endpoint).Msg("Fetching health")
 
 	conn := shared.GrpcConnection(endpoint)
-	defer conn.Close()
+	defer func(conn *grpc.ClientConn) {
+		err := conn.Close()
+		if err != nil {
+			log.Err(err).Msg("Error closing connection")
+		}
+	}(conn)
 
 	printDriverInfo(conn)
 	printDiscoveryOptions(conn)

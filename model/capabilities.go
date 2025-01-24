@@ -13,7 +13,7 @@ package model
 func (d *DeviceInfo) AddCapabilities(name string, enabled bool) {
 	operation := AssetOperation{}
 
-	if isNonEmptyValues(name) {
+	if IsNonEmptyValues(name) {
 		enabled = true
 		operation.OperationName = &name
 		operation.ActivationFlag = &enabled

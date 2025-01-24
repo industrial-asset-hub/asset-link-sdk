@@ -5,11 +5,11 @@
  *
  */
 
-package model
+package conversion
 
 import (
 	"fmt"
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/cmd/test"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/model"
 	"net/url"
 	"reflect"
 	"strconv"
@@ -22,8 +22,9 @@ import (
 )
 
 const (
-	parentKeyIndex = 1
-	prefix         = "https://schema.industrial-assets.io/"
+	parentKeyIndex   = 1
+	prefix           = "https://schema.industrial-assets.io/"
+	baseSchemaPrefix = "https://schema.industrial-assets.io/base/v0.9.0"
 )
 
 type classifier struct {
@@ -56,7 +57,7 @@ func ConvertFromDerivedSchemaToDiscoveredDevice[T interface{}](d *T, schemaUri s
 	return &device
 }
 
-func (d *DeviceInfo) ConvertToDiscoveredDevice() *generated.DiscoveredDevice {
+func ConvertToDiscoveredDevice(d *model.DeviceInfo) *generated.DiscoveredDevice {
 	device := generated.DiscoveredDevice{
 		Identifiers:            convertDeviceInfoToDeviceIdentifiers(d, baseSchemaPrefix, "Asset"),
 		ConnectionParameterSet: nil,
@@ -147,7 +148,7 @@ func convertToDeviceIdentifier(value interface{}, identifierUri string) *generat
 	}
 	switch v := value.(type) {
 	case string:
-		if isNonEmptyValues(value.(string)) {
+		if model.IsNonEmptyValues(value.(string)) {
 			identifier.Value = &generated.DeviceIdentifier_Text{Text: v}
 		}
 	case *string:
@@ -209,15 +210,6 @@ func convertStructTypeToDeviceIdentifiers(valueStruct reflect.Value, prefixUri s
 		structIdentifiers = appendDeviceIdentifiers(structIdentifiers, elementIdentifiers)
 	}
 	return structIdentifiers
-}
-
-func isNonEmptyValues(values ...string) bool {
-	for _, value := range values {
-		if value != "" {
-			return true
-		}
-	}
-	return false
 }
 
 func filter(identifier *generated.DeviceIdentifier, expectedType string, prefix string) *generated.DeviceIdentifier {
@@ -318,14 +310,9 @@ func retrieveAssetTypeFromDiscoveredDevice(device *generated.DiscoveredDevice) s
 	return assetType
 }
 
-func TransformDevice(device *generated.DiscoveredDevice, expectedType string) map[string]interface{} {
+func TransformDevice(device *generated.DiscoveredDevice, expectedType string, baseSchemaVersion string) map[string]interface{} {
 	DeviceInIahSchema := make(map[string]interface{})
 	DeviceInIahSchema["@type"] = retrieveAssetTypeFromDiscoveredDevice(device)
-	baseSchemaVersion, err := test.GetBaseSchemaVersionFromExtendedSchema()
-	if err != nil {
-		log.Warn().Msg("base schema version not found in extended schema")
-		baseSchemaVersion = "v0.9.0"
-	}
 	DeviceInIahSchema["@context"] = map[string]interface{}{
 		"base":      fmt.Sprintf("https://common-device-management.code.siemens.io/documentation/asset-modeling/base-schema/%s/", baseSchemaVersion),
 		"linkml":    "https://w3id.org/linkml/",

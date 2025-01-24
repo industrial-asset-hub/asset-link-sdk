@@ -13,15 +13,11 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-const (
-	baseSchemaPrefix = "https://schema.industrial-assets.io/base/v0.9.0"
-)
-
 // NewDevice Generates a new asset skeleton
 func NewDevice(typeOfAsset string, assetName string) *DeviceInfo {
 
 	d := DeviceInfo{}
-	if !isNonEmptyValues(typeOfAsset) {
+	if !IsNonEmptyValues(typeOfAsset) {
 		log.Warn().Msg("Asset type is empty")
 		return &d
 	}
@@ -45,7 +41,7 @@ type DeviceInfo struct {
 	SoftwareComponents []any `json:"software_components,omitempty"`
 }
 
-func createTimestamp() string {
+func CreateTimestamp() string {
 	currentTime := time.Now().UTC()
 	return currentTime.Format(time.RFC3339Nano)
 }
