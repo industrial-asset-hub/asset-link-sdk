@@ -17,6 +17,7 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 	"gopkg.in/yaml.v3"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -64,7 +65,7 @@ func transformSemanticIdentifierToAsset() error {
 	arr := strings.Split(shared.AssetJsonPath, "/")
 	newArr := arr[:len(arr)-1]
 	shared.AssetJsonPath = strings.Join(newArr, "/")
-	shared.AssetJsonPath = "/testsuite.json"
+	shared.AssetJsonPath, _ = filepath.Localize("/testsuite.json")
 	// Write the transformed asset to a file
 	jsonWriter := json.NewEncoder(file)
 	if err := jsonWriter.Encode(testDevice); err != nil {
