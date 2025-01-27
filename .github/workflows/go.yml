@@ -122,6 +122,13 @@ jobs:
         run: |
           cd $TEST_PROJECT/$TEST_PROJECT_NAME/
           go test -v ./...
+      - name: Test Goreleaser Config (dry-run)
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          distribution: goreleaser
+          version: "~> v2"
+          workdir: ${{ env.TEST_PROJECT }}/${{ env.TEST_PROJECT_NAME }}/
+          args: release --clean --snapshot
 
   release-sdk:
     runs-on: ubuntu-latest
