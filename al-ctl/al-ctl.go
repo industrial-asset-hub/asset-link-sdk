@@ -5,7 +5,7 @@
  *
  */
 
-package alctl
+package main
 
 import (
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/al-ctl/cmd"

@@ -70,7 +70,7 @@ func createAssetFileFromDiscoveryResponse(data interface{}) {
 		arr := strings.Split(shared.AssetJsonPath, "/")
 		newArr := arr[:len(arr)-1]
 		shared.AssetJsonPath = strings.Join(newArr, "/")
-		shared.AssetJsonPath = shared.AssetJsonPath + fmt.Sprintf("testdevice-%d.json", deviceIndex)
+		shared.AssetJsonPath += fmt.Sprintf("testdevice-%d.json", deviceIndex)
 		// Write the transformed asset to a file
 		jsonWriter := json.NewEncoder(file)
 		if err := jsonWriter.Encode(transformedDevice); err != nil {
