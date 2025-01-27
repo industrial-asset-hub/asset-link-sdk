@@ -36,19 +36,34 @@ var apiCmd = &cobra.Command{
 func init() {
 	TestCmd.AddCommand(assetsCmd)
 	TestCmd.AddCommand(apiCmd)
+	// check python support
+	assetsCmd.Flags().BoolVarP(&pythonEnvSupported, "python-env-supported", "p", false, "should be true if python environment is supported")
+	apiCmd.Flags().BoolVarP(&pythonEnvSupported, "python-env-supported", "p", false, "should be true if python environment is supported")
 
+	// input schemas
 	assetsCmd.Flags().StringVarP(&BaseSchemaPath, "base-schema-path", "b", "", "Path to the base schema YAML file")
 	assetsCmd.Flags().StringVarP(&SchemaPath, "extended-schema-path", "s", "", "Path to the extended schema YAML file")
-	assetsCmd.Flags().StringVarP(&assetPath, "asset-path", "a", "", "Path to the asset JSON file")
-	assetsCmd.Flags().BoolVarP(&semanticIdentifierInputType, "semantic-identifier-input-type", "i", false,
-		"should be true if asset input is of type semantic identifiers")
-	assetsCmd.Flags().StringVarP(&TargetClass, "target-class", "t", "", "Target class for validation of asset")
-	apiCmd.Flags().StringVarP(&discoveryFile, "discovery-file", "d", "", shared.DiscoveryFileDesc)
-	apiCmd.Flags().BoolVarP(&shared.AssetValidationRequired, "validate-asset-against-schema", "v", false,
-		"should be true if discovered asset is to be validated against schema")
 	apiCmd.Flags().StringVarP(&BaseSchemaPath, "base-schema-path", "b", "", "Path to the base schema YAML file")
 	apiCmd.Flags().StringVarP(&SchemaPath, "extended-schema-path", "s", "", "Path to the extended schema YAML file")
+	// input asset for validation
+	assetsCmd.Flags().StringVarP(&shared.AssetJsonPath, "asset-path", "a", "", "Path to the asset JSON file")
+
+	// check if input type is semantic-identifiers
+	assetsCmd.Flags().BoolVarP(&semanticIdentifierInputType, "semantic-identifier-input-type", "i", false,
+		"should be true if asset input is of type semantic identifiers")
+	apiCmd.Flags().BoolVarP(&semanticIdentifierInputType, "semantic-identifier-input-type", "i", false,
+		"should be true if asset input is of type semantic identifiers")
+
+	// target class for validation
+	assetsCmd.Flags().StringVarP(&TargetClass, "target-class", "t", "", "Target class for validation of asset")
 	apiCmd.Flags().StringVarP(&TargetClass, "target-class", "t", "", "Target class for validation")
+
+	// discovery config
+	apiCmd.Flags().StringVarP(&discoveryFile, "discovery-file", "d", "", shared.DiscoveryFileDesc)
+
+	// check if discovered asset to be validated against schema
+	apiCmd.Flags().BoolVarP(&shared.AssetValidationRequired, "validate-asset-against-schema", "v", false,
+		"should be true if discovered asset is to be validated against schema")
 }
 
 func runAssetsTests(cmd *cobra.Command, args []string) {
@@ -60,9 +75,10 @@ func runAssetsTests(cmd *cobra.Command, args []string) {
 		}
 	}
 
-	err := RunContainer("linkml-validator")
+	err := RunAssetValidation()
 	if err != nil {
 		log.Err(err).Msg("failed to validate asset against schema")
+		return
 	}
 }
 
@@ -72,4 +88,11 @@ func runApiTests(cmd *cobra.Command, args []string) {
 		runAssetsTests(cmd, args)
 	}
 
+}
+
+func RunAssetValidation() error {
+	if pythonEnvSupported {
+		return RunLinkmlValidate()
+	}
+	return RunContainer("linkml-validator")
 }

@@ -10,6 +10,7 @@ package testsuite
 import (
 	"fmt"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/al-ctl/shared"
+	"github.com/rs/zerolog/log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -59,6 +60,15 @@ func RunContainer(service string) error {
 	return err
 }
 
+func RunLinkmlValidate() error {
+	err := installLinkmlPackage()
+	if err != nil {
+		log.Err(err).Msg("failed to install linkml package")
+	}
+	err = validateThroughLinkml()
+	return err
+}
+
 func GetServiceDefinition(schemaPath string, assetPath string, targetClass string) (service *Service, err error) {
 	currentDir, _ := os.Getwd()
 	Service := Service{
@@ -105,4 +115,39 @@ func AddSchemaEntrypointInService(service *Service, schemaFileName string) {
 
 func AddAssetEntrypointInService(service *Service, assetFileName string) {
 	service.Entrypoint = append(service.Entrypoint, "/app/src/cdm/"+assetFileName)
+}
+
+func installLinkmlPackage() error {
+	cmd := exec.Command("pip", "install", "linkml")
+
+	fmt.Println("Installing LinkML package...")
+	if err := cmd.Run(); err != nil {
+		fmt.Printf("Error installing LinkML package: %s\n", err)
+		return err
+	}
+
+	fmt.Println("LinkML package installed successfully.")
+	return nil
+}
+
+func validateThroughLinkml() error {
+	cmd := exec.Command("linkml-validate",
+		"--input-format=json",
+		shared.AssetJsonPath,
+		fmt.Sprintf("--target-class=%s", TargetClass),
+		fmt.Sprintf("--schema=%s", SchemaPath),
+	)
+	fmt.Println(cmd.Args)
+
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	fmt.Println("Running LinkML validation...")
+	if err := cmd.Run(); err != nil {
+		fmt.Printf("Error running LinkML validation: %s\n", err)
+		return err
+	}
+
+	fmt.Println("LinkML validation completed successfully.")
+	return nil
 }

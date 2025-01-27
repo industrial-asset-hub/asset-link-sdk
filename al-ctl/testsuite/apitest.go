@@ -17,6 +17,7 @@ import (
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/model/conversion"
 	"github.com/rs/zerolog/log"
 	"os"
+	"strings"
 )
 
 type testFunction func(string, string) interface{}
@@ -50,32 +51,30 @@ func RunApiMockTests(address, discoveryFile string) {
 }
 
 func createAssetFileFromDiscoveryResponse(data interface{}) {
-	discoveryResponse := data.([]iah_discovery.DiscoverResponse)
+	discoveryResponse := data.([]*iah_discovery.DiscoverResponse)
 	baseSchemaVersion, err := GetBaseSchemaVersionFromExtendedSchema()
 	if err != nil {
 		log.Err(err).Msg("failed to get base schema baseSchemaVersion from extended schema defaulting to v0.9.0")
 		baseSchemaVersion = "v0.9.0"
 	}
-	for i := range discoveryResponse {
-		for _, discoveredDevice := range discoveryResponse[i].Devices {
-			transformedDevice := conversion.TransformDevice(discoveredDevice, "URI", baseSchemaVersion)
-			// Add a unique id to the transformed device
-			transformedDevice["id"] = uuid.New().String()
-			jsonDevice, err := json.Marshal(transformedDevice)
-			if err != nil {
-				log.Err(err).Msg("failed to marshal transformed device")
-			}
-			// Create a Test asset file
-			assetFile, err := os.Create("Test.json")
-			if err != nil {
-				log.Err(err).Msg("failed to create Test asset file")
-			}
-			_, err = assetFile.Write(jsonDevice)
-			if err != nil {
-				log.Err(err).Msg("failed to write Test asset file")
-			}
-			// Set the asset path to the Test asset file
-			shared.AssetJsonPath = "Test.json"
+	for deviceIndex, device := range discoveryResponse[0].Devices {
+		transformedDevice := conversion.TransformDevice(device, "URI", baseSchemaVersion)
+		// Add a unique id to the transformed device
+		transformedDevice["id"] = uuid.New().String()
+		file, err := os.Create(fmt.Sprintf("testdevice-%d.json", deviceIndex))
+		if err != nil {
+			fmt.Printf("Error creating testsuite.json file: %v", err)
+		}
+		defer file.Close() // Ensure the file is closed when done
+
+		arr := strings.Split(shared.AssetJsonPath, "/")
+		newArr := arr[:len(arr)-1]
+		shared.AssetJsonPath = strings.Join(newArr, "/")
+		shared.AssetJsonPath = shared.AssetJsonPath + fmt.Sprintf("testdevice-%d.json", deviceIndex)
+		// Write the transformed asset to a file
+		jsonWriter := json.NewEncoder(file)
+		if err := jsonWriter.Encode(transformedDevice); err != nil {
+			log.Err(err).Msg("failed to write transformed asset to file")
 		}
 	}
 }

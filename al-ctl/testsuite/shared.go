@@ -17,17 +17,16 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 	"gopkg.in/yaml.v3"
 	"os"
-	"path/filepath"
 	"strings"
 )
 
 var (
 	BaseSchemaPath              string
 	SchemaPath                  string
-	assetPath                   string
 	TargetClass                 string
 	discoveryFile               string
 	semanticIdentifierInputType bool
+	pythonEnvSupported          bool
 )
 
 func transformSemanticIdentifierToAsset() error {
@@ -54,24 +53,28 @@ func transformSemanticIdentifierToAsset() error {
 		log.Err(err).Msg("failed to unmarshal asset")
 		return err
 	}
-	// Transform the semantic-identifiers to asset
-	testDevice := conversion.TransformDevice(discoveryResponse.Devices[0], "URI", "")
-	file, err = os.Create("testsuite.json")
-	if err != nil {
-		log.Err(err).Msg("failed to create testsuite json file")
-		return err
+	// Transform the semantic-identifiers to IAH internal
+	for deviceIndex, device := range discoveryResponse.Devices {
+		testDevice := conversion.TransformDevice(device, "URI", "")
+		file, err = os.Create(fmt.Sprintf("testdevice-%d.json", deviceIndex))
+		if err != nil {
+			fmt.Printf("Error creating testsuite.json file: %v", err)
+			return err
+		}
+		defer file.Close() // Ensure the file is closed when done
+
+		arr := strings.Split(shared.AssetJsonPath, "/")
+		newArr := arr[:len(arr)-1]
+		shared.AssetJsonPath = strings.Join(newArr, "/")
+		shared.AssetJsonPath = shared.AssetJsonPath + fmt.Sprintf("testdevice-%d.json", deviceIndex)
+		// Write the transformed asset to a file
+		jsonWriter := json.NewEncoder(file)
+		if err := jsonWriter.Encode(testDevice); err != nil {
+			log.Err(err).Msg("failed to write transformed asset to file")
+			return err
+		}
 	}
-	// change the path to the asset json file
-	arr := strings.Split(shared.AssetJsonPath, "/")
-	newArr := arr[:len(arr)-1]
-	shared.AssetJsonPath = strings.Join(newArr, "/")
-	shared.AssetJsonPath, _ = filepath.Localize("/testsuite.json")
-	// Write the transformed asset to a file
-	jsonWriter := json.NewEncoder(file)
-	if err := jsonWriter.Encode(testDevice); err != nil {
-		log.Err(err).Msg("failed to write transformed asset to file")
-		return err
-	}
+
 	return nil
 }
 
