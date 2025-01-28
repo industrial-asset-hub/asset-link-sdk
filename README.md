@@ -16,9 +16,9 @@ interfaces of the feature that the particular asset link is intended to provide
 Currently, one interface is supported:
 
 **Discovery Interface** (allows device discoveries and consists of three functions):
-1. `Discover`: Performs a device scan and returns/publishes all the devices found.
-2. `GetSupportedFilters`: Returns a list of supported filters for the discovery.
-3. `GetSupportedOptions`: Returns a list of supported options for the discovery.
+  1. `Discover`: Performs a device scan and returns/publishes all the devices found.
+  2. `GetSupportedFilters`: Returns a list of supported filters for the discovery.
+  3. `GetSupportedOptions`: Returns a list of supported options for the discovery.
 
 Once the interfaces are implemented, the specific Asset Link uses the `assetLinkBuilder` to construct a `AssetLink` with
 the implemented features.
