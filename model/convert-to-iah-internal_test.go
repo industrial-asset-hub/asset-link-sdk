@@ -977,7 +977,7 @@ func TestPanics(t *testing.T) {
 func TestCheckConversionForFile(t *testing.T) {
 	t.Run("validate PNAS output against IAH schema", func(t *testing.T) {
 		t.Skip("Skipping test as it is only used to get an end to end example going manually")
-		testDevice := map[string]interface{}{}
+		var testDevice map[string]interface{}
 		var scannedPnasResponse generated.DiscoverResponse
 		// open file for reading
 		file, err := os.Open("./example_dummy_device.json")
