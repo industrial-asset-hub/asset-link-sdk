@@ -1,0 +1,24 @@
+# SPDX-FileCopyrightText: {{cookiecutter.year}} {{cookiecutter.company}}
+#
+# SPDX-License-Identifier: MIT
+#
+# Starts the {{ cookiecutter.al_project }} Asset Link for Industrial Asset Hub (IAH)
+# Depends on an IAH gateway
+
+services:
+  {{ cookiecutter.al_project }}:
+    restart: always
+    image: '{{ cookiecutter.al_project }}:latest-${AL_OS}-${AL_ARCH}'
+    networks:
+      - 01-cdm
+    command:
+      - '-grpc-server-endpoint-address={{ cookiecutter.al_project }}'
+      - '-grpc-server-address=:8081'
+      - '-grpc-registry-address=grpc-server-registry:50051'
+    ports:
+      - 8081:8081
+
+networks:
+  01-cdm:
+    name: cdm
+    external: true
