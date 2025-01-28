@@ -15,7 +15,10 @@ The SDK is designed in such a way that to create a new asset link, you need to i
 interfaces of the feature that the particular asset link is intended to provide
 Currently, one interface is supported:
 
-1. Discovery: Perform a device scan and return a filled `model.DeviceInfo` for each device found.
+**Discovery Interface** (allows device discoveries and consists of three functions):
+1. `Discover`: Performs a device scan and returns/publishes all the devices found.
+2. `GetSupportedFilters`: Returns a list of supported filters for the discovery.
+3. `GetSupportedOptions`: Returns a list of supported options for the discovery.
 
 Once the interfaces are implemented, the specific Asset Link uses the `assetLinkBuilder` to construct a `AssetLink` with
 the implemented features.
@@ -25,7 +28,7 @@ On `AssetLink.Start()` the Asset Link will start the grpc server allowing a devi
 
 Tooling:
 
-- [Go](https://go.dev/) Version >=1.20 is required
+- [Go](https://go.dev/) Version >=1.22.0 is required
 - [cookiecutter](https://github.com/cookiecutter/cookiecutter)
 - [GoReleaser](https://goreleaser.com/)
 
@@ -215,31 +218,27 @@ Use "al-ctl [command] --help" for more information about a command.
 Examples of actions which can be performed on the Asset Link:
 
 ```bash
+$ al-ctl discover -e localhost:8081 [-d <discovery-config>] [-o <output-file>]
+
 # To run the api tests on Asset Link
-$ al-ctl test api -e localhost:8081 -f [] -o []
-
+$ al-ctl test api -e localhost:8081 [-d <discovery-config>]
 # The Asset Link must be running on the provided address, for example here: localhost:8081
-# to additionally validate the discovered asset against schema
-al-ctl test api -v -e localhost:8081 -f [] -o [] -b <base-schema> -s <extended-schema> -t <target-class>
-
-# To run discovery on the Asset Link
-$ al-ctl discovery start -e localhost:8081 --filters [] --options []
+# Use the -v flag to additionally validate the discovered assets against the schema
+# Example: al-ctl test api -e localhost:8081 [-d <discovery-config>] -v true --base-schema-path ./iah_base-v0.9.0.yaml --asset-path ./Asset-001.ld.json --target-class Asset
 
 # To validate the asset against the base-schema using linkml-validator where schema file should be yaml
 $ al-ctl test assets --base-schema-path <base-schema> --asset-path <asset>
 --target-class <target-class>
-# Example: al-ctl test assets --base-schema-path ./iah_base-v0.9.0.yaml
---asset-path ./Asset-001.ld.json --target-class Asset
+# Example: al-ctl test assets --base-schema-path ./iah_base-v0.9.0.yaml --asset-path ./Asset-001.ld.json --target-class Asset
+# set the -i flag to true to input asset as semantic-identifiers
 
 # To validate the asset against the extended-schema using linkml-validator where schema file should be yaml
 $ al-ctl test assets --base-schema-path <base-schema> --asset-path <asset>
 --schema-path <extended-schema> --target-class <target-class>
-# Example: al-ctl test assets --base-schema-path ./iah_base-v0.7.5.yaml
---asset-path ./SatController-001.json --schema-path ./cdm_sat.yaml --target-class SatController
 
-# Use the -i flag to indicate that the asset is in the form of semantic-identifiers
+# Example: al-ctl test assets --base-schema-path ./iah_base-v0.9.0.yaml --asset-path ./SatController-001.json --schema-path ./cdm_sat.yaml --target-class SatController
 
-# To explore on more actions to perform on Asset Link
+# To explore actions to perform with the command line tool
 $ al-ctl --help
 ```
 

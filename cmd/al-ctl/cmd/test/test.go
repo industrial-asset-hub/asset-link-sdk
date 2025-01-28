@@ -36,7 +36,6 @@ var apiCmd = &cobra.Command{
 var (
 	baseSchemaPath              string
 	schemaPath                  string
-	assetPath                   string
 	targetClass                 string
 	discoveryFile               string
 	semanticIdentifierInputType bool
