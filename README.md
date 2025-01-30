@@ -218,19 +218,19 @@ Use "al-ctl [command] --help" for more information about a command.
 Examples of actions which can be performed on the Asset Link:
 
 ```bash
-$ al-ctl discover -e localhost:8081 [-d <discovery-config>] [-o <output-file>]
-
 # To run the api tests on Asset Link
 $ al-ctl test api -e localhost:8081 [-d <discovery-config>]
+# to additionally validate the discovered assets against the schema use -v flag
 # The Asset Link must be running on the provided address, for example here: localhost:8081
-# Use the -v flag to additionally validate the discovered assets against the schema
-# Example: al-ctl test api -e localhost:8081 [-d <discovery-config>] -v true --base-schema-path ./iah_base-v0.9.0.yaml --asset-path ./Asset-001.ld.json --target-class Asset
+
+# To run discovery on the Asset Link
+$ al-ctl discover -e localhost:8081 [-d <discovery-config>] [-o <output-file>]
 
 # To validate the asset against the base-schema using linkml-validator where schema file should be yaml
 $ al-ctl test assets --base-schema-path <base-schema> --asset-path <asset>
 --target-class <target-class>
+
 # Example: al-ctl test assets --base-schema-path ./iah_base-v0.9.0.yaml --asset-path ./Asset-001.ld.json --target-class Asset
-# set the -i flag to true to input asset as semantic-identifiers
 
 # To validate the asset against the extended-schema using linkml-validator where schema file should be yaml
 $ al-ctl test assets --base-schema-path <base-schema> --asset-path <asset>

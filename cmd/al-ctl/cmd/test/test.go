@@ -34,11 +34,10 @@ var apiCmd = &cobra.Command{
 }
 
 var (
-	baseSchemaPath              string
-	schemaPath                  string
-	targetClass                 string
-	discoveryFile               string
-	semanticIdentifierInputType bool
+	baseSchemaPath string
+	schemaPath     string
+	targetClass    string
+	discoveryFile  string
 )
 
 func init() {
@@ -48,8 +47,6 @@ func init() {
 	assetsCmd.Flags().StringVarP(&baseSchemaPath, "base-schema-path", "b", "", "Path to the base schema YAML file")
 	assetsCmd.Flags().StringVarP(&schemaPath, "extended-schema-path", "s", "", "Path to the extended schema YAML file")
 	assetsCmd.Flags().StringVarP(&shared.AssetJsonPath, "asset-path", "a", "", "Path to the asset JSON file")
-	assetsCmd.Flags().BoolVarP(&semanticIdentifierInputType, "semantic-identifier-input-type", "i", false,
-		"should be true if asset input is of type semantic identifiers")
 	assetsCmd.Flags().StringVarP(&targetClass, "target-class", "t", "", "Target class for validation of asset")
 	apiCmd.Flags().StringVarP(&discoveryFile, "discovery-file", "d", "", shared.DiscoveryFileDesc)
 	apiCmd.Flags().BoolVarP(&shared.AssetValidationRequired, "validate-asset-against-schema", "v", false,
@@ -60,14 +57,6 @@ func init() {
 }
 
 func runAssetsTests(cmd *cobra.Command, args []string) {
-	if semanticIdentifierInputType {
-		err := transformSemanticIdentifierToAsset()
-		if err != nil {
-			log.Err(err).Msg("failed to transform semantic identifier to asset")
-			return
-		}
-	}
-
 	err := RunContainer("linkml-validator")
 	if err != nil {
 		log.Err(err).Msg("failed to validate asset against schema")
