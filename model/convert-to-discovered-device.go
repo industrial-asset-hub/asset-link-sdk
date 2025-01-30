@@ -57,9 +57,14 @@ func convertToDeviceIdentifiers(valueToConvert reflect.Value, prefixUri string, 
 		structIdentifiers := convertStructTypeToDeviceIdentifiers(valueToConvert, prefixUri, level+1)
 		identifiers = appendDeviceIdentifiers(identifiers, structIdentifiers)
 	case reflect.Slice:
-		for index := 0; index < valueToConvert.Len(); index++ {
-			sliceIdentifier := convertSliceElementToDeviceIdentifier(valueToConvert.Index(index), prefixUri, level+1)
-			identifiers = appendDeviceIdentifiers(identifiers, []*generated.DeviceIdentifier{sliceIdentifier})
+		if valueToConvert.Len() > 0 && valueToConvert.Index(0).Kind() != reflect.Uint8 {
+			for index := 0; index < valueToConvert.Len(); index++ {
+				sliceIdentifier := convertSliceElementToDeviceIdentifier(valueToConvert.Index(index), prefixUri, level+1)
+				identifiers = appendDeviceIdentifiers(identifiers, []*generated.DeviceIdentifier{sliceIdentifier})
+			}
+		} else {
+			identifier := convertToDeviceIdentifier(valueToConvert.Interface(), prefixUri)
+			identifiers = appendDeviceIdentifiers(identifiers, []*generated.DeviceIdentifier{identifier})
 		}
 	case reflect.String:
 		identifier := convertToDeviceIdentifier(valueToConvert.String(), prefixUri)

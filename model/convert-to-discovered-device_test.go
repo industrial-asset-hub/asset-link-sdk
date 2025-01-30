@@ -188,3 +188,103 @@ func TestConvertNumberTypeToDiscoveredDevice(t *testing.T) {
 		assert.Fail(t, "identifier_uncertainty not found in identifiers")
 	}
 }
+
+// Struct containing all Go data types
+type AllGoTypes struct {
+	IntValue      int     `json:"int_value"`
+	Int8Value     int8    `json:"int8_value"`
+	Int16Value    int16   `json:"int16_value"`
+	Int32Value    int32   `json:"int32_value"`
+	Int64Value    int64   `json:"int64_value"`
+	UintValue     uint    `json:"uint_value"`
+	Uint8Value    uint8   `json:"uint8_value"`
+	Uint16Value   uint16  `json:"uint16_value"`
+	Uint32Value   uint32  `json:"uint32_value"`
+	Uint64Value   uint64  `json:"uint64_value"`
+	Float32Value  float32 `json:"float32_value"`
+	Float64Value  float64 `json:"float64_value"`
+	ByteValue     byte    `json:"byte_value"`
+	RuneValue     rune    `json:"rune_value"`
+	StringValue   string  `json:"string_value"`
+	StringPointer *string `json:"string_pointer"`
+	ByteSlice     []byte  `json:"raw_data"`
+}
+
+func assignValuesToAllGoTypes() AllGoTypes {
+	var allTypes AllGoTypes
+	allTypes.IntValue = 42
+
+	allTypes.Int8Value = 8
+	allTypes.Int16Value = 16
+	allTypes.Int32Value = 32
+	allTypes.Int64Value = 64
+	allTypes.UintValue = 42
+	allTypes.Uint8Value = 8
+	allTypes.Uint16Value = 16
+	allTypes.Uint32Value = 32
+	allTypes.Uint64Value = 64
+	allTypes.Float64Value = 6.28
+	allTypes.ByteValue = byte('a')
+	allTypes.RuneValue = 'b'
+	allTypes.StringValue = "test"
+	allTypes.StringPointer = &allTypes.StringValue
+	allTypes.ByteSlice = []byte{'a', 'b', 'c'}
+	return allTypes
+}
+
+func TestConversionOfAllTypes(t *testing.T) {
+	allTypes := assignValuesToAllGoTypes()
+	discoveredDevice := ConvertFromDerivedSchemaToDiscoveredDevice(&allTypes, "https://schema.industrial-assets.io/test/v0.0.1", "Test")
+
+	// Assertions based on json tags
+	//assert.NotNil(t, discoveredDevice)
+	assert.Equal(t, 17, len(discoveredDevice.Identifiers))
+
+	for _, identifier := range discoveredDevice.Identifiers {
+		classifierValue := identifier.Classifiers[0].GetValue()
+		propertyName := strings.Split(classifierValue, "#")[1]
+		switch propertyName {
+		case "int_value":
+			assert.Equal(t, fmt.Sprintf("%v", allTypes.IntValue), extractValue(identifier.String()), "Property: int_value")
+		case "int8_value":
+			assert.Equal(t, fmt.Sprintf("%v", allTypes.Int8Value), extractValue(identifier.String()), "Property: int8_value")
+		case "int16_value":
+			assert.Equal(t, fmt.Sprintf("%v", allTypes.Int16Value), extractValue(identifier.String()), "Property: int16_value")
+		case "int32_value":
+			assert.Equal(t, fmt.Sprintf("%v", allTypes.Int32Value), extractValue(identifier.String()), "Property: int32_value")
+		case "int64_value":
+			assert.Equal(t, fmt.Sprintf("%v", allTypes.Int64Value), extractValue(identifier.String()), "Property: int64_value")
+		case "uint_value":
+			assert.Equal(t, fmt.Sprintf("%v", allTypes.UintValue), extractValue(identifier.String()), "Property: uint_value")
+		case "uint8_value":
+			assert.Equal(t, fmt.Sprintf("%v", allTypes.Uint8Value), extractValue(identifier.String()), "Property: uint8_value")
+		case "uint16_value":
+			assert.Equal(t, fmt.Sprintf("%v", allTypes.Uint16Value), extractValue(identifier.String()), "Property: uint16_value")
+		case "uint32_value":
+			assert.Equal(t, fmt.Sprintf("%v", allTypes.Uint32Value), extractValue(identifier.String()), "Property: uint32_value")
+		case "uint64_value":
+			assert.Equal(t, fmt.Sprintf("%v", allTypes.Uint64Value), extractValue(identifier.String()), "Property: uint64_value")
+		case "float32_value":
+			assert.Equal(t, fmt.Sprintf("%v", allTypes.Float32Value), extractValue(identifier.String()), "Property: float32_value")
+		case "float64_value":
+			assert.Equal(t, fmt.Sprintf("%v", allTypes.Float64Value), extractValue(identifier.String()), "Property: float64_value")
+		case "byte_value":
+			assert.Equal(t, fmt.Sprintf("%v", allTypes.ByteValue), extractValue(identifier.String()), "Property: byte_value")
+		case "rune_value":
+			assert.Equal(t, fmt.Sprintf("%v", allTypes.RuneValue), extractValue(identifier.String()), "Property: rune_value")
+		case "string_value":
+			assert.Equal(t, allTypes.StringValue, extractValue(identifier.String()), "Property: string_value")
+		case "string_pointer":
+			assert.Equal(t, *allTypes.StringPointer, extractValue(identifier.String()), "Property: string_pointer")
+		case "raw_data":
+			assert.Equal(t, "abc", extractValue(identifier.String()), "Property: raw_data")
+		}
+	}
+}
+
+func extractValue(input string) string {
+	parts := strings.Split(input, ":")
+	var typeValue string
+	typeValue = strings.Split(parts[1], " ")[0]
+	return strings.Trim(typeValue, `"`)
+}
