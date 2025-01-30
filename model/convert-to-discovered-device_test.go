@@ -13,6 +13,7 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
+	iah_discovery "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -152,4 +153,38 @@ func generateDevice(typeOfAsset string, assetName string) *DeviceInfo {
 	}
 	device.ReachabilityState = &reachabilityState
 	return device
+}
+
+func checkForIdentifierUncertainty(t *testing.T, identifiers []*iah_discovery.DeviceIdentifier) bool {
+	for _, identifier := range identifiers {
+		for _, classifier := range identifier.GetClassifiers() {
+			if strings.Contains(classifier.Value, "identifier_uncertainty") {
+				assert.Equal(t, 1, identifier.GetInt64Value())
+				return true
+			}
+		}
+
+		children := identifier.GetChildren()
+		if children != nil {
+			childrenIdentifiers := children.GetValue()
+			if childrenIdentifiers != nil {
+				if checkForIdentifierUncertainty(t, childrenIdentifiers) {
+					return true
+				}
+			}
+		}
+	}
+	return false
+}
+
+func TestConvertNumberTypeToDiscoveredDevice(t *testing.T) {
+	device := NewDevice("Profinet", "Device")
+	device.addIdentifier("ffeffawfafwfw")
+
+	discoveredDevice := device.ConvertToDiscoveredDevice()
+	result := checkForIdentifierUncertainty(t, discoveredDevice.GetIdentifiers())
+
+	if !result {
+		assert.Fail(t, "identifier_uncertainty not found in identifiers")
+	}
 }
