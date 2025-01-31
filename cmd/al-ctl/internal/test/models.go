@@ -15,3 +15,10 @@ type Service struct {
 	DependsOn  []string `yaml:"depends_on,omitempty"`
 	Entrypoint []string `yaml:"entrypoint,omitempty"`
 }
+
+type AssetValidationParams struct {
+	AssetJsonPath      string
+	BaseSchemaPath     string
+	ExtendedSchemaPath string
+	TargetClass        string
+}

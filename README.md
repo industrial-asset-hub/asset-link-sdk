@@ -220,6 +220,7 @@ Examples of actions which can be performed on the Asset Link:
 ```bash
 # To run the api tests on Asset Link
 $ al-ctl test api -e localhost:8081 [-d <discovery-config>]
+# To also validate the discovered assets against the schema use -v flag
 # The Asset Link must be running on the provided address, for example here: localhost:8081
 
 # To run discovery on the Asset Link

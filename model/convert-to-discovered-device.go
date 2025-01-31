@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: MIT
  *
  */
+
 package model
 
 import (
