@@ -21,7 +21,7 @@ const fullProfinetSchemaPrefix = "https://schema.industrial-assets.io/profinet/1
 
 func TestDeviceTransformation(t *testing.T) {
 	baseSchema := "https://common-device-management.code.siemens.io/documentation/asset-modeling/base-schema/v0.7.5/"
-	t.Run("TransformDevice when provided a device with identifier value of type text transforms it successfully", func(t *testing.T) {
+	t.Run("ConvertFromDiscoveredDevice when provided a device with identifier value of type text transforms it successfully", func(t *testing.T) {
 		testDeviceForText := &generated.DiscoveredDevice{
 			Identifiers: []*generated.DeviceIdentifier{{
 				Value: &generated.DeviceIdentifier_Text{
@@ -37,7 +37,7 @@ func TestDeviceTransformation(t *testing.T) {
 			Timestamp: 1000010000100010,
 		}
 		expectedType := "URI"
-		actualResult := TransformDevice(testDeviceForText, expectedType)
+		actualResult := ConvertFromDiscoveredDevice(testDeviceForText, expectedType)
 		expectedResult := map[string]interface{}{
 			"@type": "ProfinetDevice",
 			"management_state": map[string]interface{}{
@@ -64,7 +64,7 @@ func TestDeviceTransformation(t *testing.T) {
 	},
 	)
 
-	t.Run("TransformDevice when provided a device with identifier value of type int64 transforms it successfully", func(t *testing.T) {
+	t.Run("ConvertFromDiscoveredDevice when provided a device with identifier value of type int64 transforms it successfully", func(t *testing.T) {
 		testDeviceForInt := &generated.DiscoveredDevice{
 			Identifiers: []*generated.DeviceIdentifier{{
 				Value: &generated.DeviceIdentifier_Int64Value{
@@ -79,7 +79,7 @@ func TestDeviceTransformation(t *testing.T) {
 			Timestamp: 1000010000100010,
 		}
 		expectedType := "URI"
-		actualResult := TransformDevice(testDeviceForInt, expectedType)
+		actualResult := ConvertFromDiscoveredDevice(testDeviceForInt, expectedType)
 		expectedResult := map[string]interface{}{
 			"@type": "ProfinetDevice",
 			"management_state": map[string]interface{}{
@@ -99,7 +99,7 @@ func TestDeviceTransformation(t *testing.T) {
 		assert.Equal(t, expectedResult, actualResult)
 	},
 	)
-	t.Run("TransformDevice when provided a device with identifier value of type float64 transforms it successfully", func(t *testing.T) {
+	t.Run("ConvertFromDiscoveredDevice when provided a device with identifier value of type float64 transforms it successfully", func(t *testing.T) {
 		testDeviceForFloat := &generated.DiscoveredDevice{
 			Identifiers: []*generated.DeviceIdentifier{{
 				Value: &generated.DeviceIdentifier_Float64Value{
@@ -114,7 +114,7 @@ func TestDeviceTransformation(t *testing.T) {
 			Timestamp: 1000010000100010,
 		}
 		expectedType := "URI"
-		actualResult := TransformDevice(testDeviceForFloat, expectedType)
+		actualResult := ConvertFromDiscoveredDevice(testDeviceForFloat, expectedType)
 		expectedResult := map[string]interface{}{
 			"@type": "ProfinetDevice",
 			"management_state": map[string]interface{}{
@@ -138,7 +138,7 @@ func TestDeviceTransformation(t *testing.T) {
 		assert.Equal(t, expectedResult, actualResult)
 	},
 	)
-	t.Run("TransformDevice when provided a device with identifier value of type rawData transforms it successfully", func(t *testing.T) {
+	t.Run("ConvertFromDiscoveredDevice when provided a device with identifier value of type rawData transforms it successfully", func(t *testing.T) {
 		testDeviceForRawData := &generated.DiscoveredDevice{
 			Identifiers: []*generated.DeviceIdentifier{{
 				Value: &generated.DeviceIdentifier_RawData{
@@ -153,7 +153,7 @@ func TestDeviceTransformation(t *testing.T) {
 			Timestamp: 1000010000100010,
 		}
 		expectedType := "URI"
-		actualResult := TransformDevice(testDeviceForRawData, expectedType)
+		actualResult := ConvertFromDiscoveredDevice(testDeviceForRawData, expectedType)
 		expectedResult := map[string]interface{}{
 			"@type": "ProfinetDevice",
 			"management_state": map[string]interface{}{
@@ -177,7 +177,7 @@ func TestDeviceTransformation(t *testing.T) {
 		assert.Equal(t, expectedResult, actualResult)
 	},
 	)
-	t.Run("TransformDevice when provided a device with identifier value of type children transforms it successfully", func(t *testing.T) {
+	t.Run("ConvertFromDiscoveredDevice when provided a device with identifier value of type children transforms it successfully", func(t *testing.T) {
 		testDeviceForChildren := &generated.DiscoveredDevice{
 			Identifiers: []*generated.DeviceIdentifier{{
 				Value: &generated.DeviceIdentifier_Children{
@@ -204,7 +204,7 @@ func TestDeviceTransformation(t *testing.T) {
 			Timestamp: 1000010000100010,
 		}
 		expectedType := "URI"
-		actualResult := TransformDevice(testDeviceForChildren, expectedType)
+		actualResult := ConvertFromDiscoveredDevice(testDeviceForChildren, expectedType)
 		expectedResult := map[string]interface{}{
 			"@type": "ProfinetDevice",
 			"@context": map[string]interface{}{
@@ -225,7 +225,7 @@ func TestDeviceTransformation(t *testing.T) {
 		assert.Equal(t, expectedResult, actualResult)
 	},
 	)
-	t.Run("TransformDevice when provided a device with several identifiers transforms it successfully", func(t *testing.T) {
+	t.Run("ConvertFromDiscoveredDevice when provided a device with several identifiers transforms it successfully", func(t *testing.T) {
 		testDevice := &generated.DiscoveredDevice{
 			Identifiers: []*generated.DeviceIdentifier{{
 				Value: &generated.DeviceIdentifier_Children{
@@ -283,7 +283,7 @@ func TestDeviceTransformation(t *testing.T) {
 			Timestamp: 1000010000100010,
 		}
 		expectedType := "URI"
-		actualResult := TransformDevice(testDevice, expectedType)
+		actualResult := ConvertFromDiscoveredDevice(testDevice, expectedType)
 		expectedResult := map[string]interface{}{
 			"@type": "ProfinetDevice",
 			"@context": map[string]interface{}{
@@ -485,7 +485,7 @@ func TestMapManyArrayElementsViaMultipleArrayContainersIntoIahDevice(t *testing.
 			},
 		},
 	}
-	iahDevice := TransformDevice(&discoveredDevice, "URI")
+	iahDevice := ConvertFromDiscoveredDevice(&discoveredDevice, "URI")
 	assert.Equal(t, len(iahDevice["array"].([]map[string]interface{})), 2)
 	assert.Equal(t, len(iahDevice["array"].([]map[string]interface{})[0]), 2)
 	assert.Equal(t, len(iahDevice["array"].([]map[string]interface{})[1]), 2)
@@ -541,7 +541,7 @@ func TestMapManyArrayElementsIntoIahDevice(t *testing.T) {
 				Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#array",
 			}},
 		}}}
-	iahDevice := TransformDevice(&discoveredDevice, "URI")
+	iahDevice := ConvertFromDiscoveredDevice(&discoveredDevice, "URI")
 
 	arrayProperty, ok := iahDevice["array"].([]map[string]interface{})
 	assert.True(t, ok)
@@ -602,7 +602,7 @@ func TestMapManyMixedArrayElementsIntoIahDevice(t *testing.T) {
 				Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#array",
 			}},
 		}}}
-	iahDevice := TransformDevice(&discoveredDevice, "URI")
+	iahDevice := ConvertFromDiscoveredDevice(&discoveredDevice, "URI")
 	arrayProperty, ok := iahDevice["array"].([]map[string]interface{})
 	assert.True(t, ok)
 	assert.Equal(t, 2, len(arrayProperty))
@@ -662,7 +662,7 @@ func TestMapManyDeepArrayElementsIntoIahDevice(t *testing.T) {
 				Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#a%2Fdeeper%2Farray",
 			}},
 		}}}
-	iahDevice := TransformDevice(&discoveredDevice, "URI")
+	iahDevice := ConvertFromDiscoveredDevice(&discoveredDevice, "URI")
 	arrayProperty, ok := iahDevice["a"].(map[string]interface{})["deeper"].(map[string]interface{})["array"].([]map[string]interface{})
 	assert.True(t, ok)
 	assert.Equal(t, 2, len(arrayProperty))
@@ -722,7 +722,7 @@ func TestMapManyDeepArrayElementsWithDeepPathsIntoIahDevice(t *testing.T) {
 				Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#a%2Fdeeper%2Farray",
 			}},
 		}}}
-	iahDevice := TransformDevice(&discoveredDevice, "URI")
+	iahDevice := ConvertFromDiscoveredDevice(&discoveredDevice, "URI")
 
 	arrayProperty, ok := iahDevice["a"].(map[string]interface{})["deeper"].(map[string]interface{})["array"].([]map[string]interface{})
 	assert.True(t, ok)
@@ -954,7 +954,7 @@ func TestMapManyDeepArrayElementsWithDeepPathsThatContainArraysIntoIahDevice(t *
 				Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#a%2Fdeeper%2Farray",
 			}},
 		}}, Timestamp: 1000010000100010}
-	iahDevice := TransformDevice(&discoveredDevice, "URI")
+	iahDevice := ConvertFromDiscoveredDevice(&discoveredDevice, "URI")
 
 	assert.Equal(t, expectedResult, iahDevice)
 }
@@ -1005,7 +1005,7 @@ func TestCheckConversionForFile(t *testing.T) {
 			t.Fatalf("failed to decode JSON: %v", err)
 		}
 		// do the actual schema transformation
-		testDevice = TransformDevice(scannedPnasResponse.Devices[0], "URI")
+		testDevice = ConvertFromDiscoveredDevice(scannedPnasResponse.Devices[0], "URI")
 
 		// Write the result to the output file
 		jsonWriter := json.NewEncoder(resultFile)

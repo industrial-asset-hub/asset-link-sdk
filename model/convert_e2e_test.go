@@ -11,16 +11,13 @@ import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"strings"
-	"sync/atomic"
 	"testing"
 )
-
-var lastSerialNumber = atomic.Int64{}
 
 func TestBackAndForthConversion(t *testing.T) {
 	testDevice := getTestDevice()
 	discoveredDevice := testDevice.ConvertToDiscoveredDevice()
-	transformedDevice := TransformDevice(discoveredDevice, "URI")
+	transformedDevice := ConvertFromDiscoveredDevice(discoveredDevice, "URI")
 	assert.IsType(t, map[string]interface{}{}, transformedDevice)
 	assert.Equal(t, "Asset", transformedDevice["@type"])
 	assert.Equal(t, "TestDevice", transformedDevice["name"])
@@ -38,12 +35,13 @@ func TestBackAndForthConversion(t *testing.T) {
 	assert.Equal(t, "00:00:00:00:00:00", macIdentifier["mac_address"])
 	assert.Equal(t, "firmware", name)
 	assert.Equal(t, "1.2.5", version)
+	assert.Equal(t, "123456", transformedDevice["product_instance_identifier"].(map[string]interface{})["serial_number"])
 }
 
 func getTestDevice() *DeviceInfo {
 	manufacturer := "Siemens AG"
 	product := "TestDevice"
-	serialNumber := fmt.Sprint(lastSerialNumber.Load())
+	serialNumber := "123456"
 	deviceInfo := NewDevice("Asset", "TestDevice")
 
 	uriOfTheProduct := fmt.Sprintf("https://%s/%s-%s", strings.ReplaceAll(manufacturer, " ", "_"), strings.ReplaceAll(product, " ", "_"), serialNumber)

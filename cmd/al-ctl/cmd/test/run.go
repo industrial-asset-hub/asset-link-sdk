@@ -4,15 +4,15 @@
  * SPDX-License-Identifier: MIT
  *
  */
+
 package test
 
 import (
 	"fmt"
-
 	apimock "github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/api-mock-test"
 )
 
-func runTests(address, discoveryFile string) {
+func runTests(address, discoveryFile, assetJsonPath string, assetValidationRequired bool) (countOfAssetDiscovered int) {
 	fmt.Println("Running tests")
-	apimock.RunApiMockTests(address, discoveryFile)
+	return apimock.RunApiMockTests(address, discoveryFile, assetJsonPath, assetValidationRequired)
 }

@@ -9,9 +9,8 @@ package cmd
 
 import (
 	"fmt"
-	"os"
-
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/cmd/test"
+	"os"
 
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/cmd/info"
 

@@ -4,11 +4,11 @@
  * SPDX-License-Identifier: MIT
  *
  */
+
 package test
 
 import (
 	"fmt"
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/shared"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -21,8 +21,8 @@ const (
 	defaultValueForExtendedSchema = "path/to/schema"
 )
 
-func RunContainer(service string) error {
-	serviceDef, err := GetServiceDefinition(schemaPath, shared.AssetJsonPath, targetClass)
+func RunContainer(service string, assetJsonPath string) error {
+	serviceDef, err := GetServiceDefinition(schemaPath, assetJsonPath, targetClass)
 	if err != nil {
 		return err
 	}

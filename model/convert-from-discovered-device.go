@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2025 Siemens AG
+ * SPDX-FileCopyrightText: 2024 Siemens AG
  *
  * SPDX-License-Identifier: MIT
  *
@@ -140,7 +140,7 @@ func retrieveAssetTypeFromDiscoveredDevice(device *generated.DiscoveredDevice) s
 	return assetType
 }
 
-func TransformDevice(device *generated.DiscoveredDevice, expectedType string) map[string]interface{} {
+func ConvertFromDiscoveredDevice(device *generated.DiscoveredDevice, expectedType string) map[string]interface{} {
 	DeviceInIahSchema := make(map[string]interface{})
 	DeviceInIahSchema["@type"] = retrieveAssetTypeFromDiscoveredDevice(device)
 	DeviceInIahSchema["@context"] = map[string]interface{}{
