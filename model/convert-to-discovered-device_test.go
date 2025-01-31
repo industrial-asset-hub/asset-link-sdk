@@ -159,7 +159,8 @@ func checkForIdentifierUncertainty(t *testing.T, identifiers []*iah_discovery.De
 	for _, identifier := range identifiers {
 		for _, classifier := range identifier.GetClassifiers() {
 			if strings.Contains(classifier.Value, "identifier_uncertainty") {
-				assert.Equal(t, 1, identifier.GetInt64Value())
+				// converting 1 to int64
+				assert.Equal(t, int64(1), identifier.GetInt64Value())
 				return true
 			}
 		}
@@ -236,8 +237,6 @@ func TestConversionOfAllTypes(t *testing.T) {
 	allTypes := assignValuesToAllGoTypes()
 	discoveredDevice := ConvertFromDerivedSchemaToDiscoveredDevice(&allTypes, "https://schema.industrial-assets.io/test/v0.0.1", "Test")
 
-	// Assertions based on json tags
-	//assert.NotNil(t, discoveredDevice)
 	assert.Equal(t, 17, len(discoveredDevice.Identifiers))
 
 	for _, identifier := range discoveredDevice.Identifiers {
@@ -284,7 +283,6 @@ func TestConversionOfAllTypes(t *testing.T) {
 
 func extractValue(input string) string {
 	parts := strings.Split(input, ":")
-	var typeValue string
-	typeValue = strings.Split(parts[1], " ")[0]
+	typeValue := strings.Split(parts[1], " ")[0]
 	return strings.Trim(typeValue, `"`)
 }
