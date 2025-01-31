@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  *
  */
-package apimock
+package test
 
 import (
 	"fmt"

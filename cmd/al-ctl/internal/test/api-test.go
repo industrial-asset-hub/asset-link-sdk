@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  *
  */
-package apimock
+package test
 
 import (
 	"encoding/json"
@@ -23,7 +23,7 @@ type Test struct {
 	function testFunction
 }
 
-func RunApiMockTests(address string, discoveryFile string, assetJsonPath string, assetValidationRequired bool) (numberOfAssetsToValidate int) {
+func RunApiMockTests(address string, discoveryFile string, assetValidationRequired bool, baseSchemaPath string, extendedSchemaPath string, targetClass string) {
 	allTests := []Test{
 		{"TestDiscoverDevices", TestDiscoverDevices},
 		{"TestGetFilterTypes", TestGetFilterTypes},
@@ -33,27 +33,42 @@ func RunApiMockTests(address string, discoveryFile string, assetJsonPath string,
 	for _, test := range allTests {
 		data := test.function(address, discoveryFile)
 		if data == nil {
-			fmt.Println("Test failed")
+			log.Error().Str("test-name", test.name).Msg("test failed")
 			continue
 		}
-		fmt.Println("Test passed")
-		testPassed++
 		if test.name == "TestDiscoverDevices" && assetValidationRequired {
-			numberOfAssetsToValidate = createAssetFileFromDiscoveryResponse(data)
+			numberOfAssetsToValidate, errOccurredDuringValidation := createAssetFileFromDiscoveryResponse(data)
+			for i := 0; i < numberOfAssetsToValidate; i++ {
+				assetFileName := fmt.Sprintf("Test-%d.json", i)
+				if fileExists(assetFileName) {
+					err := ValidateAsset(baseSchemaPath, extendedSchemaPath, assetFileName, targetClass)
+					if err != nil {
+						errOccurredDuringValidation = true
+						log.Err(err).Str("asset-file-name", assetFileName).Msg("failed to validate asset against schema")
+					}
+				}
+			}
+			if !errOccurredDuringValidation {
+				testPassed++
+			}
+		} else {
+			testPassed++
 		}
-		fmt.Printf("Total tests passed: %d/%d, failed: %d\n", testPassed, len(allTests), len(allTests)-testPassed)
 	}
+	log.Info().Msgf("Total tests passed: %d/%d, failed: %d\n", testPassed, len(allTests), len(allTests)-testPassed)
 
-	return numberOfAssetsToValidate
+	if testPassed < len(allTests) {
+		os.Exit(1)
+	}
 }
 
-func createAssetFileFromDiscoveryResponse(data interface{}) (numberOfAssetsToValidate int) {
+func createAssetFileFromDiscoveryResponse(data interface{}) (numberOfAssetsToValidate int, errOccurred bool) {
 	discoveryResponse := data.([]*iah_discovery.DiscoverResponse)
 	// to store all created files
-	var assetFiles []*os.File
 	for discoveryResponseIndex := range discoveryResponse {
 		for discoveredDeviceIndex, discoveredDevice := range discoveryResponse[discoveryResponseIndex].Devices {
-
+			// increment for each discovered device
+			numberOfAssetsToValidate++
 			// Convert the discovered device to a transformed device
 			transformedDevice := model.ConvertFromDiscoveredDevice(discoveredDevice, "URI")
 
@@ -63,33 +78,33 @@ func createAssetFileFromDiscoveryResponse(data interface{}) (numberOfAssetsToVal
 			// Marshal the transformed device
 			jsonDevice, err := json.Marshal(transformedDevice)
 			if err != nil {
+				errOccurred = true
 				log.Err(err).Msg("failed to marshal transformed device")
-				return numberOfAssetsToValidate
+				continue
 			}
 
 			// Create a Test asset file
 			assetFileName := fmt.Sprintf("Test-%d.json", discoveredDeviceIndex)
 			assetFile, err := os.Create(assetFileName)
 			if err != nil {
+				errOccurred = true
 				log.Err(err).Msg("failed to create Test asset file")
-				return numberOfAssetsToValidate
+				continue
 			}
-			numberOfAssetsToValidate++
-
-			// Append the asset file to the list of asset files
-			assetFiles = append(assetFiles, assetFile)
 			_, err = assetFile.Write(jsonDevice)
 			if err != nil {
+				errOccurred = true
 				log.Err(err).Msg("failed to write Test asset file")
-				return numberOfAssetsToValidate
+				assetFile.Close()
+				continue
 			}
+			assetFile.Close()
 		}
 	}
-	for _, assetFile := range assetFiles {
-		err := assetFile.Close()
-		if err != nil {
-			log.Err(err).Msg("failed to close asset file")
-		}
-	}
-	return numberOfAssetsToValidate
+	return numberOfAssetsToValidate, errOccurred
+}
+
+func fileExists(filename string) bool {
+	_, err := os.Stat(filename)
+	return !os.IsNotExist(err)
 }

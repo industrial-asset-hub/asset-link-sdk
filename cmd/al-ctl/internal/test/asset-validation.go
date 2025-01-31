@@ -9,6 +9,7 @@ package test
 
 import (
 	"fmt"
+	"gopkg.in/yaml.v3"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -21,8 +22,8 @@ const (
 	defaultValueForExtendedSchema = "path/to/schema"
 )
 
-func RunContainer(service string, assetJsonPath string) error {
-	serviceDef, err := GetServiceDefinition(schemaPath, assetJsonPath, targetClass)
+func ValidateAsset(baseSchemaPath string, extendedSchemaPath string, assetJsonPath string, targetClass string) error {
+	serviceDef, err := GetServiceDefinition(extendedSchemaPath, assetJsonPath, targetClass, baseSchemaPath)
 	if err != nil {
 		return err
 	}
@@ -48,7 +49,7 @@ func RunContainer(service string, assetJsonPath string) error {
 	return err
 }
 
-func GetServiceDefinition(schemaPath string, assetPath string, targetClass string) (service *Service, err error) {
+func GetServiceDefinition(extendedSchemaPath string, assetPath string, targetClass string, baseSchemaPath string) (service *Service, err error) {
 	currentDir, _ := os.Getwd()
 	Service := Service{
 		Image: linkmlValidateImage,
@@ -63,22 +64,61 @@ func GetServiceDefinition(schemaPath string, assetPath string, targetClass strin
 		},
 	}
 	var baseSchemaFileName string
-	switch schemaPath {
+	switch extendedSchemaPath {
 	case "", defaultValueForExtendedSchema:
 		baseSchemaFileName = filepath.Base(baseSchemaPath)
 		addVolumeInService(&Service, currentDir, baseSchemaPath, baseSchemaFileName)
 		addSchemaEntrypointInService(&Service, baseSchemaFileName)
 	default:
-		baseSchemaFileName, err := getBaseSchemaVersionFromExtendedSchema()
+		baseSchemaFileName, err := getBaseSchemaVersionFromExtendedSchema(extendedSchemaPath)
 		if err != nil {
 			fmt.Println(err)
 			return nil, err
 		}
 		baseSchemaFileName += ".yaml"
 		addVolumeInService(&Service, currentDir, baseSchemaPath, baseSchemaFileName)
-		addVolumeInService(&Service, currentDir, schemaPath, extendedSchemaFileName)
+		addVolumeInService(&Service, currentDir, extendedSchemaPath, extendedSchemaFileName)
 		addSchemaEntrypointInService(&Service, extendedSchemaFileName)
 	}
 	addAssetEntrypointInService(&Service, assetFileName)
 	return &Service, nil
+}
+
+func getBaseSchemaVersionFromExtendedSchema(extendedSchemaPath string) (string, error) {
+	file, err := os.Open(extendedSchemaPath)
+	if err != nil {
+		fmt.Println(err)
+		return "", err
+	}
+	defer file.Close()
+
+	decoder := yaml.NewDecoder(file)
+	var data map[string]interface{}
+
+	if err := decoder.Decode(&data); err != nil {
+		fmt.Println(err)
+		return "", err
+	}
+	imports, ok := data["imports"].([]interface{})
+	if !ok {
+		return "", fmt.Errorf("imports not found in extended schema")
+	}
+	if len(imports) < 2 {
+		return "", fmt.Errorf("reference to base schema not found in extended schema")
+	}
+	baseSchemaVersion := imports[1].(string)
+	return baseSchemaVersion, nil
+}
+
+func addVolumeInService(service *Service, currentDir string, pathInHost string, volume string) {
+	volume = filepath.Join(currentDir, pathInHost) + fmt.Sprintf(":/app/src/cdm/%s", volume)
+	service.Volumes = append(service.Volumes, volume)
+}
+
+func addSchemaEntrypointInService(service *Service, schemaFileName string) {
+	service.Entrypoint = append(service.Entrypoint, "-s", fmt.Sprintf("/app/src/cdm/%s", schemaFileName))
+}
+
+func addAssetEntrypointInService(service *Service, assetFileName string) {
+	service.Entrypoint = append(service.Entrypoint, "/app/src/cdm/"+assetFileName)
 }
