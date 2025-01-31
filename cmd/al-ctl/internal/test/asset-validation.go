@@ -22,8 +22,8 @@ const (
 	defaultValueForExtendedSchema = "path/to/schema"
 )
 
-func ValidateAsset(baseSchemaPath string, extendedSchemaPath string, assetJsonPath string, targetClass string) error {
-	serviceDef, err := GetServiceDefinition(extendedSchemaPath, assetJsonPath, targetClass, baseSchemaPath)
+func ValidateAsset(assetValidationParams AssetValidationParams) error {
+	serviceDef, err := GetServiceDefinition(assetValidationParams)
 	if err != nil {
 		return err
 	}
@@ -49,35 +49,35 @@ func ValidateAsset(baseSchemaPath string, extendedSchemaPath string, assetJsonPa
 	return err
 }
 
-func GetServiceDefinition(extendedSchemaPath string, assetPath string, targetClass string, baseSchemaPath string) (service *Service, err error) {
+func GetServiceDefinition(assetValidationParams AssetValidationParams) (service *Service, err error) {
 	currentDir, _ := os.Getwd()
 	Service := Service{
 		Image: linkmlValidateImage,
 		Volumes: []string{
-			filepath.Join(currentDir, assetPath) + ":/app/src/cdm/asset.json",
+			filepath.Join(currentDir, assetValidationParams.AssetJsonPath) + ":/app/src/cdm/asset.json",
 		},
 		Entrypoint: []string{
 			"linkml-validate",
 			"--include-range-class-descendants",
 			"-D",
-			fmt.Sprintf("--target-class=%s", targetClass),
+			fmt.Sprintf("--target-class=%s", assetValidationParams.TargetClass),
 		},
 	}
 	var baseSchemaFileName string
-	switch extendedSchemaPath {
+	switch assetValidationParams.ExtendedSchemaPath {
 	case "", defaultValueForExtendedSchema:
-		baseSchemaFileName = filepath.Base(baseSchemaPath)
-		addVolumeInService(&Service, currentDir, baseSchemaPath, baseSchemaFileName)
+		baseSchemaFileName = filepath.Base(assetValidationParams.BaseSchemaPath)
+		addVolumeInService(&Service, currentDir, assetValidationParams.BaseSchemaPath, baseSchemaFileName)
 		addSchemaEntrypointInService(&Service, baseSchemaFileName)
 	default:
-		baseSchemaFileName, err := getBaseSchemaVersionFromExtendedSchema(extendedSchemaPath)
+		baseSchemaFileName, err := getBaseSchemaVersionFromExtendedSchema(assetValidationParams.ExtendedSchemaPath)
 		if err != nil {
 			fmt.Println(err)
 			return nil, err
 		}
 		baseSchemaFileName += ".yaml"
-		addVolumeInService(&Service, currentDir, baseSchemaPath, baseSchemaFileName)
-		addVolumeInService(&Service, currentDir, extendedSchemaPath, extendedSchemaFileName)
+		addVolumeInService(&Service, currentDir, assetValidationParams.BaseSchemaPath, baseSchemaFileName)
+		addVolumeInService(&Service, currentDir, assetValidationParams.ExtendedSchemaPath, extendedSchemaFileName)
 		addSchemaEntrypointInService(&Service, extendedSchemaFileName)
 	}
 	addAssetEntrypointInService(&Service, assetFileName)

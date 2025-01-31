@@ -61,7 +61,13 @@ func init() {
 }
 
 func runAssetsTests(cmd *cobra.Command, args []string) {
-	err := test.ValidateAsset(baseSchemaPath, extendedSchemaPath, assetJsonPath, targetClass)
+	assetValidationParams := test.AssetValidationParams{
+		BaseSchemaPath:     baseSchemaPath,
+		ExtendedSchemaPath: extendedSchemaPath,
+		TargetClass:        targetClass,
+		AssetJsonPath:      assetJsonPath,
+	}
+	err := test.ValidateAsset(assetValidationParams)
 	if err != nil {
 		log.Err(err).Msg("failed to validate asset against schema")
 		os.Exit(1)
@@ -69,5 +75,10 @@ func runAssetsTests(cmd *cobra.Command, args []string) {
 }
 
 func runApiTests(cmd *cobra.Command, args []string) {
-	test.RunApiMockTests(shared.AssetLinkEndpoint, discoveryFile, assetValidationRequired, baseSchemaPath, extendedSchemaPath, targetClass)
+	assetValidationParams := test.AssetValidationParams{
+		BaseSchemaPath:     baseSchemaPath,
+		ExtendedSchemaPath: extendedSchemaPath,
+		TargetClass:        targetClass,
+	}
+	test.RunApiTests(shared.AssetLinkEndpoint, discoveryFile, assetValidationRequired, assetValidationParams)
 }
