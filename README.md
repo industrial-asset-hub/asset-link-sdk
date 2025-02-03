@@ -139,16 +139,16 @@ $ journalctl logs -f -u custom-asset-link
 ### Command line tool
 
 To ease development or testing of the asset link, the discovery can be interactively triggered using a command line tool. This command will provide the results (i.e., the devices or assets discovered by the asset link) as output.
-For example discovery can be started/stopped, results can be retrieved, api tests can be performed on the Asset Link.
-Moreover, there is also a test suit suite that can be used as follows:
+For example discovery can be started/stopped and results can be retrieved.
+Moreover, there is also a test-suite that can be used as follows:
 
 ```bash
 $ go run cmd/al-ctl/al-ctl.go test
 ```
 
-the following arguments can be provided to test asset link:
+The following arguments can be provided to test the Asset Link:
 
-1. assets: to validate the asset against the schema using linkml-validator
+1. assets: To validate the asset against the schema using linkml-validator
    example usage:
 
    ````bash
@@ -157,19 +157,17 @@ the following arguments can be provided to test asset link:
    --schema-path path/to/schema --target-class target_class_name```
    ````
 
-2. api: to validate the api (tests are to be added)
+2. api: To validate the api (tests are to be added)
    example usage:
 
    ```bash
    $ go run cmd/al-ctl/al-ctl.go test api
    ```
 
-3. json-schema: to validate the json schema using json schema validator
-   example usage:
+Note: LinkML is used to validate assets against the schema.
 
-   ```bash
-   $ go run cmd/al-ctl/al-ctl.go test json-schema --schema-path path/to/schema --asset-path path/to/asset
-   ```
+- If LinkML is already installed and available in the testing environment, use the `-l` flag for validation.
+- Otherwise, the validation will be performed using Docker to run the linkml-validator.
 
 ### Command Line Tool for Local Debugging
 

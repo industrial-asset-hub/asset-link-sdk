@@ -23,7 +23,7 @@ type Test struct {
 	function testFunction
 }
 
-func RunApiTests(address string, discoveryFile string, assetValidationRequired bool, assetValidationParams AssetValidationParams) {
+func RunApiTests(address string, discoveryFile string, assetValidationRequired bool, assetValidationParams AssetValidationParams, linkmlSupported bool) {
 	allTests := []Test{
 		{"TestDiscoverDevices", TestDiscoverDevices},
 		{"TestGetFilterTypes", TestGetFilterTypes},
@@ -42,7 +42,7 @@ func RunApiTests(address string, discoveryFile string, assetValidationRequired b
 				assetFileName := fmt.Sprintf("Test-%d.json", i)
 				if fileExists(assetFileName) {
 					assetValidationParams.AssetJsonPath = assetFileName
-					err := ValidateAsset(assetValidationParams)
+					err := ValidateAsset(assetValidationParams, linkmlSupported)
 					if err != nil {
 						errOccurredDuringValidation = true
 						log.Err(err).Str("asset-file-name", assetFileName).Msg("failed to validate asset against schema")
