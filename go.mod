@@ -6,7 +6,7 @@ toolchain go1.23.3
 
 require (
 	github.com/Masterminds/semver/v3 v3.3.1
-	github.com/gin-contrib/logger v1.2.2
+	github.com/gin-contrib/logger v1.2.3
 	github.com/gin-gonic/gin v1.10.0
 	github.com/google/uuid v1.6.0
 	github.com/rs/zerolog v1.33.0
