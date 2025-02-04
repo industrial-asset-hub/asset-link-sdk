@@ -42,6 +42,8 @@ var (
 	discoveryFile           string
 	assetJsonPath           string
 	assetValidationRequired bool
+
+	linkmlSupported bool
 )
 
 func init() {
@@ -52,9 +54,13 @@ func init() {
 	assetsCmd.Flags().StringVarP(&extendedSchemaPath, "extended-schema-path", "s", "", "Path to the extended schema YAML file")
 	assetsCmd.Flags().StringVarP(&assetJsonPath, "asset-path", "a", "", "Path to the asset JSON file")
 	assetsCmd.Flags().StringVarP(&targetClass, "target-class", "t", "", "Target class for validation of asset")
+	assetsCmd.Flags().BoolVarP(&linkmlSupported, "linkml-is-supported", "l", false,
+		"should be true if linkml is already supported in the test environment")
 	apiCmd.Flags().StringVarP(&discoveryFile, "discovery-file", "d", "", shared.DiscoveryFileDesc)
 	apiCmd.Flags().BoolVarP(&assetValidationRequired, "validate-asset-against-schema", "v", false,
 		"should be true if discovered asset is to be validated against schema")
+	apiCmd.Flags().BoolVarP(&linkmlSupported, "linkml-is-supported", "l", false,
+		"should be true if linkml is already supported in the test environment")
 	apiCmd.Flags().StringVarP(&baseSchemaPath, "base-schema-path", "b", "", "Path to the base schema YAML file")
 	apiCmd.Flags().StringVarP(&extendedSchemaPath, "extended-schema-path", "s", "", "Path to the extended schema YAML file")
 	apiCmd.Flags().StringVarP(&targetClass, "target-class", "t", "", "Target class for validation")
@@ -67,7 +73,7 @@ func runAssetsTests(cmd *cobra.Command, args []string) {
 		TargetClass:        targetClass,
 		AssetJsonPath:      assetJsonPath,
 	}
-	err := test.ValidateAsset(assetValidationParams)
+	err := test.ValidateAsset(assetValidationParams, linkmlSupported)
 	if err != nil {
 		log.Err(err).Msg("failed to validate asset against schema")
 		os.Exit(1)
@@ -80,5 +86,5 @@ func runApiTests(cmd *cobra.Command, args []string) {
 		ExtendedSchemaPath: extendedSchemaPath,
 		TargetClass:        targetClass,
 	}
-	test.RunApiTests(shared.AssetLinkEndpoint, discoveryFile, assetValidationRequired, assetValidationParams)
+	test.RunApiTests(shared.AssetLinkEndpoint, discoveryFile, assetValidationRequired, assetValidationParams, linkmlSupported)
 }

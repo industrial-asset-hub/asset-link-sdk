@@ -9,6 +9,7 @@ package test
 
 import (
 	"fmt"
+	"github.com/rs/zerolog/log"
 	"gopkg.in/yaml.v3"
 	"os"
 	"os/exec"
@@ -22,30 +23,23 @@ const (
 	defaultValueForExtendedSchema = "path/to/schema"
 )
 
-func ValidateAsset(assetValidationParams AssetValidationParams) error {
-	serviceDef, err := GetServiceDefinition(assetValidationParams)
-	if err != nil {
-		return err
+func ValidateAsset(assetValidationParams AssetValidationParams, linkmlSupported bool) error {
+	var cmd *exec.Cmd
+	if linkmlSupported {
+		cmd = exec.Command("linkml-validate", assetValidationParams.AssetJsonPath, "--include-range-class-descendants",
+			"--target-class="+assetValidationParams.TargetClass, "-s", assetValidationParams.ExtendedSchemaPath)
+	} else {
+		var err error
+		cmd, err = getDockerCommand(assetValidationParams)
+		if err != nil {
+			log.Err(err).Msg("failed to get docker command")
+			return err
+		}
 	}
-	cmdArgs := []string{"run", "-i"}
-	for _, port := range serviceDef.Ports {
-		cmdArgs = append(cmdArgs, "-p", port)
-	}
-	for _, volume := range serviceDef.Volumes {
-		cmdArgs = append(cmdArgs, "-v", volume)
-	}
-	if len(serviceDef.Entrypoint) > 0 {
-		cmdArgs = append(cmdArgs, "--entrypoint", serviceDef.Entrypoint[0])
-	}
-	cmdArgs = append(cmdArgs, serviceDef.Image)
-	if len(serviceDef.Entrypoint) > 1 {
-		cmdArgs = append(cmdArgs, serviceDef.Entrypoint[1:]...)
-	}
-	fmt.Println("Running command:", cmdArgs)
-	cmd := exec.Command("docker", cmdArgs...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	err = cmd.Run()
+	log.Info().Msgf("Running command: %s", cmd.Args)
+	err := cmd.Run()
 	return err
 }
 
@@ -121,4 +115,26 @@ func addSchemaEntrypointInService(service *Service, schemaFileName string) {
 
 func addAssetEntrypointInService(service *Service, assetFileName string) {
 	service.Entrypoint = append(service.Entrypoint, "/app/src/cdm/"+assetFileName)
+}
+
+func getDockerCommand(assetValidationParams AssetValidationParams) (cmd *exec.Cmd, err error) {
+	serviceDef, err := GetServiceDefinition(assetValidationParams)
+	if err != nil {
+		return nil, err
+	}
+	cmdArgs := []string{"run", "-i"}
+	for _, port := range serviceDef.Ports {
+		cmdArgs = append(cmdArgs, "-p", port)
+	}
+	for _, volume := range serviceDef.Volumes {
+		cmdArgs = append(cmdArgs, "-v", volume)
+	}
+	if len(serviceDef.Entrypoint) > 0 {
+		cmdArgs = append(cmdArgs, "--entrypoint", serviceDef.Entrypoint[0])
+	}
+	cmdArgs = append(cmdArgs, serviceDef.Image)
+	if len(serviceDef.Entrypoint) > 1 {
+		cmdArgs = append(cmdArgs, serviceDef.Entrypoint[1:]...)
+	}
+	return exec.Command("docker", cmdArgs...), err
 }
