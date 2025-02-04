@@ -27,7 +27,7 @@ func (d *DeviceInfo) AddNameplate(manufacturerName string, uriOfTheProduct strin
 	productArticleNumberOfManufacturer string, manufacturerProductDesignation string, hardwareVersion string, serialNumber string) error {
 
 	// URI of the product is a required property
-	if checkIfAnyValueIsNonEmpty(uriOfTheProduct) {
+	if !checkIfAnyValueIsNonEmpty(uriOfTheProduct) {
 		return errors.New("URI of the product should not be empty")
 	}
 
