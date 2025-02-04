@@ -74,7 +74,7 @@ func (m *AssetLinkImplementation) Discover(discoveryConfig config.DiscoveryConfi
 	lastSerialNumber.Add(1)
 	serialNumber := fmt.Sprint(lastSerialNumber.Load())
 	productUri := fmt.Sprintf("urn:%s/%s/%s", strings.ReplaceAll(vendorName, " ", "_"), strings.ReplaceAll(product, " ", "_"), serialNumber)
-	err := deviceInfo.AddNameplate(
+	err = deviceInfo.AddNameplate(
 		vendorName,
 		productUri,
 		orderNumber,
