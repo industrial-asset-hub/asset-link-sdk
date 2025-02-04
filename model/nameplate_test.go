@@ -19,13 +19,14 @@ func TestNameplate(t *testing.T) {
 	t.Run("AddNameplate", func(t *testing.T) {
 		m := NewDevice("asset", "device")
 
-		m.AddNameplate(
+		err := m.AddNameplate(
 			"ManufacturerCompany",
 			"GuidOfTheProduct",
 			"MyOrderNumber",
 			"ProductFamily",
 			"0.1.2",
 			"s-n-1.2.3")
+		assert.Nil(t, err)
 
 		// ManufacturerProductDesignation
 		assert.Equal(t, "ManufacturerCompany", *m.ProductInstanceIdentifier.ManufacturerProduct.Manufacturer.Name)
@@ -34,6 +35,18 @@ func TestNameplate(t *testing.T) {
 		assert.Equal(t, "0.1.2", *m.ProductInstanceIdentifier.ManufacturerProduct.ProductVersion)
 		assert.Equal(t, "MyOrderNumber", *m.ProductInstanceIdentifier.ManufacturerProduct.ProductId)
 		assert.Equal(t, "s-n-1.2.3", *m.ProductInstanceIdentifier.SerialNumber)
+	})
+	t.Run("AddNameplate when uri of the product is not passed should fail", func(t *testing.T) {
+		m := NewDevice("asset", "device")
+
+		err := m.AddNameplate(
+			"ManufacturerCompany",
+			"",
+			"MyOrderNumber",
+			"ProductFamily",
+			"0.1.2",
+			"s-n-1.2.3")
+		assert.NotNil(t, err)
 	})
 }
 

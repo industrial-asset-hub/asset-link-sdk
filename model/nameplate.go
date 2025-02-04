@@ -10,6 +10,7 @@ package model
 import (
 	"crypto/sha1"
 	"encoding/hex"
+	"errors"
 )
 
 // AddNameplate Add a digital nameplate to an asset.
@@ -22,13 +23,13 @@ import (
 // hardwareVersion: version of the hardware supplied with the device
 // serialNumber: unique combination of numbers and letters used to identify
 // the device once it has been manufactured
-func (d *DeviceInfo) AddNameplate(manufacturerName string,
-	uriOfTheProduct string,
-	productArticleNumberOfManufacturer string,
-	manufacturerProductDesignation string,
-	hardwareVersion string,
-	serialNumber string,
-) {
+func (d *DeviceInfo) AddNameplate(manufacturerName string, uriOfTheProduct string,
+	productArticleNumberOfManufacturer string, manufacturerProductDesignation string, hardwareVersion string, serialNumber string) (err error) {
+
+	// URI of the product is a required property
+	if uriOfTheProduct == "" {
+		return errors.New("URI of the product should not be empty")
+	}
 
 	if isNonEmptyValues(manufacturerName, uriOfTheProduct, productArticleNumberOfManufacturer, manufacturerProductDesignation, hardwareVersion, serialNumber) {
 
@@ -62,6 +63,7 @@ func (d *DeviceInfo) AddNameplate(manufacturerName string,
 
 		d.ProductInstanceIdentifier = &pi
 	}
+	return err
 }
 
 // AddSoftware Add software information to an asset

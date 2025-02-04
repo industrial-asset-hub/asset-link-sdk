@@ -45,7 +45,10 @@ func getTestDevice() *DeviceInfo {
 	deviceInfo := NewDevice("Asset", "TestDevice")
 
 	uriOfTheProduct := fmt.Sprintf("https://%s/%s-%s", strings.ReplaceAll(manufacturer, " ", "_"), strings.ReplaceAll(product, " ", "_"), serialNumber)
-	deviceInfo.AddNameplate(manufacturer, uriOfTheProduct, "MyOrderNumber", product, "1.0.0", serialNumber)
+	err := deviceInfo.AddNameplate(manufacturer, uriOfTheProduct, "MyOrderNumber", product, "1.0.0", serialNumber)
+	if err != nil {
+		return nil
+	}
 	deviceInfo.AddSoftware("firmware", "1.2.5")
 	macAddress := "00:00:00:00:00:00"
 	deviceNIC := "enp0"
