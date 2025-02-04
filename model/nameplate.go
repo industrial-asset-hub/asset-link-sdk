@@ -24,7 +24,7 @@ import (
 // serialNumber: unique combination of numbers and letters used to identify
 // the device once it has been manufactured
 func (d *DeviceInfo) AddNameplate(manufacturerName string, uriOfTheProduct string,
-	productArticleNumberOfManufacturer string, manufacturerProductDesignation string, hardwareVersion string, serialNumber string) (err error) {
+	productArticleNumberOfManufacturer string, manufacturerProductDesignation string, hardwareVersion string, serialNumber string) error {
 
 	// URI of the product is a required property
 	if checkIfAnyValueIsNonEmpty(uriOfTheProduct) {
@@ -64,7 +64,7 @@ func (d *DeviceInfo) AddNameplate(manufacturerName string, uriOfTheProduct strin
 
 		d.ProductInstanceIdentifier = &pi
 	}
-	return err
+	return nil
 }
 
 // AddSoftware Add software information to an asset
