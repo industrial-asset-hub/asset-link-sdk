@@ -27,11 +27,12 @@ func (d *DeviceInfo) AddNameplate(manufacturerName string, uriOfTheProduct strin
 	productArticleNumberOfManufacturer string, manufacturerProductDesignation string, hardwareVersion string, serialNumber string) (err error) {
 
 	// URI of the product is a required property
-	if uriOfTheProduct == "" {
+	if checkIfAnyValueIsNonEmpty(uriOfTheProduct) {
 		return errors.New("URI of the product should not be empty")
 	}
 
-	if isNonEmptyValues(manufacturerName, uriOfTheProduct, productArticleNumberOfManufacturer, manufacturerProductDesignation, hardwareVersion, serialNumber) {
+	// this check ensures if any field is non-empty then its value is set
+	if checkIfAnyValueIsNonEmpty(manufacturerName, productArticleNumberOfManufacturer, manufacturerProductDesignation, hardwareVersion, serialNumber) {
 
 		// We hash the manufacturer to get a unique identifier
 		h := sha1.New()
@@ -70,7 +71,7 @@ func (d *DeviceInfo) AddNameplate(manufacturerName string, uriOfTheProduct strin
 func (d *DeviceInfo) AddSoftware(name string, version string) {
 	softwareIdentifier := SoftwareIdentifier{}
 
-	if isNonEmptyValues(name, version) {
+	if checkIfAnyValueIsNonEmpty(name, version) {
 		softwareIdentifier.Name = &name
 		softwareIdentifier.Version = &version
 	}

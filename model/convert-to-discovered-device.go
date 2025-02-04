@@ -123,7 +123,7 @@ func convertToDeviceIdentifier(value interface{}, identifierUri string) *generat
 	}
 	switch v := value.(type) {
 	case string:
-		if isNonEmptyValues(value.(string)) {
+		if checkIfAnyValueIsNonEmpty(value.(string)) {
 			identifier.Value = &generated.DeviceIdentifier_Text{Text: v}
 		}
 	case *string:
@@ -210,7 +210,7 @@ func convertStructTypeToDeviceIdentifiers(valueStruct reflect.Value, prefixUri s
 	return structIdentifiers
 }
 
-func isNonEmptyValues(values ...string) bool {
+func checkIfAnyValueIsNonEmpty(values ...string) bool {
 	for _, value := range values {
 		if value != "" {
 			return true

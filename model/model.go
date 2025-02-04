@@ -21,7 +21,7 @@ const (
 func NewDevice(typeOfAsset string, assetName string) *DeviceInfo {
 
 	d := DeviceInfo{}
-	if !isNonEmptyValues(typeOfAsset) {
+	if !checkIfAnyValueIsNonEmpty(typeOfAsset) {
 		log.Warn().Msg("Asset type is empty")
 		return &d
 	}

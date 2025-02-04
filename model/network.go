@@ -17,7 +17,7 @@ import (
 // No validation of is currently done
 func (d *DeviceInfo) AddNic(name string, macAddress string) (nicId string) {
 
-	if isNonEmptyValues(macAddress) {
+	if checkIfAnyValueIsNonEmpty(macAddress) {
 		nicId = uuid.New().String()
 
 		t := EthernetPortConnectionPointTypeEthernetPort
@@ -29,7 +29,7 @@ func (d *DeviceInfo) AddNic(name string, macAddress string) (nicId string) {
 		}
 
 		nameKey := "name"
-		if isNonEmptyValues(name) {
+		if checkIfAnyValueIsNonEmpty(name) {
 			nic.InstanceAnnotations = []InstanceAnnotation{{
 				Key:   &nameKey,
 				Value: &name,
@@ -52,7 +52,7 @@ func (d *DeviceInfo) AddNic(name string, macAddress string) (nicId string) {
 // No validation of is currently done
 func (d *DeviceInfo) AddIPv4(nicId string, address string, networkMask string, router string) (id string) {
 
-	if isNonEmptyValues(address) {
+	if checkIfAnyValueIsNonEmpty(address) {
 		id = uuid.New().String()
 
 		t := Ipv4ConnectivityConnectionPointTypeIpv4Connectivity
@@ -68,7 +68,7 @@ func (d *DeviceInfo) AddIPv4(nicId string, address string, networkMask string, r
 			Ipv4Address:             &address,
 			RelatedConnectionPoints: []RelatedConnectionPoint{relationship},
 		}
-		if isNonEmptyValues(networkMask, router) {
+		if checkIfAnyValueIsNonEmpty(networkMask, router) {
 			ipv4.NetworkMask = &networkMask
 			ipv4.RouterIpv4Address = &router
 		}
@@ -84,7 +84,7 @@ func (d *DeviceInfo) AddIPv4(nicId string, address string, networkMask string, r
 // No validation of is currently done
 func (d *DeviceInfo) AddIPv6(nicId string, address string, networkMask string, router string) (id string) {
 
-	if isNonEmptyValues(address) {
+	if checkIfAnyValueIsNonEmpty(address) {
 		id = uuid.New().String()
 
 		t := Ipv6ConnectivityConnectionPointTypeIpv6Connectivity
@@ -100,7 +100,7 @@ func (d *DeviceInfo) AddIPv6(nicId string, address string, networkMask string, r
 			Ipv6Address:             &address,
 			RelatedConnectionPoints: []RelatedConnectionPoint{relationship},
 		}
-		if isNonEmptyValues(networkMask, router) {
+		if checkIfAnyValueIsNonEmpty(networkMask, router) {
 			ipv6.Ipv6NetworkPrefix = &networkMask
 			ipv6.RouterIpv6Address = &router
 		}
