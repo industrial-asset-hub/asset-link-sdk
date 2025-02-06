@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Siemens AG
+ * SPDX-FileCopyrightText: {{cookiecutter.year}} {{cookiecutter.company}}
  *
  * SPDX-License-Identifier: MIT
  *
