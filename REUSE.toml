@@ -2,11 +2,10 @@
 #
 # SPDX-License-Identifier: MIT
 
-
 version = 1
 
 [[annotations]]
-path = ["**.md", "model/base.go"]
+path = ["**.md", "model/base.go", ".markdownlint.json"]
 SPDX-FileCopyrightText = "2024 Siemens AG"
 SPDX-License-Identifier = "MIT"
 
