@@ -9,7 +9,7 @@ package model
 
 func (d *DeviceInfo) addIdentifier(mac string) {
 
-	if isNonEmptyValues(mac) {
+	if checkIfAnyValueIsNonEmpty(mac) {
 		identifierUncertainty := 1
 		identifier := MacIdentifier{
 			IdentifierType:        nil,

@@ -74,13 +74,17 @@ func (m *AssetLinkImplementation) Discover(discoveryConfig config.DiscoveryConfi
 	lastSerialNumber.Add(1)
 	serialNumber := fmt.Sprint(lastSerialNumber.Load())
 	productUri := fmt.Sprintf("urn:%s/%s/%s", strings.ReplaceAll(vendorName, " ", "_"), strings.ReplaceAll(product, " ", "_"), serialNumber)
-	deviceInfo.AddNameplate(
+	err := deviceInfo.AddNameplate(
 		vendorName,
 		productUri,
 		orderNumber,
 		product,
 		productVersion,
 		serialNumber)
+	if err != nil {
+		log.Err(err).Msg("Error while adding nameplate")
+		return err
+	}
 
 	deviceInfo.AddCapabilities("firmware_update", false)
 
@@ -91,7 +95,7 @@ func (m *AssetLinkImplementation) Discover(discoveryConfig config.DiscoveryConfi
 	// Convert and publish device
 	discoveredDevice := deviceInfo.ConvertToDiscoveredDevice()
 
-	err := devicePublisher.PublishDevice(discoveredDevice)
+	err = devicePublisher.PublishDevice(discoveredDevice)
 	if err != nil {
 		// discovery request was likely cancelled -> terminate discovery and return error
 		log.Error().Msgf("Publishing Error: %v", err)

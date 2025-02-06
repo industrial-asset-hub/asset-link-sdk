@@ -82,7 +82,11 @@ func (m *ReferenceClassDriver) Discover(discoveryConfig config.DiscoveryConfig, 
 			deviceInfo := model.NewDevice("EthernetDevice", name)
 
 			uriOfTheProduct := fmt.Sprintf("https://%s/%s-%s", strings.ReplaceAll(manufacturer, " ", "_"), strings.ReplaceAll(product, " ", "_"), serialNumber)
-			deviceInfo.AddNameplate(manufacturer, uriOfTheProduct, "MyOrderNumber", product, "1.0.0", serialNumber)
+			err := deviceInfo.AddNameplate(manufacturer, uriOfTheProduct, "MyOrderNumber", product, "1.0.0", serialNumber)
+			if err != nil {
+				log.Err(err).Msg("Error while adding nameplate")
+				return err
+			}
 
 			deviceInfo.AddSoftware("firmware", "1.2.5")
 			deviceInfo.AddCapabilities("firmware_update", false)
@@ -93,7 +97,7 @@ func (m *ReferenceClassDriver) Discover(discoveryConfig config.DiscoveryConfig, 
 			deviceInfo.AddIPv4(id, deviceIPs[1], "255.255.255.0", "")
 			discoveredDevice := deviceInfo.ConvertToDiscoveredDevice()
 
-			err := devicePublisher.PublishDevice(discoveredDevice)
+			err = devicePublisher.PublishDevice(discoveredDevice)
 			if err != nil {
 				// discovery request was likely cancelled -> terminate discovery and return error
 				log.Error().Msgf("Publishing Error: %v", err)

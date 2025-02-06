@@ -10,6 +10,7 @@ package model
 import (
 	"crypto/sha1"
 	"encoding/hex"
+	"errors"
 )
 
 // AddNameplate Add a digital nameplate to an asset.
@@ -22,15 +23,16 @@ import (
 // hardwareVersion: version of the hardware supplied with the device
 // serialNumber: unique combination of numbers and letters used to identify
 // the device once it has been manufactured
-func (d *DeviceInfo) AddNameplate(manufacturerName string,
-	uriOfTheProduct string,
-	productArticleNumberOfManufacturer string,
-	manufacturerProductDesignation string,
-	hardwareVersion string,
-	serialNumber string,
-) {
+func (d *DeviceInfo) AddNameplate(manufacturerName string, uriOfTheProduct string,
+	productArticleNumberOfManufacturer string, manufacturerProductDesignation string, hardwareVersion string, serialNumber string) error {
 
-	if isNonEmptyValues(manufacturerName, uriOfTheProduct, productArticleNumberOfManufacturer, manufacturerProductDesignation, hardwareVersion, serialNumber) {
+	// URI of the product is a required property
+	if !checkIfAnyValueIsNonEmpty(uriOfTheProduct) {
+		return errors.New("URI of the product should not be empty")
+	}
+
+	// this check ensures if any field is non-empty then its value is set
+	if checkIfAnyValueIsNonEmpty(manufacturerName, productArticleNumberOfManufacturer, manufacturerProductDesignation, hardwareVersion, serialNumber) {
 
 		// We hash the manufacturer to get a unique identifier
 		h := sha1.New()
@@ -62,13 +64,14 @@ func (d *DeviceInfo) AddNameplate(manufacturerName string,
 
 		d.ProductInstanceIdentifier = &pi
 	}
+	return nil
 }
 
 // AddSoftware Add software information to an asset
 func (d *DeviceInfo) AddSoftware(name string, version string) {
 	softwareIdentifier := SoftwareIdentifier{}
 
-	if isNonEmptyValues(name, version) {
+	if checkIfAnyValueIsNonEmpty(name, version) {
 		softwareIdentifier.Name = &name
 		softwareIdentifier.Version = &version
 	}
