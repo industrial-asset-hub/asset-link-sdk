@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
 	iah_discovery "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
@@ -192,26 +193,28 @@ func TestConvertNumberTypeToDiscoveredDevice(t *testing.T) {
 
 // Struct containing all Go data types
 type AllGoTypes struct {
-	IntValue      int     `json:"int_value"`
-	Int8Value     int8    `json:"int8_value"`
-	Int16Value    int16   `json:"int16_value"`
-	Int32Value    int32   `json:"int32_value"`
-	Int64Value    int64   `json:"int64_value"`
-	UintValue     uint    `json:"uint_value"`
-	Uint8Value    uint8   `json:"uint8_value"`
-	Uint16Value   uint16  `json:"uint16_value"`
-	Uint32Value   uint32  `json:"uint32_value"`
-	Uint64Value   uint64  `json:"uint64_value"`
-	Float32Value  float32 `json:"float32_value"`
-	Float64Value  float64 `json:"float64_value"`
-	ByteValue     byte    `json:"byte_value"`
-	RuneValue     rune    `json:"rune_value"`
-	StringValue   string  `json:"string_value"`
-	StringPointer *string `json:"string_pointer"`
-	ByteSlice     []byte  `json:"raw_data"`
+	IntValue         int        `json:"int_value"`
+	Int8Value        int8       `json:"int8_value"`
+	Int16Value       int16      `json:"int16_value"`
+	Int32Value       int32      `json:"int32_value"`
+	Int64Value       int64      `json:"int64_value"`
+	UintValue        uint       `json:"uint_value"`
+	Uint8Value       uint8      `json:"uint8_value"`
+	Uint16Value      uint16     `json:"uint16_value"`
+	Uint32Value      uint32     `json:"uint32_value"`
+	Uint64Value      uint64     `json:"uint64_value"`
+	Float32Value     float32    `json:"float32_value"`
+	Float64Value     float64    `json:"float64_value"`
+	ByteValue        byte       `json:"byte_value"`
+	RuneValue        rune       `json:"rune_value"`
+	StringValue      string     `json:"string_value"`
+	StringPointer    *string    `json:"string_pointer"`
+	ByteSlice        []byte     `json:"raw_data"`
+	Timestamp        time.Time  `json:"timestamp"`
+	TimestampPointer *time.Time `json:"timestamp_pointer"`
 }
 
-func assignValuesToAllGoTypes() AllGoTypes {
+func assignValuesToAllGoTypes(timestamp time.Time) AllGoTypes {
 	var allTypes AllGoTypes
 	allTypes.IntValue = 42
 
@@ -230,14 +233,23 @@ func assignValuesToAllGoTypes() AllGoTypes {
 	allTypes.StringValue = "test"
 	allTypes.StringPointer = &allTypes.StringValue
 	allTypes.ByteSlice = []byte{'a', 'b', 'c'}
+	allTypes.Timestamp = timestamp
+	allTypes.TimestampPointer = &timestamp
+
 	return allTypes
 }
 
 func TestConversionOfAllTypes(t *testing.T) {
-	allTypes := assignValuesToAllGoTypes()
+	timestampString := "2025-02-18T08:08:18.970618Z"
+	parseTime, parseErr := time.Parse(time.RFC3339Nano, timestampString)
+	if parseErr != nil {
+		assert.Error(t, parseErr, "timestamp initialization failed")
+	}
+
+	allTypes := assignValuesToAllGoTypes(parseTime)
 	discoveredDevice := ConvertFromDerivedSchemaToDiscoveredDevice(&allTypes, "https://schema.industrial-assets.io/test/v0.0.1", "Test")
 
-	assert.Equal(t, 17, len(discoveredDevice.Identifiers))
+	assert.Equal(t, 19, len(discoveredDevice.Identifiers))
 
 	for _, identifier := range discoveredDevice.Identifiers {
 		classifierValue := identifier.Classifiers[0].GetValue()
@@ -277,12 +289,16 @@ func TestConversionOfAllTypes(t *testing.T) {
 			assert.Equal(t, *allTypes.StringPointer, extractValue(identifier.String()), "Property: string_pointer")
 		case "raw_data":
 			assert.Equal(t, "abc", extractValue(identifier.String()), "Property: raw_data")
+		case "timestamp":
+			assert.Equal(t, timestampString, extractValue(identifier.String()), "Property: timestamp")
+		case "timestamp_pointer":
+			assert.Equal(t, timestampString, extractValue(identifier.String()), "Property: timestamp_pointer")
 		}
 	}
 }
 
 func extractValue(input string) string {
-	parts := strings.Split(input, ":")
+	parts := strings.SplitN(input, ":", 2)
 	typeValue := strings.Split(parts[1], " ")[0]
 	return strings.Trim(typeValue, `"`)
 }

@@ -12,6 +12,7 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/rs/zerolog/log"
 
@@ -54,8 +55,14 @@ func convertToDeviceIdentifiers(valueToConvert reflect.Value, prefixUri string, 
 		structIdentifiers := convertToDeviceIdentifiers(valueToConvert.Elem(), prefixUri, level)
 		identifiers = appendDeviceIdentifiers(identifiers, structIdentifiers)
 	case reflect.Struct:
-		structIdentifiers := convertStructTypeToDeviceIdentifiers(valueToConvert, prefixUri, level+1)
-		identifiers = appendDeviceIdentifiers(identifiers, structIdentifiers)
+		t, ok := valueToConvert.Interface().(time.Time)
+		if ok {
+			identifier := convertToDeviceIdentifier(t, prefixUri)
+			identifiers = appendDeviceIdentifiers(identifiers, []*generated.DeviceIdentifier{identifier})
+		} else {
+			structIdentifiers := convertStructTypeToDeviceIdentifiers(valueToConvert, prefixUri, level+1)
+			identifiers = appendDeviceIdentifiers(identifiers, structIdentifiers)
+		}
 	case reflect.Slice:
 		if valueToConvert.Len() > 0 && valueToConvert.Index(0).Kind() != reflect.Uint8 {
 			for index := 0; index < valueToConvert.Len(); index++ {
@@ -122,12 +129,18 @@ func convertToDeviceIdentifier(value interface{}, identifierUri string) *generat
 		Classifiers: nil,
 	}
 	switch v := value.(type) {
+	case time.Time:
+		identifier.Value = &generated.DeviceIdentifier_Text{Text: v.Format(time.RFC3339Nano)}
+	case *time.Time:
+		if v != nil {
+			identifier.Value = &generated.DeviceIdentifier_Text{Text: v.Format(time.RFC3339Nano)}
+		}
 	case string:
-		if isNonEmptyValues(value.(string)) {
+		if isNonEmptyValues(v) {
 			identifier.Value = &generated.DeviceIdentifier_Text{Text: v}
 		}
 	case *string:
-		if value.(*string) != nil {
+		if v != nil {
 			identifier.Value = &generated.DeviceIdentifier_Text{Text: *v}
 		}
 	case float64:
