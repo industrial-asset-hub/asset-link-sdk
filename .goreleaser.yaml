@@ -87,7 +87,7 @@ archives:
   - id: al-ctl
     builds:
       - al-ctl
-    format: tar.gz
+    formats: [ 'tar.gz' ]
     name_template: >-
       {{  "al-ctl" }}_
       {{- title .Os }}_
@@ -97,13 +97,13 @@ archives:
       {{- if .Arm }}v{{ .Arm }}{{ end }}
     format_overrides:
       - goos: windows
-        format: zip
+        formats: [ 'zip' ]
     files: []
 
   - id: registry
     builds:
       - registry
-    format: tar.gz
+    formats: [ 'tar.gz' ]
     name_template: >-
       {{  "registry" }}_
       {{- title .Os }}_
@@ -113,13 +113,13 @@ archives:
       {{- if .Arm }}v{{ .Arm }}{{ end }}
     format_overrides:
       - goos: windows
-        format: zip
+        formats: [ 'zip' ]
     files: []
 
   - id: cdm-al-reference
     builds:
       - cdm-al-reference
-    format: tar.gz
+    formats: [ 'tar.gz' ]
     name_template: >-
       {{  "cdm-al-reference" }}_
       {{- title .Os }}_
@@ -129,12 +129,12 @@ archives:
       {{- if .Arm }}v{{ .Arm }}{{ end }}
     format_overrides:
       - goos: windows
-        format: zip
+        formats: [ 'zip' ]
     files: []
 
   - id: cdm-al-sdk
     meta: true
-    format: tar.gz
+    formats: [ 'tar.gz' ]
     wrap_in_directory: false
     files:
       - README.SDK.md
@@ -202,7 +202,7 @@ checksum:
   algorithm: sha256
 
 snapshot:
-  name_template: "{{ incpatch .Version }}-next"
+  version_template: "{{ incpatch .Version }}-next"
 
 changelog:
   sort: asc

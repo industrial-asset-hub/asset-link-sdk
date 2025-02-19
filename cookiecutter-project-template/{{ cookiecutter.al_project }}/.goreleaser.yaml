@@ -39,7 +39,7 @@ builds:
     mod_timestamp: "{{ .CommitTimestamp }}"
 
 archives:
-  - format: tar.gz
+  - formats: [ 'tar.gz' ]
     files:
       - vendor\
     name_template: >-
@@ -51,7 +51,7 @@ archives:
       {{- if .Arm }}v{{ .Arm }}{{ end }}
     format_overrides:
       - goos: windows
-        format: zip
+        formats: [ 'zip' ]
 
 {% endraw %}
 
@@ -86,7 +86,7 @@ checksum:
   algorithm: sha256
 
 snapshot:
-  name_template: "{{ incpatch .Version }}-next"
+  version_template: "{{ incpatch .Version }}-next"
   {% endraw %}
 
 dockers:
