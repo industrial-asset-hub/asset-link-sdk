@@ -5,6 +5,7 @@ package model
 import "encoding/json"
 import "fmt"
 import "reflect"
+import "time"
 
 // Artifact identifier based on the artifact checksum.
 // Such an identifier is good to confirm the identity of an artifact, but not so
@@ -34,6 +35,30 @@ type ArtifactChecksum struct {
 type ArtifactChecksumAssetIdentifierType string
 
 const ArtifactChecksumAssetIdentifierTypeArtifactChecksum ArtifactChecksumAssetIdentifierType = "ArtifactChecksum"
+
+var enumValues_ArtifactChecksumAssetIdentifierType = []interface{}{
+	"ArtifactChecksum",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *ArtifactChecksumAssetIdentifierType) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_ArtifactChecksumAssetIdentifierType {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_ArtifactChecksumAssetIdentifierType, v)
+	}
+	*j = ArtifactChecksumAssetIdentifierType(v)
+	return nil
+}
 
 // An asset is the representation of a functional object with a technical function
 // that is known to Industrial Asset Hub (IAH). Industrial Asset Hub (IAH) might
@@ -98,7 +123,7 @@ type Asset struct {
 	InstanceAnnotations []InstanceAnnotation `json:"instance_annotations,omitempty" yaml:"instance_annotations,omitempty" mapstructure:"instance_annotations,omitempty"`
 
 	// Timestamp of last asset modification
-	LastModifiedTimestamp *string `json:"last_modified_timestamp,omitempty" yaml:"last_modified_timestamp,omitempty" mapstructure:"last_modified_timestamp,omitempty"`
+	LastModifiedTimestamp *time.Time `json:"last_modified_timestamp,omitempty" yaml:"last_modified_timestamp,omitempty" mapstructure:"last_modified_timestamp,omitempty"`
 
 	// A manage state is an attribute of an asset that specifies how an asset is being
 	// regarded by an asset management system (is it being regarded or ignored). Some
@@ -147,6 +172,30 @@ type AssetFunctionalObjectType string
 
 const AssetFunctionalObjectTypeAsset AssetFunctionalObjectType = "Asset"
 
+var enumValues_AssetFunctionalObjectType = []interface{}{
+	"Asset",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *AssetFunctionalObjectType) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_AssetFunctionalObjectType {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_AssetFunctionalObjectType, v)
+	}
+	*j = AssetFunctionalObjectType(v)
+	return nil
+}
+
 // An Identifier that provides an unambiguous identification of an asset instance.
 type AssetIdentifier struct {
 	// Type designator that provides support for polymorphism using asset identifiers.
@@ -169,6 +218,30 @@ type AssetIdentifier struct {
 type AssetIdentifierAssetIdentifierType string
 
 const AssetIdentifierAssetIdentifierTypeAssetIdentifier AssetIdentifierAssetIdentifierType = "AssetIdentifier"
+
+var enumValues_AssetIdentifierAssetIdentifierType = []interface{}{
+	"AssetIdentifier",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *AssetIdentifierAssetIdentifierType) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_AssetIdentifierAssetIdentifierType {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_AssetIdentifierAssetIdentifierType, v)
+	}
+	*j = AssetIdentifierAssetIdentifierType(v)
+	return nil
+}
 
 // Asset Link (AL) running and registered.
 type AssetLink struct {
@@ -234,7 +307,7 @@ type AssetLink struct {
 	InstanceAnnotations []InstanceAnnotation `json:"instance_annotations,omitempty" yaml:"instance_annotations,omitempty" mapstructure:"instance_annotations,omitempty"`
 
 	// Timestamp of last asset modification
-	LastModifiedTimestamp *string `json:"last_modified_timestamp,omitempty" yaml:"last_modified_timestamp,omitempty" mapstructure:"last_modified_timestamp,omitempty"`
+	LastModifiedTimestamp *time.Time `json:"last_modified_timestamp,omitempty" yaml:"last_modified_timestamp,omitempty" mapstructure:"last_modified_timestamp,omitempty"`
 
 	// A manage state is an attribute of an asset that specifies how an asset is being
 	// regarded by an asset management system (is it being regarded or ignored). Some
@@ -289,6 +362,51 @@ type AssetLinkFunctionalObjectType string
 
 const AssetLinkFunctionalObjectTypeAssetLink AssetLinkFunctionalObjectType = "AssetLink"
 
+var enumValues_AssetLinkFunctionalObjectType = []interface{}{
+	"AssetLink",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *AssetLinkFunctionalObjectType) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_AssetLinkFunctionalObjectType {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_AssetLinkFunctionalObjectType, v)
+	}
+	*j = AssetLinkFunctionalObjectType(v)
+	return nil
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *AssetLink) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if _, ok := raw["id"]; raw != nil && !ok {
+		return fmt.Errorf("field id in AssetLink: required")
+	}
+	if _, ok := raw["management_state"]; raw != nil && !ok {
+		return fmt.Errorf("field management_state in AssetLink: required")
+	}
+	type Plain AssetLink
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = AssetLink(plain)
+	return nil
+}
+
 // Operations that can be performed on the asset
 type AssetOperation struct {
 	// Attribute for specifying if the operation is available in terms of true or
@@ -309,6 +427,27 @@ type AssetRelationship struct {
 
 	// The origin of a relationship between two assets.
 	Subject *string `json:"subject,omitempty" yaml:"subject,omitempty" mapstructure:"subject,omitempty"`
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *Asset) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if _, ok := raw["id"]; raw != nil && !ok {
+		return fmt.Errorf("field id in Asset: required")
+	}
+	if _, ok := raw["management_state"]; raw != nil && !ok {
+		return fmt.Errorf("field management_state in Asset: required")
+	}
+	type Plain Asset
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = Asset(plain)
+	return nil
 }
 
 type CdmBaseSchemaV090Json map[string]interface{}
@@ -345,6 +484,48 @@ type ConnectionPointConnectionPointType string
 
 const ConnectionPointConnectionPointTypeConnectionPoint ConnectionPointConnectionPointType = "ConnectionPoint"
 
+var enumValues_ConnectionPointConnectionPointType = []interface{}{
+	"ConnectionPoint",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *ConnectionPointConnectionPointType) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_ConnectionPointConnectionPointType {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_ConnectionPointConnectionPointType, v)
+	}
+	*j = ConnectionPointConnectionPointType(v)
+	return nil
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *ConnectionPoint) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if _, ok := raw["id"]; raw != nil && !ok {
+		return fmt.Errorf("field id in ConnectionPoint: required")
+	}
+	type Plain ConnectionPoint
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = ConnectionPoint(plain)
+	return nil
+}
+
 // A contact point—for example, a Customer Complaints department.
 type ContactPoint struct {
 	// Email address.
@@ -361,6 +542,24 @@ type ContactPoint struct {
 
 	// The telephone number.
 	Telephone *string `json:"telephone,omitempty" yaml:"telephone,omitempty" mapstructure:"telephone,omitempty"`
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *ContactPoint) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if _, ok := raw["id"]; raw != nil && !ok {
+		return fmt.Errorf("field id in ContactPoint: required")
+	}
+	type Plain ContactPoint
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = ContactPoint(plain)
+	return nil
 }
 
 type CountryCode string
@@ -615,1052 +814,6 @@ const CountryCodeZa CountryCode = "za"
 const CountryCodeZm CountryCode = "zm"
 const CountryCodeZw CountryCode = "zw"
 
-// Instance annotation hosting a custom property with a label.
-type CustomProperty struct {
-	// The identifier of a key/value pair.
-	Key *string `json:"key,omitempty" yaml:"key,omitempty" mapstructure:"key,omitempty"`
-
-	// Human readable label to show the property in the UI.
-	Label *string `json:"label,omitempty" yaml:"label,omitempty" mapstructure:"label,omitempty"`
-
-	// The real metadata of a key/value pair.
-	Value *string `json:"value,omitempty" yaml:"value,omitempty" mapstructure:"value,omitempty"`
-}
-
-// Device Class Driver (DCD) running and registered.
-type Dcd struct {
-	// Reference to the software artifact which the running software has been
-	// instantiated from.
-	// As of now the combination of multiple software artifacts into a running
-	// software (for example with plug-ins) is not supported and can not be natively
-	// modeled. Instance annotations need to be used for that purpose.
-	Artifact *SoftwareArtifact `json:"artifact,omitempty" yaml:"artifact,omitempty" mapstructure:"artifact,omitempty"`
-
-	// An asset identifier is an asset attribute that provides enough information to
-	// unequivocally identify the represented object.
-	// In some cases the ID attribute acts simultaneously as a reference for the asset
-	// instance and as identifier for the represented object, otherwise at least one
-	// asset identifier is needed.
-	// There can be multiple asset_identifiers with different goals. For example, the
-	// information of a metal nameplate can be used by a human-being to identify a
-	// device represented by an asset instance, but a software certificate provided by
-	// a device might help a software component identify the device in the network,...
-	// An asset identifier might have an identifier_type, that defines its format and
-	// possibly even semantics.
-	AssetIdentifiers []interface{} `json:"asset_identifiers,omitempty" yaml:"asset_identifiers,omitempty" mapstructure:"asset_identifiers,omitempty"`
-
-	// List of device management operations supported by an asset. Each operation type
-	// might appear only once.
-	AssetOperations []AssetOperation `json:"asset_operations,omitempty" yaml:"asset_operations,omitempty" mapstructure:"asset_operations,omitempty"`
-
-	// An asset might have a connection point that can be used to connect with the
-	// asset. In the case of devices, at least one connection point is required. It
-	// might be a connection point needed for AssetManagement for interaction with the
-	// asset or for other connections of the asset related to the asset function but
-	// not to device management.
-	ConnectionPoints []interface{} `json:"connection_points,omitempty" yaml:"connection_points,omitempty" mapstructure:"connection_points,omitempty"`
-
-	// Custom running software type.
-	CustomRunningSoftwareType *string `json:"custom_running_software_type,omitempty" yaml:"custom_running_software_type,omitempty" mapstructure:"custom_running_software_type,omitempty"`
-
-	// Metadata associated with Asset in User Interface
-	CustomUiProperties []CustomProperty `json:"custom_ui_properties,omitempty" yaml:"custom_ui_properties,omitempty" mapstructure:"custom_ui_properties,omitempty"`
-
-	// Type designator that provides support for polymorphism using functional parts.
-	FunctionalObjectType *DcdFunctionalObjectType `json:"functional_object_type,omitempty" yaml:"functional_object_type,omitempty" mapstructure:"functional_object_type,omitempty"`
-
-	// The functional objects that an asset is composed of, in case such a level of
-	// decomposition is desired. This is enables having assets composed of other
-	// assets and even devices composed of other devices and assets.
-	// An Asset must be addressable independently from other Assets (therefore they
-	// need to have an "id") and are therefore individually modeled. But not all parts
-	// of an Asset that are modeled need to be individually addressable, these are
-	// FunctionalObjects, but not Assets.
-	// Probably those functional_parts of an Asset providing some function for the
-	// Asset will be modeled here. Therefore an Asset can delegate the Interactions
-	// that it's offering to its functional_parts.
-	FunctionalParts []interface{} `json:"functional_parts,omitempty" yaml:"functional_parts,omitempty" mapstructure:"functional_parts,omitempty"`
-
-	// The identifier property represents any kind of identifier for any kind of
-	// Thing, such as ISBNs, GTIN codes, UUIDs etc. Schema.org provides dedicated
-	// properties for representing many of these, either as textual strings or as URL
-	// (URI) links.
-	Id string `json:"id" yaml:"id" mapstructure:"id"`
-
-	// Metadata associated to an object.
-	InstanceAnnotations []InstanceAnnotation `json:"instance_annotations,omitempty" yaml:"instance_annotations,omitempty" mapstructure:"instance_annotations,omitempty"`
-
-	// Timestamp of last asset modification
-	LastModifiedTimestamp *string `json:"last_modified_timestamp,omitempty" yaml:"last_modified_timestamp,omitempty" mapstructure:"last_modified_timestamp,omitempty"`
-
-	// A manage state is an attribute of an asset that specifies how an asset is being
-	// regarded by an asset management system (is it being regarded or ignored). Some
-	// assets might be known to the Industrial Asset Hub (for example, discovered
-	// through a network scan), but want to be ignored for different reasons.
-	// The goals of this attribute are: to avoid rediscovering assets being ignored
-	// and to focus management activities on those assets being regarded.
-	// Assets that can be discovered, but not supported, might evolve from an
-	// "ignored" to a "regarded" state, once supported.
-	ManagementState ManagementState `json:"management_state" yaml:"management_state" mapstructure:"management_state"`
-
-	// The name of the item.
-	Name *string `json:"name,omitempty" yaml:"name,omitempty" mapstructure:"name,omitempty"`
-
-	// Specify the state of other aspects apart from management state.
-	OtherStates []State `json:"other_states,omitempty" yaml:"other_states,omitempty" mapstructure:"other_states,omitempty"`
-
-	// Identifier of a device based on its serial number.
-	ProductInstanceIdentifier *ProductSerialIdentifier `json:"product_instance_identifier,omitempty" yaml:"product_instance_identifier,omitempty" mapstructure:"product_instance_identifier,omitempty"`
-
-	// A slot to track the last observed reachability state and when it was observed.
-	ReachabilityState *ReachabilityState `json:"reachability_state,omitempty" yaml:"reachability_state,omitempty" mapstructure:"reachability_state,omitempty"`
-
-	// Type of running software.
-	RunningSoftwareType *RunningSoftwareValues `json:"running_software_type,omitempty" yaml:"running_software_type,omitempty" mapstructure:"running_software_type,omitempty"`
-
-	// Identifier for a running software instance.
-	RunningSwId *string `json:"running_sw_id,omitempty" yaml:"running_sw_id,omitempty" mapstructure:"running_sw_id,omitempty"`
-
-	// An asset can host software artifacts that might want to be tracked. This can be
-	// used simply to keep track of the firmware version or to keep a full-blown
-	// Software Bill of Material (SBOM).
-	// Please notice that this attribute is not meant to model relationships between
-	// the different software assets available in a device. Static relationships
-	// implicit to the SoftwareAssets themselves (like "firmware image A contains
-	// package X" or "package X depends on package Y") might be modeled on the
-	// Software Assets, if desired. Although it probably goes beyond the purpose of
-	// asset modeling. Deployment dependent relationships (like "firmware image needs
-	// to be installed before installing app") might be modeled as external
-	// AssetLinks, if desired. Once again it probably goes beyond the purpose of asset
-	// modeling.
-	SoftwareComponents []interface{} `json:"software_components,omitempty" yaml:"software_components,omitempty" mapstructure:"software_components,omitempty"`
-
-	// Provides references to the different zones that an asset belongs to.
-	// Zones are typically used to group assets logically mostly for the purpose of
-	// access control. That way it is possible to give certain roles or persons
-	// specific permissions to all assets associated to a zone.
-	Zone *string `json:"zone,omitempty" yaml:"zone,omitempty" mapstructure:"zone,omitempty"`
-}
-
-type DcdFunctionalObjectType string
-
-const DcdFunctionalObjectTypeDcd DcdFunctionalObjectType = "Dcd"
-
-// A device is a special type of asset that can be managed with some asset
-// management system. In order to be manageable, it requires at least one
-// connection point for the asset management to communicate with the device and
-// software capable of interacting with the asset management.
-type Device struct {
-	// An asset identifier is an asset attribute that provides enough information to
-	// unequivocally identify the represented object.
-	// In some cases the ID attribute acts simultaneously as a reference for the asset
-	// instance and as identifier for the represented object, otherwise at least one
-	// asset identifier is needed.
-	// There can be multiple asset_identifiers with different goals. For example, the
-	// information of a metal nameplate can be used by a human-being to identify a
-	// device represented by an asset instance, but a software certificate provided by
-	// a device might help a software component identify the device in the network,...
-	// An asset identifier might have an identifier_type, that defines its format and
-	// possibly even semantics.
-	AssetIdentifiers []interface{} `json:"asset_identifiers,omitempty" yaml:"asset_identifiers,omitempty" mapstructure:"asset_identifiers,omitempty"`
-
-	// List of device management operations supported by an asset. Each operation type
-	// might appear only once.
-	AssetOperations []AssetOperation `json:"asset_operations,omitempty" yaml:"asset_operations,omitempty" mapstructure:"asset_operations,omitempty"`
-
-	// An asset might have a connection point that can be used to connect with the
-	// asset. In the case of devices, at least one connection point is required. It
-	// might be a connection point needed for AssetManagement for interaction with the
-	// asset or for other connections of the asset related to the asset function but
-	// not to device management.
-	ConnectionPoints []interface{} `json:"connection_points,omitempty" yaml:"connection_points,omitempty" mapstructure:"connection_points,omitempty"`
-
-	// Metadata associated with Asset in User Interface
-	CustomUiProperties []CustomProperty `json:"custom_ui_properties,omitempty" yaml:"custom_ui_properties,omitempty" mapstructure:"custom_ui_properties,omitempty"`
-
-	// Type designator that provides support for polymorphism using functional parts.
-	FunctionalObjectType *DeviceFunctionalObjectType `json:"functional_object_type,omitempty" yaml:"functional_object_type,omitempty" mapstructure:"functional_object_type,omitempty"`
-
-	// The functional objects that an asset is composed of, in case such a level of
-	// decomposition is desired. This is enables having assets composed of other
-	// assets and even devices composed of other devices and assets.
-	// An Asset must be addressable independently from other Assets (therefore they
-	// need to have an "id") and are therefore individually modeled. But not all parts
-	// of an Asset that are modeled need to be individually addressable, these are
-	// FunctionalObjects, but not Assets.
-	// Probably those functional_parts of an Asset providing some function for the
-	// Asset will be modeled here. Therefore an Asset can delegate the Interactions
-	// that it's offering to its functional_parts.
-	FunctionalParts []interface{} `json:"functional_parts,omitempty" yaml:"functional_parts,omitempty" mapstructure:"functional_parts,omitempty"`
-
-	// The identifier property represents any kind of identifier for any kind of
-	// Thing, such as ISBNs, GTIN codes, UUIDs etc. Schema.org provides dedicated
-	// properties for representing many of these, either as textual strings or as URL
-	// (URI) links.
-	Id string `json:"id" yaml:"id" mapstructure:"id"`
-
-	// Metadata associated to an object.
-	InstanceAnnotations []InstanceAnnotation `json:"instance_annotations,omitempty" yaml:"instance_annotations,omitempty" mapstructure:"instance_annotations,omitempty"`
-
-	// Timestamp of last asset modification
-	LastModifiedTimestamp *string `json:"last_modified_timestamp,omitempty" yaml:"last_modified_timestamp,omitempty" mapstructure:"last_modified_timestamp,omitempty"`
-
-	// A manage state is an attribute of an asset that specifies how an asset is being
-	// regarded by an asset management system (is it being regarded or ignored). Some
-	// assets might be known to the Industrial Asset Hub (for example, discovered
-	// through a network scan), but want to be ignored for different reasons.
-	// The goals of this attribute are: to avoid rediscovering assets being ignored
-	// and to focus management activities on those assets being regarded.
-	// Assets that can be discovered, but not supported, might evolve from an
-	// "ignored" to a "regarded" state, once supported.
-	ManagementState ManagementState `json:"management_state" yaml:"management_state" mapstructure:"management_state"`
-
-	// The name of the item.
-	Name *string `json:"name,omitempty" yaml:"name,omitempty" mapstructure:"name,omitempty"`
-
-	// Specify the state of other aspects apart from management state.
-	OtherStates []State `json:"other_states,omitempty" yaml:"other_states,omitempty" mapstructure:"other_states,omitempty"`
-
-	// Identifier of a device based on its serial number.
-	ProductInstanceIdentifier *ProductSerialIdentifier `json:"product_instance_identifier,omitempty" yaml:"product_instance_identifier,omitempty" mapstructure:"product_instance_identifier,omitempty"`
-
-	// A slot to track the last observed reachability state and when it was observed.
-	ReachabilityState ReachabilityState `json:"reachability_state" yaml:"reachability_state" mapstructure:"reachability_state"`
-
-	// An asset can host software artifacts that might want to be tracked. This can be
-	// used simply to keep track of the firmware version or to keep a full-blown
-	// Software Bill of Material (SBOM).
-	// Please notice that this attribute is not meant to model relationships between
-	// the different software assets available in a device. Static relationships
-	// implicit to the SoftwareAssets themselves (like "firmware image A contains
-	// package X" or "package X depends on package Y") might be modeled on the
-	// Software Assets, if desired. Although it probably goes beyond the purpose of
-	// asset modeling. Deployment dependent relationships (like "firmware image needs
-	// to be installed before installing app") might be modeled as external
-	// AssetLinks, if desired. Once again it probably goes beyond the purpose of asset
-	// modeling.
-	SoftwareComponents []interface{} `json:"software_components" yaml:"software_components" mapstructure:"software_components"`
-
-	// Provides references to the different zones that an asset belongs to.
-	// Zones are typically used to group assets logically mostly for the purpose of
-	// access control. That way it is possible to give certain roles or persons
-	// specific permissions to all assets associated to a zone.
-	Zone *string `json:"zone,omitempty" yaml:"zone,omitempty" mapstructure:"zone,omitempty"`
-}
-
-type DeviceFunctionalObjectType string
-
-const DeviceFunctionalObjectTypeDevice DeviceFunctionalObjectType = "Device"
-
-// A hardware ConnectionPoint that supports one of the Ethernet networking protocol
-// as defined in the standard [IEEE
-// 802.3](https://en.wikipedia.org/wiki/IEEE_802.3).
-type EthernetPort struct {
-	// Type designator that provides support for polymorphism using connection points.
-	ConnectionPointType *EthernetPortConnectionPointType `json:"connection_point_type,omitempty" yaml:"connection_point_type,omitempty" mapstructure:"connection_point_type,omitempty"`
-
-	// The identifier property represents any kind of identifier for any kind of
-	// Thing, such as ISBNs, GTIN codes, UUIDs etc. Schema.org provides dedicated
-	// properties for representing many of these, either as textual strings or as URL
-	// (URI) links.
-	Id string `json:"id" yaml:"id" mapstructure:"id"`
-
-	// Metadata associated to an object.
-	InstanceAnnotations []InstanceAnnotation `json:"instance_annotations,omitempty" yaml:"instance_annotations,omitempty" mapstructure:"instance_annotations,omitempty"`
-
-	// The MAC address of the port. It is expected to be fixed, but in some ethernet
-	// ports it can be changed.
-	// An asset instance must provide for each ethernet port the default MAC address.
-	MacAddress *string `json:"mac_address,omitempty" yaml:"mac_address,omitempty" mapstructure:"mac_address,omitempty"`
-
-	// A connection point might rely on another connection point to work.
-	// Examples: a TCP/IP connection can only work if there is some kind of connection
-	// point at physical level (e.g. Ethernet Port, Bluetooth Port), a container might
-	// be connected over a virtual ethernet to a software bridge, a software bridge
-	// might be directly connected to an ethernet port.
-	// This attribute enables modeling these kind of dependencies in a limited way.
-	// Other modeling mechanisms might be needed to model complex networking set-ups.
-	RelatedConnectionPoints []RelatedConnectionPoint `json:"related_connection_points,omitempty" yaml:"related_connection_points,omitempty" mapstructure:"related_connection_points,omitempty"`
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *Dcd) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if v, ok := raw["id"]; !ok || v == nil {
-		return fmt.Errorf("field id in Dcd: required")
-	}
-	if v, ok := raw["management_state"]; !ok || v == nil {
-		return fmt.Errorf("field management_state in Dcd: required")
-	}
-	type Plain Dcd
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = Dcd(plain)
-	return nil
-}
-
-// Documents if the asset is being regarded (managed) by any AssetManagement or
-// not. AssetManagement systems regarding the asset will be listed in the
-// "managedBy" property.
-type ManagementState struct {
-	// Time when the current state has been observed.
-	StateTimestamp *string `json:"state_timestamp,omitempty" yaml:"state_timestamp,omitempty" mapstructure:"state_timestamp,omitempty"`
-
-	// The state of an object.
-	StateValue *ManagementStateValues `json:"state_value,omitempty" yaml:"state_value,omitempty" mapstructure:"state_value,omitempty"`
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *ContactPoint) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if v, ok := raw["id"]; !ok || v == nil {
-		return fmt.Errorf("field id in ContactPoint: required")
-	}
-	type Plain ContactPoint
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = ContactPoint(plain)
-	return nil
-}
-
-// An organization such as a school, NGO, corporation, club, etc.
-type Organization struct {
-	// Physical address of the item.
-	Address *PostalAddress `json:"address,omitempty" yaml:"address,omitempty" mapstructure:"address,omitempty"`
-
-	// An alias for the item.
-	AlternateNames []string `json:"alternate_names,omitempty" yaml:"alternate_names,omitempty" mapstructure:"alternate_names,omitempty"`
-
-	// A contact point for a person or organization.
-	ContactPoint *ContactPoint `json:"contact_point,omitempty" yaml:"contact_point,omitempty" mapstructure:"contact_point,omitempty"`
-
-	// The identifier property represents any kind of identifier for any kind of
-	// Thing, such as ISBNs, GTIN codes, UUIDs etc. Schema.org provides dedicated
-	// properties for representing many of these, either as textual strings or as URL
-	// (URI) links.
-	Id string `json:"id" yaml:"id" mapstructure:"id"`
-
-	// The name of the item.
-	Name *string `json:"name,omitempty" yaml:"name,omitempty" mapstructure:"name,omitempty"`
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *Organization) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if v, ok := raw["id"]; !ok || v == nil {
-		return fmt.Errorf("field id in Organization: required")
-	}
-	type Plain Organization
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = Organization(plain)
-	return nil
-}
-
-// Any offered product or service that might have different versions for the same
-// product ID.
-type Product struct {
-	// The identifier property represents any kind of identifier for any kind of
-	// Thing, such as ISBNs, GTIN codes, UUIDs etc. Schema.org provides dedicated
-	// properties for representing many of these, either as textual strings or as URL
-	// (URI) links.
-	Id string `json:"id" yaml:"id" mapstructure:"id"`
-
-	// The manufacturer of the product.
-	Manufacturer *Organization `json:"manufacturer,omitempty" yaml:"manufacturer,omitempty" mapstructure:"manufacturer,omitempty"`
-
-	// The name of the item.
-	Name *string `json:"name,omitempty" yaml:"name,omitempty" mapstructure:"name,omitempty"`
-
-	// The product identifiers, such as ISBN.
-	ProductId *string `json:"product_id,omitempty" yaml:"product_id,omitempty" mapstructure:"product_id,omitempty"`
-
-	// Link to identify a product. It can also provide additional information about
-	// the product.
-	ProductLink *string `json:"product_link,omitempty" yaml:"product_link,omitempty" mapstructure:"product_link,omitempty"`
-
-	// Some products might have different versions under the same product ID, the
-	// product version helps differentiating the different versions of a product, if
-	// multiple exist.
-	ProductVersion *string `json:"product_version,omitempty" yaml:"product_version,omitempty" mapstructure:"product_version,omitempty"`
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *Product) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if v, ok := raw["id"]; !ok || v == nil {
-		return fmt.Errorf("field id in Product: required")
-	}
-	type Plain Product
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = Product(plain)
-	return nil
-}
-
-// Identifier for an Asset instance using the product (asset class) identifier and
-// serial number.
-type ProductSerialIdentifier struct {
-	// Type designator that provides support for polymorphism using asset identifiers.
-	AssetIdentifierType *ProductSerialIdentifierAssetIdentifierType `json:"asset_identifier_type,omitempty" yaml:"asset_identifier_type,omitempty" mapstructure:"asset_identifier_type,omitempty"`
-
-	// Type of an items identifier.
-	IdentifierType *string `json:"identifier_type,omitempty" yaml:"identifier_type,omitempty" mapstructure:"identifier_type,omitempty"`
-
-	// Number that tells how uncertain an identifier is compared with other
-	// identifiers provided by an Asset Link. The highest the number, the more
-	// uncertain the identification must be considered. This number has to be
-	// considered relative to the other identifiers for the same element. The default
-	// value is 0, meaning no uncertainty.
-	// This index helps decide across Asset Links which identifiers are better suited
-	// for deduplication. The identifier provided by two different Asset Links with
-	// the lowest uncertainty should be chosen for deduplication purposes.
-	IdentifierUncertainty *int `json:"identifier_uncertainty,omitempty" yaml:"identifier_uncertainty,omitempty" mapstructure:"identifier_uncertainty,omitempty"`
-
-	// A way to identify a product based on the manufacturer and the product
-	// identifier given by the manufacturer.
-	ManufacturerProduct *Product `json:"manufacturer_product,omitempty" yaml:"manufacturer_product,omitempty" mapstructure:"manufacturer_product,omitempty"`
-
-	// The serial number or any alphanumeric identifier of a particular product. When
-	// attached to an offer, it is a shortcut for the serial number of the product
-	// included in the offer.
-	SerialNumber *string `json:"serial_number,omitempty" yaml:"serial_number,omitempty" mapstructure:"serial_number,omitempty"`
-}
-
-type ReachabilityStateValues string
-
-var enumValues_ReachabilityStateValues = []interface{}{
-	"reached",
-	"failed",
-	"unknown",
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *ReachabilityStateValues) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_ReachabilityStateValues {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_ReachabilityStateValues, v)
-	}
-	*j = ReachabilityStateValues(v)
-	return nil
-}
-
-const ReachabilityStateValuesReached ReachabilityStateValues = "reached"
-const ReachabilityStateValuesFailed ReachabilityStateValues = "failed"
-const ReachabilityStateValuesUnknown ReachabilityStateValues = "unknown"
-
-// The reachability_state based on when an asset that can be contacted (typically a
-// device) was reached (or not) for the last time.
-type ReachabilityState struct {
-	// Time when the current state has been observed.
-	StateTimestamp *string `json:"state_timestamp,omitempty" yaml:"state_timestamp,omitempty" mapstructure:"state_timestamp,omitempty"`
-
-	// The state of an object.
-	StateValue *ReachabilityStateValues `json:"state_value,omitempty" yaml:"state_value,omitempty" mapstructure:"state_value,omitempty"`
-}
-
-const ManagementStateValuesUnknown ManagementStateValues = "unknown"
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *Asset) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if v, ok := raw["id"]; !ok || v == nil {
-		return fmt.Errorf("field id in Asset: required")
-	}
-	if v, ok := raw["management_state"]; !ok || v == nil {
-		return fmt.Errorf("field management_state in Asset: required")
-	}
-	type Plain Asset
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = Asset(plain)
-	return nil
-}
-
-const ManagementStateValuesIgnored ManagementStateValues = "ignored"
-
-var enumValues_AssetIdentifierAssetIdentifierType = []interface{}{
-	"AssetIdentifier",
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *AssetIdentifierAssetIdentifierType) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_AssetIdentifierAssetIdentifierType {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_AssetIdentifierAssetIdentifierType, v)
-	}
-	*j = AssetIdentifierAssetIdentifierType(v)
-	return nil
-}
-
-const ManagementStateValuesRegarded ManagementStateValues = "regarded"
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *ManagementStateValues) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_ManagementStateValues {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_ManagementStateValues, v)
-	}
-	*j = ManagementStateValues(v)
-	return nil
-}
-
-type SoftwareArtifactFunctionalObjectType string
-
-var enumValues_SoftwareArtifactFunctionalObjectType = []interface{}{
-	"SoftwareArtifact",
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *SoftwareArtifactFunctionalObjectType) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_SoftwareArtifactFunctionalObjectType {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_SoftwareArtifactFunctionalObjectType, v)
-	}
-	*j = SoftwareArtifactFunctionalObjectType(v)
-	return nil
-}
-
-const SoftwareArtifactFunctionalObjectTypeSoftwareArtifact SoftwareArtifactFunctionalObjectType = "SoftwareArtifact"
-
-type SoftwareIdentifierAssetIdentifierType string
-
-var enumValues_SoftwareIdentifierAssetIdentifierType = []interface{}{
-	"SoftwareIdentifier",
-}
-
-type GatewayFunctionalObjectType string
-
-const SoftwareIdentifierAssetIdentifierTypeSoftwareIdentifier SoftwareIdentifierAssetIdentifierType = "SoftwareIdentifier"
-
-// Well established
-type SoftwareIdentifier struct {
-	// Type designator that provides support for polymorphism using asset identifiers.
-	AssetIdentifierType *SoftwareIdentifierAssetIdentifierType `json:"asset_identifier_type,omitempty" yaml:"asset_identifier_type,omitempty" mapstructure:"asset_identifier_type,omitempty"`
-
-	// Type of an items identifier.
-	IdentifierType *string `json:"identifier_type,omitempty" yaml:"identifier_type,omitempty" mapstructure:"identifier_type,omitempty"`
-
-	// Number that tells how uncertain an identifier is compared with other
-	// identifiers provided by an Asset Link. The highest the number, the more
-	// uncertain the identification must be considered. This number has to be
-	// considered relative to the other identifiers for the same element. The default
-	// value is 0, meaning no uncertainty.
-	// This index helps decide across Asset Links which identifiers are better suited
-	// for deduplication. The identifier provided by two different Asset Links with
-	// the lowest uncertainty should be chosen for deduplication purposes.
-	IdentifierUncertainty *int `json:"identifier_uncertainty,omitempty" yaml:"identifier_uncertainty,omitempty" mapstructure:"identifier_uncertainty,omitempty"`
-
-	// The name of the item.
-	Name *string `json:"name,omitempty" yaml:"name,omitempty" mapstructure:"name,omitempty"`
-
-	// Version of a software artifact.
-	Version *string `json:"version,omitempty" yaml:"version,omitempty" mapstructure:"version,omitempty"`
-}
-
-// Software asset representing software on rest.
-type SoftwareArtifact struct {
-	// An asset identifier is an asset attribute that provides enough information to
-	// unequivocally identify the represented object.
-	// In some cases the ID attribute acts simultaneously as a reference for the asset
-	// instance and as identifier for the represented object, otherwise at least one
-	// asset identifier is needed.
-	// There can be multiple asset_identifiers with different goals. For example, the
-	// information of a metal nameplate can be used by a human-being to identify a
-	// device represented by an asset instance, but a software certificate provided by
-	// a device might help a software component identify the device in the network,...
-	// An asset identifier might have an identifier_type, that defines its format and
-	// possibly even semantics.
-	AssetIdentifiers []interface{} `json:"asset_identifiers,omitempty" yaml:"asset_identifiers,omitempty" mapstructure:"asset_identifiers,omitempty"`
-
-	// List of device management operations supported by an asset. Each operation type
-	// might appear only once.
-	AssetOperations []AssetOperation `json:"asset_operations,omitempty" yaml:"asset_operations,omitempty" mapstructure:"asset_operations,omitempty"`
-
-	// Provides an AssetIdentifier based on a SoftwareArtifact checksum
-	ChecksumIdentifier *ArtifactChecksum `json:"checksum_identifier,omitempty" yaml:"checksum_identifier,omitempty" mapstructure:"checksum_identifier,omitempty"`
-
-	// An asset might have a connection point that can be used to connect with the
-	// asset. In the case of devices, at least one connection point is required. It
-	// might be a connection point needed for AssetManagement for interaction with the
-	// asset or for other connections of the asset related to the asset function but
-	// not to device management.
-	ConnectionPoints []interface{} `json:"connection_points,omitempty" yaml:"connection_points,omitempty" mapstructure:"connection_points,omitempty"`
-
-	// Metadata associated with Asset in User Interface
-	CustomUiProperties []CustomProperty `json:"custom_ui_properties,omitempty" yaml:"custom_ui_properties,omitempty" mapstructure:"custom_ui_properties,omitempty"`
-
-	// Type designator that provides support for polymorphism using functional parts.
-	FunctionalObjectType *SoftwareArtifactFunctionalObjectType `json:"functional_object_type,omitempty" yaml:"functional_object_type,omitempty" mapstructure:"functional_object_type,omitempty"`
-
-	// The functional objects that an asset is composed of, in case such a level of
-	// decomposition is desired. This is enables having assets composed of other
-	// assets and even devices composed of other devices and assets.
-	// An Asset must be addressable independently from other Assets (therefore they
-	// need to have an "id") and are therefore individually modeled. But not all parts
-	// of an Asset that are modeled need to be individually addressable, these are
-	// FunctionalObjects, but not Assets.
-	// Probably those functional_parts of an Asset providing some function for the
-	// Asset will be modeled here. Therefore an Asset can delegate the Interactions
-	// that it's offering to its functional_parts.
-	FunctionalParts []interface{} `json:"functional_parts,omitempty" yaml:"functional_parts,omitempty" mapstructure:"functional_parts,omitempty"`
-
-	// The identifier property represents any kind of identifier for any kind of
-	// Thing, such as ISBNs, GTIN codes, UUIDs etc. Schema.org provides dedicated
-	// properties for representing many of these, either as textual strings or as URL
-	// (URI) links.
-	Id string `json:"id" yaml:"id" mapstructure:"id"`
-
-	// Metadata associated to an object.
-	InstanceAnnotations []InstanceAnnotation `json:"instance_annotations,omitempty" yaml:"instance_annotations,omitempty" mapstructure:"instance_annotations,omitempty"`
-
-	// Flag that marks that the software artifact is being provided by a hardware
-	// manufacturer for one or more of its devices.
-	// In contrast with other software artifacts, updating the software of firmware
-	// requires contacting the source specified by the device manufacturer.
-	// Due to this definition, firmware in IAH has a much wider scope than in some
-	// domains, where firmware is only meant to be close-to-the-silicon software.
-	IsFirmware *bool `json:"is_firmware,omitempty" yaml:"is_firmware,omitempty" mapstructure:"is_firmware,omitempty"`
-
-	// Timestamp of last asset modification
-	LastModifiedTimestamp *string `json:"last_modified_timestamp,omitempty" yaml:"last_modified_timestamp,omitempty" mapstructure:"last_modified_timestamp,omitempty"`
-
-	// A manage state is an attribute of an asset that specifies how an asset is being
-	// regarded by an asset management system (is it being regarded or ignored). Some
-	// assets might be known to the Industrial Asset Hub (for example, discovered
-	// through a network scan), but want to be ignored for different reasons.
-	// The goals of this attribute are: to avoid rediscovering assets being ignored
-	// and to focus management activities on those assets being regarded.
-	// Assets that can be discovered, but not supported, might evolve from an
-	// "ignored" to a "regarded" state, once supported.
-	ManagementState ManagementState `json:"management_state" yaml:"management_state" mapstructure:"management_state"`
-
-	// The name of the item.
-	Name *string `json:"name,omitempty" yaml:"name,omitempty" mapstructure:"name,omitempty"`
-
-	// Specify the state of other aspects apart from management state.
-	OtherStates []State `json:"other_states,omitempty" yaml:"other_states,omitempty" mapstructure:"other_states,omitempty"`
-
-	// Identifier of a device based on its serial number.
-	ProductInstanceIdentifier *ProductSerialIdentifier `json:"product_instance_identifier,omitempty" yaml:"product_instance_identifier,omitempty" mapstructure:"product_instance_identifier,omitempty"`
-
-	// A slot to track the last observed reachability state and when it was observed.
-	ReachabilityState *ReachabilityState `json:"reachability_state,omitempty" yaml:"reachability_state,omitempty" mapstructure:"reachability_state,omitempty"`
-
-	// An asset can host software artifacts that might want to be tracked. This can be
-	// used simply to keep track of the firmware version or to keep a full-blown
-	// Software Bill of Material (SBOM).
-	// Please notice that this attribute is not meant to model relationships between
-	// the different software assets available in a device. Static relationships
-	// implicit to the SoftwareAssets themselves (like "firmware image A contains
-	// package X" or "package X depends on package Y") might be modeled on the
-	// Software Assets, if desired. Although it probably goes beyond the purpose of
-	// asset modeling. Deployment dependent relationships (like "firmware image needs
-	// to be installed before installing app") might be modeled as external
-	// AssetLinks, if desired. Once again it probably goes beyond the purpose of asset
-	// modeling.
-	SoftwareComponents []interface{} `json:"software_components,omitempty" yaml:"software_components,omitempty" mapstructure:"software_components,omitempty"`
-
-	// Identifier for a software artifact based on the well-established pattern name
-	// and version.
-	SoftwareIdentifier *SoftwareIdentifier `json:"software_identifier,omitempty" yaml:"software_identifier,omitempty" mapstructure:"software_identifier,omitempty"`
-
-	// Provides references to the different zones that an asset belongs to.
-	// Zones are typically used to group assets logically mostly for the purpose of
-	// access control. That way it is possible to give certain roles or persons
-	// specific permissions to all assets associated to a zone.
-	Zone *string `json:"zone,omitempty" yaml:"zone,omitempty" mapstructure:"zone,omitempty"`
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *SoftwareArtifact) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if v, ok := raw["id"]; !ok || v == nil {
-		return fmt.Errorf("field id in SoftwareArtifact: required")
-	}
-	if v, ok := raw["management_state"]; !ok || v == nil {
-		return fmt.Errorf("field management_state in SoftwareArtifact: required")
-	}
-	type Plain SoftwareArtifact
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = SoftwareArtifact(plain)
-	return nil
-}
-
-var enumValues_ManagementStateValues = []interface{}{
-	"regarded",
-	"ignored",
-	"unknown",
-}
-var enumValues_AssetLinkFunctionalObjectType = []interface{}{
-	"AssetLink",
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *AssetLinkFunctionalObjectType) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_AssetLinkFunctionalObjectType {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_AssetLinkFunctionalObjectType, v)
-	}
-	*j = AssetLinkFunctionalObjectType(v)
-	return nil
-}
-
-type ManagementStateValues string
-
-type RunningSoftwareValues string
-
-var enumValues_RunningSoftwareValues = []interface{}{
-	"cdm_gateway",
-	"iah_gateway",
-	"other",
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *RunningSoftwareValues) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_RunningSoftwareValues {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_RunningSoftwareValues, v)
-	}
-	*j = RunningSoftwareValues(v)
-	return nil
-}
-
-const RunningSoftwareValuesCdmGateway RunningSoftwareValues = "cdm_gateway"
-const RunningSoftwareValuesIahGateway RunningSoftwareValues = "iah_gateway"
-const RunningSoftwareValuesOther RunningSoftwareValues = "other"
-
-// Key/value pair that can be used to add metadata to an object.
-type InstanceAnnotation struct {
-	// The identifier of a key/value pair.
-	Key *string `json:"key,omitempty" yaml:"key,omitempty" mapstructure:"key,omitempty"`
-
-	// The real metadata of a key/value pair.
-	Value *string `json:"value,omitempty" yaml:"value,omitempty" mapstructure:"value,omitempty"`
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *AssetLink) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if v, ok := raw["id"]; !ok || v == nil {
-		return fmt.Errorf("field id in AssetLink: required")
-	}
-	if v, ok := raw["management_state"]; !ok || v == nil {
-		return fmt.Errorf("field management_state in AssetLink: required")
-	}
-	type Plain AssetLink
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = AssetLink(plain)
-	return nil
-}
-
-type PredicateValues string
-
-var enumValues_PredicateValues = []interface{}{
-	"related_to",
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *PredicateValues) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_PredicateValues {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_PredicateValues, v)
-	}
-	*j = PredicateValues(v)
-	return nil
-}
-
-const PredicateValuesRelatedTo PredicateValues = "related_to"
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *AssetFunctionalObjectType) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_AssetFunctionalObjectType {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_AssetFunctionalObjectType, v)
-	}
-	*j = AssetFunctionalObjectType(v)
-	return nil
-}
-
-var enumValues_AssetFunctionalObjectType = []interface{}{
-	"Asset",
-}
-var enumValues_ConnectionPointConnectionPointType = []interface{}{
-	"ConnectionPoint",
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *ConnectionPointConnectionPointType) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_ConnectionPointConnectionPointType {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_ConnectionPointConnectionPointType, v)
-	}
-	*j = ConnectionPointConnectionPointType(v)
-	return nil
-}
-
-// The mailing address.
-type PostalAddress struct {
-	// 2-letter code of the country.
-	AddressCountry *CountryCode `json:"address_country,omitempty" yaml:"address_country,omitempty" mapstructure:"address_country,omitempty"`
-
-	// Locality name in the local language.
-	AddressLocality *string `json:"address_locality,omitempty" yaml:"address_locality,omitempty" mapstructure:"address_locality,omitempty"`
-
-	// Region name in the local language.
-	AddressRegion *string `json:"address_region,omitempty" yaml:"address_region,omitempty" mapstructure:"address_region,omitempty"`
-
-	// Email address.
-	Email *string `json:"email,omitempty" yaml:"email,omitempty" mapstructure:"email,omitempty"`
-
-	// The identifier property represents any kind of identifier for any kind of
-	// Thing, such as ISBNs, GTIN codes, UUIDs etc. Schema.org provides dedicated
-	// properties for representing many of these, either as textual strings or as URL
-	// (URI) links.
-	Id string `json:"id" yaml:"id" mapstructure:"id"`
-
-	// The name of the item.
-	Name *string `json:"name,omitempty" yaml:"name,omitempty" mapstructure:"name,omitempty"`
-
-	// Postal code (AKA ZIP-code) of the address.
-	PostalCode *string `json:"postal_code,omitempty" yaml:"postal_code,omitempty" mapstructure:"postal_code,omitempty"`
-
-	// Street and number of the address.
-	StreetAddress *string `json:"street_address,omitempty" yaml:"street_address,omitempty" mapstructure:"street_address,omitempty"`
-
-	// The telephone number.
-	Telephone *string `json:"telephone,omitempty" yaml:"telephone,omitempty" mapstructure:"telephone,omitempty"`
-}
-
-// Relationship of a ConnectionPoint with another one. This relationship could be
-// of the type "ConnectionPoint A relies on the connectivity of ConnectionPoint B
-// to work".
-type RelatedConnectionPoint struct {
-	// Reference to the related ConnectionPoint.
-	ConnectionPoint *string `json:"connection_point,omitempty" yaml:"connection_point,omitempty" mapstructure:"connection_point,omitempty"`
-
-	// Type of relationship in an unstructured format.
-	CustomRelationship *string `json:"custom_relationship,omitempty" yaml:"custom_relationship,omitempty" mapstructure:"custom_relationship,omitempty"`
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *ArtifactChecksumAssetIdentifierType) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_ArtifactChecksumAssetIdentifierType {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_ArtifactChecksumAssetIdentifierType, v)
-	}
-	*j = ArtifactChecksumAssetIdentifierType(v)
-	return nil
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *ConnectionPoint) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if v, ok := raw["id"]; !ok || v == nil {
-		return fmt.Errorf("field id in ConnectionPoint: required")
-	}
-	type Plain ConnectionPoint
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = ConnectionPoint(plain)
-	return nil
-}
-
-// State in which a certain item be.
-type State struct {
-	// Time when the current state has been observed.
-	StateTimestamp *string `json:"state_timestamp,omitempty" yaml:"state_timestamp,omitempty" mapstructure:"state_timestamp,omitempty"`
-
-	// The state of an object.
-	StateValue *string `json:"state_value,omitempty" yaml:"state_value,omitempty" mapstructure:"state_value,omitempty"`
-}
-
-var enumValues_DcdFunctionalObjectType = []interface{}{
-	"Dcd",
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *DcdFunctionalObjectType) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_DcdFunctionalObjectType {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_DcdFunctionalObjectType, v)
-	}
-	*j = DcdFunctionalObjectType(v)
-	return nil
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *CountryCode) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_CountryCode {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_CountryCode, v)
-	}
-	*j = CountryCode(v)
-	return nil
-}
-
 var enumValues_CountryCode = []interface{}{
 	"af",
 	"ax",
@@ -1914,24 +1067,306 @@ var enumValues_CountryCode = []interface{}{
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *FunctionalObject) UnmarshalJSON(b []byte) error {
+func (j *CountryCode) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_CountryCode {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_CountryCode, v)
+	}
+	*j = CountryCode(v)
+	return nil
+}
+
+// Instance annotation hosting a custom property with a label.
+type CustomProperty struct {
+	// The identifier of a key/value pair.
+	Key *string `json:"key,omitempty" yaml:"key,omitempty" mapstructure:"key,omitempty"`
+
+	// Human readable label to show the property in the UI.
+	Label *string `json:"label,omitempty" yaml:"label,omitempty" mapstructure:"label,omitempty"`
+
+	// The real metadata of a key/value pair.
+	Value *string `json:"value,omitempty" yaml:"value,omitempty" mapstructure:"value,omitempty"`
+}
+
+// Device Class Driver (DCD) running and registered.
+type Dcd struct {
+	// Reference to the software artifact which the running software has been
+	// instantiated from.
+	// As of now the combination of multiple software artifacts into a running
+	// software (for example with plug-ins) is not supported and can not be natively
+	// modeled. Instance annotations need to be used for that purpose.
+	Artifact *SoftwareArtifact `json:"artifact,omitempty" yaml:"artifact,omitempty" mapstructure:"artifact,omitempty"`
+
+	// An asset identifier is an asset attribute that provides enough information to
+	// unequivocally identify the represented object.
+	// In some cases the ID attribute acts simultaneously as a reference for the asset
+	// instance and as identifier for the represented object, otherwise at least one
+	// asset identifier is needed.
+	// There can be multiple asset_identifiers with different goals. For example, the
+	// information of a metal nameplate can be used by a human-being to identify a
+	// device represented by an asset instance, but a software certificate provided by
+	// a device might help a software component identify the device in the network,...
+	// An asset identifier might have an identifier_type, that defines its format and
+	// possibly even semantics.
+	AssetIdentifiers []interface{} `json:"asset_identifiers,omitempty" yaml:"asset_identifiers,omitempty" mapstructure:"asset_identifiers,omitempty"`
+
+	// List of device management operations supported by an asset. Each operation type
+	// might appear only once.
+	AssetOperations []AssetOperation `json:"asset_operations,omitempty" yaml:"asset_operations,omitempty" mapstructure:"asset_operations,omitempty"`
+
+	// An asset might have a connection point that can be used to connect with the
+	// asset. In the case of devices, at least one connection point is required. It
+	// might be a connection point needed for AssetManagement for interaction with the
+	// asset or for other connections of the asset related to the asset function but
+	// not to device management.
+	ConnectionPoints []interface{} `json:"connection_points,omitempty" yaml:"connection_points,omitempty" mapstructure:"connection_points,omitempty"`
+
+	// Custom running software type.
+	CustomRunningSoftwareType *string `json:"custom_running_software_type,omitempty" yaml:"custom_running_software_type,omitempty" mapstructure:"custom_running_software_type,omitempty"`
+
+	// Metadata associated with Asset in User Interface
+	CustomUiProperties []CustomProperty `json:"custom_ui_properties,omitempty" yaml:"custom_ui_properties,omitempty" mapstructure:"custom_ui_properties,omitempty"`
+
+	// Type designator that provides support for polymorphism using functional parts.
+	FunctionalObjectType *DcdFunctionalObjectType `json:"functional_object_type,omitempty" yaml:"functional_object_type,omitempty" mapstructure:"functional_object_type,omitempty"`
+
+	// The functional objects that an asset is composed of, in case such a level of
+	// decomposition is desired. This is enables having assets composed of other
+	// assets and even devices composed of other devices and assets.
+	// An Asset must be addressable independently from other Assets (therefore they
+	// need to have an "id") and are therefore individually modeled. But not all parts
+	// of an Asset that are modeled need to be individually addressable, these are
+	// FunctionalObjects, but not Assets.
+	// Probably those functional_parts of an Asset providing some function for the
+	// Asset will be modeled here. Therefore an Asset can delegate the Interactions
+	// that it's offering to its functional_parts.
+	FunctionalParts []interface{} `json:"functional_parts,omitempty" yaml:"functional_parts,omitempty" mapstructure:"functional_parts,omitempty"`
+
+	// The identifier property represents any kind of identifier for any kind of
+	// Thing, such as ISBNs, GTIN codes, UUIDs etc. Schema.org provides dedicated
+	// properties for representing many of these, either as textual strings or as URL
+	// (URI) links.
+	Id string `json:"id" yaml:"id" mapstructure:"id"`
+
+	// Metadata associated to an object.
+	InstanceAnnotations []InstanceAnnotation `json:"instance_annotations,omitempty" yaml:"instance_annotations,omitempty" mapstructure:"instance_annotations,omitempty"`
+
+	// Timestamp of last asset modification
+	LastModifiedTimestamp *time.Time `json:"last_modified_timestamp,omitempty" yaml:"last_modified_timestamp,omitempty" mapstructure:"last_modified_timestamp,omitempty"`
+
+	// A manage state is an attribute of an asset that specifies how an asset is being
+	// regarded by an asset management system (is it being regarded or ignored). Some
+	// assets might be known to the Industrial Asset Hub (for example, discovered
+	// through a network scan), but want to be ignored for different reasons.
+	// The goals of this attribute are: to avoid rediscovering assets being ignored
+	// and to focus management activities on those assets being regarded.
+	// Assets that can be discovered, but not supported, might evolve from an
+	// "ignored" to a "regarded" state, once supported.
+	ManagementState ManagementState `json:"management_state" yaml:"management_state" mapstructure:"management_state"`
+
+	// The name of the item.
+	Name *string `json:"name,omitempty" yaml:"name,omitempty" mapstructure:"name,omitempty"`
+
+	// Specify the state of other aspects apart from management state.
+	OtherStates []State `json:"other_states,omitempty" yaml:"other_states,omitempty" mapstructure:"other_states,omitempty"`
+
+	// Identifier of a device based on its serial number.
+	ProductInstanceIdentifier *ProductSerialIdentifier `json:"product_instance_identifier,omitempty" yaml:"product_instance_identifier,omitempty" mapstructure:"product_instance_identifier,omitempty"`
+
+	// A slot to track the last observed reachability state and when it was observed.
+	ReachabilityState *ReachabilityState `json:"reachability_state,omitempty" yaml:"reachability_state,omitempty" mapstructure:"reachability_state,omitempty"`
+
+	// Type of running software.
+	RunningSoftwareType *RunningSoftwareValues `json:"running_software_type,omitempty" yaml:"running_software_type,omitempty" mapstructure:"running_software_type,omitempty"`
+
+	// Identifier for a running software instance.
+	RunningSwId *string `json:"running_sw_id,omitempty" yaml:"running_sw_id,omitempty" mapstructure:"running_sw_id,omitempty"`
+
+	// An asset can host software artifacts that might want to be tracked. This can be
+	// used simply to keep track of the firmware version or to keep a full-blown
+	// Software Bill of Material (SBOM).
+	// Please notice that this attribute is not meant to model relationships between
+	// the different software assets available in a device. Static relationships
+	// implicit to the SoftwareAssets themselves (like "firmware image A contains
+	// package X" or "package X depends on package Y") might be modeled on the
+	// Software Assets, if desired. Although it probably goes beyond the purpose of
+	// asset modeling. Deployment dependent relationships (like "firmware image needs
+	// to be installed before installing app") might be modeled as external
+	// AssetLinks, if desired. Once again it probably goes beyond the purpose of asset
+	// modeling.
+	SoftwareComponents []interface{} `json:"software_components,omitempty" yaml:"software_components,omitempty" mapstructure:"software_components,omitempty"`
+
+	// Provides references to the different zones that an asset belongs to.
+	// Zones are typically used to group assets logically mostly for the purpose of
+	// access control. That way it is possible to give certain roles or persons
+	// specific permissions to all assets associated to a zone.
+	Zone *string `json:"zone,omitempty" yaml:"zone,omitempty" mapstructure:"zone,omitempty"`
+}
+
+type DcdFunctionalObjectType string
+
+const DcdFunctionalObjectTypeDcd DcdFunctionalObjectType = "Dcd"
+
+var enumValues_DcdFunctionalObjectType = []interface{}{
+	"Dcd",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *DcdFunctionalObjectType) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_DcdFunctionalObjectType {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_DcdFunctionalObjectType, v)
+	}
+	*j = DcdFunctionalObjectType(v)
+	return nil
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *Dcd) UnmarshalJSON(b []byte) error {
 	var raw map[string]interface{}
 	if err := json.Unmarshal(b, &raw); err != nil {
 		return err
 	}
-	if v, ok := raw["id"]; !ok || v == nil {
-		return fmt.Errorf("field id in FunctionalObject: required")
+	if _, ok := raw["id"]; raw != nil && !ok {
+		return fmt.Errorf("field id in Dcd: required")
 	}
-	type Plain FunctionalObject
+	if _, ok := raw["management_state"]; raw != nil && !ok {
+		return fmt.Errorf("field management_state in Dcd: required")
+	}
+	type Plain Dcd
 	var plain Plain
 	if err := json.Unmarshal(b, &plain); err != nil {
 		return err
 	}
-	*j = FunctionalObject(plain)
+	*j = Dcd(plain)
 	return nil
 }
 
-const ProductSerialIdentifierAssetIdentifierTypeProductSerialIdentifier ProductSerialIdentifierAssetIdentifierType = "ProductSerialIdentifier"
+// A device is a special type of asset that can be managed with some asset
+// management system. In order to be manageable, it requires at least one
+// connection point for the asset management to communicate with the device and
+// software capable of interacting with the asset management.
+type Device struct {
+	// An asset identifier is an asset attribute that provides enough information to
+	// unequivocally identify the represented object.
+	// In some cases the ID attribute acts simultaneously as a reference for the asset
+	// instance and as identifier for the represented object, otherwise at least one
+	// asset identifier is needed.
+	// There can be multiple asset_identifiers with different goals. For example, the
+	// information of a metal nameplate can be used by a human-being to identify a
+	// device represented by an asset instance, but a software certificate provided by
+	// a device might help a software component identify the device in the network,...
+	// An asset identifier might have an identifier_type, that defines its format and
+	// possibly even semantics.
+	AssetIdentifiers []interface{} `json:"asset_identifiers,omitempty" yaml:"asset_identifiers,omitempty" mapstructure:"asset_identifiers,omitempty"`
+
+	// List of device management operations supported by an asset. Each operation type
+	// might appear only once.
+	AssetOperations []AssetOperation `json:"asset_operations,omitempty" yaml:"asset_operations,omitempty" mapstructure:"asset_operations,omitempty"`
+
+	// An asset might have a connection point that can be used to connect with the
+	// asset. In the case of devices, at least one connection point is required. It
+	// might be a connection point needed for AssetManagement for interaction with the
+	// asset or for other connections of the asset related to the asset function but
+	// not to device management.
+	ConnectionPoints []interface{} `json:"connection_points,omitempty" yaml:"connection_points,omitempty" mapstructure:"connection_points,omitempty"`
+
+	// Metadata associated with Asset in User Interface
+	CustomUiProperties []CustomProperty `json:"custom_ui_properties,omitempty" yaml:"custom_ui_properties,omitempty" mapstructure:"custom_ui_properties,omitempty"`
+
+	// Type designator that provides support for polymorphism using functional parts.
+	FunctionalObjectType *DeviceFunctionalObjectType `json:"functional_object_type,omitempty" yaml:"functional_object_type,omitempty" mapstructure:"functional_object_type,omitempty"`
+
+	// The functional objects that an asset is composed of, in case such a level of
+	// decomposition is desired. This is enables having assets composed of other
+	// assets and even devices composed of other devices and assets.
+	// An Asset must be addressable independently from other Assets (therefore they
+	// need to have an "id") and are therefore individually modeled. But not all parts
+	// of an Asset that are modeled need to be individually addressable, these are
+	// FunctionalObjects, but not Assets.
+	// Probably those functional_parts of an Asset providing some function for the
+	// Asset will be modeled here. Therefore an Asset can delegate the Interactions
+	// that it's offering to its functional_parts.
+	FunctionalParts []interface{} `json:"functional_parts,omitempty" yaml:"functional_parts,omitempty" mapstructure:"functional_parts,omitempty"`
+
+	// The identifier property represents any kind of identifier for any kind of
+	// Thing, such as ISBNs, GTIN codes, UUIDs etc. Schema.org provides dedicated
+	// properties for representing many of these, either as textual strings or as URL
+	// (URI) links.
+	Id string `json:"id" yaml:"id" mapstructure:"id"`
+
+	// Metadata associated to an object.
+	InstanceAnnotations []InstanceAnnotation `json:"instance_annotations,omitempty" yaml:"instance_annotations,omitempty" mapstructure:"instance_annotations,omitempty"`
+
+	// Timestamp of last asset modification
+	LastModifiedTimestamp *time.Time `json:"last_modified_timestamp,omitempty" yaml:"last_modified_timestamp,omitempty" mapstructure:"last_modified_timestamp,omitempty"`
+
+	// A manage state is an attribute of an asset that specifies how an asset is being
+	// regarded by an asset management system (is it being regarded or ignored). Some
+	// assets might be known to the Industrial Asset Hub (for example, discovered
+	// through a network scan), but want to be ignored for different reasons.
+	// The goals of this attribute are: to avoid rediscovering assets being ignored
+	// and to focus management activities on those assets being regarded.
+	// Assets that can be discovered, but not supported, might evolve from an
+	// "ignored" to a "regarded" state, once supported.
+	ManagementState ManagementState `json:"management_state" yaml:"management_state" mapstructure:"management_state"`
+
+	// The name of the item.
+	Name *string `json:"name,omitempty" yaml:"name,omitempty" mapstructure:"name,omitempty"`
+
+	// Specify the state of other aspects apart from management state.
+	OtherStates []State `json:"other_states,omitempty" yaml:"other_states,omitempty" mapstructure:"other_states,omitempty"`
+
+	// Identifier of a device based on its serial number.
+	ProductInstanceIdentifier *ProductSerialIdentifier `json:"product_instance_identifier,omitempty" yaml:"product_instance_identifier,omitempty" mapstructure:"product_instance_identifier,omitempty"`
+
+	// A slot to track the last observed reachability state and when it was observed.
+	ReachabilityState ReachabilityState `json:"reachability_state" yaml:"reachability_state" mapstructure:"reachability_state"`
+
+	// An asset can host software artifacts that might want to be tracked. This can be
+	// used simply to keep track of the firmware version or to keep a full-blown
+	// Software Bill of Material (SBOM).
+	// Please notice that this attribute is not meant to model relationships between
+	// the different software assets available in a device. Static relationships
+	// implicit to the SoftwareAssets themselves (like "firmware image A contains
+	// package X" or "package X depends on package Y") might be modeled on the
+	// Software Assets, if desired. Although it probably goes beyond the purpose of
+	// asset modeling. Deployment dependent relationships (like "firmware image needs
+	// to be installed before installing app") might be modeled as external
+	// AssetLinks, if desired. Once again it probably goes beyond the purpose of asset
+	// modeling.
+	SoftwareComponents []interface{} `json:"software_components" yaml:"software_components" mapstructure:"software_components"`
+
+	// Provides references to the different zones that an asset belongs to.
+	// Zones are typically used to group assets logically mostly for the purpose of
+	// access control. That way it is possible to give certain roles or persons
+	// specific permissions to all assets associated to a zone.
+	Zone *string `json:"zone,omitempty" yaml:"zone,omitempty" mapstructure:"zone,omitempty"`
+}
+
+type DeviceFunctionalObjectType string
+
+const DeviceFunctionalObjectTypeDevice DeviceFunctionalObjectType = "Device"
 
 var enumValues_DeviceFunctionalObjectType = []interface{}{
 	"Device",
@@ -1958,45 +1393,21 @@ func (j *DeviceFunctionalObjectType) UnmarshalJSON(b []byte) error {
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *ProductSerialIdentifierAssetIdentifierType) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_ProductSerialIdentifierAssetIdentifierType {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_ProductSerialIdentifierAssetIdentifierType, v)
-	}
-	*j = ProductSerialIdentifierAssetIdentifierType(v)
-	return nil
-}
-
-var enumValues_ProductSerialIdentifierAssetIdentifierType = []interface{}{
-	"ProductSerialIdentifier",
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
 func (j *Device) UnmarshalJSON(b []byte) error {
 	var raw map[string]interface{}
 	if err := json.Unmarshal(b, &raw); err != nil {
 		return err
 	}
-	if v, ok := raw["id"]; !ok || v == nil {
+	if _, ok := raw["id"]; raw != nil && !ok {
 		return fmt.Errorf("field id in Device: required")
 	}
-	if v, ok := raw["management_state"]; !ok || v == nil {
+	if _, ok := raw["management_state"]; raw != nil && !ok {
 		return fmt.Errorf("field management_state in Device: required")
 	}
-	if v, ok := raw["reachability_state"]; !ok || v == nil {
+	if _, ok := raw["reachability_state"]; raw != nil && !ok {
 		return fmt.Errorf("field reachability_state in Device: required")
 	}
-	if v, ok := raw["software_components"]; !ok || v == nil {
+	if _, ok := raw["software_components"]; raw != nil && !ok {
 		return fmt.Errorf("field software_components in Device: required")
 	}
 	type Plain Device
@@ -2008,7 +1419,40 @@ func (j *Device) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+// A hardware ConnectionPoint that supports one of the Ethernet networking protocol
+// as defined in the standard [IEEE
+// 802.3](https://en.wikipedia.org/wiki/IEEE_802.3).
+type EthernetPort struct {
+	// Type designator that provides support for polymorphism using connection points.
+	ConnectionPointType *EthernetPortConnectionPointType `json:"connection_point_type,omitempty" yaml:"connection_point_type,omitempty" mapstructure:"connection_point_type,omitempty"`
+
+	// The identifier property represents any kind of identifier for any kind of
+	// Thing, such as ISBNs, GTIN codes, UUIDs etc. Schema.org provides dedicated
+	// properties for representing many of these, either as textual strings or as URL
+	// (URI) links.
+	Id string `json:"id" yaml:"id" mapstructure:"id"`
+
+	// Metadata associated to an object.
+	InstanceAnnotations []InstanceAnnotation `json:"instance_annotations,omitempty" yaml:"instance_annotations,omitempty" mapstructure:"instance_annotations,omitempty"`
+
+	// The MAC address of the port. It is expected to be fixed, but in some ethernet
+	// ports it can be changed.
+	// An asset instance must provide for each ethernet port the default MAC address.
+	MacAddress *string `json:"mac_address,omitempty" yaml:"mac_address,omitempty" mapstructure:"mac_address,omitempty"`
+
+	// A connection point might rely on another connection point to work.
+	// Examples: a TCP/IP connection can only work if there is some kind of connection
+	// point at physical level (e.g. Ethernet Port, Bluetooth Port), a container might
+	// be connected over a virtual ethernet to a software bridge, a software bridge
+	// might be directly connected to an ethernet port.
+	// This attribute enables modeling these kind of dependencies in a limited way.
+	// Other modeling mechanisms might be needed to model complex networking set-ups.
+	RelatedConnectionPoints []RelatedConnectionPoint `json:"related_connection_points,omitempty" yaml:"related_connection_points,omitempty" mapstructure:"related_connection_points,omitempty"`
+}
+
 type EthernetPortConnectionPointType string
+
+const EthernetPortConnectionPointTypeEthernetPort EthernetPortConnectionPointType = "EthernetPort"
 
 var enumValues_EthernetPortConnectionPointType = []interface{}{
 	"EthernetPort",
@@ -2034,9 +1478,23 @@ func (j *EthernetPortConnectionPointType) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-const EthernetPortConnectionPointTypeEthernetPort EthernetPortConnectionPointType = "EthernetPort"
-
-type ProductSerialIdentifierAssetIdentifierType string
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *EthernetPort) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if _, ok := raw["id"]; raw != nil && !ok {
+		return fmt.Errorf("field id in EthernetPort: required")
+	}
+	type Plain EthernetPort
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = EthernetPort(plain)
+	return nil
+}
 
 // A part of a system, and has a function whose realization contributes to the
 // performance of the system as a whole.
@@ -2058,6 +1516,8 @@ type FunctionalObject struct {
 }
 
 type FunctionalObjectFunctionalObjectType string
+
+const FunctionalObjectFunctionalObjectTypeFunctionalObject FunctionalObjectFunctionalObjectType = "FunctionalObject"
 
 var enumValues_FunctionalObjectFunctionalObjectType = []interface{}{
 	"FunctionalObject",
@@ -2083,181 +1543,22 @@ func (j *FunctionalObjectFunctionalObjectType) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-const FunctionalObjectFunctionalObjectTypeFunctionalObject FunctionalObjectFunctionalObjectType = "FunctionalObject"
-
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *EthernetPort) UnmarshalJSON(b []byte) error {
+func (j *FunctionalObject) UnmarshalJSON(b []byte) error {
 	var raw map[string]interface{}
 	if err := json.Unmarshal(b, &raw); err != nil {
 		return err
 	}
-	if v, ok := raw["id"]; !ok || v == nil {
-		return fmt.Errorf("field id in EthernetPort: required")
+	if _, ok := raw["id"]; raw != nil && !ok {
+		return fmt.Errorf("field id in FunctionalObject: required")
 	}
-	type Plain EthernetPort
+	type Plain FunctionalObject
 	var plain Plain
 	if err := json.Unmarshal(b, &plain); err != nil {
 		return err
 	}
-	*j = EthernetPort(plain)
+	*j = FunctionalObject(plain)
 	return nil
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *PostalAddress) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if v, ok := raw["id"]; !ok || v == nil {
-		return fmt.Errorf("field id in PostalAddress: required")
-	}
-	type Plain PostalAddress
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = PostalAddress(plain)
-	return nil
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *SoftwareIdentifierAssetIdentifierType) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_SoftwareIdentifierAssetIdentifierType {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_SoftwareIdentifierAssetIdentifierType, v)
-	}
-	*j = SoftwareIdentifierAssetIdentifierType(v)
-	return nil
-}
-
-var enumValues_GatewayFunctionalObjectType = []interface{}{
-	"Gateway",
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *GatewayFunctionalObjectType) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_GatewayFunctionalObjectType {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_GatewayFunctionalObjectType, v)
-	}
-	*j = GatewayFunctionalObjectType(v)
-	return nil
-}
-
-const GatewayFunctionalObjectTypeGateway GatewayFunctionalObjectType = "Gateway"
-
-type GatewayIdentifierAssetIdentifierType string
-
-var enumValues_GatewayIdentifierAssetIdentifierType = []interface{}{
-	"GatewayIdentifier",
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *GatewayIdentifierAssetIdentifierType) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_GatewayIdentifierAssetIdentifierType {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_GatewayIdentifierAssetIdentifierType, v)
-	}
-	*j = GatewayIdentifierAssetIdentifierType(v)
-	return nil
-}
-
-const GatewayIdentifierAssetIdentifierTypeGatewayIdentifier GatewayIdentifierAssetIdentifierType = "GatewayIdentifier"
-
-// GatewayId and Base64 encoded version of certificate subject key identifer will
-// be the identifier for the Gateway.
-type GatewayIdentifier struct {
-	// Type designator that provides support for polymorphism using asset identifiers.
-	AssetIdentifierType *GatewayIdentifierAssetIdentifierType `json:"asset_identifier_type,omitempty" yaml:"asset_identifier_type,omitempty" mapstructure:"asset_identifier_type,omitempty"`
-
-	// Base64 encoded version of certificate subject key identifer
-	CertificateId *string `json:"certificate_id,omitempty" yaml:"certificate_id,omitempty" mapstructure:"certificate_id,omitempty"`
-
-	// Type of an items identifier.
-	IdentifierType *string `json:"identifier_type,omitempty" yaml:"identifier_type,omitempty" mapstructure:"identifier_type,omitempty"`
-
-	// Number that tells how uncertain an identifier is compared with other
-	// identifiers provided by an Asset Link. The highest the number, the more
-	// uncertain the identification must be considered. This number has to be
-	// considered relative to the other identifiers for the same element. The default
-	// value is 0, meaning no uncertainty.
-	// This index helps decide across Asset Links which identifiers are better suited
-	// for deduplication. The identifier provided by two different Asset Links with
-	// the lowest uncertainty should be chosen for deduplication purposes.
-	IdentifierUncertainty *int `json:"identifier_uncertainty,omitempty" yaml:"identifier_uncertainty,omitempty" mapstructure:"identifier_uncertainty,omitempty"`
-}
-
-type TrustEstablishedStateValues string
-
-var enumValues_TrustEstablishedStateValues = []interface{}{
-	"trusted",
-	"failed",
-	"pending",
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *TrustEstablishedStateValues) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_TrustEstablishedStateValues {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_TrustEstablishedStateValues, v)
-	}
-	*j = TrustEstablishedStateValues(v)
-	return nil
-}
-
-const TrustEstablishedStateValuesTrusted TrustEstablishedStateValues = "trusted"
-const TrustEstablishedStateValuesFailed TrustEstablishedStateValues = "failed"
-const TrustEstablishedStateValuesPending TrustEstablishedStateValues = "pending"
-
-// The trust establishment state is based on if the asset is a trusted asset or
-// not.
-type TrustEstablishedState struct {
-	// Time when the current state has been observed.
-	StateTimestamp *string `json:"state_timestamp,omitempty" yaml:"state_timestamp,omitempty" mapstructure:"state_timestamp,omitempty"`
-
-	// The state of an object.
-	StateValue *TrustEstablishedStateValues `json:"state_value,omitempty" yaml:"state_value,omitempty" mapstructure:"state_value,omitempty"`
 }
 
 // Gateway as a software asset can be mapped using the class
@@ -2328,7 +1629,7 @@ type Gateway struct {
 	InstanceAnnotations []InstanceAnnotation `json:"instance_annotations,omitempty" yaml:"instance_annotations,omitempty" mapstructure:"instance_annotations,omitempty"`
 
 	// Timestamp of last asset modification
-	LastModifiedTimestamp *string `json:"last_modified_timestamp,omitempty" yaml:"last_modified_timestamp,omitempty" mapstructure:"last_modified_timestamp,omitempty"`
+	LastModifiedTimestamp *time.Time `json:"last_modified_timestamp,omitempty" yaml:"last_modified_timestamp,omitempty" mapstructure:"last_modified_timestamp,omitempty"`
 
 	// A manage state is an attribute of an asset that specifies how an asset is being
 	// regarded by an asset management system (is it being regarded or ignored). Some
@@ -2388,16 +1689,95 @@ type Gateway struct {
 	Zone *string `json:"zone,omitempty" yaml:"zone,omitempty" mapstructure:"zone,omitempty"`
 }
 
+type GatewayFunctionalObjectType string
+
+const GatewayFunctionalObjectTypeGateway GatewayFunctionalObjectType = "Gateway"
+
+var enumValues_GatewayFunctionalObjectType = []interface{}{
+	"Gateway",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *GatewayFunctionalObjectType) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_GatewayFunctionalObjectType {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_GatewayFunctionalObjectType, v)
+	}
+	*j = GatewayFunctionalObjectType(v)
+	return nil
+}
+
+// GatewayId and Base64 encoded version of certificate subject key identifer will
+// be the identifier for the Gateway.
+type GatewayIdentifier struct {
+	// Type designator that provides support for polymorphism using asset identifiers.
+	AssetIdentifierType *GatewayIdentifierAssetIdentifierType `json:"asset_identifier_type,omitempty" yaml:"asset_identifier_type,omitempty" mapstructure:"asset_identifier_type,omitempty"`
+
+	// Base64 encoded version of certificate subject key identifer
+	CertificateId *string `json:"certificate_id,omitempty" yaml:"certificate_id,omitempty" mapstructure:"certificate_id,omitempty"`
+
+	// Type of an items identifier.
+	IdentifierType *string `json:"identifier_type,omitempty" yaml:"identifier_type,omitempty" mapstructure:"identifier_type,omitempty"`
+
+	// Number that tells how uncertain an identifier is compared with other
+	// identifiers provided by an Asset Link. The highest the number, the more
+	// uncertain the identification must be considered. This number has to be
+	// considered relative to the other identifiers for the same element. The default
+	// value is 0, meaning no uncertainty.
+	// This index helps decide across Asset Links which identifiers are better suited
+	// for deduplication. The identifier provided by two different Asset Links with
+	// the lowest uncertainty should be chosen for deduplication purposes.
+	IdentifierUncertainty *int `json:"identifier_uncertainty,omitempty" yaml:"identifier_uncertainty,omitempty" mapstructure:"identifier_uncertainty,omitempty"`
+}
+
+type GatewayIdentifierAssetIdentifierType string
+
+const GatewayIdentifierAssetIdentifierTypeGatewayIdentifier GatewayIdentifierAssetIdentifierType = "GatewayIdentifier"
+
+var enumValues_GatewayIdentifierAssetIdentifierType = []interface{}{
+	"GatewayIdentifier",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *GatewayIdentifierAssetIdentifierType) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_GatewayIdentifierAssetIdentifierType {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_GatewayIdentifierAssetIdentifierType, v)
+	}
+	*j = GatewayIdentifierAssetIdentifierType(v)
+	return nil
+}
+
 // UnmarshalJSON implements json.Unmarshaler.
 func (j *Gateway) UnmarshalJSON(b []byte) error {
 	var raw map[string]interface{}
 	if err := json.Unmarshal(b, &raw); err != nil {
 		return err
 	}
-	if v, ok := raw["id"]; !ok || v == nil {
+	if _, ok := raw["id"]; raw != nil && !ok {
 		return fmt.Errorf("field id in Gateway: required")
 	}
-	if v, ok := raw["management_state"]; !ok || v == nil {
+	if _, ok := raw["management_state"]; raw != nil && !ok {
 		return fmt.Errorf("field management_state in Gateway: required")
 	}
 	type Plain Gateway
@@ -2409,7 +1789,31 @@ func (j *Gateway) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+// Asset identifier based on the ID-Link standard (IEC 61406).
+type IdLink struct {
+	// Type designator that provides support for polymorphism using asset identifiers.
+	AssetIdentifierType *IdLinkAssetIdentifierType `json:"asset_identifier_type,omitempty" yaml:"asset_identifier_type,omitempty" mapstructure:"asset_identifier_type,omitempty"`
+
+	// Link to identify the asset. It can also provide information about the product.
+	IdLink *string `json:"id_link,omitempty" yaml:"id_link,omitempty" mapstructure:"id_link,omitempty"`
+
+	// Type of an items identifier.
+	IdentifierType *string `json:"identifier_type,omitempty" yaml:"identifier_type,omitempty" mapstructure:"identifier_type,omitempty"`
+
+	// Number that tells how uncertain an identifier is compared with other
+	// identifiers provided by an Asset Link. The highest the number, the more
+	// uncertain the identification must be considered. This number has to be
+	// considered relative to the other identifiers for the same element. The default
+	// value is 0, meaning no uncertainty.
+	// This index helps decide across Asset Links which identifiers are better suited
+	// for deduplication. The identifier provided by two different Asset Links with
+	// the lowest uncertainty should be chosen for deduplication purposes.
+	IdentifierUncertainty *int `json:"identifier_uncertainty,omitempty" yaml:"identifier_uncertainty,omitempty" mapstructure:"identifier_uncertainty,omitempty"`
+}
+
 type IdLinkAssetIdentifierType string
+
+const IdLinkAssetIdentifierTypeIdLink IdLinkAssetIdentifierType = "IdLink"
 
 var enumValues_IdLinkAssetIdentifierType = []interface{}{
 	"IdLink",
@@ -2433,30 +1837,6 @@ func (j *IdLinkAssetIdentifierType) UnmarshalJSON(b []byte) error {
 	}
 	*j = IdLinkAssetIdentifierType(v)
 	return nil
-}
-
-const IdLinkAssetIdentifierTypeIdLink IdLinkAssetIdentifierType = "IdLink"
-
-// Asset identifier based on the ID-Link standard (IEC 61406).
-type IdLink struct {
-	// Type designator that provides support for polymorphism using asset identifiers.
-	AssetIdentifierType *IdLinkAssetIdentifierType `json:"asset_identifier_type,omitempty" yaml:"asset_identifier_type,omitempty" mapstructure:"asset_identifier_type,omitempty"`
-
-	// Link to identify the asset. It can also provide information about the product.
-	IdLink *string `json:"id_link,omitempty" yaml:"id_link,omitempty" mapstructure:"id_link,omitempty"`
-
-	// Type of an items identifier.
-	IdentifierType *string `json:"identifier_type,omitempty" yaml:"identifier_type,omitempty" mapstructure:"identifier_type,omitempty"`
-
-	// Number that tells how uncertain an identifier is compared with other
-	// identifiers provided by an Asset Link. The highest the number, the more
-	// uncertain the identification must be considered. This number has to be
-	// considered relative to the other identifiers for the same element. The default
-	// value is 0, meaning no uncertainty.
-	// This index helps decide across Asset Links which identifiers are better suited
-	// for deduplication. The identifier provided by two different Asset Links with
-	// the lowest uncertainty should be chosen for deduplication purposes.
-	IdentifierUncertainty *int `json:"identifier_uncertainty,omitempty" yaml:"identifier_uncertainty,omitempty" mapstructure:"identifier_uncertainty,omitempty"`
 }
 
 // An element that provides an unambiguous identification of an item.
@@ -2496,7 +1876,7 @@ func (j *IdentifierType) UnmarshalJSON(b []byte) error {
 	if err := json.Unmarshal(b, &raw); err != nil {
 		return err
 	}
-	if v, ok := raw["id"]; !ok || v == nil {
+	if _, ok := raw["id"]; raw != nil && !ok {
 		return fmt.Errorf("field id in IdentifierType: required")
 	}
 	type Plain IdentifierType
@@ -2506,6 +1886,15 @@ func (j *IdentifierType) UnmarshalJSON(b []byte) error {
 	}
 	*j = IdentifierType(plain)
 	return nil
+}
+
+// Key/value pair that can be used to add metadata to an object.
+type InstanceAnnotation struct {
+	// The identifier of a key/value pair.
+	Key *string `json:"key,omitempty" yaml:"key,omitempty" mapstructure:"key,omitempty"`
+
+	// The real metadata of a key/value pair.
+	Value *string `json:"value,omitempty" yaml:"value,omitempty" mapstructure:"value,omitempty"`
 }
 
 // A utility class that serves as the umbrella for a number of 'intangible' things
@@ -2527,7 +1916,7 @@ func (j *Intangible) UnmarshalJSON(b []byte) error {
 	if err := json.Unmarshal(b, &raw); err != nil {
 		return err
 	}
-	if v, ok := raw["id"]; !ok || v == nil {
+	if _, ok := raw["id"]; raw != nil && !ok {
 		return fmt.Errorf("field id in Intangible: required")
 	}
 	type Plain Intangible
@@ -2538,34 +1927,6 @@ func (j *Intangible) UnmarshalJSON(b []byte) error {
 	*j = Intangible(plain)
 	return nil
 }
-
-type Ipv4ConnectivityConnectionPointType string
-
-var enumValues_Ipv4ConnectivityConnectionPointType = []interface{}{
-	"Ipv4Connectivity",
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *Ipv4ConnectivityConnectionPointType) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_Ipv4ConnectivityConnectionPointType {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_Ipv4ConnectivityConnectionPointType, v)
-	}
-	*j = Ipv4ConnectivityConnectionPointType(v)
-	return nil
-}
-
-const Ipv4ConnectivityConnectionPointTypeIpv4Connectivity Ipv4ConnectivityConnectionPointType = "Ipv4Connectivity"
 
 // Configuration of an IP port. Please notice that the configuration of an IP
 // address is independent of the Ethernet port configuration.
@@ -2602,13 +1963,41 @@ type Ipv4Connectivity struct {
 	RouterIpv4Address *string `json:"router_ipv4_address,omitempty" yaml:"router_ipv4_address,omitempty" mapstructure:"router_ipv4_address,omitempty"`
 }
 
+type Ipv4ConnectivityConnectionPointType string
+
+const Ipv4ConnectivityConnectionPointTypeIpv4Connectivity Ipv4ConnectivityConnectionPointType = "Ipv4Connectivity"
+
+var enumValues_Ipv4ConnectivityConnectionPointType = []interface{}{
+	"Ipv4Connectivity",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *Ipv4ConnectivityConnectionPointType) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_Ipv4ConnectivityConnectionPointType {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_Ipv4ConnectivityConnectionPointType, v)
+	}
+	*j = Ipv4ConnectivityConnectionPointType(v)
+	return nil
+}
+
 // UnmarshalJSON implements json.Unmarshaler.
 func (j *Ipv4Connectivity) UnmarshalJSON(b []byte) error {
 	var raw map[string]interface{}
 	if err := json.Unmarshal(b, &raw); err != nil {
 		return err
 	}
-	if v, ok := raw["id"]; !ok || v == nil {
+	if _, ok := raw["id"]; raw != nil && !ok {
 		return fmt.Errorf("field id in Ipv4Connectivity: required")
 	}
 	type Plain Ipv4Connectivity
@@ -2620,7 +2009,31 @@ func (j *Ipv4Connectivity) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+// Identifier for an Asset instance using one IPv4 address assigned to it.
+type Ipv4Identifier struct {
+	// Type designator that provides support for polymorphism using asset identifiers.
+	AssetIdentifierType *Ipv4IdentifierAssetIdentifierType `json:"asset_identifier_type,omitempty" yaml:"asset_identifier_type,omitempty" mapstructure:"asset_identifier_type,omitempty"`
+
+	// Type of an items identifier.
+	IdentifierType *string `json:"identifier_type,omitempty" yaml:"identifier_type,omitempty" mapstructure:"identifier_type,omitempty"`
+
+	// Number that tells how uncertain an identifier is compared with other
+	// identifiers provided by an Asset Link. The highest the number, the more
+	// uncertain the identification must be considered. This number has to be
+	// considered relative to the other identifiers for the same element. The default
+	// value is 0, meaning no uncertainty.
+	// This index helps decide across Asset Links which identifiers are better suited
+	// for deduplication. The identifier provided by two different Asset Links with
+	// the lowest uncertainty should be chosen for deduplication purposes.
+	IdentifierUncertainty *int `json:"identifier_uncertainty,omitempty" yaml:"identifier_uncertainty,omitempty" mapstructure:"identifier_uncertainty,omitempty"`
+
+	// The IP v4 address of a device port.
+	Ipv4Address *string `json:"ipv4_address,omitempty" yaml:"ipv4_address,omitempty" mapstructure:"ipv4_address,omitempty"`
+}
+
 type Ipv4IdentifierAssetIdentifierType string
+
+const Ipv4IdentifierAssetIdentifierTypeIpv4Identifier Ipv4IdentifierAssetIdentifierType = "Ipv4Identifier"
 
 var enumValues_Ipv4IdentifierAssetIdentifierType = []interface{}{
 	"Ipv4Identifier",
@@ -2645,58 +2058,6 @@ func (j *Ipv4IdentifierAssetIdentifierType) UnmarshalJSON(b []byte) error {
 	*j = Ipv4IdentifierAssetIdentifierType(v)
 	return nil
 }
-
-const Ipv4IdentifierAssetIdentifierTypeIpv4Identifier Ipv4IdentifierAssetIdentifierType = "Ipv4Identifier"
-
-// Identifier for an Asset instance using one IPv4 address assigned to it.
-type Ipv4Identifier struct {
-	// Type designator that provides support for polymorphism using asset identifiers.
-	AssetIdentifierType *Ipv4IdentifierAssetIdentifierType `json:"asset_identifier_type,omitempty" yaml:"asset_identifier_type,omitempty" mapstructure:"asset_identifier_type,omitempty"`
-
-	// Type of an items identifier.
-	IdentifierType *string `json:"identifier_type,omitempty" yaml:"identifier_type,omitempty" mapstructure:"identifier_type,omitempty"`
-
-	// Number that tells how uncertain an identifier is compared with other
-	// identifiers provided by an Asset Link. The highest the number, the more
-	// uncertain the identification must be considered. This number has to be
-	// considered relative to the other identifiers for the same element. The default
-	// value is 0, meaning no uncertainty.
-	// This index helps decide across Asset Links which identifiers are better suited
-	// for deduplication. The identifier provided by two different Asset Links with
-	// the lowest uncertainty should be chosen for deduplication purposes.
-	IdentifierUncertainty *int `json:"identifier_uncertainty,omitempty" yaml:"identifier_uncertainty,omitempty" mapstructure:"identifier_uncertainty,omitempty"`
-
-	// The IP v4 address of a device port.
-	Ipv4Address *string `json:"ipv4_address,omitempty" yaml:"ipv4_address,omitempty" mapstructure:"ipv4_address,omitempty"`
-}
-
-type Ipv6ConnectivityConnectionPointType string
-
-var enumValues_Ipv6ConnectivityConnectionPointType = []interface{}{
-	"Ipv6Connectivity",
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *Ipv6ConnectivityConnectionPointType) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_Ipv6ConnectivityConnectionPointType {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_Ipv6ConnectivityConnectionPointType, v)
-	}
-	*j = Ipv6ConnectivityConnectionPointType(v)
-	return nil
-}
-
-const Ipv6ConnectivityConnectionPointTypeIpv6Connectivity Ipv6ConnectivityConnectionPointType = "Ipv6Connectivity"
 
 // Configuration of an IP port. Please notice that the configuration of an IP
 // address is independent of the Ethernet port configuration.
@@ -2732,13 +2093,41 @@ type Ipv6Connectivity struct {
 	RouterIpv6Address *string `json:"router_ipv6_address,omitempty" yaml:"router_ipv6_address,omitempty" mapstructure:"router_ipv6_address,omitempty"`
 }
 
+type Ipv6ConnectivityConnectionPointType string
+
+const Ipv6ConnectivityConnectionPointTypeIpv6Connectivity Ipv6ConnectivityConnectionPointType = "Ipv6Connectivity"
+
+var enumValues_Ipv6ConnectivityConnectionPointType = []interface{}{
+	"Ipv6Connectivity",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *Ipv6ConnectivityConnectionPointType) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_Ipv6ConnectivityConnectionPointType {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_Ipv6ConnectivityConnectionPointType, v)
+	}
+	*j = Ipv6ConnectivityConnectionPointType(v)
+	return nil
+}
+
 // UnmarshalJSON implements json.Unmarshaler.
 func (j *Ipv6Connectivity) UnmarshalJSON(b []byte) error {
 	var raw map[string]interface{}
 	if err := json.Unmarshal(b, &raw); err != nil {
 		return err
 	}
-	if v, ok := raw["id"]; !ok || v == nil {
+	if _, ok := raw["id"]; raw != nil && !ok {
 		return fmt.Errorf("field id in Ipv6Connectivity: required")
 	}
 	type Plain Ipv6Connectivity
@@ -2750,7 +2139,31 @@ func (j *Ipv6Connectivity) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+// Identifier for an Asset instance using one IPv6 address assigned to it.
+type Ipv6Identifier struct {
+	// Type designator that provides support for polymorphism using asset identifiers.
+	AssetIdentifierType *Ipv6IdentifierAssetIdentifierType `json:"asset_identifier_type,omitempty" yaml:"asset_identifier_type,omitempty" mapstructure:"asset_identifier_type,omitempty"`
+
+	// Type of an items identifier.
+	IdentifierType *string `json:"identifier_type,omitempty" yaml:"identifier_type,omitempty" mapstructure:"identifier_type,omitempty"`
+
+	// Number that tells how uncertain an identifier is compared with other
+	// identifiers provided by an Asset Link. The highest the number, the more
+	// uncertain the identification must be considered. This number has to be
+	// considered relative to the other identifiers for the same element. The default
+	// value is 0, meaning no uncertainty.
+	// This index helps decide across Asset Links which identifiers are better suited
+	// for deduplication. The identifier provided by two different Asset Links with
+	// the lowest uncertainty should be chosen for deduplication purposes.
+	IdentifierUncertainty *int `json:"identifier_uncertainty,omitempty" yaml:"identifier_uncertainty,omitempty" mapstructure:"identifier_uncertainty,omitempty"`
+
+	// The IP v6 address of a device port.
+	Ipv6Address *string `json:"ipv6_address,omitempty" yaml:"ipv6_address,omitempty" mapstructure:"ipv6_address,omitempty"`
+}
+
 type Ipv6IdentifierAssetIdentifierType string
+
+const Ipv6IdentifierAssetIdentifierTypeIpv6Identifier Ipv6IdentifierAssetIdentifierType = "Ipv6Identifier"
 
 var enumValues_Ipv6IdentifierAssetIdentifierType = []interface{}{
 	"Ipv6Identifier",
@@ -2776,12 +2189,10 @@ func (j *Ipv6IdentifierAssetIdentifierType) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-const Ipv6IdentifierAssetIdentifierTypeIpv6Identifier Ipv6IdentifierAssetIdentifierType = "Ipv6Identifier"
-
-// Identifier for an Asset instance using one IPv6 address assigned to it.
-type Ipv6Identifier struct {
+// Identifier for an Asset instance using the mac address.
+type MacIdentifier struct {
 	// Type designator that provides support for polymorphism using asset identifiers.
-	AssetIdentifierType *Ipv6IdentifierAssetIdentifierType `json:"asset_identifier_type,omitempty" yaml:"asset_identifier_type,omitempty" mapstructure:"asset_identifier_type,omitempty"`
+	AssetIdentifierType *MacIdentifierAssetIdentifierType `json:"asset_identifier_type,omitempty" yaml:"asset_identifier_type,omitempty" mapstructure:"asset_identifier_type,omitempty"`
 
 	// Type of an items identifier.
 	IdentifierType *string `json:"identifier_type,omitempty" yaml:"identifier_type,omitempty" mapstructure:"identifier_type,omitempty"`
@@ -2796,11 +2207,15 @@ type Ipv6Identifier struct {
 	// the lowest uncertainty should be chosen for deduplication purposes.
 	IdentifierUncertainty *int `json:"identifier_uncertainty,omitempty" yaml:"identifier_uncertainty,omitempty" mapstructure:"identifier_uncertainty,omitempty"`
 
-	// The IP v6 address of a device port.
-	Ipv6Address *string `json:"ipv6_address,omitempty" yaml:"ipv6_address,omitempty" mapstructure:"ipv6_address,omitempty"`
+	// The MAC address of the port. It is expected to be fixed, but in some ethernet
+	// ports it can be changed.
+	// An asset instance must provide for each ethernet port the default MAC address.
+	MacAddress *string `json:"mac_address,omitempty" yaml:"mac_address,omitempty" mapstructure:"mac_address,omitempty"`
 }
 
 type MacIdentifierAssetIdentifierType string
+
+const MacIdentifierAssetIdentifierTypeMacIdentifier MacIdentifierAssetIdentifierType = "MacIdentifier"
 
 var enumValues_MacIdentifierAssetIdentifierType = []interface{}{
 	"MacIdentifier",
@@ -2826,30 +2241,86 @@ func (j *MacIdentifierAssetIdentifierType) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-const MacIdentifierAssetIdentifierTypeMacIdentifier MacIdentifierAssetIdentifierType = "MacIdentifier"
+// Documents if the asset is being regarded (managed) by any AssetManagement or
+// not. AssetManagement systems regarding the asset will be listed in the
+// "managedBy" property.
+type ManagementState struct {
+	// Time when the current state has been observed.
+	StateTimestamp *time.Time `json:"state_timestamp,omitempty" yaml:"state_timestamp,omitempty" mapstructure:"state_timestamp,omitempty"`
 
-// Identifier for an Asset instance using the mac address.
-type MacIdentifier struct {
-	// Type designator that provides support for polymorphism using asset identifiers.
-	AssetIdentifierType *MacIdentifierAssetIdentifierType `json:"asset_identifier_type,omitempty" yaml:"asset_identifier_type,omitempty" mapstructure:"asset_identifier_type,omitempty"`
+	// The state of an object.
+	StateValue *ManagementStateValues `json:"state_value,omitempty" yaml:"state_value,omitempty" mapstructure:"state_value,omitempty"`
+}
 
-	// Type of an items identifier.
-	IdentifierType *string `json:"identifier_type,omitempty" yaml:"identifier_type,omitempty" mapstructure:"identifier_type,omitempty"`
+type ManagementStateValues string
 
-	// Number that tells how uncertain an identifier is compared with other
-	// identifiers provided by an Asset Link. The highest the number, the more
-	// uncertain the identification must be considered. This number has to be
-	// considered relative to the other identifiers for the same element. The default
-	// value is 0, meaning no uncertainty.
-	// This index helps decide across Asset Links which identifiers are better suited
-	// for deduplication. The identifier provided by two different Asset Links with
-	// the lowest uncertainty should be chosen for deduplication purposes.
-	IdentifierUncertainty *int `json:"identifier_uncertainty,omitempty" yaml:"identifier_uncertainty,omitempty" mapstructure:"identifier_uncertainty,omitempty"`
+const ManagementStateValuesIgnored ManagementStateValues = "ignored"
+const ManagementStateValuesRegarded ManagementStateValues = "regarded"
+const ManagementStateValuesUnknown ManagementStateValues = "unknown"
 
-	// The MAC address of the port. It is expected to be fixed, but in some ethernet
-	// ports it can be changed.
-	// An asset instance must provide for each ethernet port the default MAC address.
-	MacAddress *string `json:"mac_address,omitempty" yaml:"mac_address,omitempty" mapstructure:"mac_address,omitempty"`
+var enumValues_ManagementStateValues = []interface{}{
+	"regarded",
+	"ignored",
+	"unknown",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *ManagementStateValues) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_ManagementStateValues {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_ManagementStateValues, v)
+	}
+	*j = ManagementStateValues(v)
+	return nil
+}
+
+// An organization such as a school, NGO, corporation, club, etc.
+type Organization struct {
+	// Physical address of the item.
+	Address *PostalAddress `json:"address,omitempty" yaml:"address,omitempty" mapstructure:"address,omitempty"`
+
+	// An alias for the item.
+	AlternateNames []string `json:"alternate_names,omitempty" yaml:"alternate_names,omitempty" mapstructure:"alternate_names,omitempty"`
+
+	// A contact point for a person or organization.
+	ContactPoint *ContactPoint `json:"contact_point,omitempty" yaml:"contact_point,omitempty" mapstructure:"contact_point,omitempty"`
+
+	// The identifier property represents any kind of identifier for any kind of
+	// Thing, such as ISBNs, GTIN codes, UUIDs etc. Schema.org provides dedicated
+	// properties for representing many of these, either as textual strings or as URL
+	// (URI) links.
+	Id string `json:"id" yaml:"id" mapstructure:"id"`
+
+	// The name of the item.
+	Name *string `json:"name,omitempty" yaml:"name,omitempty" mapstructure:"name,omitempty"`
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *Organization) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if _, ok := raw["id"]; raw != nil && !ok {
+		return fmt.Errorf("field id in Organization: required")
+	}
+	type Plain Organization
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = Organization(plain)
+	return nil
 }
 
 // A person (alive, dead, undead, or fictional).
@@ -2879,7 +2350,7 @@ func (j *Person) UnmarshalJSON(b []byte) error {
 	if err := json.Unmarshal(b, &raw); err != nil {
 		return err
 	}
-	if v, ok := raw["id"]; !ok || v == nil {
+	if _, ok := raw["id"]; raw != nil && !ok {
 		return fmt.Errorf("field id in Person: required")
 	}
 	type Plain Person
@@ -2891,33 +2362,240 @@ func (j *Person) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-type RunningSoftwareFunctionalObjectType string
+// The mailing address.
+type PostalAddress struct {
+	// 2-letter code of the country.
+	AddressCountry *CountryCode `json:"address_country,omitempty" yaml:"address_country,omitempty" mapstructure:"address_country,omitempty"`
 
-var enumValues_RunningSoftwareFunctionalObjectType = []interface{}{
-	"RunningSoftware",
+	// Locality name in the local language.
+	AddressLocality *string `json:"address_locality,omitempty" yaml:"address_locality,omitempty" mapstructure:"address_locality,omitempty"`
+
+	// Region name in the local language.
+	AddressRegion *string `json:"address_region,omitempty" yaml:"address_region,omitempty" mapstructure:"address_region,omitempty"`
+
+	// Email address.
+	Email *string `json:"email,omitempty" yaml:"email,omitempty" mapstructure:"email,omitempty"`
+
+	// The identifier property represents any kind of identifier for any kind of
+	// Thing, such as ISBNs, GTIN codes, UUIDs etc. Schema.org provides dedicated
+	// properties for representing many of these, either as textual strings or as URL
+	// (URI) links.
+	Id string `json:"id" yaml:"id" mapstructure:"id"`
+
+	// The name of the item.
+	Name *string `json:"name,omitempty" yaml:"name,omitempty" mapstructure:"name,omitempty"`
+
+	// Postal code (AKA ZIP-code) of the address.
+	PostalCode *string `json:"postal_code,omitempty" yaml:"postal_code,omitempty" mapstructure:"postal_code,omitempty"`
+
+	// Street and number of the address.
+	StreetAddress *string `json:"street_address,omitempty" yaml:"street_address,omitempty" mapstructure:"street_address,omitempty"`
+
+	// The telephone number.
+	Telephone *string `json:"telephone,omitempty" yaml:"telephone,omitempty" mapstructure:"telephone,omitempty"`
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *RunningSoftwareFunctionalObjectType) UnmarshalJSON(b []byte) error {
+func (j *PostalAddress) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if _, ok := raw["id"]; raw != nil && !ok {
+		return fmt.Errorf("field id in PostalAddress: required")
+	}
+	type Plain PostalAddress
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = PostalAddress(plain)
+	return nil
+}
+
+type PredicateValues string
+
+const PredicateValuesRelatedTo PredicateValues = "related_to"
+
+var enumValues_PredicateValues = []interface{}{
+	"related_to",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *PredicateValues) UnmarshalJSON(b []byte) error {
 	var v string
 	if err := json.Unmarshal(b, &v); err != nil {
 		return err
 	}
 	var ok bool
-	for _, expected := range enumValues_RunningSoftwareFunctionalObjectType {
+	for _, expected := range enumValues_PredicateValues {
 		if reflect.DeepEqual(v, expected) {
 			ok = true
 			break
 		}
 	}
 	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_RunningSoftwareFunctionalObjectType, v)
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_PredicateValues, v)
 	}
-	*j = RunningSoftwareFunctionalObjectType(v)
+	*j = PredicateValues(v)
 	return nil
 }
 
-const RunningSoftwareFunctionalObjectTypeRunningSoftware RunningSoftwareFunctionalObjectType = "RunningSoftware"
+// Any offered product or service that might have different versions for the same
+// product ID.
+type Product struct {
+	// The identifier property represents any kind of identifier for any kind of
+	// Thing, such as ISBNs, GTIN codes, UUIDs etc. Schema.org provides dedicated
+	// properties for representing many of these, either as textual strings or as URL
+	// (URI) links.
+	Id string `json:"id" yaml:"id" mapstructure:"id"`
+
+	// The manufacturer of the product.
+	Manufacturer *Organization `json:"manufacturer,omitempty" yaml:"manufacturer,omitempty" mapstructure:"manufacturer,omitempty"`
+
+	// The name of the item.
+	Name *string `json:"name,omitempty" yaml:"name,omitempty" mapstructure:"name,omitempty"`
+
+	// The product identifiers, such as ISBN.
+	ProductId *string `json:"product_id,omitempty" yaml:"product_id,omitempty" mapstructure:"product_id,omitempty"`
+
+	// Link to identify a product. It can also provide additional information about
+	// the product.
+	ProductLink *string `json:"product_link,omitempty" yaml:"product_link,omitempty" mapstructure:"product_link,omitempty"`
+
+	// Some products might have different versions under the same product ID, the
+	// product version helps differentiating the different versions of a product, if
+	// multiple exist.
+	ProductVersion *string `json:"product_version,omitempty" yaml:"product_version,omitempty" mapstructure:"product_version,omitempty"`
+}
+
+// Identifier for an Asset instance using the product (asset class) identifier and
+// serial number.
+type ProductSerialIdentifier struct {
+	// Type designator that provides support for polymorphism using asset identifiers.
+	AssetIdentifierType *ProductSerialIdentifierAssetIdentifierType `json:"asset_identifier_type,omitempty" yaml:"asset_identifier_type,omitempty" mapstructure:"asset_identifier_type,omitempty"`
+
+	// Type of an items identifier.
+	IdentifierType *string `json:"identifier_type,omitempty" yaml:"identifier_type,omitempty" mapstructure:"identifier_type,omitempty"`
+
+	// Number that tells how uncertain an identifier is compared with other
+	// identifiers provided by an Asset Link. The highest the number, the more
+	// uncertain the identification must be considered. This number has to be
+	// considered relative to the other identifiers for the same element. The default
+	// value is 0, meaning no uncertainty.
+	// This index helps decide across Asset Links which identifiers are better suited
+	// for deduplication. The identifier provided by two different Asset Links with
+	// the lowest uncertainty should be chosen for deduplication purposes.
+	IdentifierUncertainty *int `json:"identifier_uncertainty,omitempty" yaml:"identifier_uncertainty,omitempty" mapstructure:"identifier_uncertainty,omitempty"`
+
+	// A way to identify a product based on the manufacturer and the product
+	// identifier given by the manufacturer.
+	ManufacturerProduct *Product `json:"manufacturer_product,omitempty" yaml:"manufacturer_product,omitempty" mapstructure:"manufacturer_product,omitempty"`
+
+	// The serial number or any alphanumeric identifier of a particular product. When
+	// attached to an offer, it is a shortcut for the serial number of the product
+	// included in the offer.
+	SerialNumber *string `json:"serial_number,omitempty" yaml:"serial_number,omitempty" mapstructure:"serial_number,omitempty"`
+}
+
+type ProductSerialIdentifierAssetIdentifierType string
+
+const ProductSerialIdentifierAssetIdentifierTypeProductSerialIdentifier ProductSerialIdentifierAssetIdentifierType = "ProductSerialIdentifier"
+
+var enumValues_ProductSerialIdentifierAssetIdentifierType = []interface{}{
+	"ProductSerialIdentifier",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *ProductSerialIdentifierAssetIdentifierType) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_ProductSerialIdentifierAssetIdentifierType {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_ProductSerialIdentifierAssetIdentifierType, v)
+	}
+	*j = ProductSerialIdentifierAssetIdentifierType(v)
+	return nil
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *Product) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if _, ok := raw["id"]; raw != nil && !ok {
+		return fmt.Errorf("field id in Product: required")
+	}
+	type Plain Product
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = Product(plain)
+	return nil
+}
+
+// The reachability_state based on when an asset that can be contacted (typically a
+// device) was reached (or not) for the last time.
+type ReachabilityState struct {
+	// Time when the current state has been observed.
+	StateTimestamp *time.Time `json:"state_timestamp,omitempty" yaml:"state_timestamp,omitempty" mapstructure:"state_timestamp,omitempty"`
+
+	// The state of an object.
+	StateValue *ReachabilityStateValues `json:"state_value,omitempty" yaml:"state_value,omitempty" mapstructure:"state_value,omitempty"`
+}
+
+type ReachabilityStateValues string
+
+const ReachabilityStateValuesFailed ReachabilityStateValues = "failed"
+const ReachabilityStateValuesReached ReachabilityStateValues = "reached"
+const ReachabilityStateValuesUnknown ReachabilityStateValues = "unknown"
+
+var enumValues_ReachabilityStateValues = []interface{}{
+	"reached",
+	"failed",
+	"unknown",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *ReachabilityStateValues) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_ReachabilityStateValues {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_ReachabilityStateValues, v)
+	}
+	*j = ReachabilityStateValues(v)
+	return nil
+}
+
+// Relationship of a ConnectionPoint with another one. This relationship could be
+// of the type "ConnectionPoint A relies on the connectivity of ConnectionPoint B
+// to work".
+type RelatedConnectionPoint struct {
+	// Reference to the related ConnectionPoint.
+	ConnectionPoint *string `json:"connection_point,omitempty" yaml:"connection_point,omitempty" mapstructure:"connection_point,omitempty"`
+
+	// Type of relationship in an unstructured format.
+	CustomRelationship *string `json:"custom_relationship,omitempty" yaml:"custom_relationship,omitempty" mapstructure:"custom_relationship,omitempty"`
+}
 
 // Software asset representing running software.
 // Please, notice the difference with SoftwareArtifacts used to instance running
@@ -2987,7 +2665,7 @@ type RunningSoftware struct {
 	InstanceAnnotations []InstanceAnnotation `json:"instance_annotations,omitempty" yaml:"instance_annotations,omitempty" mapstructure:"instance_annotations,omitempty"`
 
 	// Timestamp of last asset modification
-	LastModifiedTimestamp *string `json:"last_modified_timestamp,omitempty" yaml:"last_modified_timestamp,omitempty" mapstructure:"last_modified_timestamp,omitempty"`
+	LastModifiedTimestamp *time.Time `json:"last_modified_timestamp,omitempty" yaml:"last_modified_timestamp,omitempty" mapstructure:"last_modified_timestamp,omitempty"`
 
 	// A manage state is an attribute of an asset that specifies how an asset is being
 	// regarded by an asset management system (is it being regarded or ignored). Some
@@ -3038,16 +2716,76 @@ type RunningSoftware struct {
 	Zone *string `json:"zone,omitempty" yaml:"zone,omitempty" mapstructure:"zone,omitempty"`
 }
 
+type RunningSoftwareFunctionalObjectType string
+
+const RunningSoftwareFunctionalObjectTypeRunningSoftware RunningSoftwareFunctionalObjectType = "RunningSoftware"
+
+var enumValues_RunningSoftwareFunctionalObjectType = []interface{}{
+	"RunningSoftware",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *RunningSoftwareFunctionalObjectType) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_RunningSoftwareFunctionalObjectType {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_RunningSoftwareFunctionalObjectType, v)
+	}
+	*j = RunningSoftwareFunctionalObjectType(v)
+	return nil
+}
+
+type RunningSoftwareValues string
+
+const RunningSoftwareValuesCdmGateway RunningSoftwareValues = "cdm_gateway"
+const RunningSoftwareValuesIahGateway RunningSoftwareValues = "iah_gateway"
+const RunningSoftwareValuesOther RunningSoftwareValues = "other"
+
+var enumValues_RunningSoftwareValues = []interface{}{
+	"cdm_gateway",
+	"iah_gateway",
+	"other",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *RunningSoftwareValues) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_RunningSoftwareValues {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_RunningSoftwareValues, v)
+	}
+	*j = RunningSoftwareValues(v)
+	return nil
+}
+
 // UnmarshalJSON implements json.Unmarshaler.
 func (j *RunningSoftware) UnmarshalJSON(b []byte) error {
 	var raw map[string]interface{}
 	if err := json.Unmarshal(b, &raw); err != nil {
 		return err
 	}
-	if v, ok := raw["id"]; !ok || v == nil {
+	if _, ok := raw["id"]; raw != nil && !ok {
 		return fmt.Errorf("field id in RunningSoftware: required")
 	}
-	if v, ok := raw["management_state"]; !ok || v == nil {
+	if _, ok := raw["management_state"]; raw != nil && !ok {
 		return fmt.Errorf("field management_state in RunningSoftware: required")
 	}
 	type Plain RunningSoftware
@@ -3084,7 +2822,7 @@ func (j *SchemaOrgProduct) UnmarshalJSON(b []byte) error {
 	if err := json.Unmarshal(b, &raw); err != nil {
 		return err
 	}
-	if v, ok := raw["id"]; !ok || v == nil {
+	if _, ok := raw["id"]; raw != nil && !ok {
 		return fmt.Errorf("field id in SchemaOrgProduct: required")
 	}
 	type Plain SchemaOrgProduct
@@ -3096,7 +2834,31 @@ func (j *SchemaOrgProduct) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+// Asset identifier based on the ID-Link standard (IEC 61406).
+type SiemensIdLink struct {
+	// Type designator that provides support for polymorphism using asset identifiers.
+	AssetIdentifierType *SiemensIdLinkAssetIdentifierType `json:"asset_identifier_type,omitempty" yaml:"asset_identifier_type,omitempty" mapstructure:"asset_identifier_type,omitempty"`
+
+	// Link to identify the asset. It can also provide information about the product.
+	IdLink *string `json:"id_link,omitempty" yaml:"id_link,omitempty" mapstructure:"id_link,omitempty"`
+
+	// Type of an items identifier.
+	IdentifierType *string `json:"identifier_type,omitempty" yaml:"identifier_type,omitempty" mapstructure:"identifier_type,omitempty"`
+
+	// Number that tells how uncertain an identifier is compared with other
+	// identifiers provided by an Asset Link. The highest the number, the more
+	// uncertain the identification must be considered. This number has to be
+	// considered relative to the other identifiers for the same element. The default
+	// value is 0, meaning no uncertainty.
+	// This index helps decide across Asset Links which identifiers are better suited
+	// for deduplication. The identifier provided by two different Asset Links with
+	// the lowest uncertainty should be chosen for deduplication purposes.
+	IdentifierUncertainty *int `json:"identifier_uncertainty,omitempty" yaml:"identifier_uncertainty,omitempty" mapstructure:"identifier_uncertainty,omitempty"`
+}
+
 type SiemensIdLinkAssetIdentifierType string
+
+const SiemensIdLinkAssetIdentifierTypeSiemensIdLink SiemensIdLinkAssetIdentifierType = "SiemensIdLink"
 
 var enumValues_SiemensIdLinkAssetIdentifierType = []interface{}{
 	"SiemensIdLink",
@@ -3122,57 +2884,168 @@ func (j *SiemensIdLinkAssetIdentifierType) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-const SiemensIdLinkAssetIdentifierTypeSiemensIdLink SiemensIdLinkAssetIdentifierType = "SiemensIdLink"
+// Software asset representing software on rest.
+type SoftwareArtifact struct {
+	// An asset identifier is an asset attribute that provides enough information to
+	// unequivocally identify the represented object.
+	// In some cases the ID attribute acts simultaneously as a reference for the asset
+	// instance and as identifier for the represented object, otherwise at least one
+	// asset identifier is needed.
+	// There can be multiple asset_identifiers with different goals. For example, the
+	// information of a metal nameplate can be used by a human-being to identify a
+	// device represented by an asset instance, but a software certificate provided by
+	// a device might help a software component identify the device in the network,...
+	// An asset identifier might have an identifier_type, that defines its format and
+	// possibly even semantics.
+	AssetIdentifiers []interface{} `json:"asset_identifiers,omitempty" yaml:"asset_identifiers,omitempty" mapstructure:"asset_identifiers,omitempty"`
 
-// Asset identifier based on the ID-Link standard (IEC 61406).
-type SiemensIdLink struct {
-	// Type designator that provides support for polymorphism using asset identifiers.
-	AssetIdentifierType *SiemensIdLinkAssetIdentifierType `json:"asset_identifier_type,omitempty" yaml:"asset_identifier_type,omitempty" mapstructure:"asset_identifier_type,omitempty"`
+	// List of device management operations supported by an asset. Each operation type
+	// might appear only once.
+	AssetOperations []AssetOperation `json:"asset_operations,omitempty" yaml:"asset_operations,omitempty" mapstructure:"asset_operations,omitempty"`
 
-	// Link to identify the asset. It can also provide information about the product.
-	IdLink *string `json:"id_link,omitempty" yaml:"id_link,omitempty" mapstructure:"id_link,omitempty"`
+	// Provides an AssetIdentifier based on a SoftwareArtifact checksum
+	ChecksumIdentifier *ArtifactChecksum `json:"checksum_identifier,omitempty" yaml:"checksum_identifier,omitempty" mapstructure:"checksum_identifier,omitempty"`
 
-	// Type of an items identifier.
-	IdentifierType *string `json:"identifier_type,omitempty" yaml:"identifier_type,omitempty" mapstructure:"identifier_type,omitempty"`
+	// An asset might have a connection point that can be used to connect with the
+	// asset. In the case of devices, at least one connection point is required. It
+	// might be a connection point needed for AssetManagement for interaction with the
+	// asset or for other connections of the asset related to the asset function but
+	// not to device management.
+	ConnectionPoints []interface{} `json:"connection_points,omitempty" yaml:"connection_points,omitempty" mapstructure:"connection_points,omitempty"`
 
-	// Number that tells how uncertain an identifier is compared with other
-	// identifiers provided by an Asset Link. The highest the number, the more
-	// uncertain the identification must be considered. This number has to be
-	// considered relative to the other identifiers for the same element. The default
-	// value is 0, meaning no uncertainty.
-	// This index helps decide across Asset Links which identifiers are better suited
-	// for deduplication. The identifier provided by two different Asset Links with
-	// the lowest uncertainty should be chosen for deduplication purposes.
-	IdentifierUncertainty *int `json:"identifier_uncertainty,omitempty" yaml:"identifier_uncertainty,omitempty" mapstructure:"identifier_uncertainty,omitempty"`
+	// Metadata associated with Asset in User Interface
+	CustomUiProperties []CustomProperty `json:"custom_ui_properties,omitempty" yaml:"custom_ui_properties,omitempty" mapstructure:"custom_ui_properties,omitempty"`
+
+	// Type designator that provides support for polymorphism using functional parts.
+	FunctionalObjectType *SoftwareArtifactFunctionalObjectType `json:"functional_object_type,omitempty" yaml:"functional_object_type,omitempty" mapstructure:"functional_object_type,omitempty"`
+
+	// The functional objects that an asset is composed of, in case such a level of
+	// decomposition is desired. This is enables having assets composed of other
+	// assets and even devices composed of other devices and assets.
+	// An Asset must be addressable independently from other Assets (therefore they
+	// need to have an "id") and are therefore individually modeled. But not all parts
+	// of an Asset that are modeled need to be individually addressable, these are
+	// FunctionalObjects, but not Assets.
+	// Probably those functional_parts of an Asset providing some function for the
+	// Asset will be modeled here. Therefore an Asset can delegate the Interactions
+	// that it's offering to its functional_parts.
+	FunctionalParts []interface{} `json:"functional_parts,omitempty" yaml:"functional_parts,omitempty" mapstructure:"functional_parts,omitempty"`
+
+	// The identifier property represents any kind of identifier for any kind of
+	// Thing, such as ISBNs, GTIN codes, UUIDs etc. Schema.org provides dedicated
+	// properties for representing many of these, either as textual strings or as URL
+	// (URI) links.
+	Id string `json:"id" yaml:"id" mapstructure:"id"`
+
+	// Metadata associated to an object.
+	InstanceAnnotations []InstanceAnnotation `json:"instance_annotations,omitempty" yaml:"instance_annotations,omitempty" mapstructure:"instance_annotations,omitempty"`
+
+	// Flag that marks that the software artifact is being provided by a hardware
+	// manufacturer for one or more of its devices.
+	// In contrast with other software artifacts, updating the software of firmware
+	// requires contacting the source specified by the device manufacturer.
+	// Due to this definition, firmware in IAH has a much wider scope than in some
+	// domains, where firmware is only meant to be close-to-the-silicon software.
+	IsFirmware *bool `json:"is_firmware,omitempty" yaml:"is_firmware,omitempty" mapstructure:"is_firmware,omitempty"`
+
+	// Timestamp of last asset modification
+	LastModifiedTimestamp *time.Time `json:"last_modified_timestamp,omitempty" yaml:"last_modified_timestamp,omitempty" mapstructure:"last_modified_timestamp,omitempty"`
+
+	// A manage state is an attribute of an asset that specifies how an asset is being
+	// regarded by an asset management system (is it being regarded or ignored). Some
+	// assets might be known to the Industrial Asset Hub (for example, discovered
+	// through a network scan), but want to be ignored for different reasons.
+	// The goals of this attribute are: to avoid rediscovering assets being ignored
+	// and to focus management activities on those assets being regarded.
+	// Assets that can be discovered, but not supported, might evolve from an
+	// "ignored" to a "regarded" state, once supported.
+	ManagementState ManagementState `json:"management_state" yaml:"management_state" mapstructure:"management_state"`
+
+	// The name of the item.
+	Name *string `json:"name,omitempty" yaml:"name,omitempty" mapstructure:"name,omitempty"`
+
+	// Specify the state of other aspects apart from management state.
+	OtherStates []State `json:"other_states,omitempty" yaml:"other_states,omitempty" mapstructure:"other_states,omitempty"`
+
+	// Identifier of a device based on its serial number.
+	ProductInstanceIdentifier *ProductSerialIdentifier `json:"product_instance_identifier,omitempty" yaml:"product_instance_identifier,omitempty" mapstructure:"product_instance_identifier,omitempty"`
+
+	// A slot to track the last observed reachability state and when it was observed.
+	ReachabilityState *ReachabilityState `json:"reachability_state,omitempty" yaml:"reachability_state,omitempty" mapstructure:"reachability_state,omitempty"`
+
+	// An asset can host software artifacts that might want to be tracked. This can be
+	// used simply to keep track of the firmware version or to keep a full-blown
+	// Software Bill of Material (SBOM).
+	// Please notice that this attribute is not meant to model relationships between
+	// the different software assets available in a device. Static relationships
+	// implicit to the SoftwareAssets themselves (like "firmware image A contains
+	// package X" or "package X depends on package Y") might be modeled on the
+	// Software Assets, if desired. Although it probably goes beyond the purpose of
+	// asset modeling. Deployment dependent relationships (like "firmware image needs
+	// to be installed before installing app") might be modeled as external
+	// AssetLinks, if desired. Once again it probably goes beyond the purpose of asset
+	// modeling.
+	SoftwareComponents []interface{} `json:"software_components,omitempty" yaml:"software_components,omitempty" mapstructure:"software_components,omitempty"`
+
+	// Identifier for a software artifact based on the well-established pattern name
+	// and version.
+	SoftwareIdentifier *SoftwareIdentifier `json:"software_identifier,omitempty" yaml:"software_identifier,omitempty" mapstructure:"software_identifier,omitempty"`
+
+	// Provides references to the different zones that an asset belongs to.
+	// Zones are typically used to group assets logically mostly for the purpose of
+	// access control. That way it is possible to give certain roles or persons
+	// specific permissions to all assets associated to a zone.
+	Zone *string `json:"zone,omitempty" yaml:"zone,omitempty" mapstructure:"zone,omitempty"`
 }
 
-type SoftwareAssetFunctionalObjectType string
+type SoftwareArtifactFunctionalObjectType string
 
-var enumValues_SoftwareAssetFunctionalObjectType = []interface{}{
-	"SoftwareAsset",
+const SoftwareArtifactFunctionalObjectTypeSoftwareArtifact SoftwareArtifactFunctionalObjectType = "SoftwareArtifact"
+
+var enumValues_SoftwareArtifactFunctionalObjectType = []interface{}{
+	"SoftwareArtifact",
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *SoftwareAssetFunctionalObjectType) UnmarshalJSON(b []byte) error {
+func (j *SoftwareArtifactFunctionalObjectType) UnmarshalJSON(b []byte) error {
 	var v string
 	if err := json.Unmarshal(b, &v); err != nil {
 		return err
 	}
 	var ok bool
-	for _, expected := range enumValues_SoftwareAssetFunctionalObjectType {
+	for _, expected := range enumValues_SoftwareArtifactFunctionalObjectType {
 		if reflect.DeepEqual(v, expected) {
 			ok = true
 			break
 		}
 	}
 	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_SoftwareAssetFunctionalObjectType, v)
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_SoftwareArtifactFunctionalObjectType, v)
 	}
-	*j = SoftwareAssetFunctionalObjectType(v)
+	*j = SoftwareArtifactFunctionalObjectType(v)
 	return nil
 }
 
-const SoftwareAssetFunctionalObjectTypeSoftwareAsset SoftwareAssetFunctionalObjectType = "SoftwareAsset"
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *SoftwareArtifact) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if _, ok := raw["id"]; raw != nil && !ok {
+		return fmt.Errorf("field id in SoftwareArtifact: required")
+	}
+	if _, ok := raw["management_state"]; raw != nil && !ok {
+		return fmt.Errorf("field management_state in SoftwareArtifact: required")
+	}
+	type Plain SoftwareArtifact
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = SoftwareArtifact(plain)
+	return nil
+}
 
 // Any kind of software element that needs to be considered. From artifacts
 // (executables, libraries, archives,...) to running software (process, container,
@@ -3230,7 +3103,7 @@ type SoftwareAsset struct {
 	InstanceAnnotations []InstanceAnnotation `json:"instance_annotations,omitempty" yaml:"instance_annotations,omitempty" mapstructure:"instance_annotations,omitempty"`
 
 	// Timestamp of last asset modification
-	LastModifiedTimestamp *string `json:"last_modified_timestamp,omitempty" yaml:"last_modified_timestamp,omitempty" mapstructure:"last_modified_timestamp,omitempty"`
+	LastModifiedTimestamp *time.Time `json:"last_modified_timestamp,omitempty" yaml:"last_modified_timestamp,omitempty" mapstructure:"last_modified_timestamp,omitempty"`
 
 	// A manage state is an attribute of an asset that specifies how an asset is being
 	// regarded by an asset management system (is it being regarded or ignored). Some
@@ -3275,16 +3148,44 @@ type SoftwareAsset struct {
 	Zone *string `json:"zone,omitempty" yaml:"zone,omitempty" mapstructure:"zone,omitempty"`
 }
 
+type SoftwareAssetFunctionalObjectType string
+
+const SoftwareAssetFunctionalObjectTypeSoftwareAsset SoftwareAssetFunctionalObjectType = "SoftwareAsset"
+
+var enumValues_SoftwareAssetFunctionalObjectType = []interface{}{
+	"SoftwareAsset",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *SoftwareAssetFunctionalObjectType) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_SoftwareAssetFunctionalObjectType {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_SoftwareAssetFunctionalObjectType, v)
+	}
+	*j = SoftwareAssetFunctionalObjectType(v)
+	return nil
+}
+
 // UnmarshalJSON implements json.Unmarshaler.
 func (j *SoftwareAsset) UnmarshalJSON(b []byte) error {
 	var raw map[string]interface{}
 	if err := json.Unmarshal(b, &raw); err != nil {
 		return err
 	}
-	if v, ok := raw["id"]; !ok || v == nil {
+	if _, ok := raw["id"]; raw != nil && !ok {
 		return fmt.Errorf("field id in SoftwareAsset: required")
 	}
-	if v, ok := raw["management_state"]; !ok || v == nil {
+	if _, ok := raw["management_state"]; raw != nil && !ok {
 		return fmt.Errorf("field management_state in SoftwareAsset: required")
 	}
 	type Plain SoftwareAsset
@@ -3294,6 +3195,68 @@ func (j *SoftwareAsset) UnmarshalJSON(b []byte) error {
 	}
 	*j = SoftwareAsset(plain)
 	return nil
+}
+
+// Well established
+type SoftwareIdentifier struct {
+	// Type designator that provides support for polymorphism using asset identifiers.
+	AssetIdentifierType *SoftwareIdentifierAssetIdentifierType `json:"asset_identifier_type,omitempty" yaml:"asset_identifier_type,omitempty" mapstructure:"asset_identifier_type,omitempty"`
+
+	// Type of an items identifier.
+	IdentifierType *string `json:"identifier_type,omitempty" yaml:"identifier_type,omitempty" mapstructure:"identifier_type,omitempty"`
+
+	// Number that tells how uncertain an identifier is compared with other
+	// identifiers provided by an Asset Link. The highest the number, the more
+	// uncertain the identification must be considered. This number has to be
+	// considered relative to the other identifiers for the same element. The default
+	// value is 0, meaning no uncertainty.
+	// This index helps decide across Asset Links which identifiers are better suited
+	// for deduplication. The identifier provided by two different Asset Links with
+	// the lowest uncertainty should be chosen for deduplication purposes.
+	IdentifierUncertainty *int `json:"identifier_uncertainty,omitempty" yaml:"identifier_uncertainty,omitempty" mapstructure:"identifier_uncertainty,omitempty"`
+
+	// The name of the item.
+	Name *string `json:"name,omitempty" yaml:"name,omitempty" mapstructure:"name,omitempty"`
+
+	// Version of a software artifact.
+	Version *string `json:"version,omitempty" yaml:"version,omitempty" mapstructure:"version,omitempty"`
+}
+
+type SoftwareIdentifierAssetIdentifierType string
+
+const SoftwareIdentifierAssetIdentifierTypeSoftwareIdentifier SoftwareIdentifierAssetIdentifierType = "SoftwareIdentifier"
+
+var enumValues_SoftwareIdentifierAssetIdentifierType = []interface{}{
+	"SoftwareIdentifier",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *SoftwareIdentifierAssetIdentifierType) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_SoftwareIdentifierAssetIdentifierType {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_SoftwareIdentifierAssetIdentifierType, v)
+	}
+	*j = SoftwareIdentifierAssetIdentifierType(v)
+	return nil
+}
+
+// State in which a certain item be.
+type State struct {
+	// Time when the current state has been observed.
+	StateTimestamp *time.Time `json:"state_timestamp,omitempty" yaml:"state_timestamp,omitempty" mapstructure:"state_timestamp,omitempty"`
+
+	// The state of an object.
+	StateValue *string `json:"state_value,omitempty" yaml:"state_value,omitempty" mapstructure:"state_value,omitempty"`
 }
 
 // Structured values are used when the value of a property has a more complex
@@ -3315,7 +3278,7 @@ func (j *StructuredValue) UnmarshalJSON(b []byte) error {
 	if err := json.Unmarshal(b, &raw); err != nil {
 		return err
 	}
-	if v, ok := raw["id"]; !ok || v == nil {
+	if _, ok := raw["id"]; raw != nil && !ok {
 		return fmt.Errorf("field id in StructuredValue: required")
 	}
 	type Plain StructuredValue
@@ -3327,6 +3290,44 @@ func (j *StructuredValue) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-var enumValues_ArtifactChecksumAssetIdentifierType = []interface{}{
-	"ArtifactChecksum",
+// The trust establishment state is based on if the asset is a trusted asset or
+// not.
+type TrustEstablishedState struct {
+	// Time when the current state has been observed.
+	StateTimestamp *time.Time `json:"state_timestamp,omitempty" yaml:"state_timestamp,omitempty" mapstructure:"state_timestamp,omitempty"`
+
+	// The state of an object.
+	StateValue *TrustEstablishedStateValues `json:"state_value,omitempty" yaml:"state_value,omitempty" mapstructure:"state_value,omitempty"`
+}
+
+type TrustEstablishedStateValues string
+
+const TrustEstablishedStateValuesFailed TrustEstablishedStateValues = "failed"
+const TrustEstablishedStateValuesPending TrustEstablishedStateValues = "pending"
+const TrustEstablishedStateValuesTrusted TrustEstablishedStateValues = "trusted"
+
+var enumValues_TrustEstablishedStateValues = []interface{}{
+	"trusted",
+	"failed",
+	"pending",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *TrustEstablishedStateValues) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_TrustEstablishedStateValues {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_TrustEstablishedStateValues, v)
+	}
+	*j = TrustEstablishedStateValues(v)
+	return nil
 }

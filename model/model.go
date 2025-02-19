@@ -45,7 +45,7 @@ type DeviceInfo struct {
 	SoftwareComponents []any `json:"software_components,omitempty"`
 }
 
-func createTimestamp() string {
+func createTimestamp() time.Time {
 	currentTime := time.Now().UTC()
-	return currentTime.Format(time.RFC3339Nano)
+	return currentTime
 }
