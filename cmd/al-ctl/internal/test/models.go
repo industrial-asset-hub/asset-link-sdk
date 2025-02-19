@@ -22,3 +22,9 @@ type AssetValidationParams struct {
 	ExtendedSchemaPath string
 	TargetClass        string
 }
+
+type RegistryParams struct {
+	AppInstanceId   string   `json:"app_instance_id"`
+	AppTypes        []string `json:"app_types"`
+	DeviceSchemaUri []string `json:"driver_schema_uris"`
+}
