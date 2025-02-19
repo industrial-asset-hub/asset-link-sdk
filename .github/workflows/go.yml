@@ -15,7 +15,7 @@ permissions:
 env:
   GOPRIVATE: github.com/industrial-asset-hub
   GO_MINIMAL_VERSION: 1.21
-  TEST_PROJECT: cookiecutter-test/
+  TEST_PROJECT: cookiecutter-test
   TEST_PROJECT_NAME: test-asset-link
 
 jobs:
@@ -122,6 +122,11 @@ jobs:
         run: |
           cd $TEST_PROJECT/$TEST_PROJECT_NAME/
           go test -v ./...
+      - name: Lint Asset Link
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v1.64
+          working-directory: ${{ env.TEST_PROJECT }}/${{ env.TEST_PROJECT_NAME }}/
       - name: Test Goreleaser Config (dry-run)
         uses: goreleaser/goreleaser-action@v6
         with:
