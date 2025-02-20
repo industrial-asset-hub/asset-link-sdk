@@ -34,6 +34,18 @@ func TestNameplate(t *testing.T) {
 		assert.Equal(t, "0.1.2", *m.ProductInstanceIdentifier.ManufacturerProduct.ProductVersion)
 		assert.Equal(t, "MyOrderNumber", *m.ProductInstanceIdentifier.ManufacturerProduct.ProductId)
 		assert.Equal(t, "s-n-1.2.3", *m.ProductInstanceIdentifier.SerialNumber)
+
+		idLinks := m.getIdLink()
+		if len(idLinks) != 1 {
+			fmt.Printf("Expected 1 id link, got %d\n", len(idLinks))
+			t.Fail()
+		}
+		found := 0
+		for _, v := range idLinks {
+			found++
+			assert.Equal(t, *v.IdLink, "GuidOfTheProduct")
+		}
+		assert.Equal(t, 1, found)
 	})
 }
 
@@ -69,6 +81,17 @@ func (d *DeviceInfo) getFirmware() []RunningSoftware {
 	for _, v := range d.SoftwareComponents {
 		if reflect.TypeOf(v) == reflect.TypeOf(RunningSoftware{}) {
 			r = append(r, v.(RunningSoftware))
+		}
+	}
+	return r
+}
+
+// Extract IdLink Addresses from model
+func (d *DeviceInfo) getIdLink() []IdLink {
+	r := []IdLink{}
+	for _, v := range d.AssetIdentifiers {
+		if reflect.TypeOf(v) == reflect.TypeOf(IdLink{}) {
+			r = append(r, v.(IdLink))
 		}
 	}
 	return r
