@@ -1,0 +1,5 @@
+{
+"app_instance_id": "cdm-device-class-driver-siemens.cdm.al.reference",
+"app_types": ["siemens.industrialassethub.discover.v1"],
+"driver_schema_uris": ["siemens.cdm.al.reference"]
+}

@@ -236,6 +236,13 @@ $ al-ctl test assets --base-schema-path <base-schema> --asset-path <asset>
 
 # Example: al-ctl test assets --base-schema-path ./iah_base-v0.9.0.yaml --asset-path ./SatController-001.json --schema-path ./cdm_sat.yaml --target-class SatController
 
+# To validate the registration of asset-link created via asset-link-SDK
+# grpc-registry should be running in order to execute below command
+# asset-link-endpoint is a required field in order to run this test
+$ al-ctl test registration -e <asset-link-endpoint> -r <grpc-endpoint> -f <registry-file-path>
+
+#Example: al-ctl test registration -r grpc-server-registry:50051 -f ./registry.json
+
 # To explore actions to perform with the command line tool
 $ al-ctl --help
 ```
