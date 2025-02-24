@@ -26,6 +26,9 @@ const (
 func ValidateAsset(assetValidationParams AssetValidationParams, linkmlSupported bool) error {
 	var cmd *exec.Cmd
 	if linkmlSupported {
+		if assetValidationParams.ExtendedSchemaPath == "" {
+			assetValidationParams.ExtendedSchemaPath = assetValidationParams.BaseSchemaPath
+		}
 		cmd = exec.Command("linkml-validate", assetValidationParams.AssetJsonPath, "--include-range-class-descendants",
 			"--target-class="+assetValidationParams.TargetClass, "-s", assetValidationParams.ExtendedSchemaPath)
 	} else {

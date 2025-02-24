@@ -12,6 +12,7 @@ import (
 	"strings"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/config"
 	generated "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
@@ -92,6 +93,8 @@ func (m *ReferenceClassDriver) Discover(discoveryConfig config.DiscoveryConfig, 
 			deviceInfo.AddIPv4(id, deviceIPs[0], "255.255.255.0", "")
 			deviceInfo.AddIPv4(id, deviceIPs[1], "255.255.255.0", "")
 			discoveredDevice := deviceInfo.ConvertToDiscoveredDevice()
+
+			time.Sleep(3 * time.Second)
 
 			err := devicePublisher.PublishDevice(discoveredDevice)
 			if err != nil {

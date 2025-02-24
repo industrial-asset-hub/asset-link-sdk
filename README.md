@@ -208,6 +208,7 @@ Flags:
   -h, --help               help for al-ctl
       --log-level string   set log level. one of: trace,debug,info,warn,error,fatal,panic (default "info")
   -r, --registry string    gRPC Server Address of the Registry (default "localhost:50051")
+  -n, --timeout int        timeout in seconds (default none)
   -v, --version            version for al-ctl
 
 Use "al-ctl [command] --help" for more information about a command.
@@ -217,9 +218,13 @@ Examples of actions which can be performed on the Asset Link:
 
 ```bash
 # To run the api tests on Asset Link
-$ al-ctl test api -e localhost:8081 [-d <discovery-config>]
+$ al-ctl test api -e localhost:8081 --service-name discovery [-d <discovery-config>]
 # To also validate the discovered assets against the schema use -v flag
 # The Asset Link must be running on the provided address, for example here: localhost:8081
+
+# To also validate the cancellation of the discovery use -c flag
+$ al-ctl test api -e localhost:8081 --service-name discovery [-d <discovery-config>] -c -n <timeout>
+# Timeout is the delay until the discovery is cancelled automatically
 
 # To run discovery on the Asset Link
 $ al-ctl discover -e localhost:8081 [-d <discovery-config>] [-o <output-file>]

@@ -9,53 +9,55 @@ package test
 import (
 	"encoding/json"
 	"fmt"
+	"os"
+
 	"github.com/google/uuid"
 	iah_discovery "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/model"
 	"github.com/rs/zerolog/log"
-	"os"
 )
 
-type testFunction func(string, string) interface{}
+type TestConfig struct {
+	DiscoveryFile           string
+	AssetValidationRequired bool
+	LinkMLSupported         bool
+	AssetValidationParams   AssetValidationParams
+}
+
+type testFunction func(testConfig TestConfig) bool
 
 type Test struct {
 	name     string
 	function testFunction
 }
 
-func RunApiTests(address string, discoveryFile string, assetValidationRequired bool, assetValidationParams AssetValidationParams, linkmlSupported bool) {
-	allTests := []Test{
-		{"TestDiscoverDevices", TestDiscoverDevices},
-		{"TestGetFilterTypes", TestGetFilterTypes},
-		{"TestGetFilterOptions", TestGetFilterOptions},
+func RunApiTests(serviceName string, cancelValidationRequired bool, testConfig TestConfig) {
+	allTests := []Test{}
+	if serviceName == "discovery" {
+		allTests = []Test{
+			{"TestDiscoverDevices", TestDiscoverDevices},
+			{"TestGetFilterTypes", TestGetFilterTypes},
+			{"TestGetFilterOptions", TestGetFilterOptions},
+		}
+		if cancelValidationRequired {
+			allTests = []Test{
+				{"TestCancelDiscovery", TestCancelDiscovery},
+			}
+		}
+	} else {
+		log.Fatal().Msgf("Service \"%s\"is not supported", serviceName)
 	}
+
 	testPassed := 0
 	for _, test := range allTests {
-		data := test.function(address, discoveryFile)
-		if data == nil {
-			log.Error().Str("test-name", test.name).Msg("test failed")
-			continue
-		}
-		if test.name == "TestDiscoverDevices" && assetValidationRequired {
-			numberOfAssetsToValidate, errOccurredDuringValidation := createAssetFileFromDiscoveryResponse(data)
-			for i := 0; i < numberOfAssetsToValidate; i++ {
-				assetFileName := fmt.Sprintf("Test-%d.json", i)
-				if fileExists(assetFileName) {
-					assetValidationParams.AssetJsonPath = assetFileName
-					err := ValidateAsset(assetValidationParams, linkmlSupported)
-					if err != nil {
-						errOccurredDuringValidation = true
-						log.Err(err).Str("asset-file-name", assetFileName).Msg("failed to validate asset against schema")
-					}
-				}
-			}
-			if !errOccurredDuringValidation {
-				testPassed++
-			}
-		} else {
+		result := test.function(testConfig)
+		if result {
 			testPassed++
+		} else {
+			log.Error().Str("test-name", test.name).Msg("test failed")
 		}
 	}
+
 	log.Info().Msgf("Total tests passed: %d/%d, failed: %d\n", testPassed, len(allTests), len(allTests)-testPassed)
 
 	if testPassed < len(allTests) {
@@ -63,7 +65,7 @@ func RunApiTests(address string, discoveryFile string, assetValidationRequired b
 	}
 }
 
-func createAssetFileFromDiscoveryResponse(data interface{}) (numberOfAssetsToValidate int, errOccurred bool) {
+func createAssetFilesFromDiscoveryResponse(data interface{}) (numberOfAssetsToValidate int, errOccurred bool) {
 	discoveryResponse := data.([]*iah_discovery.DiscoverResponse)
 	// to store all created files
 	for discoveryResponseIndex := range discoveryResponse {
