@@ -64,6 +64,8 @@ func (m *ReferenceAssetLink) Discover(discoveryConfig config.DiscoveryConfig, de
 		deviceInfo.AddSoftware("firmware", device.GetFirmwareVersion())
 		deviceInfo.AddCapabilities("firmware_update", device.IsUpdateSupported())
 
+		deviceInfo.AddMetadata("connection-string")
+
 		discoveredDevice := deviceInfo.ConvertToDiscoveredDevice()
 
 		err := devicePublisher.PublishDevice(discoveredDevice)
