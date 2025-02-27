@@ -68,9 +68,9 @@ func (m *ReferenceAssetLink) Discover(discoveryConfig config.DiscoveryConfig, de
 			}
 			continue // try next device
 		}
+
 		deviceInfo := createDeviceInfo(device)
 		discoveredDevice := deviceInfo.ConvertToDiscoveredDevice()
-
 		err = devicePublisher.PublishDevice(discoveredDevice)
 		if err != nil {
 			// discovery request was likely cancelled -> terminate discovery and return error
@@ -187,6 +187,9 @@ func createDeviceInfo(device simdevices.SimulatedDeviceInfo) *model.DeviceInfo {
 	deviceInfo.AddSoftware("Firmware", device.GetActiveFirmwareVersion(), true)
 	deviceInfo.AddCapabilities("firmware_update", device.IsUpdateSupported())
 	deviceInfo.AddDescription(device.GetProductDesignation())
+
+	deviceInfo.AddMetadata("connection-string")
+
 	return deviceInfo
 }
 
