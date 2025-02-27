@@ -24,8 +24,6 @@ func decodeMetadata(metadata string) string {
 	return string(decoded)
 }
 
-var instanceAnnotationName string = "metadata"
-
 // AddMetadata Add Metadata blob to an asset
 // This acts as persistent storage for certain metadata
 // which are consumed by the Asset Link for e.g. Software Update
@@ -34,18 +32,10 @@ func (d *DeviceInfo) AddMetadata(metadata string) {
 	metaDataBase64Encoded := encodeMetadata(metadata)
 	// For now stored inside the instance annotations. Should be
 	// moved to a proper field in the future
-	d.InstanceAnnotations = append(d.InstanceAnnotations, InstanceAnnotation{
-		Key:   &instanceAnnotationName,
-		Value: &metaDataBase64Encoded,
-	})
+	d.metadata = metaDataBase64Encoded
 }
 
 // TODO: return may an error
 func (d *DeviceInfo) getMetadata() string {
-	for _, ia := range d.InstanceAnnotations {
-		if *ia.Key == instanceAnnotationName {
-			return string(*ia.Value)
-		}
-	}
-	return ""
+	return d.metadata
 }
