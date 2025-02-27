@@ -88,7 +88,7 @@ func (m *ReferenceClassDriver) Discover(discoveryConfig config.DiscoveryConfig, 
 
 			deviceInfo.AddSoftware("firmware", "1.2.5")
 			deviceInfo.AddCapabilities("firmware_update", false)
-
+			deviceInfo.AddMetadata("connection-string")
 			randomMacAddress := generateRandomMacAddress()
 			id := deviceInfo.AddNic(deviceNIC, randomMacAddress)
 			deviceInfo.AddIPv4(id, deviceIPs[0], "255.255.255.0", "")
