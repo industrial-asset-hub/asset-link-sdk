@@ -31,6 +31,10 @@ func (at *ArtefactTransmitter) TransmitArtefactChunk(artefactChunk *generated.Ar
 	return at.stream.Send(artefactChunk)
 }
 
+func (at *ArtefactTransmitter) TransmitArtefactMetaData(artefactMetaData *generated.ArtefactMetaData) error {
+	return at.TransmitArtefactChunk(&generated.ArtefactChunk{Data: &generated.ArtefactChunk_MetaDate{MetaDate: artefactMetaData}})
+}
+
 func (at *ArtefactTransmitter) TransmitArtefactFromFile(filename string, maxChunkSize uint64) error {
 	file, err := os.Open(filename)
 	if err != nil {
