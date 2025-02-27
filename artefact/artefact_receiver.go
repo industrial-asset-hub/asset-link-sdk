@@ -31,6 +31,15 @@ func (ar *ArtefactReceiver) ReceiveArtefactChunk() (*generated.ArtefactChunk, er
 	return ar.stream.Recv()
 }
 
+func (ar *ArtefactReceiver) ReceiveArtefactMetaData() (*generated.ArtefactMetaData, error) {
+	chunk, err := ar.ReceiveArtefactChunk()
+	if err != nil {
+		return nil, err
+	}
+
+	return chunk.GetMetaDate(), nil
+}
+
 func (ar *ArtefactReceiver) ReceiveArtefactToFile(filename string) error {
 	file, err := os.Create(filename)
 	if err != nil {

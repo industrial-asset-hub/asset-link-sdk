@@ -31,6 +31,14 @@ func PushArtefact(endpoint string, artefactFile string, deviceId string) int {
 		return 1
 	}
 
+	connectionInformation := []byte(deviceId)
+
+	artefactMetaData := &generated.ArtefactChunk{Data: &generated.ArtefactChunk_MetaDate{MetaDate: &generated.ArtefactMetaData{
+		Credential:                  &generated.ArtefactCredentials{},
+		DeviceConnectionInformation: connectionInformation,
+	}}}
+	stream.Send(artefactMetaData)
+
 	artefactFileIn, err := os.Open(artefactFile)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to open artefact file")
