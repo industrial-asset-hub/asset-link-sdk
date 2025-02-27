@@ -136,7 +136,18 @@ func createDiscoverError(sdError error, sdAddress simdevices.SimulatedDeviceAddr
 func (m *ReferenceAssetLink) HandlePushArtefact(artefactReceiver *artefact.ArtefactReceiver) error {
 	log.Info().Msg("Handle Push Artefact by receiving the artefact")
 
-	err := artefactReceiver.ReceiveArtefactToFile("artefact_file")
+	artefactMetaData, err := artefactReceiver.ReceiveArtefactMetaData()
+	if err != nil {
+		log.Err(err).Msg("Failed to receive artefact meta data")
+		return err
+	}
+
+	deviceConnectionInformation := artefactMetaData.GetDeviceConnectionInformation()
+	deviceIdentifier := string(deviceConnectionInformation[:])
+
+	log.Info().Str("DeviceIdentifier", deviceIdentifier).Msg("ArtefactMetaData")
+
+	err = artefactReceiver.ReceiveArtefactToFile("artefact_file")
 	if err != nil {
 		log.Err(err).Msg("Failed to receive artefact file")
 		return err
