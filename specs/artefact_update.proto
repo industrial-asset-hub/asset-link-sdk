@@ -18,17 +18,17 @@ service ArtefactUpdateApi {
 
 message ArtefactChunk {
   oneof data {
-    ArtefactMetaData metaDate = 1;
-    bytes file_content = 2;
-    Status status = 3;
+    ArtefactMetaData metaDate = 1; // first packet
+    bytes file_content = 2; // following
+    Status status = 3; // only for pull
   }
 }
 
 message ArtefactMetaData {
-  oneof meta {
+  // oneof meta {
     ArtefactCredentials credential = 1;
     bytes device_connection_information = 2;
-  }
+  // }
 }
 
 message ArtefactCredentials {
