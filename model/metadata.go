@@ -16,7 +16,7 @@ func encodeMetadata(metadata string) string {
 }
 
 // TODO: return may an error
-func decodeMetadata(metadata string) string {
+func DecodeMetadata(metadata string) string {
 	decoded, err := base64.StdEncoding.DecodeString(metadata)
 	if err != nil {
 		return ""
