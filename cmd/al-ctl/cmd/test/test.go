@@ -8,11 +8,12 @@
 package test
 
 import (
+	"os"
+
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/shared"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/test"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
-	"os"
 )
 
 var TestCmd = &cobra.Command{
@@ -35,6 +36,12 @@ var apiCmd = &cobra.Command{
 	Run:   runApiTests,
 }
 
+var registerCmd = &cobra.Command{
+	Use:   "registration",
+	Short: "Validate Registration of Asset Link",
+	Run:   runRegistrationTests,
+}
+
 var (
 	baseSchemaPath          string
 	extendedSchemaPath      string
@@ -42,13 +49,14 @@ var (
 	discoveryFile           string
 	assetJsonPath           string
 	assetValidationRequired bool
-
-	linkmlSupported bool
+	linkmlSupported         bool
+	registryJsonPath        string
 )
 
 func init() {
 	TestCmd.AddCommand(assetsCmd)
 	TestCmd.AddCommand(apiCmd)
+	TestCmd.AddCommand(registerCmd)
 
 	assetsCmd.Flags().StringVarP(&baseSchemaPath, "base-schema-path", "b", "", "Path to the base schema YAML file")
 	assetsCmd.Flags().StringVarP(&extendedSchemaPath, "extended-schema-path", "s", "", "Path to the extended schema YAML file")
@@ -64,6 +72,7 @@ func init() {
 	apiCmd.Flags().StringVarP(&baseSchemaPath, "base-schema-path", "b", "", "Path to the base schema YAML file")
 	apiCmd.Flags().StringVarP(&extendedSchemaPath, "extended-schema-path", "s", "", "Path to the extended schema YAML file")
 	apiCmd.Flags().StringVarP(&targetClass, "target-class", "t", "", "Target class for validation")
+	registerCmd.Flags().StringVarP(&registryJsonPath, "registry-json-path", "f", "", "Registration param file path")
 }
 
 func runAssetsTests(cmd *cobra.Command, args []string) {
@@ -87,4 +96,8 @@ func runApiTests(cmd *cobra.Command, args []string) {
 		TargetClass:        targetClass,
 	}
 	test.RunApiTests(shared.AssetLinkEndpoint, discoveryFile, assetValidationRequired, assetValidationParams, linkmlSupported)
+}
+
+func runRegistrationTests(cmd *cobra.Command, args []string) {
+	test.RunRegistrationTests(shared.RegistryEndpoint, registryJsonPath)
 }
