@@ -8,8 +8,6 @@
 package test
 
 import (
-	"os"
-
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/shared"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/test"
 	"github.com/rs/zerolog/log"
@@ -49,15 +47,17 @@ var (
 	discoveryFile           string
 	assetJsonPath           string
 	assetValidationRequired bool
-	linkmlSupported         bool
-	registryJsonPath        string
+
+	serviceName              string
+	registryJsonPath         string
+	linkmlSupported          bool
+	cancelValidationRequired bool
 )
 
 func init() {
 	TestCmd.AddCommand(assetsCmd)
 	TestCmd.AddCommand(apiCmd)
 	TestCmd.AddCommand(registerCmd)
-
 	assetsCmd.Flags().StringVarP(&baseSchemaPath, "base-schema-path", "b", "", "Path to the base schema YAML file")
 	assetsCmd.Flags().StringVarP(&extendedSchemaPath, "extended-schema-path", "s", "", "Path to the extended schema YAML file")
 	assetsCmd.Flags().StringVarP(&assetJsonPath, "asset-path", "a", "", "Path to the asset JSON file")
@@ -72,6 +72,8 @@ func init() {
 	apiCmd.Flags().StringVarP(&baseSchemaPath, "base-schema-path", "b", "", "Path to the base schema YAML file")
 	apiCmd.Flags().StringVarP(&extendedSchemaPath, "extended-schema-path", "s", "", "Path to the extended schema YAML file")
 	apiCmd.Flags().StringVarP(&targetClass, "target-class", "t", "", "Target class for validation")
+	apiCmd.Flags().StringVarP(&serviceName, "service-name", "u", "", "Service to be valdiated (supported services: discovery)")
+	apiCmd.Flags().BoolVarP(&cancelValidationRequired, "cancel", "c", false, "Check cancellation of the service request")
 	registerCmd.Flags().StringVarP(&registryJsonPath, "registry-json-path", "f", "", "Registration param file path")
 }
 
@@ -84,8 +86,7 @@ func runAssetsTests(cmd *cobra.Command, args []string) {
 	}
 	err := test.ValidateAsset(assetValidationParams, linkmlSupported)
 	if err != nil {
-		log.Err(err).Msg("failed to validate asset against schema")
-		os.Exit(1)
+		log.Fatal().Err(err).Msg("failed to validate asset against schema")
 	}
 }
 
@@ -95,7 +96,15 @@ func runApiTests(cmd *cobra.Command, args []string) {
 		ExtendedSchemaPath: extendedSchemaPath,
 		TargetClass:        targetClass,
 	}
-	test.RunApiTests(shared.AssetLinkEndpoint, discoveryFile, assetValidationRequired, assetValidationParams, linkmlSupported)
+
+	testConfig := test.TestConfig{
+		DiscoveryFile:           discoveryFile,
+		AssetValidationRequired: assetValidationRequired,
+		LinkMLSupported:         linkmlSupported,
+		AssetValidationParams:   assetValidationParams,
+	}
+
+	test.RunApiTests(serviceName, cancelValidationRequired, testConfig)
 }
 
 func runRegistrationTests(cmd *cobra.Command, args []string) {

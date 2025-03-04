@@ -26,16 +26,21 @@ var DiscoverCmd = &cobra.Command{
 	Short: "Start discovery job",
 	Long:  `This command starts an discovery job and prints the result.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		resp := al.Discover(shared.AssetLinkEndpoint, discoveryFile)
-
+		resp, err := al.Discover(shared.AssetLinkEndpoint, discoveryFile)
+		if err != nil {
+			log.Fatal().Err(err).Msg("error during discovery")
+		}
 		log.Trace().Str("File", outputFile).Msg("Saving to file")
-		f, _ := os.Create(outputFile)
+		f, err := os.Create(outputFile)
+		if err != nil {
+			log.Fatal().Err(err).Msg("error creating file")
+		}
 		defer f.Close()
 
 		asJson, _ := json.MarshalIndent(resp, "", "  ")
-		_, err := f.Write(asJson)
+		_, err = f.Write(asJson)
 		if err != nil {
-			log.Err(err).Msg("error during writing of the json file")
+			log.Fatal().Err(err).Msg("error during writing of the json file")
 		}
 
 	},

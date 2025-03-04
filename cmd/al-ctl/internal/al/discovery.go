@@ -10,6 +10,7 @@ package al
 import (
 	"fmt"
 	"io"
+	"time"
 
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/shared"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/config"
@@ -18,7 +19,7 @@ import (
 	"golang.org/x/net/context"
 )
 
-func Discover(endpoint string, discoveryFile string) []*generated.DiscoverResponse {
+func Discover(endpoint string, discoveryFile string) ([]*generated.DiscoverResponse, error) {
 	log.Info().Str("Endpoint", endpoint).Str("Discovery Request Config File", discoveryFile).Msg("Starting discovery job")
 
 	discoveryConfig := config.NewDiscoveryConfigWithDefaults()
@@ -28,7 +29,7 @@ func Discover(endpoint string, discoveryFile string) []*generated.DiscoverRespon
 		discoveryConfig, configError = config.NewDiscoveryConfigFromFile(discoveryFile)
 		if configError != nil {
 			log.Err(configError).Msg("Failed to read config file")
-			return nil
+			return nil, configError
 		}
 	}
 
@@ -39,11 +40,19 @@ func Discover(endpoint string, discoveryFile string) []*generated.DiscoverRespon
 
 	client := generated.NewDeviceDiscoverApiClient(conn)
 	ctx := context.Background()
+	if shared.TimeoutSeconds > 0 {
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithCancel(ctx)
+		go func() {
+			time.Sleep(time.Duration(shared.TimeoutSeconds) * time.Second)
+			cancel()
+		}()
+	}
 	stream, err := client.DiscoverDevices(ctx, discoveryRequest)
 
 	if err != nil {
 		log.Err(err).Msg("StartDeviceDiscovery request returned an error")
-		return nil
+		return nil, err
 	}
 
 	devices := make([]*generated.DiscoverResponse, 0)
@@ -56,7 +65,7 @@ func Discover(endpoint string, discoveryFile string) []*generated.DiscoverRespon
 
 		if err != nil {
 			log.Err(err).Msg("SubscribeDiscovery request returned an error")
-			return nil
+			return nil, err
 		}
 
 		fmt.Printf("%+v\n", resp.Devices)
@@ -64,7 +73,7 @@ func Discover(endpoint string, discoveryFile string) []*generated.DiscoverRespon
 		log.Trace().Interface("Devices", resp).Msg("")
 		devices = append(devices, resp)
 	}
-	return devices
+	return devices, nil
 }
 
 func GetFilterTypes(endpoint string) *generated.FilterTypesResponse {

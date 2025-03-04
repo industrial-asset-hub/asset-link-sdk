@@ -9,8 +9,9 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/cmd/test"
 	"os"
+
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/cmd/test"
 
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/cmd/info"
 
@@ -57,7 +58,7 @@ func init() {
 			zerolog.ErrorLevel.String(),
 			zerolog.FatalLevel.String(),
 			zerolog.PanicLevel.String()))
-
+	rootCmd.PersistentFlags().UintVarP(&shared.TimeoutSeconds, "timeout", "n", 0, "timeout in seconds (default none)")
 	rootCmd.AddCommand(discovery.DiscoverCmd)
 	rootCmd.AddCommand(info.InfoCmd)
 	rootCmd.AddCommand(info.ListCmd)
