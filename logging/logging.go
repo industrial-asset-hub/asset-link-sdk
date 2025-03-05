@@ -17,6 +17,16 @@ import (
 	"golang.org/x/term"
 )
 
+const (
+	colorTrace = "\033[34mTRACE\033[0m"
+	colorDebug = "\033[36mDEBUG\033[0m"
+	colorInfo  = "\033[32mINFO\033[0m"
+	colorWarn  = "\033[33mWARN\033[0m"
+	colorError = "\033[31mERROR\033[0m"
+	colorFatal = "\033[35mFATAL\033[0m"
+	colorPanic = "\033[31mPANIC\033[0m"
+)
+
 func SetupLogging() {
 	var out *os.File = os.Stdout
 	var format = "auto"
@@ -51,4 +61,32 @@ func AdjustLogLevel(logLevelRaw string) {
 		log.Fatal().Err(err).Msg("Invalid log level format")
 	}
 	zerolog.SetGlobalLevel(lvl)
+}
+
+func SetColorForLogLevel() {
+	consoleWriter := zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339}
+	consoleWriter.FormatLevel = func(logData interface{}) string {
+		if logLevel, ok := logData.(string); ok {
+			switch logLevel {
+			case "trace":
+				return colorTrace
+			case "debug":
+				return colorDebug
+			case "info":
+				return colorInfo
+			case "warn":
+				return colorWarn
+			case "error":
+				return colorError
+			case "fatal":
+				return colorFatal
+			case "panic":
+				return colorPanic
+			default:
+				return logLevel
+			}
+		}
+		return ""
+	}
+	log.Logger = zerolog.New(consoleWriter).With().Timestamp().Logger()
 }
