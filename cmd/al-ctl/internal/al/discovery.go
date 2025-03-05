@@ -8,7 +8,6 @@
 package al
 
 import (
-	"fmt"
 	"io"
 	"time"
 
@@ -67,8 +66,6 @@ func Discover(endpoint string, discoveryFile string) ([]*generated.DiscoverRespo
 			log.Err(err).Msg("SubscribeDiscovery request returned an error")
 			return nil, err
 		}
-
-		fmt.Printf("%+v\n", resp.Devices)
 
 		log.Trace().Interface("Devices", resp).Msg("")
 		devices = append(devices, resp)

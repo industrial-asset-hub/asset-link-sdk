@@ -52,3 +52,31 @@ func AdjustLogLevel(logLevelRaw string) {
 	}
 	zerolog.SetGlobalLevel(lvl)
 }
+
+func SetColorForLogLevel() {
+	consoleWriter := zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339}
+	consoleWriter.FormatLevel = func(i interface{}) string {
+		if ll, ok := i.(string); ok {
+			switch ll {
+			case "trace":
+				return "\033[34mTRACE\033[0m"
+			case "debug":
+				return "\033[36mDEBUG\033[0m"
+			case "info":
+				return "\033[32mINFO\033[0m"
+			case "warn":
+				return "\033[33mWARN\033[0m"
+			case "error":
+				return "\033[31mERROR\033[0m"
+			case "fatal":
+				return "\033[35mFATAL\033[0m"
+			case "panic":
+				return "\033[31mPANIC\033[0m"
+			default:
+				return ll
+			}
+		}
+		return ""
+	}
+	log.Logger = zerolog.New(consoleWriter).With().Timestamp().Logger()
+}

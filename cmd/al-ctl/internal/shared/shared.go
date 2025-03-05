@@ -10,8 +10,8 @@ package shared
 var (
 	RegistryEndpoint  string
 	AssetLinkEndpoint string
-
-	TimeoutSeconds uint
+	OutputFile        string = ""
+	TimeoutSeconds    uint
 )
 
 const (
