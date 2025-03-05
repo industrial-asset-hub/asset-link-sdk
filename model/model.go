@@ -14,7 +14,9 @@ import (
 )
 
 const (
-	baseSchemaPrefix = "https://schema.industrial-assets.io/base/v0.9.0"
+	baseSchemaVersion   = "v0.9.0"
+	baseSchemaPrefix    = "https://schema.industrial-assets.io/base/" + baseSchemaVersion
+	baseSchemaInContext = "https://common-device-management.code.siemens.io/documentation/asset-modeling/base-schema/" + baseSchemaVersion + "/"
 )
 
 // NewDevice Generates a new asset skeleton

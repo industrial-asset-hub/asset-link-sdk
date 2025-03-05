@@ -9,11 +9,12 @@ package model
 
 import (
 	"fmt"
-	generated "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
 	"net/url"
 	"strconv"
 	"strings"
 	"time"
+
+	generated "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
 )
 
 const (
@@ -144,12 +145,12 @@ func ConvertFromDiscoveredDevice(device *generated.DiscoveredDevice, expectedTyp
 	DeviceInIahSchema := make(map[string]interface{})
 	DeviceInIahSchema["@type"] = retrieveAssetTypeFromDiscoveredDevice(device)
 	DeviceInIahSchema["@context"] = map[string]interface{}{
-		"base":      "https://common-device-management.code.siemens.io/documentation/asset-modeling/base-schema/v0.7.5/",
+		"base":      baseSchemaInContext,
 		"linkml":    "https://w3id.org/linkml/",
 		"lis":       "http://rds.posccaesar.org/ontology/lis14/rdl/",
 		"schemaorg": "https://schema.org/",
 		"skos":      "http://www.w3.org/2004/02/skos/core#",
-		"@vocab":    "https://common-device-management.code.siemens.io/documentation/asset-modeling/base-schema/v0.7.5/",
+		"@vocab":    baseSchemaInContext,
 	}
 	timestamp := device.Timestamp
 	formattedTimestamp := convertTimestampToRFC339(int64(timestamp))
