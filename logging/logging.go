@@ -17,6 +17,16 @@ import (
 	"golang.org/x/term"
 )
 
+const (
+	colorTrace = "\033[34mTRACE\033[0m"
+	colorDebug = "\033[36mDEBUG\033[0m"
+	colorInfo  = "\033[32mINFO\033[0m"
+	colorWarn  = "\033[33mWARN\033[0m"
+	colorError = "\033[31mERROR\033[0m"
+	colorFatal = "\033[35mFATAL\033[0m"
+	colorPanic = "\033[31mPANIC\033[0m"
+)
+
 func SetupLogging() {
 	var out *os.File = os.Stdout
 	var format = "auto"
@@ -55,25 +65,25 @@ func AdjustLogLevel(logLevelRaw string) {
 
 func SetColorForLogLevel() {
 	consoleWriter := zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339}
-	consoleWriter.FormatLevel = func(i interface{}) string {
-		if ll, ok := i.(string); ok {
-			switch ll {
+	consoleWriter.FormatLevel = func(logData interface{}) string {
+		if logLevel, ok := logData.(string); ok {
+			switch logLevel {
 			case "trace":
-				return "\033[34mTRACE\033[0m"
+				return colorTrace
 			case "debug":
-				return "\033[36mDEBUG\033[0m"
+				return colorDebug
 			case "info":
-				return "\033[32mINFO\033[0m"
+				return colorInfo
 			case "warn":
-				return "\033[33mWARN\033[0m"
+				return colorWarn
 			case "error":
-				return "\033[31mERROR\033[0m"
+				return colorError
 			case "fatal":
-				return "\033[35mFATAL\033[0m"
+				return colorFatal
 			case "panic":
-				return "\033[31mPANIC\033[0m"
+				return colorPanic
 			default:
-				return ll
+				return logLevel
 			}
 		}
 		return ""
