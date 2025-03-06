@@ -51,6 +51,7 @@ func SetupLogging() {
 		fmt.Fprintf(os.Stderr, "Invalid log format: %s\n", format)
 	}
 	log.Logger = logger.With().Timestamp().Caller().Logger()
+	SetColorForLogLevel()
 }
 
 func AdjustLogLevel(logLevelRaw string) {

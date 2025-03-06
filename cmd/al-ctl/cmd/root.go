@@ -69,5 +69,4 @@ func init() {
 func initHandlers() {
 	logging.SetupLogging()
 	logging.AdjustLogLevel(logLevel)
-	logging.SetColorForLogLevel()
 }

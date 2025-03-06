@@ -14,7 +14,6 @@ import (
 
 func main() {
 	logging.SetupLogging()
-	logging.SetColorForLogLevel()
 	cmd.SetVersionInfo()
 	cmd.Execute()
 }
