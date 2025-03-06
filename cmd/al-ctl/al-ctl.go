@@ -8,12 +8,25 @@
 package main
 
 import (
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/cmd"
+	"fmt"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/cmd"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/logging"
+	"runtime"
+)
+
+var (
+	// values provided by linker
+	version = "dev"
+	commit  = "unknown"
+	date    = "unknown"
 )
 
 func main() {
 	logging.SetupLogging()
-	cmd.SetVersionInfo()
+	SetVersionInfo()
 	cmd.Execute()
+}
+func SetVersionInfo() {
+	goversion := runtime.Version()
+	cmd.RootCmd.Version = fmt.Sprintf("%s\nBuild Time: %s\nCommit: %s\nGoVersion: %s", version, date, commit, goversion)
 }
