@@ -4,13 +4,14 @@
  * SPDX-License-Identifier: MIT
  *
  */
-package test
+package testsuite
 
 import (
 	"context"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/shared"
 	generated "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/conn_suite_registry"
 	"github.com/rs/zerolog/log"
+	"strconv"
 )
 
 func GetRegisteredServices(endpoint string) []*generated.ServiceInfo {
@@ -29,7 +30,7 @@ func GetRegisteredServices(endpoint string) []*generated.ServiceInfo {
 	return response.GetInfos()
 }
 
-func validateRegistryParams(service *generated.ServiceInfo, registryParams RegistryParams) []string {
+func validateRegistryParams(service *generated.ServiceInfo, registryParams RegistryFileParams) []string {
 	var unmatchedRegistrationParams []string
 	if service.GetAppInstanceId() != registryParams.AppInstanceId {
 		unmatchedRegistrationParams = append(unmatchedRegistrationParams, "app_instance_id")
@@ -53,4 +54,15 @@ func compareRegistryInfoValues(registryInfo, registryParam []string) bool {
 		}
 	}
 	return true
+}
+
+func getServiceAddress(serviceInfo *generated.ServiceInfo) string {
+	var ip string
+	if serviceInfo.GetDnsDomainname() != "" {
+		ip = serviceInfo.GetDnsDomainname()
+	} else if serviceInfo.GetIpv4Address() != "" {
+		ip = serviceInfo.GetIpv4Address()
+	}
+	grpcAddressOfService := ip + ":" + strconv.Itoa(int(serviceInfo.GetGrpcIpPortNumber()))
+	return grpcAddressOfService
 }

@@ -10,10 +10,10 @@ package registry
 import (
 	"context"
 	"fmt"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/shared"
 	"strconv"
 	"strings"
 
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/shared"
 	generated "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/conn_suite_registry"
 	"github.com/rs/zerolog/log"
 )
