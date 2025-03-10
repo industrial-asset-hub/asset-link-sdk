@@ -5,21 +5,21 @@
  *
  */
 
-package al
+package discovery
 
 import (
 	"fmt"
+	shared "github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/shared"
 	"io"
 	"time"
 
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/shared"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/config"
 	generated "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/net/context"
 )
 
-func Discover(endpoint string, discoveryFile string) ([]*generated.DiscoverResponse, error) {
+func Discover(endpoint string, discoveryFile string, timeoutInSeconds uint) ([]*generated.DiscoverResponse, error) {
 	log.Info().Str("Endpoint", endpoint).Str("Discovery Request Config File", discoveryFile).Msg("Starting discovery job")
 
 	discoveryConfig := config.NewDiscoveryConfigWithDefaults()
@@ -40,11 +40,13 @@ func Discover(endpoint string, discoveryFile string) ([]*generated.DiscoverRespo
 
 	client := generated.NewDeviceDiscoverApiClient(conn)
 	ctx := context.Background()
-	if shared.TimeoutSeconds > 0 {
+
+	// If timeoutInSeconds is greater than 0, create a context with a timeout
+	if timeoutInSeconds > 0 {
 		var cancel context.CancelFunc
 		ctx, cancel = context.WithCancel(ctx)
 		go func() {
-			time.Sleep(time.Duration(shared.TimeoutSeconds) * time.Second)
+			time.Sleep(time.Duration(timeoutInSeconds) * time.Second)
 			cancel()
 		}()
 	}

@@ -5,28 +5,23 @@
  *
  */
 
-package discovery
+package cmd
 
 import (
 	"encoding/json"
-	"os"
-
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/al"
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/shared"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/discovery"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
+	"os"
 )
 
-var discoveryFile string = ""
-var outputFile string = ""
-
 // discoverCmd represents the discovery command
-var DiscoverCmd = &cobra.Command{
+var discoverCmd = &cobra.Command{
 	Use:   "discover",
 	Short: "Start discovery job",
 	Long:  `This command starts an discovery job and prints the result.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		resp, err := al.Discover(shared.AssetLinkEndpoint, discoveryFile)
+		resp, err := discovery.Discover(assetLinkEndpoint, discoveryFile, timeoutInSeconds)
 		if err != nil {
 			log.Fatal().Err(err).Msg("error during discovery")
 		}
@@ -47,6 +42,6 @@ var DiscoverCmd = &cobra.Command{
 }
 
 func init() {
-	DiscoverCmd.Flags().StringVarP(&outputFile, "output-file", "o", "result.json", "output file")
-	DiscoverCmd.Flags().StringVarP(&discoveryFile, "discovery-file", "d", "", shared.DiscoveryFileDesc)
+	discoverCmd.Flags().StringVarP(&outputFile, "output-file", "o", "result.json", "output file")
+	discoverCmd.Flags().StringVarP(&discoveryFile, "discovery-file", "d", "", DiscoveryFileDesc)
 }
