@@ -9,7 +9,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/cmd"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/cmd"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/logging"
 	"runtime"
 )
