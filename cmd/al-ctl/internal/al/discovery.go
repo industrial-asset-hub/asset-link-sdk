@@ -8,6 +8,7 @@
 package al
 
 import (
+	"fmt"
 	"io"
 	"time"
 
@@ -67,6 +68,7 @@ func Discover(endpoint string, discoveryFile string) ([]*generated.DiscoverRespo
 			return nil, err
 		}
 
+		log.Info().Msg(fmt.Sprintf("Discovered Devices: %v", len(resp.Devices)))
 		log.Trace().Interface("Devices", resp).Msg("")
 		devices = append(devices, resp)
 	}

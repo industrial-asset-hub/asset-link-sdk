@@ -26,14 +26,17 @@ func TestDiscoverDevices(testConfig TestConfig) bool {
 		return false
 	}
 
-	log.Trace().Str("File", shared.OutputFile).Msg("Saving to file")
-	f, _ := os.Create(shared.OutputFile)
+	log.Info().Str("File", "testresult.json").Msg("Saving to file")
+	f, err := os.Create("testresult.json")
+	if err != nil {
+		log.Fatal().Err(err).Msg("error creating file")
+	}
 	defer f.Close()
 
 	asJson, _ := json.MarshalIndent(data, "", "  ")
 	_, err = f.Write(asJson)
 	if err != nil {
-		log.Err(err).Msg("error during writing of the json file")
+		log.Fatal().Err(err).Msg("error during writing of the json file")
 	}
 
 	if testConfig.AssetValidationRequired {

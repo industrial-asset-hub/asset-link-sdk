@@ -18,6 +18,7 @@ import (
 )
 
 var discoveryFile string = ""
+var outputFile string = ""
 
 // discoverCmd represents the discovery command
 var DiscoverCmd = &cobra.Command{
@@ -29,8 +30,8 @@ var DiscoverCmd = &cobra.Command{
 		if err != nil {
 			log.Fatal().Err(err).Msg("error during discovery")
 		}
-		log.Trace().Str("File", shared.OutputFile).Msg("Saving to file")
-		f, err := os.Create(shared.OutputFile)
+		log.Info().Str("File", outputFile).Msg("Response saved to file")
+		f, err := os.Create(outputFile)
 		if err != nil {
 			log.Fatal().Err(err).Msg("error creating file")
 		}
@@ -46,6 +47,6 @@ var DiscoverCmd = &cobra.Command{
 }
 
 func init() {
-	DiscoverCmd.Flags().StringVarP(&shared.OutputFile, "output-file", "o", "result.json", "output file")
+	DiscoverCmd.Flags().StringVarP(&outputFile, "output-file", "o", "discovery.json", "output file for the discovery result")
 	DiscoverCmd.Flags().StringVarP(&discoveryFile, "discovery-file", "d", "", shared.DiscoveryFileDesc)
 }

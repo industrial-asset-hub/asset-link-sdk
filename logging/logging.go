@@ -51,20 +51,7 @@ func SetupLogging() {
 		fmt.Fprintf(os.Stderr, "Invalid log format: %s\n", format)
 	}
 	log.Logger = logger.With().Timestamp().Caller().Logger()
-	SetColorForLogLevel()
-}
 
-func AdjustLogLevel(logLevelRaw string) {
-	// logLevelRaw := flag.GetString(cli.LogLevel.ToViper())
-	// logLevelRaw := flag.Args("log-level")
-	lvl, err := zerolog.ParseLevel(logLevelRaw)
-	if err != nil {
-		log.Fatal().Err(err).Msg("Invalid log level format")
-	}
-	zerolog.SetGlobalLevel(lvl)
-}
-
-func SetColorForLogLevel() {
 	consoleWriter := zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339}
 	consoleWriter.FormatLevel = func(logData interface{}) string {
 		if logLevel, ok := logData.(string); ok {
@@ -90,4 +77,14 @@ func SetColorForLogLevel() {
 		return ""
 	}
 	log.Logger = zerolog.New(consoleWriter).With().Timestamp().Logger()
+}
+
+func AdjustLogLevel(logLevelRaw string) {
+	// logLevelRaw := flag.GetString(cli.LogLevel.ToViper())
+	// logLevelRaw := flag.Args("log-level")
+	lvl, err := zerolog.ParseLevel(logLevelRaw)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Invalid log level format")
+	}
+	zerolog.SetGlobalLevel(lvl)
 }
