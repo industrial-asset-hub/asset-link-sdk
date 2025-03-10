@@ -20,7 +20,6 @@ import (
 const fullProfinetSchemaPrefix = "https://schema.industrial-assets.io/profinet/1.0.0/ProfinetDevice#"
 
 func TestDeviceTransformation(t *testing.T) {
-	baseSchema := "https://common-device-management.code.siemens.io/documentation/asset-modeling/base-schema/v0.7.5/"
 	t.Run("ConvertFromDiscoveredDevice when provided a device with identifier value of type text transforms it successfully", func(t *testing.T) {
 		testDeviceForText := &generated.DiscoveredDevice{
 			Identifiers: []*generated.DeviceIdentifier{{
@@ -45,12 +44,12 @@ func TestDeviceTransformation(t *testing.T) {
 				"state_timestamp": convertTimestampToRFC339(1000010000100010),
 			},
 			"@context": map[string]interface{}{
-				"base":      baseSchema,
+				"base":      baseSchemaInContext,
 				"linkml":    "https://w3id.org/linkml/",
 				"lis":       "http://rds.posccaesar.org/ontology/lis14/rdl/",
 				"schemaorg": "https://schema.org/",
 				"skos":      "http://www.w3.org/2004/02/skos/core#",
-				"@vocab":    baseSchema,
+				"@vocab":    baseSchemaInContext,
 			},
 			"product_instance_identifier": map[string]interface{}{
 				"manufacturer_product": map[string]interface{}{
@@ -87,12 +86,12 @@ func TestDeviceTransformation(t *testing.T) {
 				"state_timestamp": convertTimestampToRFC339(1000010000100010),
 			},
 			"@context": map[string]interface{}{
-				"base":      baseSchema,
+				"base":      baseSchemaInContext,
 				"linkml":    "https://w3id.org/linkml/",
 				"lis":       "http://rds.posccaesar.org/ontology/lis14/rdl/",
 				"schemaorg": "https://schema.org/",
 				"skos":      "http://www.w3.org/2004/02/skos/core#",
-				"@vocab":    baseSchema,
+				"@vocab":    baseSchemaInContext,
 			},
 			"test-1": int64(1),
 		}
@@ -122,12 +121,12 @@ func TestDeviceTransformation(t *testing.T) {
 				"state_timestamp": convertTimestampToRFC339(1000010000100010),
 			},
 			"@context": map[string]interface{}{
-				"base":      baseSchema,
+				"base":      baseSchemaInContext,
 				"linkml":    "https://w3id.org/linkml/",
 				"lis":       "http://rds.posccaesar.org/ontology/lis14/rdl/",
 				"schemaorg": "https://schema.org/",
 				"skos":      "http://www.w3.org/2004/02/skos/core#",
-				"@vocab":    baseSchema,
+				"@vocab":    baseSchemaInContext,
 			},
 			"test-2": map[string]interface{}{
 				"A": map[string]interface{}{
@@ -161,12 +160,12 @@ func TestDeviceTransformation(t *testing.T) {
 				"state_timestamp": convertTimestampToRFC339(1000010000100010),
 			},
 			"@context": map[string]interface{}{
-				"base":      baseSchema,
+				"base":      baseSchemaInContext,
 				"linkml":    "https://w3id.org/linkml/",
 				"lis":       "http://rds.posccaesar.org/ontology/lis14/rdl/",
 				"schemaorg": "https://schema.org/",
 				"skos":      "http://www.w3.org/2004/02/skos/core#",
-				"@vocab":    baseSchema,
+				"@vocab":    baseSchemaInContext,
 			},
 			"test-2": map[string]interface{}{
 				"A": map[string]interface{}{
@@ -208,12 +207,12 @@ func TestDeviceTransformation(t *testing.T) {
 		expectedResult := map[string]interface{}{
 			"@type": "ProfinetDevice",
 			"@context": map[string]interface{}{
-				"base":      baseSchema,
+				"base":      baseSchemaInContext,
 				"linkml":    "https://w3id.org/linkml/",
 				"lis":       "http://rds.posccaesar.org/ontology/lis14/rdl/",
 				"schemaorg": "https://schema.org/",
 				"skos":      "http://www.w3.org/2004/02/skos/core#",
-				"@vocab":    baseSchema,
+				"@vocab":    baseSchemaInContext,
 			},
 			"management_state": map[string]interface{}{
 				"state_value":     "unknown",
@@ -287,12 +286,12 @@ func TestDeviceTransformation(t *testing.T) {
 		expectedResult := map[string]interface{}{
 			"@type": "ProfinetDevice",
 			"@context": map[string]interface{}{
-				"base":      baseSchema,
+				"base":      baseSchemaInContext,
 				"linkml":    "https://w3id.org/linkml/",
 				"lis":       "http://rds.posccaesar.org/ontology/lis14/rdl/",
 				"schemaorg": "https://schema.org/",
 				"skos":      "http://www.w3.org/2004/02/skos/core#",
-				"@vocab":    baseSchema,
+				"@vocab":    baseSchemaInContext,
 			},
 			"management_state": map[string]interface{}{
 				"state_value":     "unknown",
@@ -732,7 +731,7 @@ func TestMapManyDeepArrayElementsWithDeepPathsIntoIahDevice(t *testing.T) {
 }
 
 func TestMapManyDeepArrayElementsWithDeepPathsThatContainArraysIntoIahDevice(t *testing.T) {
-	expectedResult := map[string]interface{}{"@context": map[string]interface{}{"@vocab": "https://common-device-management.code.siemens.io/documentation/asset-modeling/base-schema/v0.7.5/", "base": "https://common-device-management.code.siemens.io/documentation/asset-modeling/base-schema/v0.7.5/", "linkml": "https://w3id.org/linkml/", "lis": "http://rds.posccaesar.org/ontology/lis14/rdl/", "schemaorg": "https://schema.org/", "skos": "http://www.w3.org/2004/02/skos/core#"}, "@type": "device", "a": map[string]interface{}{"deeper": map[string]interface{}{"array": []map[string]interface{}{{"some_object": map[string]interface{}{"connection_points": []map[string]interface{}{{"id": "array-0-connection-point-0", "related_connection_points": []map[string]interface{}{{"id": "array-0-con-point-0-related-connection-point-0"}, {"id": "array-0-con-point-0-related-connection-point-1"}}}, {}, {"related_connection_points": []map[string]interface{}{{}, {}, {"id": "array-0-con-point-2-related-connection-point-2"}, {"id": "array-0-con-point-2-related-connection-point-3"}}}}, "name": "array-0-name"}}, {"some_object": map[string]interface{}{"connection_points": []map[string]interface{}{{"id": "array-1-connection-point-0", "related_connection_points": []map[string]interface{}{{"id": "array-1-con-point-0-related-connection-point-0"}, {"id": "array-1-con-point-0-related-connection-point-1"}}}, {"id": "array-1-connection-point-1", "related_connection_points": []map[string]interface{}{{}, {}, {"id": "array-1-con-point-1-related-connection-point-2"}, {"id": "array-1-con-point-1-related-connection-point-3"}}}}, "id": "array-1-id", "name": "array-1-name"}}, {"some_object": map[string]interface{}{"id": "array-2-id"}}}}}, "management_state": map[string]interface{}{"state_timestamp": convertTimestampToRFC339(1000010000100010), "state_value": "unknown"}}
+	expectedResult := map[string]interface{}{"@context": map[string]interface{}{"@vocab": baseSchemaInContext, "base": baseSchemaInContext, "linkml": "https://w3id.org/linkml/", "lis": "http://rds.posccaesar.org/ontology/lis14/rdl/", "schemaorg": "https://schema.org/", "skos": "http://www.w3.org/2004/02/skos/core#"}, "@type": "device", "a": map[string]interface{}{"deeper": map[string]interface{}{"array": []map[string]interface{}{{"some_object": map[string]interface{}{"connection_points": []map[string]interface{}{{"id": "array-0-connection-point-0", "related_connection_points": []map[string]interface{}{{"id": "array-0-con-point-0-related-connection-point-0"}, {"id": "array-0-con-point-0-related-connection-point-1"}}}, {}, {"related_connection_points": []map[string]interface{}{{}, {}, {"id": "array-0-con-point-2-related-connection-point-2"}, {"id": "array-0-con-point-2-related-connection-point-3"}}}}, "name": "array-0-name"}}, {"some_object": map[string]interface{}{"connection_points": []map[string]interface{}{{"id": "array-1-connection-point-0", "related_connection_points": []map[string]interface{}{{"id": "array-1-con-point-0-related-connection-point-0"}, {"id": "array-1-con-point-0-related-connection-point-1"}}}, {"id": "array-1-connection-point-1", "related_connection_points": []map[string]interface{}{{}, {}, {"id": "array-1-con-point-1-related-connection-point-2"}, {"id": "array-1-con-point-1-related-connection-point-3"}}}}, "id": "array-1-id", "name": "array-1-name"}}, {"some_object": map[string]interface{}{"id": "array-2-id"}}}}}, "management_state": map[string]interface{}{"state_timestamp": convertTimestampToRFC339(1000010000100010), "state_value": "unknown"}}
 
 	discoveredDevice := generated.DiscoveredDevice{
 		Identifiers: []*generated.DeviceIdentifier{{
