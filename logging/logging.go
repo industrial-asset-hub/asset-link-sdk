@@ -33,7 +33,7 @@ func SetupLogging() {
 
 	var logger zerolog.Logger
 	if format == "auto" {
-		if term.IsTerminal(int(out.Fd())) {
+		if term.IsTerminal(int(out.Fd())) || os.Getenv("MSYSTEM") != "" {
 			format = "pretty"
 		} else {
 			format = "json"
@@ -51,32 +51,6 @@ func SetupLogging() {
 		fmt.Fprintf(os.Stderr, "Invalid log format: %s\n", format)
 	}
 	log.Logger = logger.With().Timestamp().Caller().Logger()
-
-	consoleWriter := zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339}
-	consoleWriter.FormatLevel = func(logData interface{}) string {
-		if logLevel, ok := logData.(string); ok {
-			switch logLevel {
-			case "trace":
-				return colorTrace
-			case "debug":
-				return colorDebug
-			case "info":
-				return colorInfo
-			case "warn":
-				return colorWarn
-			case "error":
-				return colorError
-			case "fatal":
-				return colorFatal
-			case "panic":
-				return colorPanic
-			default:
-				return logLevel
-			}
-		}
-		return ""
-	}
-	log.Logger = zerolog.New(consoleWriter).With().Timestamp().Logger()
 }
 
 func AdjustLogLevel(logLevelRaw string) {

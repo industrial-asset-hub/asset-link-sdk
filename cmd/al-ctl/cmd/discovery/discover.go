@@ -47,6 +47,6 @@ var DiscoverCmd = &cobra.Command{
 }
 
 func init() {
-	DiscoverCmd.Flags().StringVarP(&outputFile, "output-file", "o", "discovery.json", "output file for the discovery result")
+	DiscoverCmd.Flags().StringVarP(&outputFile, "output-file", "o", "result.json", "output file for the discovery result")
 	DiscoverCmd.Flags().StringVarP(&discoveryFile, "discovery-file", "d", "", shared.DiscoveryFileDesc)
 }
