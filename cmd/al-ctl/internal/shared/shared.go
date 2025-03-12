@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Siemens AG
+ * SPDX-FileCopyrightText: 2025 Siemens AG
  *
  * SPDX-License-Identifier: MIT
  *
@@ -15,5 +15,5 @@ var (
 )
 
 const (
-	DiscoveryFileDesc string = "discovery file allows the configuration of discovery filters and options (see discovery.json for an example)"
+	DiscoveryFileDesc string = "discovery configuration filename allows the configuration of discovery filters and options (see discovery.json for an example)"
 )

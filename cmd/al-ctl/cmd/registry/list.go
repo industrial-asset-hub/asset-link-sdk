@@ -5,7 +5,7 @@
  *
  */
 
-package info
+package registry
 
 import (
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/registry"
@@ -13,7 +13,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// listCmd represents the list command
 var ListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List registered asset links",
@@ -21,5 +20,4 @@ var ListCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		registry.PrintList(shared.RegistryEndpoint)
 	},
-	//Args: cobra.MatchAll(cobra.ExactArgs(1), cobra.OnlyValidArgs),
 }

@@ -20,7 +20,13 @@ func TestDiscoverDevices(testConfig TestConfig) bool {
 	fmt.Println("Running Test for StartDiscovery")
 	data, err := al.Discover(shared.AssetLinkEndpoint, testConfig.DiscoveryFile)
 	if err != nil {
-		log.Error().Msg("discovery test failed")
+		log.Err(err).Msg("discovery test failed")
+		return false
+	}
+
+	err = al.WriteDiscoveryResponsesFile("test_result.json", data)
+	if err != nil {
+		log.Err(err).Msg("Error writing discovery responses to file")
 		return false
 	}
 
