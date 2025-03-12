@@ -23,7 +23,7 @@ func SetupLogging() {
 
 	var logger zerolog.Logger
 	if format == "auto" {
-		if term.IsTerminal(int(out.Fd())) {
+		if term.IsTerminal(int(out.Fd())) || os.Getenv("MSYSTEM") != "" {
 			format = "pretty"
 		} else {
 			format = "json"

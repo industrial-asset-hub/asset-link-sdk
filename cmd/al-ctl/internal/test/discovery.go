@@ -7,7 +7,9 @@
 package test
 
 import (
+	"encoding/json"
 	"fmt"
+	"os"
 
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/al"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/shared"
@@ -23,6 +25,19 @@ func TestDiscoverDevices(testConfig TestConfig) bool {
 		log.Error().Msg("discovery test failed")
 		return false
 	}
+
+	log.Info().Str("File", "testresult.json").Msg("Saving to file")
+	f, err := os.Create("testresult.json")
+	if err != nil {
+		log.Fatal().Err(err).Msg("error creating file")
+	}
+
+	asJson, _ := json.MarshalIndent(data, "", "  ")
+	_, err = f.Write(asJson)
+	if err != nil {
+		log.Fatal().Err(err).Msg("error during writing of the json file")
+	}
+	defer f.Close()
 
 	if testConfig.AssetValidationRequired {
 		numberOfAssetsToValidate, errOccurredDuringValidation := createAssetFilesFromDiscoveryResponse(data)
