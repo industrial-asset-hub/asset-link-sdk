@@ -9,6 +9,7 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/logging"
 	"os"
 
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/cmd/test"
@@ -17,7 +18,6 @@ import (
 
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/cmd/discovery"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/shared"
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/logging"
 	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
 )
@@ -66,6 +66,5 @@ func init() {
 
 }
 func initHandlers() {
-	logging.SetupLogging()
-	logging.AdjustLogLevel(logLevel)
+	logging.SetupLoggingCli(logLevel)
 }

@@ -44,8 +44,6 @@ func SetupLogging() {
 }
 
 func AdjustLogLevel(logLevelRaw string) {
-	// logLevelRaw := flag.GetString(cli.LogLevel.ToViper())
-	// logLevelRaw := flag.Args("log-level")
 	lvl, err := zerolog.ParseLevel(logLevelRaw)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Invalid log level format")
