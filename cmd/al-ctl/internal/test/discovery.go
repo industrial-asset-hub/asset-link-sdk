@@ -31,13 +31,13 @@ func TestDiscoverDevices(testConfig TestConfig) bool {
 	if err != nil {
 		log.Fatal().Err(err).Msg("error creating file")
 	}
-	defer f.Close()
 
 	asJson, _ := json.MarshalIndent(data, "", "  ")
 	_, err = f.Write(asJson)
 	if err != nil {
 		log.Fatal().Err(err).Msg("error during writing of the json file")
 	}
+	defer f.Close()
 
 	if testConfig.AssetValidationRequired {
 		numberOfAssetsToValidate, errOccurredDuringValidation := createAssetFilesFromDiscoveryResponse(data)

@@ -17,16 +17,6 @@ import (
 	"golang.org/x/term"
 )
 
-const (
-	colorTrace = "\033[34mTRACE\033[0m"
-	colorDebug = "\033[36mDEBUG\033[0m"
-	colorInfo  = "\033[32mINFO\033[0m"
-	colorWarn  = "\033[33mWARN\033[0m"
-	colorError = "\033[31mERROR\033[0m"
-	colorFatal = "\033[35mFATAL\033[0m"
-	colorPanic = "\033[31mPANIC\033[0m"
-)
-
 func SetupLogging() {
 	var out *os.File = os.Stdout
 	var format = "auto"
