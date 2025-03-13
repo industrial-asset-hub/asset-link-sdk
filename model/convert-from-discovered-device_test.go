@@ -312,8 +312,7 @@ func TestDeviceTransformation(t *testing.T) {
 			Identifiers: []*generated.DeviceIdentifier{},
 			Timestamp:   1000010000100010,
 		}
-		expectedContext, err := ConvertAssetContextToMap(*getAssetContext())
-		assert.Nil(t, err)
+		expectedContext := ConvertAssetContextToMap(*getAssetContext())
 		actualResult := ConvertFromDiscoveredDevice(testDevice, "URI")
 		assert.Equal(t, expectedContext, actualResult["@context"])
 	})
@@ -337,8 +336,7 @@ func TestDeviceTransformation(t *testing.T) {
 			Linkml:    "test-linkml",
 			SchemaOrg: "test-schemaorg",
 		}
-		expectedContext, err := ConvertAssetContextToMap(*testDevice.Context)
-		assert.Nil(t, err)
+		expectedContext := ConvertAssetContextToMap(*testDevice.Context)
 		discoveredDevice := testDevice.ConvertToDiscoveredDevice()
 		actualResult := ConvertFromDiscoveredDevice(discoveredDevice, "URI")
 		assert.Equal(t, expectedContext, actualResult["@context"])

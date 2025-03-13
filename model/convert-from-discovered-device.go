@@ -8,7 +8,6 @@
 package model
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/rs/zerolog/log"
 	"net/url"
@@ -154,12 +153,7 @@ func ConvertFromDiscoveredDevice(device *generated.DiscoveredDevice, expectedTyp
 	mapPropertiesIntoDevice(device.Identifiers, DeviceInIahSchema, parentKeyIndex, expectedType, prefix)
 	if _, ok := DeviceInIahSchema["@context"]; !ok {
 		log.Warn().Msg("No @context found in the device schema")
-		assetContextMap, err := ConvertAssetContextToMap(*getAssetContext())
-		if err != nil {
-			log.Err(err).Msg("Error marshalling asset context")
-			return nil
-		}
-		DeviceInIahSchema["@context"] = assetContextMap
+		DeviceInIahSchema["@context"] = ConvertAssetContextToMap(*getAssetContext())
 	}
 	if _, ok := DeviceInIahSchema["@type"]; !ok {
 		log.Warn().Msg("No @type found in the device schema")
@@ -323,15 +317,13 @@ func getArrayIndexFromClassifier(classifierValue string) int {
 	return -1
 }
 
-func ConvertAssetContextToMap(context AssetContext) (map[string]interface{}, error) {
-	bytes, err := json.Marshal(context)
-	if err != nil {
-		return nil, err
+func ConvertAssetContextToMap(context AssetContext) map[string]interface{} {
+	return map[string]interface{}{
+		"lis":       context.Lis,
+		"base":      context.Base,
+		"skos":      context.Skos,
+		"@vocab":    context.Vocab,
+		"linkml":    context.Linkml,
+		"schemaorg": context.SchemaOrg,
 	}
-	var result map[string]interface{}
-	err = json.Unmarshal(bytes, &result)
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
 }
