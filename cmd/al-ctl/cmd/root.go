@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Siemens AG
+ * SPDX-FileCopyrightText: 2025 Siemens AG
  *
  * SPDX-License-Identifier: MIT
  *
@@ -9,14 +9,16 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/logging"
 	"os"
+
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/cmd/registry"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/logging"
 
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/cmd/test"
 
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/cmd/info"
 
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/cmd/discovery"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/cmd/assets"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/shared"
 	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
@@ -47,8 +49,8 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initHandlers)
-	rootCmd.PersistentFlags().StringVarP(&shared.RegistryEndpoint, "registry", "r", "localhost:50051", "gRPC Server Address of the Registry")
-	rootCmd.PersistentFlags().StringVarP(&shared.AssetLinkEndpoint, "endpoint", "e", "localhost:8081", "gRPC Server Address of the AssetLink")
+	rootCmd.PersistentFlags().StringVarP(&shared.RegistryEndpoint, "registry", "r", "localhost:50051", "server address of the registry")
+	rootCmd.PersistentFlags().StringVarP(&shared.AssetLinkEndpoint, "endpoint", "e", "localhost:8081", "server address of the asset link")
 	rootCmd.PersistentFlags().StringVarP(&logLevel, "log-level", "", "info",
 		fmt.Sprintf("set log level. one of: %s,%s,%s,%s,%s,%s,%s",
 			zerolog.TraceLevel.String(),
@@ -59,12 +61,12 @@ func init() {
 			zerolog.FatalLevel.String(),
 			zerolog.PanicLevel.String()))
 	rootCmd.PersistentFlags().UintVarP(&shared.TimeoutSeconds, "timeout", "n", 0, "timeout in seconds (default none)")
-	rootCmd.AddCommand(discovery.DiscoverCmd)
+	rootCmd.AddCommand(assets.AssetsCmd)
 	rootCmd.AddCommand(info.InfoCmd)
-	rootCmd.AddCommand(info.ListCmd)
+	rootCmd.AddCommand(registry.ListCmd)
 	rootCmd.AddCommand(test.TestCmd)
-
 }
+
 func initHandlers() {
 	logging.SetupLoggingCli(logLevel)
 }

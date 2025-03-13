@@ -185,33 +185,7 @@ By running the `al-ctl` with the `--help` argument will give you a description o
 
 ```bash
 $ al-ctl --help
-
-This command line interfaces allows to interact with the so called
-        Asset Links (AL).
-
-This can be useful for validation purposes inside CI/CD pipelines or just
-to ease development efforts.
-
-Usage:
-  al-ctl [command]
-
-Available Commands:
-  completion  Generate the autocompletion script for the specified shell
-  discover    Start discovery job
-  help        Help about any command
-  info        Print asset link information
-  list        List registered asset links
-  test        Test suite for asset-link
-
-Flags:
-  -e, --endpoint string    gRPC Server Address of the AssetLink (default "localhost:8081")
-  -h, --help               help for al-ctl
-      --log-level string   set log level. one of: trace,debug,info,warn,error,fatal,panic (default "info")
-  -r, --registry string    gRPC Server Address of the Registry (default "localhost:50051")
-  -n, --timeout int        timeout in seconds (default none)
-  -v, --version            version for al-ctl
-
-Use "al-ctl [command] --help" for more information about a command.
+[...]
 ```
 
 Examples of actions which can be performed on the Asset Link:
@@ -227,7 +201,7 @@ $ al-ctl test api -e localhost:8081 --service-name discovery [-d <discovery-conf
 # Timeout is the delay until the discovery is cancelled automatically
 
 # To run discovery on the Asset Link
-$ al-ctl discover -e localhost:8081 [-d <discovery-config>] [-o <output-file>]
+$ al-ctl assets discover -e localhost:8081 [-d <discovery-config>] [-o <output-file>]
 
 # To validate the asset against the base-schema using linkml-validator where schema file should be yaml
 $ al-ctl test assets --base-schema-path <base-schema> --asset-path <asset>

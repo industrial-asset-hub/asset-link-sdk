@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Siemens AG
+ * SPDX-FileCopyrightText: 2025 Siemens AG
  *
  * SPDX-License-Identifier: MIT
  *
@@ -8,7 +8,10 @@
 package al
 
 import (
-	"fmt"
+	"encoding/json"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/dataio"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/fileformat"
+	"google.golang.org/protobuf/encoding/protojson"
 	"io"
 	"time"
 
@@ -55,7 +58,8 @@ func Discover(endpoint string, discoveryFile string) ([]*generated.DiscoverRespo
 		return nil, err
 	}
 
-	devices := make([]*generated.DiscoverResponse, 0)
+	discoveryResponses := make([]*generated.DiscoverResponse, 0)
+	var deviceCount int = 0
 	for {
 		resp, err := stream.Recv()
 
@@ -68,12 +72,16 @@ func Discover(endpoint string, discoveryFile string) ([]*generated.DiscoverRespo
 			return nil, err
 		}
 
-		fmt.Printf("%+v\n", resp.Devices)
+		log.Trace().Interface("response", resp).Msg("")
 
-		log.Trace().Interface("Devices", resp).Msg("")
-		devices = append(devices, resp)
+		deviceCount += len(resp.Devices)
+		log.Debug().Int("Number of assets", len(resp.Devices)).Msg("Received response")
+		discoveryResponses = append(discoveryResponses, resp)
 	}
-	return devices, nil
+	log.Info().Int("Discovery responses received", len(discoveryResponses)).
+		Int("Included assets", deviceCount).
+		Msg("Received all responses")
+	return discoveryResponses, nil
 }
 
 func GetFilterTypes(endpoint string) *generated.FilterTypesResponse {
@@ -88,7 +96,7 @@ func GetFilterTypes(endpoint string) *generated.FilterTypesResponse {
 		log.Err(err).Msg("GetFilterTypes request returned an error")
 		return nil
 	}
-	log.Trace().Interface("Response", resp).Msg("Received Response")
+	log.Trace().Interface("DiscoveryResponse", resp).Msg("Received DiscoveryResponse")
 	return resp
 }
 
@@ -104,6 +112,34 @@ func GetFilterOptions(endpoint string) *generated.FilterOptionsResponse {
 		log.Err(err).Msg("GetFilterOptions request returned an error")
 		return nil
 	}
-	log.Trace().Interface("Response", resp).Msg("Received Response")
+	log.Trace().Interface("DiscoveryResponse", resp).Msg("Received DiscoveryResponse")
 	return resp
+}
+
+func WriteDiscoveryResponsesFile(discoverOutputFile string, discoverResponses []*generated.DiscoverResponse) error {
+	var discoveryResponsesInFile fileformat.DiscoveryResponsesInFile
+	for _, discoverResponse := range discoverResponses {
+
+		// marshals the discovery discoveryResponsesInFile to json
+		message, err := protojson.Marshal(discoverResponse)
+		if err != nil {
+			log.Err(err).Msg("Marshalling of discovery responses failed")
+			return err
+		}
+
+		discoveryResponsesInFile = append(discoveryResponsesInFile, fileformat.DiscoveryResponseInFile{DiscoveryResponse: message})
+	}
+
+	// marshals the array of discovery discoveryResponsesInFile to json
+	discoveryResponsesJson, err := json.MarshalIndent(discoveryResponsesInFile, "", "	")
+	if err != nil {
+		log.Err(err).Msg("Marshalling to array of discovery responses failed")
+		return err
+	}
+
+	if err := dataio.WriteOutput(discoverOutputFile, discoveryResponsesJson); err != nil {
+		log.Err(err).Str("file-path", discoverOutputFile).Msg("Error writing output")
+		return err
+	}
+	return nil
 }
