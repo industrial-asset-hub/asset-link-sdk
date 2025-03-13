@@ -23,4 +23,5 @@ func TestNewDevice(t *testing.T) {
 	assert.Equal(t, 1, *deviceInfo.MacIdentifiers[0].IdentifierUncertainty)
 	assert.Equal(t, ReachabilityStateValuesReached, *deviceInfo.ReachabilityState.StateValue)
 	assert.Equal(t, ManagementStateValuesUnknown, *deviceInfo.ManagementState.StateValue)
+	assert.Equal(t, getAssetContext(), deviceInfo.Context)
 }

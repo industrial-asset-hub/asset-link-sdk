@@ -8,7 +8,9 @@
 package model
 
 import (
+	"encoding/json"
 	"fmt"
+	"github.com/rs/zerolog/log"
 	"net/url"
 	"strconv"
 	"strings"
@@ -143,15 +145,6 @@ func retrieveAssetTypeFromDiscoveredDevice(device *generated.DiscoveredDevice) s
 
 func ConvertFromDiscoveredDevice(device *generated.DiscoveredDevice, expectedType string) map[string]interface{} {
 	DeviceInIahSchema := make(map[string]interface{})
-	DeviceInIahSchema["@type"] = retrieveAssetTypeFromDiscoveredDevice(device)
-	DeviceInIahSchema["@context"] = map[string]interface{}{
-		"base":      baseSchemaInContext,
-		"linkml":    "https://w3id.org/linkml/",
-		"lis":       "http://rds.posccaesar.org/ontology/lis14/rdl/",
-		"schemaorg": "https://schema.org/",
-		"skos":      "http://www.w3.org/2004/02/skos/core#",
-		"@vocab":    baseSchemaInContext,
-	}
 	timestamp := device.Timestamp
 	formattedTimestamp := convertTimestampToRFC339(int64(timestamp))
 	DeviceInIahSchema["management_state"] = map[string]interface{}{
@@ -159,6 +152,19 @@ func ConvertFromDiscoveredDevice(device *generated.DiscoveredDevice, expectedTyp
 		"state_timestamp": formattedTimestamp,
 	}
 	mapPropertiesIntoDevice(device.Identifiers, DeviceInIahSchema, parentKeyIndex, expectedType, prefix)
+	if _, ok := DeviceInIahSchema["@context"]; !ok {
+		log.Warn().Msg("No @context found in the device schema")
+		assetContextMap, err := ConvertAssetContextToMap(*getAssetContext())
+		if err != nil {
+			log.Err(err).Msg("Error marshalling asset context")
+			return nil
+		}
+		DeviceInIahSchema["@context"] = assetContextMap
+	}
+	if _, ok := DeviceInIahSchema["@type"]; !ok {
+		log.Warn().Msg("No @type found in the device schema")
+		DeviceInIahSchema["@type"] = retrieveAssetTypeFromDiscoveredDevice(device)
+	}
 	return DeviceInIahSchema
 }
 
@@ -315,4 +321,17 @@ func getArrayIndexFromClassifier(classifierValue string) int {
 		return arrayIndex
 	}
 	return -1
+}
+
+func ConvertAssetContextToMap(context AssetContext) (map[string]interface{}, error) {
+	bytes, err := json.Marshal(context)
+	if err != nil {
+		return nil, err
+	}
+	var result map[string]interface{}
+	err = json.Unmarshal(bytes, &result)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
 }
