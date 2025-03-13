@@ -307,6 +307,50 @@ func TestDeviceTransformation(t *testing.T) {
 		assert.Equal(t, expectedResult, actualResult)
 	},
 	)
+	t.Run("ConvertFromDiscoveredDevice should set @context if not present", func(t *testing.T) {
+		testDevice := &generated.DiscoveredDevice{
+			Identifiers: []*generated.DeviceIdentifier{},
+			Timestamp:   1000010000100010,
+		}
+		expectedContext, err := ConvertAssetContextToMap(*getAssetContext())
+		assert.Nil(t, err)
+		actualResult := ConvertFromDiscoveredDevice(testDevice, "URI")
+		assert.Equal(t, expectedContext, actualResult["@context"])
+	})
+
+	t.Run("ConvertFromDiscoveredDevice should set @type if not present", func(t *testing.T) {
+		testDevice := &generated.DiscoveredDevice{
+			Identifiers: []*generated.DeviceIdentifier{},
+			Timestamp:   1000010000100010,
+		}
+		expectedType := "Asset"
+		actualResult := ConvertFromDiscoveredDevice(testDevice, "URI")
+		assert.Equal(t, expectedType, actualResult["@type"])
+	})
+	t.Run("ConvertFromDiscoveredDevice should not set @context explicitly if it is already present", func(t *testing.T) {
+		testDevice := DeviceInfo{}
+		testDevice.Context = &AssetContext{
+			Lis:       "test-lis",
+			Base:      "test-base",
+			Skos:      "test-skos",
+			Vocab:     "test-vocab",
+			Linkml:    "test-linkml",
+			SchemaOrg: "test-schemaorg",
+		}
+		expectedContext, err := ConvertAssetContextToMap(*testDevice.Context)
+		assert.Nil(t, err)
+		discoveredDevice := testDevice.ConvertToDiscoveredDevice()
+		actualResult := ConvertFromDiscoveredDevice(discoveredDevice, "URI")
+		assert.Equal(t, expectedContext, actualResult["@context"])
+	})
+
+	t.Run("ConvertFromDiscoveredDevice should not set @type explicitly if it is already present", func(t *testing.T) {
+		testDevice := DeviceInfo{}
+		testDevice.Type = "test-type"
+		expectedType := "test-type"
+		actualResult := ConvertFromDiscoveredDevice(testDevice.ConvertToDiscoveredDevice(), "URI")
+		assert.Equal(t, expectedType, actualResult["@type"])
+	})
 }
 
 func TestFilter(t *testing.T) {

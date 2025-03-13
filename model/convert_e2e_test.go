@@ -36,6 +36,14 @@ func TestBackAndForthConversion(t *testing.T) {
 	assert.Equal(t, "firmware", name)
 	assert.Equal(t, "1.2.5", version)
 	assert.Equal(t, "123456", transformedDevice["product_instance_identifier"].(map[string]interface{})["serial_number"])
+	assert.Equal(t, "http://rds.posccaesar.org/ontology/lis14/rdl/", transformedDevice["@context"].(map[string]interface{})["lis"])
+	assert.Equal(t, "https://common-device-management.code.siemens.io/documentation/asset-modeling/base-schema/v0.9.0/",
+		transformedDevice["@context"].(map[string]interface{})["@vocab"])
+	assert.Equal(t, "https://common-device-management.code.siemens.io/documentation/asset-modeling/base-schema/v0.9.0/",
+		transformedDevice["@context"].(map[string]interface{})["base"])
+	assert.Equal(t, "https://w3id.org/linkml/", transformedDevice["@context"].(map[string]interface{})["linkml"])
+	assert.Equal(t, "http://www.w3.org/2004/02/skos/core#", transformedDevice["@context"].(map[string]interface{})["skos"])
+	assert.Equal(t, "https://schema.org/", transformedDevice["@context"].(map[string]interface{})["schemaorg"])
 }
 
 func getTestDevice() *DeviceInfo {
