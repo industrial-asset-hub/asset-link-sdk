@@ -222,3 +222,16 @@ changelog:
       - "^chore:"
       - "^ci:"
       - "^Merge branch:"
+sboms:
+  - id: cyclonedx
+    artifacts: any
+    cmd: sh
+    args:
+      - -c
+      - |
+        cat {{.ProjectName}}_{{.Version}}.cyclonedx.sbom.json > {{.ProjectName}}_{{.Version}}.cyclonedx.sbom.json
+    documents:
+      - "{{.ProjectName}}_{{.Version}}.cyclonedx.sbom.json"
+
+
+
