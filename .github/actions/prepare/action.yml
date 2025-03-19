@@ -30,3 +30,4 @@ runs:
         go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.35.1
         go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.5.1
         go install github.com/atombender/go-jsonschema@v0.16.0
+        go install github.com/CycloneDX/cyclonedx-gomod/cmd/cyclonedx-gomod@v1.8.0
