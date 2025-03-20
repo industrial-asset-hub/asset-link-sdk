@@ -9,6 +9,7 @@ version: 2
 before:
   hooks:
     - go generate ./...
+    - go install github.com/CycloneDX/cyclonedx-gomod/cmd/cyclonedx-gomod@v1.8.0
     - go mod download
 
 builds:
@@ -223,15 +224,11 @@ changelog:
       - "^ci:"
       - "^Merge branch:"
 sboms:
-  - id: cyclonedx
-    artifacts: any
-    cmd: sh
-    args:
-      - -c
-      - |
-        cat {{.ProjectName}}_{{.Version}}.cyclonedx.sbom.json > {{.ProjectName}}_{{.Version}}.cyclonedx.sbom.json
+  - artifacts: any
     documents:
       - "{{.ProjectName}}_{{.Version}}.cyclonedx.sbom.json"
+    cmd: cyclonedx-gomod
+    args: ["mod", "-licenses", "-type", "library", "-test", "-json", "-output", "$document", "./.."]
 
 
 
