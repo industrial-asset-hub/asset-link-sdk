@@ -107,7 +107,7 @@ func (m *ReferenceAssetLink) HandlePushArtefact(artefactReceiver *artefact.Artef
 	}
 
 	deviceConnectionInformation := artefactMetaData.GetDeviceConnectionInformation()
-	deviceIdentifier := string(deviceConnectionInformation[:])
+	deviceIdentifier := string(deviceConnectionInformation)
 
 	log.Info().Str("DeviceIdentifier", deviceIdentifier).Msg("ArtefactMetaData")
 
