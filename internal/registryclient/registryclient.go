@@ -106,7 +106,7 @@ func (r *GrpcServerRegistry) Register() {
 		for {
 			// Try to register, if an errors occur
 			retryInterval := reRegistrationRefreshInterval
-			err, expireTime := r.register()
+			expireTime, err := r.register()
 			if err != nil {
 				if expireTime < reRegistrationRefreshInterval {
 					retryInterval = expireTime / 2
@@ -144,17 +144,17 @@ func (r *GrpcServerRegistry) unregister() error {
 }
 
 // register registers the Asset Link at the gprc server registry
-func (r *GrpcServerRegistry) register() (error, uint32) {
+func (r *GrpcServerRegistry) register() (uint32, error) {
 	if err := r.connect(); err != nil {
 		log.Warn().Err(err).Msg("Could not dial GRPC server registry")
-		return err, retryRegistrationInterval
+		return retryRegistrationInterval, err
 	}
 
 	// Split into host and port
 	hostName, portNumberString, err := net.SplitHostPort(r.grpcAddress)
 	if err != nil {
 		log.Warn().Err(err).Msg("Could not parse GRPC server address")
-		return err, retryRegistrationInterval
+		return retryRegistrationInterval, err
 	}
 
 	// Catch if no host part is given e.g. *:8080
@@ -168,7 +168,7 @@ func (r *GrpcServerRegistry) register() (error, uint32) {
 	portNumber, err := strconv.ParseUint(portNumberString, 10, 32)
 	if err != nil {
 		log.Warn().Err(err).Msg("Could not parse port")
-		return err, retryRegistrationInterval
+		return retryRegistrationInterval, err
 	}
 	register := pb.RegisterServiceRequest{Info: &pb.ServiceInfo{
 		AppTypes:         []string{APP_TYPE_CS_IAH_DISCOVER_V1},
@@ -198,10 +198,9 @@ func (r *GrpcServerRegistry) register() (error, uint32) {
 	response, err := r.client.RegisterService(context.Background(), &register)
 	if err != nil {
 		log.Warn().Err(err).Msg("Could not register at grpc server registry")
-
-		return err, retryRegistrationInterval
+		return retryRegistrationInterval, err
 	} else {
 		expireTime := response.ExpireTime
-		return nil, expireTime
+		return expireTime, nil
 	}
 }

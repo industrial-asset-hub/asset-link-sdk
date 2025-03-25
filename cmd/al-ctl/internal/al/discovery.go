@@ -9,11 +9,12 @@ package al
 
 import (
 	"encoding/json"
+	"io"
+	"time"
+
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/dataio"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/fileformat"
 	"google.golang.org/protobuf/encoding/protojson"
-	"io"
-	"time"
 
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/shared"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/config"
@@ -59,7 +60,7 @@ func Discover(endpoint string, discoveryFile string) ([]*generated.DiscoverRespo
 	}
 
 	discoveryResponses := make([]*generated.DiscoverResponse, 0)
-	var deviceCount int = 0
+	deviceCount := 0
 	for {
 		resp, err := stream.Recv()
 
