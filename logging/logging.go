@@ -18,7 +18,7 @@ import (
 )
 
 func SetupLogging() {
-	var out *os.File = os.Stdout
+	var out = os.Stdout
 	var format = "auto"
 
 	var logger zerolog.Logger

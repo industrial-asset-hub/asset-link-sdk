@@ -8,13 +8,14 @@
 package fileformat
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_DiscoveryResultFile(t *testing.T) {
 	t.Run("Marshal Json converts to []bytes", func(t *testing.T) {
-		var r DiscoveryResponseInFile = DiscoveryResponseInFile{DiscoveryResponse: []byte("AB")}
+		r := DiscoveryResponseInFile{DiscoveryResponse: []byte("AB")}
 
 		json, err := r.MarshalJSON()
 
@@ -23,7 +24,7 @@ func Test_DiscoveryResultFile(t *testing.T) {
 	})
 
 	t.Run("Unmarshal Json converts to string", func(t *testing.T) {
-		var r DiscoveryResponseInFile = DiscoveryResponseInFile{DiscoveryResponse: []byte("FE")}
+		r := DiscoveryResponseInFile{DiscoveryResponse: []byte("FE")}
 
 		err := r.UnmarshalJSON([]byte("FE"))
 
