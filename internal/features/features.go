@@ -30,5 +30,5 @@ type Identifiers interface {
 
 type Update interface {
 	HandlePushArtefact(artefactReceiver *artefact.ArtefactReceiver) error
-	HandlePullArtefact(artefactIdentifier *artefact.ArtefactIdentifier, artefactTransmitter *artefact.ArtefactTransmitter) error
+	HandlePullArtefact(artefactMetaData *artefact.ArtefactMetaData, artefactTransmitter *artefact.ArtefactTransmitter) error
 }
