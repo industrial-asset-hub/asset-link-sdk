@@ -32,7 +32,7 @@ func (at *ArtefactTransmitter) TransmitArtefactChunk(artefactChunk *generated.Ar
 }
 
 func (at *ArtefactTransmitter) TransmitArtefactMetaData(artefactMetaData *generated.ArtefactMetaData) error {
-	return at.TransmitArtefactChunk(&generated.ArtefactChunk{Data: &generated.ArtefactChunk_MetaDate{MetaDate: artefactMetaData}})
+	return at.TransmitArtefactChunk(&generated.ArtefactChunk{Data: &generated.ArtefactChunk_Metadata{Metadata: artefactMetaData}})
 }
 
 func (at *ArtefactTransmitter) TransmitArtefactFromFile(filename string, maxChunkSize uint64) error {

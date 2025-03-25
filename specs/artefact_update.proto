@@ -9,16 +9,16 @@ syntax = "proto3";
 package factory_x.artefact_update.v1;
 
 service ArtefactUpdateApi {
-  // Push an artifact to a driver
+  // Push an artefact to a driver
   rpc PushArtefact(stream ArtefactChunk) returns (stream ArtefactUpdateStatus) {
   }
-  // Load an artifact from a driver
-  rpc PullArtefact(ArtefactType) returns (stream ArtefactChunk) {}
+  // Load an artefact from a driver
+  rpc PullArtefact(ArtefactMetaData) returns (stream ArtefactChunk) {}
 }
 
 message ArtefactChunk {
   oneof data {
-    ArtefactMetaData metaDate = 1; // first packet
+    ArtefactMetaData metadata = 1; // first packet
     bytes file_content = 2; // following
     Status status = 3; // only for pull
   }
@@ -27,7 +27,8 @@ message ArtefactChunk {
 message ArtefactMetaData {
   // oneof meta {
     ArtefactCredentials credential = 1;
-    bytes device_connection_information = 2;
+    bytes device_identifier = 2;
+    ArtefactIdentifier artefact_identifier = 3;
   // }
 }
 
@@ -50,13 +51,13 @@ message Status {
   string message = 2;
 }
 
-enum ArtefactTypes {
+enum ArtefactType {
   AT_FIRMWARE = 0;
   AT_BACKUP = 1;
   AT_CONFIGURATION = 2;
 }
 
-message ArtefactType { ArtefactTypes type = 1; }
+message ArtefactIdentifier { ArtefactType type = 1; }
 
 enum ArtefactUpdateState {
   AUS_IDLE = 0;

@@ -16,6 +16,7 @@ import (
 )
 
 var pushArtefactFile string = ""
+var pushArtefactType string = ""
 var pushDeviceId string = ""
 
 // artefactPushCommand represents the artefact push command
@@ -24,13 +25,13 @@ var ArtefactPushCommand = &cobra.Command{
 	Short: "Push artefact to device",
 	Long:  `Pushes an artefact (e.g., a software update file) to the specified device`,
 	Run: func(cmd *cobra.Command, args []string) {
-		exitCode := al.PushArtefact(shared.AssetLinkEndpoint, pushArtefactFile, pushDeviceId)
+		exitCode := al.PushArtefact(shared.AssetLinkEndpoint, pushArtefactFile, pushDeviceId, pushArtefactType)
 		os.Exit(exitCode)
 	},
 }
 
 func init() {
-	ArtefactPushCommand.Flags().StringVarP(&pushArtefactFile, "artefact-file", "a", "result.json", "source filename of artefact")
-	// ArtefactPushCommand.Flags().StringVarP(&pushArtefactFile, "artefact-type", "t", "", "provided artefact type (\"backup\", \"configuration\", or \"firmware\")")") //TODO: are artefacts self-describing (and include their type) or should we provide it as meta information explicitly ?
+	ArtefactPushCommand.Flags().StringVarP(&pushArtefactFile, "artefact-file", "a", "", "source filename of artefact")
+	ArtefactPushCommand.Flags().StringVarP(&pushArtefactType, "artefact-type", "t", "", "provided artefact type (\"backup\", \"configuration\", or \"firmware\")")
 	ArtefactPushCommand.Flags().StringVarP(&pushDeviceId, "device-id", "d", "", "device identifier")
 }
