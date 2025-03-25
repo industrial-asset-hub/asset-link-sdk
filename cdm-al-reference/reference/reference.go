@@ -64,7 +64,7 @@ func (m *ReferenceAssetLink) Discover(discoveryConfig config.DiscoveryConfig, de
 		deviceInfo.AddSoftware("firmware", device.GetFirmwareVersion())
 		deviceInfo.AddCapabilities("firmware_update", device.IsUpdateSupported())
 
-		deviceInfo.AddMetadata("connection-string")
+		deviceInfo.AddMetadata("DEVICE-ID") // device ID or device connection data used for artefact uploads/downloads
 
 		discoveredDevice := deviceInfo.ConvertToDiscoveredDevice()
 
@@ -106,10 +106,10 @@ func (m *ReferenceAssetLink) HandlePushArtefact(artefactReceiver *artefact.Artef
 		return err
 	}
 
-	deviceConnectionInformation := artefactMetaData.GetDeviceConnectionInformation()
-	deviceIdentifier := string(deviceConnectionInformation)
+	deviceIdentifier := string(artefactMetaData.GetDeviceIdentifier())
+	artefactType := artefactMetaData.GetArtefactType().String()
 
-	log.Info().Str("DeviceIdentifier", deviceIdentifier).Msg("ArtefactMetaData")
+	log.Info().Str("DeviceIdentifier", deviceIdentifier).Str("ArtefactType", artefactType).Msg("ArtefactMetaData")
 
 	err = artefactReceiver.ReceiveArtefactToFile("artefact_file")
 	if err != nil {
@@ -120,8 +120,13 @@ func (m *ReferenceAssetLink) HandlePushArtefact(artefactReceiver *artefact.Artef
 	return nil
 }
 
-func (m *ReferenceAssetLink) HandlePullArtefact(artefactIdentifier *artefact.ArtefactIdentifier, artefactTransmitter *artefact.ArtefactTransmitter) error {
+func (m *ReferenceAssetLink) HandlePullArtefact(artefactMetaData *artefact.ArtefactMetaData, artefactTransmitter *artefact.ArtefactTransmitter) error {
 	log.Info().Msg("Handle Pull Artefact by transmitting the arefact")
+
+	deviceIdentifier := string(artefactMetaData.GetDeviceIdentifier())
+	artefactType := artefactMetaData.GetArtefactType().String()
+
+	log.Info().Str("DeviceIdentifier", deviceIdentifier).Str("ArtefactType", artefactType).Msg("ArtefactMetaData")
 
 	err := artefactTransmitter.TransmitArtefactFromFile("artefact_file", 1024)
 	if err != nil {
