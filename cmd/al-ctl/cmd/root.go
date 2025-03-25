@@ -11,7 +11,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/cmd/artefact"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/cmd/artefacts"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/cmd/assets"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/cmd/info"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/cmd/registry"
@@ -65,8 +65,7 @@ func init() {
 	rootCmd.AddCommand(info.InfoCmd)
 	rootCmd.AddCommand(registry.ListCmd)
 	rootCmd.AddCommand(test.TestCmd)
-	rootCmd.AddCommand(artefact.ArtefactPullCommand)
-	rootCmd.AddCommand(artefact.ArtefactPushCommand)
+	rootCmd.AddCommand(artefacts.ArtefactsCmd)
 }
 
 func initHandlers() {
