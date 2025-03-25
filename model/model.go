@@ -63,7 +63,7 @@ type DeviceInfo struct {
 	MacIdentifiers []MacIdentifier `json:"mac_identifiers"`
 	// To Be clarified
 	SoftwareComponents []any  `json:"software_components,omitempty"`
-	metadata           string `json:"metadata,omitempty"`
+	Metadata           string `json:"metadata,omitempty"`
 }
 
 type GatewayInfo struct {
