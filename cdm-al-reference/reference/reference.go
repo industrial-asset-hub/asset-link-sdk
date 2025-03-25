@@ -88,7 +88,7 @@ func (m *ReferenceClassDriver) Discover(discoveryConfig config.DiscoveryConfig, 
 
 			deviceInfo.AddSoftware("firmware", "1.2.5")
 			deviceInfo.AddCapabilities("firmware_update", false)
-			deviceInfo.AddMetadata("connection-string")
+			deviceInfo.AddMetadata("DEVICE-ID") // device ID or device connection data used for artefact uploads/downloads
 			randomMacAddress := generateRandomMacAddress()
 			id := deviceInfo.AddNic(deviceNIC, randomMacAddress)
 			deviceInfo.AddIPv4(id, deviceIPs[0], "255.255.255.0", "")
@@ -138,10 +138,10 @@ func (m *ReferenceClassDriver) HandlePushArtefact(artefactReceiver *artefact.Art
 		return err
 	}
 
-	deviceConnectionInformation := artefactMetaData.GetDeviceConnectionInformation()
-	deviceIdentifier := string(deviceConnectionInformation)
+	deviceIdentifier := string(artefactMetaData.GetDeviceIdentifier())
+	artefactType := artefactMetaData.GetArtefactType().String()
 
-	log.Info().Str("DeviceIdentifier", deviceIdentifier).Msg("ArtefactMetaData")
+	log.Info().Str("DeviceIdentifier", deviceIdentifier).Str("ArtefactType", artefactType).Msg("ArtefactMetaData")
 
 	err = artefactReceiver.ReceiveArtefactToFile("artefact_file")
 	if err != nil {
@@ -152,8 +152,13 @@ func (m *ReferenceClassDriver) HandlePushArtefact(artefactReceiver *artefact.Art
 	return nil
 }
 
-func (m *ReferenceClassDriver) HandlePullArtefact(artefactIdentifier *artefact.ArtefactIdentifier, artefactTransmitter *artefact.ArtefactTransmitter) error {
+func (m *ReferenceClassDriver) HandlePullArtefact(artefactMetaData *artefact.ArtefactMetaData, artefactTransmitter *artefact.ArtefactTransmitter) error {
 	log.Info().Msg("Handle Pull Artefact by transmitting the arefact")
+
+	deviceIdentifier := string(artefactMetaData.GetDeviceIdentifier())
+	artefactType := artefactMetaData.GetArtefactType().String()
+
+	log.Info().Str("DeviceIdentifier", deviceIdentifier).Str("ArtefactType", artefactType).Msg("ArtefactMetaData")
 
 	err := artefactTransmitter.TransmitArtefactFromFile("artefact_file", 1024)
 	if err != nil {
