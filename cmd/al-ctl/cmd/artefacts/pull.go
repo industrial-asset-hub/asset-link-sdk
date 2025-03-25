@@ -31,7 +31,7 @@ var ArtefactPullCommand = &cobra.Command{
 }
 
 func init() {
-	ArtefactPullCommand.Flags().StringVarP(&pullArtefactFile, "artefact-file", "a", "result.json", "destination filename of artefact")
+	ArtefactPullCommand.Flags().StringVarP(&pullArtefactFile, "artefact-file", "a", "", "destination filename of artefact")
 	ArtefactPullCommand.Flags().StringVarP(&pullArtefactType, "artefact-type", "t", "", "requested artefact type (\"backup\", \"configuration\", or \"firmware\")")
 	ArtefactPullCommand.Flags().StringVarP(&pullDeviceId, "device-id", "d", "", "device identifier")
 }
