@@ -135,7 +135,7 @@ jobs:
           workdir: ${{ env.TEST_PROJECT }}/${{ env.TEST_PROJECT_NAME }}/
           args: release --clean --snapshot
 
-  sbom-generate:
+  generate-sbom:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -143,7 +143,7 @@ jobs:
         uses: ./.github/actions/prepare
       - name: Generate SBOM
         run: cyclonedx-gomod mod -licenses -type library -test -json -output assetlinksdk.cyclonedx.sbom.json
-      - name: Upload sbom
+      - name: Upload SBOM
         uses: actions/upload-artifact@v4
         with:
           name: assetlinksdk.cyclonedx.sbom.json
@@ -151,7 +151,7 @@ jobs:
 
   release-sdk:
     runs-on: ubuntu-latest
-    needs: [reuse, generate, lint, test, check, build-sdk, build-asset-link]
+    needs: [reuse, generate, lint, test, check, build-sdk, build-asset-link, generate-sbom]
     if: github.event_name != 'pull_request' && github.ref_type == 'tag'
     steps:
       - uses: actions/checkout@v4
@@ -176,7 +176,7 @@ jobs:
 
   release-sdk-dry-run:
     runs-on: ubuntu-latest
-    needs: [reuse, generate, lint, test, check, build-sdk, build-asset-link]
+    needs: [reuse, generate, lint, test, check, build-sdk, build-asset-link, generate-sbom]
     if: github.event_name == 'pull_request' || github.ref_type != 'tag'
     steps:
       - uses: actions/checkout@v4
