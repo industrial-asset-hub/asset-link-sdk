@@ -139,7 +139,7 @@ func (m *ReferenceClassDriver) HandlePushArtefact(artefactReceiver *artefact.Art
 	}
 
 	deviceConnectionInformation := artefactMetaData.GetDeviceConnectionInformation()
-	deviceIdentifier := string(deviceConnectionInformation[:])
+	deviceIdentifier := string(deviceConnectionInformation)
 
 	log.Info().Str("DeviceIdentifier", deviceIdentifier).Msg("ArtefactMetaData")
 
