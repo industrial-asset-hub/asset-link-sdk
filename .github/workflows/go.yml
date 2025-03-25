@@ -46,7 +46,7 @@ jobs:
       - name: Lint
         uses: golangci/golangci-lint-action@v7
         with:
-          version: v1.64
+          version: v2.0
 
   test:
     runs-on: ubuntu-latest
@@ -125,7 +125,7 @@ jobs:
       - name: Lint Asset Link
         uses: golangci/golangci-lint-action@v7
         with:
-          version: v1.64
+          version: v2.0
           working-directory: ${{ env.TEST_PROJECT }}/${{ env.TEST_PROJECT_NAME }}/
       - name: Test Goreleaser Config (dry-run)
         uses: goreleaser/goreleaser-action@v6
