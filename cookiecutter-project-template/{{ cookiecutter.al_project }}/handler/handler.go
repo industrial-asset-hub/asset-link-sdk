@@ -76,6 +76,8 @@ func (m *AssetLinkImplementation) Discover(discoveryConfig config.DiscoveryConfi
 	deviceInfo.AddSoftware("firmware", firmwareVersion)
 	deviceInfo.AddCapabilities("firmware_update", false)
 
+	deviceInfo.AddMetadata("DEVICE-ID") // device ID or device connection data used for artefact uploads/downloads
+
 	nicID := deviceInfo.AddNic("eth0", "00:16:3e:01:02:03") // random mac address
 	deviceInfo.AddIPv4(nicID, "192.168.0.10", "255.255.255.0", "")
 	deviceInfo.AddIPv4(nicID, "10.0.0.153", "255.255.255.0", "")
@@ -114,7 +116,18 @@ func (m *AssetLinkImplementation) GetSupportedFilters() []*generated.SupportedFi
 func (m *AssetLinkImplementation) HandlePushArtefact(artefactReceiver *artefact.ArtefactReceiver) error {
 	log.Info().Msg("Handle Push Artefact by receiving the artefact")
 
-	err := artefactReceiver.ReceiveArtefactToFile("artefact_file")
+	artefactMetaData, err := artefactReceiver.ReceiveArtefactMetaData()
+	if err != nil {
+		log.Err(err).Msg("Failed to receive artefact meta data")
+		return err
+	}
+
+	deviceIdentifier := string(artefactMetaData.GetDeviceIdentifier())
+	artefactType := artefactMetaData.GetArtefactType().String()
+
+	log.Info().Str("DeviceIdentifier", deviceIdentifier).Str("ArtefactType", artefactType).Msg("ArtefactMetaData")
+
+	err = artefactReceiver.ReceiveArtefactToFile("artefact_file")
 	if err != nil {
 		log.Err(err).Msg("Failed to receive artefact file")
 		return err
@@ -123,8 +136,13 @@ func (m *AssetLinkImplementation) HandlePushArtefact(artefactReceiver *artefact.
 	return nil
 }
 
-func (m *AssetLinkImplementation) HandlePullArtefact(artefactIdentifier *artefact.ArtefactIdentifier, artefactTransmitter *artefact.ArtefactTransmitter) error {
+func (m *AssetLinkImplementation) HandlePullArtefact(artefactMetaData *artefact.ArtefactMetaData, artefactTransmitter *artefact.ArtefactTransmitter) error {
 	log.Info().Msg("Handle Pull Artefact by transmitting the arefact")
+
+	deviceIdentifier := string(artefactMetaData.GetDeviceIdentifier())
+	artefactType := artefactMetaData.GetArtefactType().String()
+
+	log.Info().Str("DeviceIdentifier", deviceIdentifier).Str("ArtefactType", artefactType).Msg("ArtefactMetaData")
 
 	err := artefactTransmitter.TransmitArtefactFromFile("artefact_file", 1024)
 	if err != nil {

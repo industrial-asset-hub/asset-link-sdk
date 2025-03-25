@@ -43,7 +43,7 @@ func (d *ArtefactUpdateServerEntity) PushArtefact(stream generated.ArtefactUpdat
 	return err
 }
 
-func (d *ArtefactUpdateServerEntity) PullArtefact(artefactType *generated.ArtefactType, stream generated.ArtefactUpdateApi_PullArtefactServer) error {
+func (d *ArtefactUpdateServerEntity) PullArtefact(artefactMetaData *generated.ArtefactMetaData, stream generated.ArtefactUpdateApi_PullArtefactServer) error {
 	log.Info().Msg("Pull Artefact request")
 
 	// Check if discovery feature implementation is available
@@ -57,9 +57,9 @@ func (d *ArtefactUpdateServerEntity) PullArtefact(artefactType *generated.Artefa
 	artefactTransmitter := artefact.NewArtefactTransmitter(stream)
 
 	// Create new artefact identifier and set artefact type
-	artefactIdentifier := artefact.NewArtefactIdentifier(artefactType)
+	interfaceArtefactMetaData := artefact.NewArtefactMetaData(artefactMetaData.DeviceIdentifier, &artefactMetaData.ArtefactIdentifier.Type)
 
-	err := d.HandlePullArtefact(artefactIdentifier, artefactTransmitter)
+	err := d.HandlePullArtefact(interfaceArtefactMetaData, artefactTransmitter)
 	if err != nil {
 		errMsg := "Error during handling of pull artefact"
 		log.Error().Err(err).Msg(errMsg)

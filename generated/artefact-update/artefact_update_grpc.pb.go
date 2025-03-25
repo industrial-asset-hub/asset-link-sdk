@@ -33,10 +33,10 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ArtefactUpdateApiClient interface {
-	// Push an artifact to a driver
+	// Push an artefact to a driver
 	PushArtefact(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[ArtefactChunk, ArtefactUpdateStatus], error)
-	// Load an artifact from a driver
-	PullArtefact(ctx context.Context, in *ArtefactType, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ArtefactChunk], error)
+	// Load an artefact from a driver
+	PullArtefact(ctx context.Context, in *ArtefactMetaData, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ArtefactChunk], error)
 }
 
 type artefactUpdateApiClient struct {
@@ -60,13 +60,13 @@ func (c *artefactUpdateApiClient) PushArtefact(ctx context.Context, opts ...grpc
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type ArtefactUpdateApi_PushArtefactClient = grpc.BidiStreamingClient[ArtefactChunk, ArtefactUpdateStatus]
 
-func (c *artefactUpdateApiClient) PullArtefact(ctx context.Context, in *ArtefactType, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ArtefactChunk], error) {
+func (c *artefactUpdateApiClient) PullArtefact(ctx context.Context, in *ArtefactMetaData, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ArtefactChunk], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	stream, err := c.cc.NewStream(ctx, &ArtefactUpdateApi_ServiceDesc.Streams[1], ArtefactUpdateApi_PullArtefact_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &grpc.GenericClientStream[ArtefactType, ArtefactChunk]{ClientStream: stream}
+	x := &grpc.GenericClientStream[ArtefactMetaData, ArtefactChunk]{ClientStream: stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -83,10 +83,10 @@ type ArtefactUpdateApi_PullArtefactClient = grpc.ServerStreamingClient[ArtefactC
 // All implementations must embed UnimplementedArtefactUpdateApiServer
 // for forward compatibility.
 type ArtefactUpdateApiServer interface {
-	// Push an artifact to a driver
+	// Push an artefact to a driver
 	PushArtefact(grpc.BidiStreamingServer[ArtefactChunk, ArtefactUpdateStatus]) error
-	// Load an artifact from a driver
-	PullArtefact(*ArtefactType, grpc.ServerStreamingServer[ArtefactChunk]) error
+	// Load an artefact from a driver
+	PullArtefact(*ArtefactMetaData, grpc.ServerStreamingServer[ArtefactChunk]) error
 	mustEmbedUnimplementedArtefactUpdateApiServer()
 }
 
@@ -100,7 +100,7 @@ type UnimplementedArtefactUpdateApiServer struct{}
 func (UnimplementedArtefactUpdateApiServer) PushArtefact(grpc.BidiStreamingServer[ArtefactChunk, ArtefactUpdateStatus]) error {
 	return status.Errorf(codes.Unimplemented, "method PushArtefact not implemented")
 }
-func (UnimplementedArtefactUpdateApiServer) PullArtefact(*ArtefactType, grpc.ServerStreamingServer[ArtefactChunk]) error {
+func (UnimplementedArtefactUpdateApiServer) PullArtefact(*ArtefactMetaData, grpc.ServerStreamingServer[ArtefactChunk]) error {
 	return status.Errorf(codes.Unimplemented, "method PullArtefact not implemented")
 }
 func (UnimplementedArtefactUpdateApiServer) mustEmbedUnimplementedArtefactUpdateApiServer() {}
@@ -132,11 +132,11 @@ func _ArtefactUpdateApi_PushArtefact_Handler(srv interface{}, stream grpc.Server
 type ArtefactUpdateApi_PushArtefactServer = grpc.BidiStreamingServer[ArtefactChunk, ArtefactUpdateStatus]
 
 func _ArtefactUpdateApi_PullArtefact_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(ArtefactType)
+	m := new(ArtefactMetaData)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(ArtefactUpdateApiServer).PullArtefact(m, &grpc.GenericServerStream[ArtefactType, ArtefactChunk]{ServerStream: stream})
+	return srv.(ArtefactUpdateApiServer).PullArtefact(m, &grpc.GenericServerStream[ArtefactMetaData, ArtefactChunk]{ServerStream: stream})
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
