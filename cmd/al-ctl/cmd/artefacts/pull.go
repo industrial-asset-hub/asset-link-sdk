@@ -5,7 +5,7 @@
  *
  */
 
-package artefact
+package artefacts
 
 import (
 	"os"
