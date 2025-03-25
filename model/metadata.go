@@ -32,10 +32,10 @@ func (d *DeviceInfo) AddMetadata(metadata string) {
 	metaDataBase64Encoded := encodeMetadata(metadata)
 	// For now stored inside the instance annotations. Should be
 	// moved to a proper field in the future
-	d.metadata = metaDataBase64Encoded
+	d.Metadata = metaDataBase64Encoded
 }
 
 // TODO: return may an error
 func (d *DeviceInfo) getMetadata() string {
-	return d.metadata
+	return d.Metadata
 }
