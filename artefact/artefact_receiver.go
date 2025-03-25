@@ -31,13 +31,17 @@ func (ar *ArtefactReceiver) ReceiveArtefactChunk() (*generated.ArtefactChunk, er
 	return ar.stream.Recv()
 }
 
-func (ar *ArtefactReceiver) ReceiveArtefactMetaData() (*generated.ArtefactMetaData, error) {
+func (ar *ArtefactReceiver) ReceiveArtefactMetaData() (*ArtefactMetaData, error) {
 	chunk, err := ar.ReceiveArtefactChunk()
 	if err != nil {
 		return nil, err
 	}
 
-	return chunk.GetMetaDate(), nil
+	internalMetaData := chunk.GetMetadata()
+
+	metaData := NewArtefactMetaData(internalMetaData.DeviceIdentifier, &internalMetaData.ArtefactIdentifier.Type)
+
+	return metaData, nil
 }
 
 func (ar *ArtefactReceiver) ReceiveArtefactToFile(filename string) error {
