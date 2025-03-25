@@ -17,8 +17,8 @@ import (
 	"golang.org/x/net/context"
 )
 
-func PushArtefact(endpoint string, artefactFile string, deviceId string) int {
-	log.Info().Str("Endpoint", endpoint).Str("Artefact File", artefactFile).Str("Device ID", deviceId).Msg("Pushing Artefact")
+func PushArtefact(endpoint string, artefactFile string, deviceId string, artefactType string) int {
+	log.Info().Str("Endpoint", endpoint).Str("Artefact File", artefactFile).Str("Device ID", deviceId).Str("Artefact Type", artefactType).Msg("Pushing Artefact")
 
 	conn := shared.GrpcConnection(endpoint)
 	defer conn.Close()
@@ -31,11 +31,25 @@ func PushArtefact(endpoint string, artefactFile string, deviceId string) int {
 		return 1
 	}
 
-	connectionInformation := []byte(deviceId)
+	deviceIdentifier := []byte(deviceId)
 
-	artefactMetaData := &generated.ArtefactChunk{Data: &generated.ArtefactChunk_MetaDate{MetaDate: &generated.ArtefactMetaData{
-		Credential:                  &generated.ArtefactCredentials{},
-		DeviceConnectionInformation: connectionInformation,
+	artefactIdentifier := generated.ArtefactIdentifier{Type: generated.ArtefactType_AT_FIRMWARE}
+	switch artefactType {
+	case "firmware":
+		artefactIdentifier.Type = generated.ArtefactType_AT_FIRMWARE
+	case "backup":
+		artefactIdentifier.Type = generated.ArtefactType_AT_BACKUP
+	case "configuration":
+		artefactIdentifier.Type = generated.ArtefactType_AT_CONFIGURATION
+	default:
+		log.Error().Str("ArtefactType", artefactType).Msg("Invalid artefact type")
+		return 1
+	}
+
+	artefactMetaData := &generated.ArtefactChunk{Data: &generated.ArtefactChunk_Metadata{Metadata: &generated.ArtefactMetaData{
+		Credential:         &generated.ArtefactCredentials{},
+		DeviceIdentifier:   deviceIdentifier,
+		ArtefactIdentifier: &artefactIdentifier,
 	}}}
 
 	err = stream.Send(artefactMetaData)
@@ -96,22 +110,30 @@ func PullArtefact(endpoint string, artefactFile string, deviceId string, artefac
 	conn := shared.GrpcConnection(endpoint)
 	defer conn.Close()
 
-	at := generated.ArtefactType{Type: generated.ArtefactTypes_AT_FIRMWARE}
+	deviceIdentifier := []byte(deviceId)
+
+	artefactIdentifier := generated.ArtefactIdentifier{Type: generated.ArtefactType_AT_FIRMWARE}
 	switch artefactType {
 	case "firmware":
-		at.Type = generated.ArtefactTypes_AT_FIRMWARE
+		artefactIdentifier.Type = generated.ArtefactType_AT_FIRMWARE
 	case "backup":
-		at.Type = generated.ArtefactTypes_AT_BACKUP
+		artefactIdentifier.Type = generated.ArtefactType_AT_BACKUP
 	case "configuration":
-		at.Type = generated.ArtefactTypes_AT_CONFIGURATION
+		artefactIdentifier.Type = generated.ArtefactType_AT_CONFIGURATION
 	default:
-		log.Error().Msg("Invalid artefact type")
+		log.Error().Str("ArtefactType", artefactType).Msg("Invalid artefact type")
 		return 1
+	}
+
+	artefactMetaData := &generated.ArtefactMetaData{
+		Credential:         &generated.ArtefactCredentials{},
+		DeviceIdentifier:   deviceIdentifier,
+		ArtefactIdentifier: &artefactIdentifier,
 	}
 
 	client := generated.NewArtefactUpdateApiClient(conn)
 	ctx := context.Background()
-	stream, err := client.PullArtefact(ctx, &at)
+	stream, err := client.PullArtefact(ctx, artefactMetaData)
 	if err != nil {
 		log.Error().Err(err).Msg("PullArtefact returned an error")
 		return 2
