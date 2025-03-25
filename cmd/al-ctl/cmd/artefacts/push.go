@@ -5,7 +5,7 @@
  *
  */
 
-package artefact
+package artefacts
 
 import (
 	"os"
@@ -31,5 +31,6 @@ var ArtefactPushCommand = &cobra.Command{
 
 func init() {
 	ArtefactPushCommand.Flags().StringVarP(&pushArtefactFile, "artefact-file", "a", "result.json", "source filename of artefact")
+	// ArtefactPushCommand.Flags().StringVarP(&pushArtefactFile, "artefact-type", "t", "", "provided artefact type (\"backup\", \"configuration\", or \"firmware\")")") //TODO: are artefacts self-describing (and include their type) or should we provide it as meta information explicitly ?
 	ArtefactPushCommand.Flags().StringVarP(&pushDeviceId, "device-id", "d", "", "device identifier")
 }

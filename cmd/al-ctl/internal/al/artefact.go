@@ -78,6 +78,7 @@ func PushArtefact(endpoint string, artefactFile string, deviceId string) int {
 		if err == io.EOF {
 			break
 		} else if err != nil {
+			log.Error().Err(err).Msg("Could not receive status update")
 			return 6
 		}
 	}
@@ -107,7 +108,7 @@ func PullArtefact(endpoint string, artefactFile string, deviceId string, artefac
 	ctx := context.Background()
 	stream, err := client.PullArtefact(ctx, &at)
 	if err != nil {
-		log.Error().Err(err).Msg("PushArtefact returned an error")
+		log.Error().Err(err).Msg("PullArtefact returned an error")
 		return 2
 	}
 
