@@ -37,7 +37,12 @@ func PushArtefact(endpoint string, artefactFile string, deviceId string) int {
 		Credential:                  &generated.ArtefactCredentials{},
 		DeviceConnectionInformation: connectionInformation,
 	}}}
-	stream.Send(artefactMetaData)
+
+	err = stream.Send(artefactMetaData)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to send meta data")
+		return 4
+	}
 
 	artefactFileIn, err := os.Open(artefactFile)
 	if err != nil {
