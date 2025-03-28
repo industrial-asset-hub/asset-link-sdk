@@ -1,6 +1,7 @@
 title: Asset Link SDK
 description: Documentation for the Asset Link SDK
-theme: just-the-docs
+
+remote_theme: just-the-docs/just-the-docs
 
 nav_order: 1
 search_enabled: true
