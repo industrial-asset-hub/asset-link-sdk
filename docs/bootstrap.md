@@ -1,3 +1,8 @@
+---
+title: "Bootstrapping your own Asset Link"
+nav_order: 2
+---
+
 ### Bootstrapping your own Asset Link
 
 To bootstrap your own asset link, a template using the well-known

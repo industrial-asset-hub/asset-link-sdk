@@ -1,3 +1,8 @@
+---
+title: "Observability Webserver"
+nav_order: 4
+---
+
 ### Observability Webserver
 
 The asset link also starts a web server that contains a REST API for observability reasons.

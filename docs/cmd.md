@@ -1,3 +1,8 @@
+---
+title: "Command line tool"
+nav_order: 3
+---
+
 ### Command line tool
 
 To ease development or testing of the asset link, the discovery can be interactively triggered using a command line tool. This command will provide the results (i.e., the devices or assets discovered by the asset link) as output.
