@@ -25,6 +25,7 @@ path = [
   "**.editorconfig",
   "**/go.mod",
   "**/go.sum",
+  "docs/images/favicon.ico",
   "cookiecutter-project-template/{{ cookiecutter.al_project }}/.markdownlintrc",
   "cookiecutter-project-template/{{ cookiecutter.al_project }}/go.mod.tmpl",
   "cookiecutter-project-template/*.json",
