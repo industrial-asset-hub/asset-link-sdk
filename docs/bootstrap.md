@@ -1,6 +1,6 @@
 ---
 title: "Bootstrapping your own Asset Link"
-nav_order: 2
+nav_order: 3
 ---
 
 ### Bootstrapping your own Asset Link
