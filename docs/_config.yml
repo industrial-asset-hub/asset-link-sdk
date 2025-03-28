@@ -5,25 +5,12 @@ url: "https://arpitrw.github.io/asset-link-sdk/"
 remote_theme: just-the-docs/just-the-docs
 
 nav_enabled: true
-nav_order: 1
+nav_exclude: false
 color_scheme: dark
 search_enabled: true
 favicon_ico: "/images/favicon.ico"
 
-nav:
-  - title: "📜 Documentation"
-    url: /
-  - title: "📖 Overview"
-    url: /overview
-  - title: "🚀 Bootstrapping your own Asset Link"
-    url: /bootstrap
-  - title: "🛠️ Command Line Tool"
-    url: /cmd
-  - title: "📊 Observability Webserver"
-    url: /observability
-
 include:
-  - index.md
   - overview.md
   - bootstrap.md
   - cmd.md
