@@ -1,28 +1,26 @@
 title: Asset Link SDK
 description: Documentation for the Asset Link SDK
-source: docs
+theme: just-the-docs
 
-remote_theme: just-the-docs/just-the-docs
-
-nav_sort: case_insensitive
+nav_order: 1
 search_enabled: true
+favicon_ico: "/images/favicon.ico"
 
-color_scheme: dark
-favicon_ico: "/docs/images/favicon.ico"
+nav:
+  - title: "📜 Documentation"
+    url: /
+  - title: "📖 Overview"
+    url: /overview
+  - title: "🚀 Bootstrapping your own Asset Link"
+    url: /bootstrap
+  - title: "🛠️ Command Line Tool"
+    url: /cmd
+  - title: "📊 Observability Webserver"
+    url: /observability
 
-just_the_docs:
-  collections:
-    docs:
-      name: Documentation
-      nav_order: 1
-  nav_order: true
-
-exclude:
-  - Gemfile
-  - Gemfile.lock
-  - node_modules
-  - vendor
-  - README.md
-
-plugins:
-  - jekyll-remote-theme
+include:
+  - index.md
+  - overview.md
+  - bootstrap.md
+  - cmd.md
+  - observability.md
