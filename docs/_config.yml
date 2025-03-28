@@ -1,9 +1,12 @@
 title: Asset Link SDK
 description: Documentation for the Asset Link SDK
+url: "https://arpitrw.github.io/asset-link-sdk/"
 
 remote_theme: just-the-docs/just-the-docs
 
+nav_enabled: true
 nav_order: 1
+color_scheme: dark
 search_enabled: true
 favicon_ico: "/images/favicon.ico"
 
