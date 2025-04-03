@@ -3,6 +3,15 @@
 This repository contains commonly used modules for creating your own
 Asset Link (AL).
 
+# Demo
+
+```
+# Starting a demonstration setup with tmuxinator
+$ tmuxinator start -p tmux.yml
+or
+$ zellij --layout zellij.kdl
+```
+
 ## Introduction
 
 This package provides an easy-to-use software development kit (SDK) for a device builder.
@@ -16,9 +25,10 @@ interfaces of the feature that the particular asset link is intended to provide
 Currently, one interface is supported:
 
 **Discovery Interface** (allows device discoveries and consists of three functions):
-  1. `Discover`: Performs a device scan and returns/publishes all the devices found.
-  2. `GetSupportedFilters`: Returns a list of supported filters for the discovery.
-  3. `GetSupportedOptions`: Returns a list of supported options for the discovery.
+
+1. `Discover`: Performs a device scan and returns/publishes all the devices found.
+2. `GetSupportedFilters`: Returns a list of supported filters for the discovery.
+3. `GetSupportedOptions`: Returns a list of supported options for the discovery.
 
 Once the interfaces are implemented, the specific Asset Link uses the `assetLinkBuilder` to construct a `AssetLink` with
 the implemented features.
