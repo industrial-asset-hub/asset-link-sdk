@@ -1,0 +1,16 @@
+---
+name: al-artifact-demo
+root:  ~/git/corp/IAH/cdm-dcd-sdk/
+startup_window: dotfiles
+
+# tmux_command: set-option mouse on
+
+windows:
+  - registry: go run registry/main.go
+  - al:  go run cdm-al-reference/main.go --grpc-registry-address localhost:50051 --log-level debug
+  - demo:
+      layout: main-vertical
+      panes:
+        - echo -n Hello > firmware.tar.gz && go run cmd/al-ctl/al-ctl.go artefacts push -a firmware.tar.gz -d "DEVICE-ID" -t "firmware" -h
+        - watch -n 1 cat firmware.tar.gz
+        - watch -n 1 cat artefact_file

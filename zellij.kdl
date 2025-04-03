@@ -1,0 +1,19 @@
+layout {
+   tab name="infra" focus=false {
+    pane command="go" { args "run" "registry/main.go"; }
+    pane command="go" { args  "run" "cdm-al-reference/main.go" "--grpc-registry-address" "localhost:50051" "--log-level" "debug" ;}
+   }
+   tab name="Demo" focus=true {
+    pane split_direction="vertical" {
+      pane command="go" {
+        args "run" "cmd/al-ctl/al-ctl.go" "artefacts" "push" "-a" "firmware.tar.gz" "-d" "DEVICE-ID" "-t" "firmware";
+        focus true;
+      }
+      pane
+      pane split_direction="horizontal" {
+        pane command="viddy" { args "-n" "1" "cat" "firmware.tar.gz";}
+        pane command="viddy" { args "-n" "1" "cat" "artefact_file";}
+      }
+    }
+  }
+}
