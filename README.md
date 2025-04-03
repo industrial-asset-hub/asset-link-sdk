@@ -3,6 +3,15 @@
 This repository contains commonly used modules for creating your own
 Asset Link (AL).
 
+# Demo
+
+```
+# Starting a demonstration setup with tmuxinator
+$ tmuxinator start -p tmux.yml
+or
+$ zellij --layout zellij.kdl
+```
+
 ## Introduction
 
 This package provides an easy-to-use software development kit (SDK) for a device builder.
