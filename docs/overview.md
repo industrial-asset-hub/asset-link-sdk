@@ -29,18 +29,18 @@ Tooling:
 Gateway:
 
 Have a gateway stack running to connect the asset link to. The gateway needs to
-implement server for the [grpcRegistry](specs/conn_suite_registry.proto) and implement the
+implement server for the [grpcRegistry](https://github.com/industrial-asset-hub/asset-link-sdk/tree/main/specs/conn_suite_registry.proto) and implement the
 necessary clients for the specific asset link capabilities.
 For discovery these clients need to be implemented:
 
-- [DriverInfo](specs/conn_suite_drv_info.proto)
-- [Discovery](specs/iah_discover.proto)
+- [DriverInfo](https://github.com/industrial-asset-hub/asset-link-sdk/tree/main/specs/conn_suite_drv_info.proto)
+- [Discovery](https://github.com/industrial-asset-hub/asset-link-sdk/tree/main/specs/iah_discover.proto)
 
 > You can download and use the [Asset Gateway](https://github.com/industrial-asset-hub/asset-gateway) from the
 > Siemens Industrial Asset Hub (IAH) for that
 
-To ease local development an implementation for a registry server is provided [here](registry/). Additionally,
-a command line tool called [al-ctl](cmd/al-ctl/al-ctl.go) is provided to locally run and test the asset links.
+To ease local development an implementation for a registry server is provided [here](https://github.com/industrial-asset-hub/asset-link-sdk/tree/main/registry/). Additionally,
+a command line tool called [al-ctl](https://github.com/industrial-asset-hub/asset-link-sdk/tree/main/cmd/al-ctl/al-ctl.go) is provided to locally run and test the asset links.
 
 Use `go` command to build or run these components:
 
