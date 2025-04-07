@@ -128,6 +128,10 @@ func convertToDeviceIdentifier(value interface{}, identifierUri string) *generat
 		Value:       nil,
 		Classifiers: nil,
 	}
+	if (reflect.TypeOf(value).Kind() == reflect.Slice || reflect.TypeOf(value).Kind() == reflect.Ptr) && reflect.ValueOf(value).IsNil() {
+		return nil
+	}
+
 	switch v := value.(type) {
 	case time.Time:
 		identifier.Value = &generated.DeviceIdentifier_Text{Text: v.Format(time.RFC3339Nano)}
