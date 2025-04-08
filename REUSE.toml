@@ -21,6 +21,8 @@ path = [
   "registry.json",
   "registry/Dockerfile",
   "Dockerfile",
+  "tmux.yml",
+  "zellij.kdl",
   ".github/*",
   "**.editorconfig",
   "**/go.mod",
