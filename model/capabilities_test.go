@@ -30,10 +30,13 @@ func TestCapabilities(t *testing.T) {
 			if *v.OperationName == "Capabilties-1" {
 				found++
 				assert.True(t, *v.ActivationFlag)
-				break
+			}
+			if *v.OperationName == "Capabilties-2" {
+				found++
+				assert.False(t, *v.ActivationFlag)
 			}
 		}
 
-		assert.Equal(t, 1, found)
+		assert.Equal(t, 2, found)
 	})
 }
