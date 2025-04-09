@@ -14,7 +14,6 @@ func (d *DeviceInfo) AddCapabilities(name string, enabled bool) {
 	operation := AssetOperation{}
 
 	if isNonEmptyValues(name) {
-		enabled = true
 		operation.OperationName = &name
 		operation.ActivationFlag = &enabled
 
