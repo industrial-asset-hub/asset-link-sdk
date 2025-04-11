@@ -1,0 +1,21 @@
+# SPDX-FileCopyrightText: 2025 Siemens AG
+#
+# SPDX-License-Identifier: MIT
+
+title: Asset Link SDK
+description: Documentation for the Asset Link SDK
+
+remote_theme: just-the-docs/just-the-docs
+
+nav_enabled: true
+nav_exclude: false
+color_scheme: light
+search_enabled: true
+favicon_ico: "/images/favicon.ico"
+
+include:
+  - index.md
+  - overview.md
+  - bootstrap.md
+  - cmd.md
+  - observability.md
