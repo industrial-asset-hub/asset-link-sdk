@@ -20,6 +20,8 @@ The following documentation is available in [docs/](docs/):
 
 Documentation is also available to browse online at <https://industrial-asset-hub.github.io/asset-link-sdk/>.
 
+Icon for the Asset Link SDK is from [Siemens IX](https://github.com/siemens/ix).
+
 ## Roadmap
 
 The roadmap is tracked via [Github issues](https://github.com/industrial-asset-hub/asset-link-sdk/issues).
