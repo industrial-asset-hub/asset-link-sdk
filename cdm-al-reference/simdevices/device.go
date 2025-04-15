@@ -23,8 +23,10 @@ import (
 type SimulatedDeviceState string
 
 const (
-	StateActive  SimulatedDeviceState = "active"
-	StateReading SimulatedDeviceState = "reading"
+	StateActive     SimulatedDeviceState = "active"
+	StateReading    SimulatedDeviceState = "reading"
+	StateUpdating   SimulatedDeviceState = "updating"
+	StateRetrieving SimulatedDeviceState = "retrieving"
 )
 
 type SimulatedDevice interface {
@@ -43,6 +45,9 @@ type SimulatedDevice interface {
 	GetIpNetmask() string
 	GetIpRoute() string
 	GetIDLink() string
+
+	UpdateFirmware(artefactFilename string) error
+	RetrieveFirmware(artefactFilename string) error
 }
 
 type SimulatedDeviceAddress struct {
@@ -73,6 +78,13 @@ type simulatedDeviceInfo struct {
 	IpRoute            string               `json:"ip_route"`
 	DeviceState        SimulatedDeviceState `json:"device_state"`
 	credentials        *simulatedDeviceCredentials
+}
+
+type firmwareFile struct {
+	ArtefactType       string `json:"artefact_type"`
+	Manufacturer       string `json:"manufacturer"`
+	ProductDesignation string `json:"product_designation"`
+	FirmwareVersion    string `json:"firmware_version"`
 }
 
 const (
