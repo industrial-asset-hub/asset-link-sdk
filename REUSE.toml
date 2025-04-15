@@ -28,6 +28,7 @@ path = [
   "**/go.mod",
   "**/go.sum",
   "docs/images/favicon.ico",
+  "simulated_device_firmware_*.fwu",
   "cookiecutter-project-template/{{ cookiecutter.al_project }}/.markdownlintrc",
   "cookiecutter-project-template/{{ cookiecutter.al_project }}/go.mod.tmpl",
   "cookiecutter-project-template/*.json",

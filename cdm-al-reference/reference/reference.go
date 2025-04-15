@@ -7,15 +7,16 @@
 package reference
 
 import (
-	"fmt"
-	"math/rand"
-	"strings"
+	"encoding/json"
+	"errors"
+	"os"
+	"path"
 	"sync"
-	"sync/atomic"
 	"time"
 
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/artefact"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/config"
+	generatedArtefact "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/artefact-update"
 	generated "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/model"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/publish"
@@ -27,21 +28,23 @@ import (
 // Implements the Discovery interface and feature
 
 type ReferenceClassDriver struct {
-	discoveryLock sync.Mutex
+	driverLock sync.Mutex
 }
 
-var lastSerialNumber = atomic.Int64{}
+type DeviceIdentifierOrConnectionData struct {
+	AssetLinkNIC string `json:"al_nic"`
+	DeviceIP     string `json:"device_ip"`
+}
 
 func (m *ReferenceClassDriver) Discover(discoveryConfig config.DiscoveryConfig, devicePublisher publish.DevicePublisher) error {
-	log.Info().
-		Msg("Start Discovery")
+	log.Info().Msg("Handle Discovery Request")
 
 	// Check if a job is already running
 	// We currently support only one running job
-	if m.discoveryLock.TryLock() {
-		defer m.discoveryLock.Unlock()
+	if m.driverLock.TryLock() {
+		defer m.driverLock.Unlock()
 	} else {
-		const errMsg string = "Discovery job is already running"
+		const errMsg string = "Another job is already running"
 		log.Error().Msg(errMsg)
 		return status.Errorf(codes.ResourceExhausted, errMsg)
 	}
@@ -58,56 +61,38 @@ func (m *ReferenceClassDriver) Discover(discoveryConfig config.DiscoveryConfig, 
 		return err
 	}
 
-	if alInterface == "" {
-		log.Info().Msg("Scanning for devices on all interfaces")
-	} else {
-		log.Info().Msg("Scanning for devices on interface " + alInterface)
-	}
+	devicesFound := ScanDevices(alInterface, ipRange)
 
-	if ipRange == "" {
-		log.Info().Msg("No Filtering of Devices for IP range")
-	} else {
-		log.Info().Msg("Filtering of Devices for IP range " + ipRange)
-	}
+	for _, device := range devicesFound {
+		deviceInfo := model.NewDevice("EthernetDevice", device.GetDeviceName())
+		deviceInfo.AddNameplate(device.GetManufacturer(), device.GetIDLink(), device.GetArticleNumber(),
+			device.GetProductDesignation(), device.GetHardwareVersion(), device.GetSerialNumber())
 
-	if alInterface == "" || alInterface == "eth0" {
-		// "scan" for devices connected to eth0 ...
-		deviceNIC := "enp0"
-		deviceIPs := []string{"192.168.0.123", "10.0.0.1"}
-		if ContainsIpInRange(ipRange, deviceIPs) {
-			// Just provide a static asset
-			name := "Device"
-			lastSerialNumber.Add(1)
-			manufacturer := "Siemens AG"
-			serialNumber := fmt.Sprint(lastSerialNumber.Load())
-			product := "cdm-reference-al-test2"
-			deviceInfo := model.NewDevice("EthernetDevice", name)
+		nicID := deviceInfo.AddNic(device.GetDeviceNIC(), device.GetMacAddress())
+		deviceInfo.AddIPv4(nicID, device.GetIpDevice(), device.GetIpNetmask(), device.GetIpRoute())
 
-			uriOfTheProduct := fmt.Sprintf("https://%s/%s-%s", strings.ReplaceAll(manufacturer, " ", "_"), strings.ReplaceAll(product, " ", "_"), serialNumber)
-			deviceInfo.AddNameplate(manufacturer, uriOfTheProduct, "MyOrderNumber", product, "1.0.0", serialNumber)
+		deviceInfo.AddSoftware("firmware", device.GetFirmwareVersion())
+		deviceInfo.AddCapabilities("firmware_update", device.IsUpdateSupported())
 
-			deviceInfo.AddSoftware("firmware", "1.2.5")
-			deviceInfo.AddCapabilities("firmware_update", false)
-			deviceInfo.AddMetadata("DEVICE-ID") // device ID or device connection data used for artefact uploads/downloads
-			randomMacAddress := generateRandomMacAddress()
-			id := deviceInfo.AddNic(deviceNIC, randomMacAddress)
-			deviceInfo.AddIPv4(id, deviceIPs[0], "255.255.255.0", "")
-			deviceInfo.AddIPv4(id, deviceIPs[1], "255.255.255.0", "")
-			discoveredDevice := deviceInfo.ConvertToDiscoveredDevice()
+		deviceIdentifier := DeviceIdentifierOrConnectionData{
+			AssetLinkNIC: device.GetALNIC(),
+			DeviceIP:     device.GetIpDevice(),
+		}
+		deviceIdentifierBlob, _ := json.Marshal(deviceIdentifier)
+		deviceInfo.AddMetadata(string(deviceIdentifierBlob)) // device ID or device connection data used for artefact uploads/downloads
 
-			time.Sleep(3 * time.Second)
+		discoveredDevice := deviceInfo.ConvertToDiscoveredDevice()
 
-			err := devicePublisher.PublishDevice(discoveredDevice)
-			if err != nil {
-				// discovery request was likely cancelled -> terminate discovery and return error
-				log.Error().Msgf("Publishing Error: %v", err)
-				return err
-			}
+		time.Sleep(1 * time.Second)
+
+		err := devicePublisher.PublishDevice(discoveredDevice)
+		if err != nil {
+			// discovery request was likely cancelled -> terminate discovery and return error
+			log.Error().Msgf("Publishing Error: %v", err)
+			return err
 		}
 	}
 
-	log.Debug().
-		Msg("Discover function exiting")
 	return nil
 }
 
@@ -132,20 +117,62 @@ func (m *ReferenceClassDriver) GetSupportedOptions() []*generated.SupportedOptio
 func (m *ReferenceClassDriver) HandlePushArtefact(artefactReceiver *artefact.ArtefactReceiver) error {
 	log.Info().Msg("Handle Push Artefact by receiving the artefact")
 
+	// Check if a job is already running
+	// We currently support only one running job
+	if m.driverLock.TryLock() {
+		defer m.driverLock.Unlock()
+	} else {
+		const errMsg string = "Another job is already running"
+		log.Error().Msg(errMsg)
+		return status.Errorf(codes.ResourceExhausted, errMsg)
+	}
+
 	artefactMetaData, err := artefactReceiver.ReceiveArtefactMetaData()
 	if err != nil {
 		log.Err(err).Msg("Failed to receive artefact meta data")
 		return err
 	}
 
-	deviceIdentifier := string(artefactMetaData.GetDeviceIdentifier())
-	artefactType := artefactMetaData.GetArtefactType().String()
+	deviceIdentifierBlob := artefactMetaData.GetDeviceIdentifier()
+	artefactType := artefactMetaData.GetArtefactType()
 
-	log.Info().Str("DeviceIdentifier", deviceIdentifier).Str("ArtefactType", artefactType).Msg("ArtefactMetaData")
+	log.Info().Str("DeviceIdentifier", string(deviceIdentifierBlob)).Str("ArtefactType", artefactType.String()).Msg("ArtefactMetaData")
 
-	err = artefactReceiver.ReceiveArtefactToFile("artefact_file")
+	if artefactType != generatedArtefact.ArtefactType_AT_FIRMWARE {
+		err = errors.New("artefact type not supported")
+		log.Err(err).Msg("Failed to handle push artefact")
+		return err
+	}
+
+	tempDir, err := os.MkdirTemp("", "artefact_pull")
+	if err != nil {
+		return err
+	}
+	defer os.RemoveAll(tempDir)
+
+	artefactFilename := path.Join(tempDir, "artefact_file_in.fwu")
+	err = artefactReceiver.ReceiveArtefactToFile(artefactFilename)
 	if err != nil {
 		log.Err(err).Msg("Failed to receive artefact file")
+		return err
+	}
+
+	var deviceIdentifier DeviceIdentifierOrConnectionData
+	err = json.Unmarshal(deviceIdentifierBlob, &deviceIdentifier)
+	if err != nil {
+		log.Err(err).Msg("Failed to parse connection blob")
+		return err
+	}
+
+	device, err := ConnectToDevice(deviceIdentifier.AssetLinkNIC, deviceIdentifier.DeviceIP)
+	if err != nil {
+		log.Err(err).Msg("Failed to connect to device")
+		return err
+	}
+
+	err = device.UpdateFirmware(artefactFilename)
+	if err != nil {
+		log.Err(err).Msg("Failed to update device firmware")
 		return err
 	}
 
@@ -155,25 +182,58 @@ func (m *ReferenceClassDriver) HandlePushArtefact(artefactReceiver *artefact.Art
 func (m *ReferenceClassDriver) HandlePullArtefact(artefactMetaData *artefact.ArtefactMetaData, artefactTransmitter *artefact.ArtefactTransmitter) error {
 	log.Info().Msg("Handle Pull Artefact by transmitting the arefact")
 
-	deviceIdentifier := string(artefactMetaData.GetDeviceIdentifier())
-	artefactType := artefactMetaData.GetArtefactType().String()
+	// Check if a job is already running
+	// We currently support only one running job
+	if m.driverLock.TryLock() {
+		defer m.driverLock.Unlock()
+	} else {
+		const errMsg string = "Another job is already running"
+		log.Error().Msg(errMsg)
+		return status.Errorf(codes.ResourceExhausted, errMsg)
+	}
 
-	log.Info().Str("DeviceIdentifier", deviceIdentifier).Str("ArtefactType", artefactType).Msg("ArtefactMetaData")
+	deviceIdentifierBlob := artefactMetaData.GetDeviceIdentifier()
+	artefactType := artefactMetaData.GetArtefactType()
 
-	err := artefactTransmitter.TransmitArtefactFromFile("artefact_file", 1024)
+	log.Info().Str("DeviceIdentifier", string(deviceIdentifierBlob)).Str("ArtefactType", artefactType.String()).Msg("ArtefactMetaData")
+
+	if artefactType != generatedArtefact.ArtefactType_AT_FIRMWARE {
+		err := errors.New("artefact type not supported")
+		log.Err(err).Msg("Failed to handle pull artefact")
+		return err
+	}
+
+	var deviceIdentifier DeviceIdentifierOrConnectionData
+	err := json.Unmarshal(deviceIdentifierBlob, &deviceIdentifier)
+	if err != nil {
+		log.Err(err).Msg("Failed to parse connection blob")
+		return err
+	}
+
+	device, err := ConnectToDevice(deviceIdentifier.AssetLinkNIC, deviceIdentifier.DeviceIP)
+	if err != nil {
+		log.Err(err).Msg("Failed to connect to device")
+		return err
+	}
+
+	tempDir, err := os.MkdirTemp("", "artefact_pull")
+	if err != nil {
+		return err
+	}
+	defer os.RemoveAll(tempDir)
+
+	artefactFilename := path.Join(tempDir, "artefact_file_out.fwu")
+	err = device.RetrieveFirmware(artefactFilename)
+	if err != nil {
+		log.Err(err).Msg("Failed to retrieve device firmware")
+		return err
+	}
+
+	err = artefactTransmitter.TransmitArtefactFromFile(artefactFilename, 1024)
 	if err != nil {
 		log.Err(err).Msg("Failed to transmit artefact file")
 		return err
 	}
 
 	return nil
-}
-
-func generateRandomMacAddress() string {
-	r := rand.Uint64()
-	return fmt.Sprintf("%02x:%02x:%02x:%02x:%02x:%02x",
-		0x00, 0x16, 0x3e,
-		byte(r>>8),
-		byte(r>>16),
-		byte(r>>24))
 }

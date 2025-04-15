@@ -9,10 +9,8 @@ package handler
 
 import (
 	"fmt"
-	"math/rand"
 	"strings"
 	"sync"
-	"sync/atomic"
 
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/artefact"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/config"
@@ -27,21 +25,18 @@ import (
 // Implements the Discovery interface and feature
 
 type AssetLinkImplementation struct {
-	discoveryLock sync.Mutex
+	driverLock sync.Mutex
 }
 
-var lastSerialNumber = atomic.Int64{}
-
 func (m *AssetLinkImplementation) Discover(discoveryConfig config.DiscoveryConfig, devicePublisher publish.DevicePublisher) error {
-	log.Info().
-		Msg("Start Discovery")
+	log.Info().Msg("Handle Discovery Request")
 
 	// Check if a job is already running
 	// We currently support only one running job
-	if m.discoveryLock.TryLock() {
-		defer m.discoveryLock.Unlock()
+	if m.driverLock.TryLock() {
+		defer m.driverLock.Unlock()
 	} else {
-		const errMsg string = "Discovery job is already running"
+		const errMsg string = "Another job is already running"
 		log.Error().Msg(errMsg)
 		return status.Errorf(codes.ResourceExhausted, errMsg)
 	}
@@ -66,30 +61,25 @@ func (m *AssetLinkImplementation) Discover(discoveryConfig config.DiscoveryConfi
 	_ = optionSetting
 
 	// Fillup the device information
-	deviceInfo := model.NewDevice("EthernetDevice", "My First Ethernet Device")
-
-	product := "{{ cookiecutter.al_name }}"
-	orderNumber := "PRODUCT-ONE"
-	productVersion := "1.0.0"
+	assetName := "Dummy Device 1"
 	vendorName := "{{ cookiecutter.company }}"
-	lastSerialNumber.Add(1)
-	serialNumber := fmt.Sprint(lastSerialNumber.Load())
-	productUri := fmt.Sprintf("urn:%s/%s/%s", strings.ReplaceAll(vendorName, " ", "_"), strings.ReplaceAll(product, " ", "_"), serialNumber)
-	deviceInfo.AddNameplate(
-		vendorName,
-		productUri,
-		orderNumber,
-		product,
-		productVersion,
-		serialNumber)
+	productName := "Dummy Product"
+	orderNumber := "AN0123456789"
+	serialNumber := "SN00012345678900001"
+	hardwareVersion := "3"
+	firmwareVersion := "1.0.0"
 
+	productUri := fmt.Sprintf("urn:%s/%s/%s", strings.ReplaceAll(vendorName, " ", "_"), strings.ReplaceAll(productName, " ", "_"), serialNumber)
+
+	deviceInfo := model.NewDevice("EthernetDevice", assetName)
+	deviceInfo.AddNameplate(vendorName, productUri, orderNumber, productName, hardwareVersion, serialNumber)
+	deviceInfo.AddSoftware("firmware", firmwareVersion)
 	deviceInfo.AddCapabilities("firmware_update", false)
-
 	deviceInfo.AddMetadata("DEVICE-ID") // device ID or device connection data used for artefact uploads/downloads
 
-	randomMacAddress := generateRandomMacAddress()
-	id := deviceInfo.AddNic("eth0", randomMacAddress)
-	deviceInfo.AddIPv4(id, "192.168.0.1", "255.255.255.0", "")
+	nicID := deviceInfo.AddNic("eth0", "00:16:3e:01:02:03")
+	deviceInfo.AddIPv4(nicID, "192.168.0.10", "255.255.255.0", "")
+	deviceInfo.AddIPv4(nicID, "10.0.0.153", "255.255.255.0", "")
 
 	// Convert and publish device
 	discoveredDevice := deviceInfo.ConvertToDiscoveredDevice()
@@ -101,8 +91,6 @@ func (m *AssetLinkImplementation) Discover(discoveryConfig config.DiscoveryConfi
 		return err
 	}
 
-	log.Debug().
-		Msg("Discover function exiting")
 	return nil
 }
 
@@ -127,16 +115,26 @@ func (m *AssetLinkImplementation) GetSupportedOptions() []*generated.SupportedOp
 func (m *AssetLinkImplementation) HandlePushArtefact(artefactReceiver *artefact.ArtefactReceiver) error {
 	log.Info().Msg("Handle Push Artefact by receiving the artefact")
 
+	// Check if a job is already running
+	// We currently support only one running job
+	if m.driverLock.TryLock() {
+		defer m.driverLock.Unlock()
+	} else {
+		const errMsg string = "Another job is already running"
+		log.Error().Msg(errMsg)
+		return status.Errorf(codes.ResourceExhausted, errMsg)
+	}
+
 	artefactMetaData, err := artefactReceiver.ReceiveArtefactMetaData()
 	if err != nil {
 		log.Err(err).Msg("Failed to receive artefact meta data")
 		return err
 	}
 
-	deviceIdentifier := string(artefactMetaData.GetDeviceIdentifier())
-	artefactType := artefactMetaData.GetArtefactType().String()
+	deviceIdentifier := artefactMetaData.GetDeviceIdentifier()
+	artefactType := artefactMetaData.GetArtefactType()
 
-	log.Info().Str("DeviceIdentifier", deviceIdentifier).Str("ArtefactType", artefactType).Msg("ArtefactMetaData")
+	log.Info().Str("DeviceIdentifier", string(deviceIdentifier)).Str("ArtefactType", artefactType.String()).Msg("ArtefactMetaData")
 
 	err = artefactReceiver.ReceiveArtefactToFile("artefact_file")
 	if err != nil {
@@ -150,10 +148,20 @@ func (m *AssetLinkImplementation) HandlePushArtefact(artefactReceiver *artefact.
 func (m *AssetLinkImplementation) HandlePullArtefact(artefactMetaData *artefact.ArtefactMetaData, artefactTransmitter *artefact.ArtefactTransmitter) error {
 	log.Info().Msg("Handle Pull Artefact by transmitting the arefact")
 
-	deviceIdentifier := string(artefactMetaData.GetDeviceIdentifier())
-	artefactType := artefactMetaData.GetArtefactType().String()
+	// Check if a job is already running
+	// We currently support only one running job
+	if m.driverLock.TryLock() {
+		defer m.driverLock.Unlock()
+	} else {
+		const errMsg string = "Another job is already running"
+		log.Error().Msg(errMsg)
+		return status.Errorf(codes.ResourceExhausted, errMsg)
+	}
 
-	log.Info().Str("DeviceIdentifier", deviceIdentifier).Str("ArtefactType", artefactType).Msg("ArtefactMetaData")
+	deviceIdentifier := artefactMetaData.GetDeviceIdentifier()
+	artefactType := artefactMetaData.GetArtefactType()
+
+	log.Info().Str("DeviceIdentifier", string(deviceIdentifier)).Str("ArtefactType", artefactType.String()).Msg("ArtefactMetaData")
 
 	err := artefactTransmitter.TransmitArtefactFromFile("artefact_file", 1024)
 	if err != nil {
@@ -162,13 +170,4 @@ func (m *AssetLinkImplementation) HandlePullArtefact(artefactMetaData *artefact.
 	}
 
 	return nil
-}
-
-func generateRandomMacAddress() string {
-	r := rand.Uint64()
-	return fmt.Sprintf("%02x:%02x:%02x:%02x:%02x:%02x",
-		0x00, 0x16, 0x3e,
-		byte(r>>8),
-		byte(r>>16),
-		byte(r>>24))
 }
