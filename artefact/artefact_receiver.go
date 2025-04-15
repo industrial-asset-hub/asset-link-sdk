@@ -39,7 +39,7 @@ func (ar *ArtefactReceiver) ReceiveArtefactMetaData() (*ArtefactMetaData, error)
 
 	internalMetaData := chunk.GetMetadata()
 
-	metaData := NewArtefactMetaData(internalMetaData.DeviceIdentifier, &internalMetaData.ArtefactIdentifier.Type)
+	metaData := NewArtefactMetaData(internalMetaData.DeviceIdentifier, internalMetaData.ArtefactIdentifier.Type)
 
 	return metaData, nil
 }

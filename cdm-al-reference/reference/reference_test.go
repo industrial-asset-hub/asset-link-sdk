@@ -61,3 +61,30 @@ func TestConfig(t *testing.T) {
 		driver.GetSupportedOptions()
 	})
 }
+
+func TestArtefacts(t *testing.T) {
+
+	t.Run("pushArtefactSucceeds", func(t *testing.T) {
+		//TODO: driver := &ReferenceClassDriver{}
+
+		//TODO: driver.HandlePushArtefact()
+	})
+
+	t.Run("pushArtefactFails", func(t *testing.T) {
+		//TODO: driver := &ReferenceClassDriver{}
+
+		//TODO: driver.HandlePushArtefact()
+	})
+
+	t.Run("pullArtefactSucceeds", func(t *testing.T) {
+		//TODO: driver := &ReferenceClassDriver{}
+
+		//TODO: driver.HandlePullArtefact()
+	})
+
+	t.Run("pullArtefactFails", func(t *testing.T) {
+		//TODO: driver := &ReferenceClassDriver{}
+
+		//TODO: driver.HandlePullArtefact()
+	})
+}
