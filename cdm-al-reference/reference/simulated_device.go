@@ -16,6 +16,7 @@ import (
 	"net"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/rs/zerolog/log"
 )
@@ -180,6 +181,8 @@ func (d *SimulatedDevice) UpdateFirmware(artefactFilename string) error {
 		return errors.New("firmware version is already installed")
 	}
 
+	time.Sleep(2 * time.Second)
+
 	d.firmwareVersion = fwFile.FirmwareVersion
 	return nil
 }
@@ -198,6 +201,8 @@ func (d *SimulatedDevice) RetrieveFirmware(artefactFilename string) error {
 	if fileErr != nil {
 		return fileErr
 	}
+
+	time.Sleep(2 * time.Second)
 
 	return nil
 }
