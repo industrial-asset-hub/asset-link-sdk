@@ -17,7 +17,7 @@ import (
 
 var pullArtefactFile string = ""
 var pullArtefactType string = ""
-var pullDeviceId string = ""
+var pullDeviceIdentifierFile string = ""
 
 // artefactPullCommand represents the discovery command
 var ArtefactPullCommand = &cobra.Command{
@@ -25,7 +25,7 @@ var ArtefactPullCommand = &cobra.Command{
 	Short: "Pull artefact from device",
 	Long:  `Pulls an artefact of a specific type from the specified device`,
 	Run: func(cmd *cobra.Command, args []string) {
-		exitCode := al.PullArtefact(shared.AssetLinkEndpoint, pullArtefactFile, pullDeviceId, pullArtefactType)
+		exitCode := al.PullArtefact(shared.AssetLinkEndpoint, pullArtefactFile, pullDeviceIdentifierFile, pullArtefactType)
 		os.Exit(exitCode)
 	},
 }
@@ -33,5 +33,5 @@ var ArtefactPullCommand = &cobra.Command{
 func init() {
 	ArtefactPullCommand.Flags().StringVarP(&pullArtefactFile, "artefact-file", "a", "", "destination filename of artefact")
 	ArtefactPullCommand.Flags().StringVarP(&pullArtefactType, "artefact-type", "t", "", "requested artefact type (\"backup\", \"configuration\", or \"firmware\")")
-	ArtefactPullCommand.Flags().StringVarP(&pullDeviceId, "device-id", "d", "", "device identifier")
+	ArtefactPullCommand.Flags().StringVarP(&pullDeviceIdentifierFile, "device-identifier-file", "d", "", shared.DeviceIdentifierFileDesc)
 }

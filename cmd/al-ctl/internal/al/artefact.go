@@ -17,21 +17,19 @@ import (
 	"golang.org/x/net/context"
 )
 
-func PushArtefact(endpoint string, artefactFile string, deviceId string, artefactType string) int {
-	log.Info().Str("Endpoint", endpoint).Str("Artefact File", artefactFile).Str("Device ID", deviceId).Str("Artefact Type", artefactType).Msg("Pushing Artefact")
+func PushArtefact(endpoint string, artefactFile string, deviceIdentifierFile string, artefactType string) int {
+	log.Info().Str("Endpoint", endpoint).Str("Artefact File", artefactFile).Str("Device Identifier File", deviceIdentifierFile).Str("Artefact Type", artefactType).Msg("Pushing Artefact")
 
-	conn := shared.GrpcConnection(endpoint)
-	defer conn.Close()
-
-	client := generated.NewArtefactUpdateApiClient(conn)
-	ctx := context.Background()
-	stream, err := client.PushArtefact(ctx)
-	if err != nil {
-		log.Error().Err(err).Msg("PushArtefact returned an error")
+	if artefactFile == "" {
+		log.Error().Msg("No device identifier file provided")
 		return 1
 	}
 
-	deviceIdentifier := []byte(deviceId)
+	deviceIdentifier, err := os.ReadFile(deviceIdentifierFile)
+	if err != nil {
+		log.Error().Err(err).Msg("Could not read device identifier file")
+		return 1
+	}
 
 	artefactIdentifier := generated.ArtefactIdentifier{Type: generated.ArtefactType_AT_FIRMWARE}
 	switch artefactType {
@@ -51,6 +49,17 @@ func PushArtefact(endpoint string, artefactFile string, deviceId string, artefac
 		DeviceIdentifier:   deviceIdentifier,
 		ArtefactIdentifier: &artefactIdentifier,
 	}}}
+
+	conn := shared.GrpcConnection(endpoint)
+	defer conn.Close()
+
+	client := generated.NewArtefactUpdateApiClient(conn)
+	ctx := context.Background()
+	stream, err := client.PushArtefact(ctx)
+	if err != nil {
+		log.Error().Err(err).Msg("PushArtefact returned an error")
+		return 1
+	}
 
 	err = stream.Send(artefactMetaData)
 	if err != nil {
@@ -105,12 +114,19 @@ func PushArtefact(endpoint string, artefactFile string, deviceId string, artefac
 	return 0
 }
 
-func PullArtefact(endpoint string, artefactFile string, deviceId string, artefactType string) int {
-	log.Info().Str("Endpoint", endpoint).Str("Artefact File", artefactFile).Str("Device ID", deviceId).Str("Artefact Type", artefactType).Msg("Pulling Artefact")
-	conn := shared.GrpcConnection(endpoint)
-	defer conn.Close()
+func PullArtefact(endpoint string, artefactFile string, deviceIdentifierFile string, artefactType string) int {
+	log.Info().Str("Endpoint", endpoint).Str("Artefact File", artefactFile).Str("Device Identifier File", deviceIdentifierFile).Str("Artefact Type", artefactType).Msg("Pulling Artefact")
 
-	deviceIdentifier := []byte(deviceId)
+	if artefactFile == "" {
+		log.Error().Msg("No device identifier file provided")
+		return 1
+	}
+
+	deviceIdentifier, err := os.ReadFile(deviceIdentifierFile)
+	if err != nil {
+		log.Error().Err(err).Msg("Could not read device identifier file")
+		return 1
+	}
 
 	artefactIdentifier := generated.ArtefactIdentifier{Type: generated.ArtefactType_AT_FIRMWARE}
 	switch artefactType {
@@ -130,6 +146,9 @@ func PullArtefact(endpoint string, artefactFile string, deviceId string, artefac
 		DeviceIdentifier:   deviceIdentifier,
 		ArtefactIdentifier: &artefactIdentifier,
 	}
+
+	conn := shared.GrpcConnection(endpoint)
+	defer conn.Close()
 
 	client := generated.NewArtefactUpdateApiClient(conn)
 	ctx := context.Background()
