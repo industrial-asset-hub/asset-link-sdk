@@ -13,10 +13,10 @@ import (
 
 type ArtefactMetaData struct {
 	deviceIdentifier []byte
-	artefactType     *generated.ArtefactType
+	artefactType     generated.ArtefactType
 }
 
-func NewArtefactMetaData(deviceIdentifier []byte, artefactType *generated.ArtefactType) *ArtefactMetaData {
+func NewArtefactMetaData(deviceIdentifier []byte, artefactType generated.ArtefactType) *ArtefactMetaData {
 	artefactIdentifier := &ArtefactMetaData{deviceIdentifier: deviceIdentifier, artefactType: artefactType}
 	return artefactIdentifier
 }
@@ -25,6 +25,6 @@ func (ai *ArtefactMetaData) GetDeviceIdentifier() []byte {
 	return ai.deviceIdentifier
 }
 
-func (ai *ArtefactMetaData) GetArtefactType() *generated.ArtefactType {
+func (ai *ArtefactMetaData) GetArtefactType() generated.ArtefactType {
 	return ai.artefactType
 }
