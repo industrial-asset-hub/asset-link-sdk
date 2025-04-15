@@ -9,6 +9,7 @@ package model
 
 import (
 	"fmt"
+	"reflect"
 	"strings"
 	"testing"
 	"time"
@@ -294,6 +295,22 @@ func TestConversionOfAllTypes(t *testing.T) {
 		case "timestamp_pointer":
 			assert.Equal(t, timestampString, extractValue(identifier.String()), "Property: timestamp_pointer")
 		}
+	}
+}
+
+func TestConvertToDeviceIdentifiers_IgnoredIdentifier(t *testing.T) {
+	device := generateDevice("Profinet", "Device")
+	testCases := []struct {
+		fieldValue interface{}
+		uri        string
+	}{
+		{device.ProductInstanceIdentifier.IdentifierUncertainty, "https://schema.industrial-assets.io/base/v0.9.0/Asset#asset_identifiers/identifier_uncertainty"},
+		{device.InstanceAnnotations, "https://schema.industrial-assets.io/base/v0.9.0/Asset#instance_annotations"},
+	}
+
+	for _, testCase := range testCases {
+		identifiers := convertToDeviceIdentifiers(reflect.ValueOf(testCase.fieldValue), testCase.uri, 0)
+		assert.Empty(t, identifiers, fmt.Sprintf("Expected no identifiers for %s", testCase.uri))
 	}
 }
 
