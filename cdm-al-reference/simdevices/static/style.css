@@ -152,7 +152,9 @@ body {
     background-color: #00334d;
 }
 
-.reading {
+.reading,
+.updating,
+.retrieving {
     background-color: #22304a;
     animation-name: pulsingDeviceState;
     animation-duration: 1.0s;
