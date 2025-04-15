@@ -94,6 +94,17 @@ func PushArtefact(endpoint string, artefactFile string, deviceIdentifierFile str
 				return 4
 			}
 		}
+
+		statusUpdate, err := stream.Recv()
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			log.Error().Err(err).Msg("Could not receive status update")
+			return 6
+		}
+		if statusUpdate != nil {
+			log.Info().Str("State", statusUpdate.State.String()).Str("Status", statusUpdate.Status.GetStatus().String()).Str("Message", statusUpdate.Status.GetMessage()).Int32("Progress", statusUpdate.GetProgress()).Msg("Status Update")
+		}
 	}
 
 	err = stream.CloseSend()
@@ -102,12 +113,15 @@ func PushArtefact(endpoint string, artefactFile string, deviceIdentifierFile str
 	}
 
 	for {
-		_, err := stream.Recv()
+		statusUpdate, err := stream.Recv()
 		if err == io.EOF {
 			break
 		} else if err != nil {
 			log.Error().Err(err).Msg("Could not receive status update")
 			return 6
+		}
+		if statusUpdate != nil {
+			log.Info().Str("State", statusUpdate.State.String()).Str("Status", statusUpdate.Status.GetStatus().String()).Str("Message", statusUpdate.Status.GetMessage()).Int32("Progress", statusUpdate.GetProgress()).Msg("Status Update")
 		}
 	}
 
@@ -174,23 +188,34 @@ func PullArtefact(endpoint string, artefactFile string, deviceIdentifierFile str
 			return 4
 		}
 
-		data := chunk.GetFileContent()
-		lenData := len(data)
-		if lenData > 0 {
-			start := 0
-			for {
-				remainingData := data[start:]
-				n, err := artefactFileOut.Write(remainingData)
-				if err != nil {
-					log.Error().Err(err).Msg("Failed to write artefact file")
-					return 5
-				}
+		if chunk == nil {
+			continue
+		}
 
-				start += n
-				if start == lenData {
-					break
+		data := chunk.GetFileContent()
+		if data != nil {
+			lenData := len(data)
+			if lenData > 0 {
+				start := 0
+				for {
+					remainingData := data[start:]
+					n, err := artefactFileOut.Write(remainingData)
+					if err != nil {
+						log.Error().Err(err).Msg("Failed to write artefact file")
+						return 5
+					}
+
+					start += n
+					if start == lenData {
+						break
+					}
 				}
 			}
+		}
+
+		statusUpdate := chunk.GetStatus()
+		if statusUpdate != nil {
+			log.Info().Str("Status", statusUpdate.GetStatus().String()).Str("Message", statusUpdate.GetMessage()).Msg("Status Update")
 		}
 	}
 
