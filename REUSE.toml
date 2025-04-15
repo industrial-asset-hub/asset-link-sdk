@@ -18,6 +18,7 @@ SPDX-License-Identifier = "MIT"
 path = [
   "renovate.json",
   "discovery.json",
+  "simulated_device_firmware_*.fwu",
   "registry.json",
   "registry/Dockerfile",
   "Dockerfile",
