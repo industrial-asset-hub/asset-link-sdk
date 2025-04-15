@@ -13,12 +13,13 @@ import (
 	"os"
 	"path"
 	"sync"
+	"time"
 
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/artefact"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cdm-al-reference/simdevices"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/config"
-	generatedArtefact "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/artefact-update"
-	generated "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
+	ga "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/artefact-update"
+	gd "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/model"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/publish"
 	"github.com/rs/zerolog/log"
@@ -86,25 +87,25 @@ func (m *ReferenceAssetLink) Discover(discoveryConfig config.DiscoveryConfig, de
 	return nil
 }
 
-func (m *ReferenceAssetLink) GetSupportedOptions() []*generated.SupportedOption {
-	supportedOptions := make([]*generated.SupportedOption, 0)
-	supportedOptions = append(supportedOptions, &generated.SupportedOption{
+func (m *ReferenceAssetLink) GetSupportedOptions() []*gd.SupportedOption {
+	supportedOptions := make([]*gd.SupportedOption, 0)
+	supportedOptions = append(supportedOptions, &gd.SupportedOption{
 		Key:      "interface",
-		Datatype: generated.VariantType_VT_STRING,
+		Datatype: gd.VariantType_VT_STRING,
 	})
 	return supportedOptions
 }
 
-func (m *ReferenceAssetLink) GetSupportedFilters() []*generated.SupportedFilter {
-	supportedFilters := make([]*generated.SupportedFilter, 0)
-	supportedFilters = append(supportedFilters, &generated.SupportedFilter{
+func (m *ReferenceAssetLink) GetSupportedFilters() []*gd.SupportedFilter {
+	supportedFilters := make([]*gd.SupportedFilter, 0)
+	supportedFilters = append(supportedFilters, &gd.SupportedFilter{
 		Key:      "ip_range",
-		Datatype: generated.VariantType_VT_STRING,
+		Datatype: gd.VariantType_VT_STRING,
 	})
 	return supportedFilters
 }
 
-func (m *ReferenceAssetLink) GetIdentifiers(identifiersRequest config.IdentifiersRequest) ([]*generated.DeviceIdentifier, error) {
+func (m *ReferenceAssetLink) GetIdentifiers(identifiersRequest config.IdentifiersRequest) ([]*gd.DeviceIdentifier, error) {
 	log.Info().Msg("Handle GetIdentifiers Request")
 	parameterJson := identifiersRequest.GetParameterJson()
 	var deviceAddress simdevices.SimulatedDeviceAddress
@@ -152,7 +153,7 @@ func (m *ReferenceAssetLink) GetIdentifiers(identifiersRequest config.Identifier
 		deviceAddress.AssetLinkNIC)
 }
 
-func createDiscoverError(sdError error, sdAddress simdevices.SimulatedDeviceAddress) *generated.DiscoverError {
+func createDiscoverError(sdError error, sdAddress simdevices.SimulatedDeviceAddress) *gd.DiscoverError {
 	var resultCode codes.Code
 	switch sdError {
 	case simdevices.ErrInvalidInterface:
@@ -168,11 +169,11 @@ func createDiscoverError(sdError error, sdAddress simdevices.SimulatedDeviceAddr
 	}
 	sdAddressBytes, _ := json.Marshal(sdAddress)
 	description := fmt.Sprintf("Error retrieving device details (%s)", sdError.Error())
-	discoverError := &generated.DiscoverError{
+	discoverError := &gd.DiscoverError{
 		ResultCode:  int32(resultCode),
 		Description: description,
-		Source: &generated.DiscoverError_Device{
-			Device: &generated.Destination{Target: &generated.Destination_ConnectionParameterSet{ConnectionParameterSet: &generated.ConnectionParameterSet{
+		Source: &gd.DiscoverError_Device{
+			Device: &gd.Destination{Target: &gd.Destination_ConnectionParameterSet{ConnectionParameterSet: &gd.ConnectionParameterSet{
 				ParameterJson: string(sdAddressBytes),
 			}}},
 		},
@@ -212,6 +213,7 @@ func (m *ReferenceAssetLink) HandlePushArtefact(artefactReceiver *artefact.Artef
 		return status.Errorf(codes.ResourceExhausted, errMsg)
 	}
 
+	// Retrieve meta data
 	artefactMetaData, err := artefactReceiver.ReceiveArtefactMetaData()
 	if err != nil {
 		log.Err(err).Msg("Failed to receive artefact meta data")
@@ -223,13 +225,19 @@ func (m *ReferenceAssetLink) HandlePushArtefact(artefactReceiver *artefact.Artef
 
 	log.Info().Str("DeviceIdentifier", string(deviceIdentifierBlob)).Str("ArtefactType", artefactType.String()).Msg("ArtefactMetaData")
 
-	if artefactType != generatedArtefact.ArtefactType_AT_FIRMWARE {
+	// Perform checks
+	_ = artefactReceiver.UpdateStatus(ga.ArtefactUpdateState_AUS_DOWNLOAD, ga.TransferStatus_AS_OK, "Performing checks", 10)
+
+	if artefactType != ga.ArtefactType_AT_FIRMWARE {
 		err = errors.New("artefact type not supported")
 		log.Err(err).Msg("Failed to handle push artefact")
 		return err
 	}
 
-	tempDir, err := os.MkdirTemp("", "artefact_pull")
+	// Receiving new firmware
+	_ = artefactReceiver.UpdateStatus(ga.ArtefactUpdateState_AUS_DOWNLOAD, ga.TransferStatus_AS_OK, "Receiving new firmware", 20)
+
+	tempDir, err := os.MkdirTemp("", "artefact_push")
 	if err != nil {
 		return err
 	}
@@ -242,6 +250,11 @@ func (m *ReferenceAssetLink) HandlePushArtefact(artefactReceiver *artefact.Artef
 		return err
 	}
 
+	time.Sleep(2 * time.Second)
+
+	// Verify new firmware
+	_ = artefactReceiver.UpdateStatus(ga.ArtefactUpdateState_AUS_INSTALLATION, ga.TransferStatus_AS_OK, "Verifying new firmware", 50)
+
 	var deviceAddress simdevices.SimulatedDeviceAddress
 	err = json.Unmarshal(deviceIdentifierBlob, &deviceAddress)
 	if err != nil {
@@ -249,11 +262,19 @@ func (m *ReferenceAssetLink) HandlePushArtefact(artefactReceiver *artefact.Artef
 		return err
 	}
 
+	// Connect to device
+	_ = artefactReceiver.UpdateStatus(ga.ArtefactUpdateState_AUS_INSTALLATION, ga.TransferStatus_AS_OK, "Connecting to device", 60)
+
 	device, err := simdevices.ConnectToDevice(deviceAddress, nil)
 	if err != nil {
 		log.Err(err).Msg("Failed to connect to device")
 		return err
 	}
+
+	oldFirmwareVersion := device.GetActiveFirmwareVersion()
+
+	// Installing new firmware on device
+	_ = artefactReceiver.UpdateStatus(ga.ArtefactUpdateState_AUS_INSTALLATION, ga.TransferStatus_AS_OK, "Installing new firmware on device", 70)
 
 	err = device.UpdateFirmware(artefactFilename)
 	if err != nil {
@@ -266,6 +287,12 @@ func (m *ReferenceAssetLink) HandlePushArtefact(artefactReceiver *artefact.Artef
 		log.Err(err).Msg("Failed to reboot device after firmware update")
 		return err
 	}
+
+	newFirmwareVersion := device.GetActiveFirmwareVersion()
+
+	// Report successful activation
+	finalMessage := fmt.Sprintf("New firmware activated (new version %s, old version %s)", newFirmwareVersion, oldFirmwareVersion)
+	_ = artefactReceiver.UpdateStatus(ga.ArtefactUpdateState_AUS_ACTIVATION, ga.TransferStatus_AS_OK, finalMessage, 100)
 
 	return nil
 }
@@ -283,12 +310,15 @@ func (m *ReferenceAssetLink) HandlePullArtefact(artefactMetaData *artefact.Artef
 		return status.Errorf(codes.ResourceExhausted, errMsg)
 	}
 
+	// Retrieve meta data
 	deviceIdentifierBlob := artefactMetaData.GetDeviceIdentifier()
 	artefactType := artefactMetaData.GetArtefactType()
-
 	log.Info().Str("DeviceIdentifier", string(deviceIdentifierBlob)).Str("ArtefactType", artefactType.String()).Msg("ArtefactMetaData")
 
-	if artefactType != generatedArtefact.ArtefactType_AT_CONFIGURATION {
+	// Perform checks
+	_ = artefactTransmitter.UpdateStatus(ga.TransferStatus_AS_OK, "Performing checks")
+
+	if artefactType != ga.ArtefactType_AT_CONFIGURATION {
 		err := errors.New("artefact type not supported")
 		log.Err(err).Msg("Failed to handle pull artefact")
 		return err
@@ -301,11 +331,17 @@ func (m *ReferenceAssetLink) HandlePullArtefact(artefactMetaData *artefact.Artef
 		return err
 	}
 
+	// Connect to device
+	_ = artefactTransmitter.UpdateStatus(ga.TransferStatus_AS_OK, "Connecting to device")
+
 	device, err := simdevices.ConnectToDevice(deviceAddress, nil)
 	if err != nil {
 		log.Err(err).Msg("Failed to connect to device")
 		return err
 	}
+
+	// Retrieve configuration from device
+	_ = artefactTransmitter.UpdateStatus(ga.TransferStatus_AS_OK, "Retrieving configuration from device")
 
 	tempDir, err := os.MkdirTemp("", "artefact_pull")
 	if err != nil {
@@ -320,11 +356,19 @@ func (m *ReferenceAssetLink) HandlePullArtefact(artefactMetaData *artefact.Artef
 		return err
 	}
 
+	// Transmit configuration
+	_ = artefactTransmitter.UpdateStatus(ga.TransferStatus_AS_OK, "Transmitting configuration")
+
 	err = artefactTransmitter.TransmitArtefactFromFile(artefactFilename, 1024)
 	if err != nil {
 		log.Err(err).Msg("Failed to transmit artefact file")
 		return err
 	}
+
+	time.Sleep(2 * time.Second)
+
+	// Report successful transmission
+	_ = artefactTransmitter.UpdateStatus(ga.TransferStatus_AS_OK, "Configuration transmission complete")
 
 	return nil
 }
