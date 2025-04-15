@@ -14,7 +14,8 @@ import (
 
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/artefact"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/config"
-	generated "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
+	ga "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/artefact-update"
+	gd "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/model"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/publish"
 	"github.com/rs/zerolog/log"
@@ -103,20 +104,20 @@ func (m *AssetLinkImplementation) Discover(discoveryConfig config.DiscoveryConfi
 	return nil
 }
 
-func (m *AssetLinkImplementation) GetSupportedOptions() []*generated.SupportedOption {
-	supportedOptions := make([]*generated.SupportedOption, 0)
-	supportedOptions = append(supportedOptions, &generated.SupportedOption{
+func (m *AssetLinkImplementation) GetSupportedOptions() []*gd.SupportedOption {
+	supportedOptions := make([]*gd.SupportedOption, 0)
+	supportedOptions = append(supportedOptions, &gd.SupportedOption{
 		Key:      "option",
-		Datatype: generated.VariantType_VT_BOOL,
+		Datatype: gd.VariantType_VT_BOOL,
 	})
 	return supportedOptions
 }
 
-func (m *AssetLinkImplementation) GetSupportedFilters() []*generated.SupportedFilter {
-	supportedFilters := make([]*generated.SupportedFilter, 0)
-	supportedFilters = append(supportedFilters, &generated.SupportedFilter{
+func (m *AssetLinkImplementation) GetSupportedFilters() []*gd.SupportedFilter {
+	supportedFilters := make([]*gd.SupportedFilter, 0)
+	supportedFilters = append(supportedFilters, &gd.SupportedFilter{
 		Key:      "filter",
-		Datatype: generated.VariantType_VT_STRING,
+		Datatype: gd.VariantType_VT_STRING,
 	})
 	return supportedFilters
 }
@@ -161,6 +162,8 @@ func (m *AssetLinkImplementation) HandlePushArtefact(artefactReceiver *artefact.
 		return err
 	}
 
+	_ = artefactReceiver.UpdateStatus(ga.ArtefactUpdateState_AUS_DOWNLOAD, ga.TransferStatus_AS_OK, "Status Message", 100)
+
 	return nil
 }
 
@@ -187,6 +190,8 @@ func (m *AssetLinkImplementation) HandlePullArtefact(artefactMetaData *artefact.
 		log.Err(err).Msg("Failed to transmit artefact file")
 		return err
 	}
+
+	_ = artefactTransmitter.UpdateStatus(ga.TransferStatus_AS_OK, "Status Message")
 
 	return nil
 }
