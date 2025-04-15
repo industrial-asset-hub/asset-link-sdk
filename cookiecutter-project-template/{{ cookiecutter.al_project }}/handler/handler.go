@@ -25,7 +25,7 @@ import (
 // Implements the Discovery interface and feature
 
 type AssetLinkImplementation struct {
-	discoveryLock sync.Mutex
+	driverLock sync.Mutex
 }
 
 func (m *AssetLinkImplementation) Discover(discoveryConfig config.DiscoveryConfig, devicePublisher publish.DevicePublisher) error {
@@ -33,10 +33,10 @@ func (m *AssetLinkImplementation) Discover(discoveryConfig config.DiscoveryConfi
 
 	// Check if a job is already running
 	// We currently support only one running job
-	if m.discoveryLock.TryLock() {
-		defer m.discoveryLock.Unlock()
+	if m.driverLock.TryLock() {
+		defer m.driverLock.Unlock()
 	} else {
-		const errMsg string = "Another discovery job is already running"
+		const errMsg string = "Another job is already running"
 		log.Error().Msg(errMsg)
 		return status.Errorf(codes.ResourceExhausted, errMsg)
 	}
@@ -134,16 +134,26 @@ func (m *AssetLinkImplementation) GetIdentifiers(identifiersRequest config.Ident
 func (m *AssetLinkImplementation) HandlePushArtefact(artefactReceiver *artefact.ArtefactReceiver) error {
 	log.Info().Msg("Handle Push Artefact by receiving the artefact")
 
+	// Check if a job is already running
+	// We currently support only one running job
+	if m.driverLock.TryLock() {
+		defer m.driverLock.Unlock()
+	} else {
+		const errMsg string = "Another job is already running"
+		log.Error().Msg(errMsg)
+		return status.Errorf(codes.ResourceExhausted, errMsg)
+	}
+
 	artefactMetaData, err := artefactReceiver.ReceiveArtefactMetaData()
 	if err != nil {
 		log.Err(err).Msg("Failed to receive artefact meta data")
 		return err
 	}
 
-	deviceIdentifier := string(artefactMetaData.GetDeviceIdentifier())
-	artefactType := artefactMetaData.GetArtefactType().String()
+	deviceIdentifier := artefactMetaData.GetDeviceIdentifier()
+	artefactType := artefactMetaData.GetArtefactType()
 
-	log.Info().Str("DeviceIdentifier", deviceIdentifier).Str("ArtefactType", artefactType).Msg("ArtefactMetaData")
+	log.Info().Str("DeviceIdentifier", string(deviceIdentifier)).Str("ArtefactType", artefactType.String()).Msg("ArtefactMetaData")
 
 	err = artefactReceiver.ReceiveArtefactToFile("artefact_file")
 	if err != nil {
@@ -157,10 +167,20 @@ func (m *AssetLinkImplementation) HandlePushArtefact(artefactReceiver *artefact.
 func (m *AssetLinkImplementation) HandlePullArtefact(artefactMetaData *artefact.ArtefactMetaData, artefactTransmitter *artefact.ArtefactTransmitter) error {
 	log.Info().Msg("Handle Pull Artefact by transmitting the arefact")
 
-	deviceIdentifier := string(artefactMetaData.GetDeviceIdentifier())
-	artefactType := artefactMetaData.GetArtefactType().String()
+	// Check if a job is already running
+	// We currently support only one running job
+	if m.driverLock.TryLock() {
+		defer m.driverLock.Unlock()
+	} else {
+		const errMsg string = "Another job is already running"
+		log.Error().Msg(errMsg)
+		return status.Errorf(codes.ResourceExhausted, errMsg)
+	}
 
-	log.Info().Str("DeviceIdentifier", deviceIdentifier).Str("ArtefactType", artefactType).Msg("ArtefactMetaData")
+	deviceIdentifier := artefactMetaData.GetDeviceIdentifier()
+	artefactType := artefactMetaData.GetArtefactType()
+
+	log.Info().Str("DeviceIdentifier", string(deviceIdentifier)).Str("ArtefactType", artefactType.String()).Msg("ArtefactMetaData")
 
 	err := artefactTransmitter.TransmitArtefactFromFile("artefact_file", 1024)
 	if err != nil {
