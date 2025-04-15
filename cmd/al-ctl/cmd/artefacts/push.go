@@ -17,7 +17,7 @@ import (
 
 var pushArtefactFile string = ""
 var pushArtefactType string = ""
-var pushDeviceId string = ""
+var pushDeviceIdentifierFile string = ""
 
 // artefactPushCommand represents the artefact push command
 var ArtefactPushCommand = &cobra.Command{
@@ -25,7 +25,7 @@ var ArtefactPushCommand = &cobra.Command{
 	Short: "Push artefact to device",
 	Long:  `Pushes an artefact (e.g., a software update file) to the specified device`,
 	Run: func(cmd *cobra.Command, args []string) {
-		exitCode := al.PushArtefact(shared.AssetLinkEndpoint, pushArtefactFile, pushDeviceId, pushArtefactType)
+		exitCode := al.PushArtefact(shared.AssetLinkEndpoint, pushArtefactFile, pushDeviceIdentifierFile, pushArtefactType)
 		os.Exit(exitCode)
 	},
 }
@@ -33,5 +33,5 @@ var ArtefactPushCommand = &cobra.Command{
 func init() {
 	ArtefactPushCommand.Flags().StringVarP(&pushArtefactFile, "artefact-file", "a", "", "source filename of artefact")
 	ArtefactPushCommand.Flags().StringVarP(&pushArtefactType, "artefact-type", "t", "", "provided artefact type (\"backup\", \"configuration\", or \"firmware\")")
-	ArtefactPushCommand.Flags().StringVarP(&pushDeviceId, "device-id", "d", "", "device identifier")
+	ArtefactPushCommand.Flags().StringVarP(&pushDeviceIdentifierFile, "device-identifier-file", "d", "", shared.DeviceIdentifierFileDesc)
 }
