@@ -7,13 +7,9 @@
 package reference
 
 import (
-	"fmt"
-	"math/rand"
-	"strings"
 	"sync"
-	"sync/atomic"
-	"time"
 
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/cdm-al-reference/simdevices"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/config"
 	generated "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/model"
@@ -25,22 +21,19 @@ import (
 
 // Implements the Discovery interface and feature
 
-type ReferenceClassDriver struct {
+type ReferenceAssetLink struct {
 	discoveryLock sync.Mutex
 }
 
-var lastSerialNumber = atomic.Int64{}
-
-func (m *ReferenceClassDriver) Discover(discoveryConfig config.DiscoveryConfig, devicePublisher publish.DevicePublisher) error {
-	log.Info().
-		Msg("Start Discovery")
+func (m *ReferenceAssetLink) Discover(discoveryConfig config.DiscoveryConfig, devicePublisher publish.DevicePublisher) error {
+	log.Info().Msg("Handle Discovery Request")
 
 	// Check if a job is already running
 	// We currently support only one running job
 	if m.discoveryLock.TryLock() {
 		defer m.discoveryLock.Unlock()
 	} else {
-		const errMsg string = "Discovery job is already running"
+		const errMsg string = "Another discovery job is already running"
 		log.Error().Msg(errMsg)
 		return status.Errorf(codes.ResourceExhausted, errMsg)
 	}
@@ -51,75 +44,39 @@ func (m *ReferenceClassDriver) Discover(discoveryConfig config.DiscoveryConfig, 
 		return err
 	}
 
-	ipRange, err := discoveryConfig.GetOptionSettingString("ip_range", "")
+	ipRange, err := discoveryConfig.GetFilterSettingString("ip_range", "")
 	if err != nil {
 		log.Error().Err(err)
 		return err
 	}
 
-	if alInterface == "" {
-		log.Info().Msg("Scanning for devices on all interfaces")
-	} else {
-		log.Info().Msg("Scanning for devices on interface " + alInterface)
-	}
+	devicesFound := simdevices.ScanDevices(alInterface, ipRange)
 
-	if ipRange == "" {
-		log.Info().Msg("No Filtering of Devices for IP range")
-	} else {
-		log.Info().Msg("Filtering of Devices for IP range " + ipRange)
-	}
+	for _, device := range devicesFound {
+		deviceInfo := model.NewDevice("EthernetDevice", device.GetDeviceName())
+		deviceInfo.AddNameplate(device.GetManufacturer(), device.GetIDLink(), device.GetArticleNumber(),
+			device.GetProductDesignation(), device.GetHardwareVersion(), device.GetSerialNumber())
 
-	if alInterface == "" || alInterface == "eth0" {
-		// "scan" for devices connected to eth0 ...
-		deviceNIC := "enp0"
-		deviceIPs := []string{"192.168.0.123", "10.0.0.1"}
-		if ContainsIpInRange(ipRange, deviceIPs) {
-			// Just provide a static asset
-			name := "Device"
-			lastSerialNumber.Add(1)
-			manufacturer := "Siemens AG"
-			serialNumber := fmt.Sprint(lastSerialNumber.Load())
-			product := "cdm-reference-al-test2"
-			deviceInfo := model.NewDevice("EthernetDevice", name)
+		nicID := deviceInfo.AddNic(device.GetDeviceNIC(), device.GetMacAddress())
+		deviceInfo.AddIPv4(nicID, device.GetIpDevice(), device.GetIpNetmask(), device.GetIpRoute())
 
-			uriOfTheProduct := fmt.Sprintf("https://%s/%s-%s", strings.ReplaceAll(manufacturer, " ", "_"), strings.ReplaceAll(product, " ", "_"), serialNumber)
-			deviceInfo.AddNameplate(manufacturer, uriOfTheProduct, "MyOrderNumber", product, "1.0.0", serialNumber)
+		deviceInfo.AddSoftware("firmware", device.GetFirmwareVersion())
+		deviceInfo.AddCapabilities("firmware_update", device.IsUpdateSupported())
 
-			deviceInfo.AddSoftware("firmware", "1.2.5")
-			deviceInfo.AddCapabilities("firmware_update", false)
+		discoveredDevice := deviceInfo.ConvertToDiscoveredDevice()
 
-			randomMacAddress := generateRandomMacAddress()
-			id := deviceInfo.AddNic(deviceNIC, randomMacAddress)
-			deviceInfo.AddIPv4(id, deviceIPs[0], "255.255.255.0", "")
-			deviceInfo.AddIPv4(id, deviceIPs[1], "255.255.255.0", "")
-			discoveredDevice := deviceInfo.ConvertToDiscoveredDevice()
-
-			time.Sleep(3 * time.Second)
-
-			err := devicePublisher.PublishDevice(discoveredDevice)
-			if err != nil {
-				// discovery request was likely cancelled -> terminate discovery and return error
-				log.Error().Msgf("Publishing Error: %v", err)
-				return err
-			}
+		err := devicePublisher.PublishDevice(discoveredDevice)
+		if err != nil {
+			// discovery request was likely cancelled -> terminate discovery and return error
+			log.Error().Msgf("Publishing Error: %v", err)
+			return err
 		}
 	}
 
-	log.Debug().
-		Msg("Discover function exiting")
 	return nil
 }
 
-func (m *ReferenceClassDriver) GetSupportedFilters() []*generated.SupportedFilter {
-	supportedFilters := make([]*generated.SupportedFilter, 0)
-	supportedFilters = append(supportedFilters, &generated.SupportedFilter{
-		Key:      "ip_range",
-		Datatype: generated.VariantType_VT_STRING,
-	})
-	return supportedFilters
-}
-
-func (m *ReferenceClassDriver) GetSupportedOptions() []*generated.SupportedOption {
+func (m *ReferenceAssetLink) GetSupportedOptions() []*generated.SupportedOption {
 	supportedOptions := make([]*generated.SupportedOption, 0)
 	supportedOptions = append(supportedOptions, &generated.SupportedOption{
 		Key:      "interface",
@@ -128,11 +85,11 @@ func (m *ReferenceClassDriver) GetSupportedOptions() []*generated.SupportedOptio
 	return supportedOptions
 }
 
-func generateRandomMacAddress() string {
-	r := rand.Uint64()
-	return fmt.Sprintf("%02x:%02x:%02x:%02x:%02x:%02x",
-		0x00, 0x16, 0x3e,
-		byte(r>>8),
-		byte(r>>16),
-		byte(r>>24))
+func (m *ReferenceAssetLink) GetSupportedFilters() []*generated.SupportedFilter {
+	supportedFilters := make([]*generated.SupportedFilter, 0)
+	supportedFilters = append(supportedFilters, &generated.SupportedFilter{
+		Key:      "ip_range",
+		Datatype: generated.VariantType_VT_STRING,
+	})
+	return supportedFilters
 }
