@@ -48,8 +48,6 @@ func convertToDeviceIdentifiers(valueToConvert reflect.Value, prefixUri string, 
 	switch valueToConvert.Kind() {
 	case reflect.Ptr:
 		if valueToConvert.IsNil() {
-			productIdentifier := convertToDeviceIdentifier(valueToConvert.Interface(), prefixUri)
-			identifiers = append(identifiers, productIdentifier)
 			return identifiers
 		}
 		structIdentifiers := convertToDeviceIdentifiers(valueToConvert.Elem(), prefixUri, level)
@@ -64,7 +62,9 @@ func convertToDeviceIdentifiers(valueToConvert reflect.Value, prefixUri string, 
 			identifiers = appendDeviceIdentifiers(identifiers, structIdentifiers)
 		}
 	case reflect.Slice:
-		if valueToConvert.Len() > 0 && valueToConvert.Index(0).Kind() != reflect.Uint8 {
+		if valueToConvert.Len() == 0 {
+			return identifiers
+		} else if valueToConvert.Index(0).Kind() != reflect.Uint8 {
 			for index := 0; index < valueToConvert.Len(); index++ {
 				sliceIdentifier := convertSliceElementToDeviceIdentifier(valueToConvert.Index(index), prefixUri, level+1)
 				identifiers = appendDeviceIdentifiers(identifiers, []*generated.DeviceIdentifier{sliceIdentifier})
