@@ -15,5 +15,6 @@ var (
 )
 
 const (
-	DiscoveryFileDesc string = "discovery configuration filename allows the configuration of discovery filters and options (see discovery.json for an example)"
+	DiscoveryFileDesc        string = "discovery configuration filename allows the configuration of discovery filters and options (see discovery.json for an example)"
+	DeviceIdentifierFileDesc string = "file with device identifier/connection blob (see device-identifier.json for an example)"
 )

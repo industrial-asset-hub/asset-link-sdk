@@ -17,9 +17,6 @@ SPDX-License-Identifier = "MIT"
 [[annotations]]
 path = [
   "renovate.json",
-  "discovery.json",
-  "simulated_device_firmware_*.fwu",
-  "registry.json",
   "registry/Dockerfile",
   "Dockerfile",
   ".github/*",
@@ -30,6 +27,10 @@ path = [
   "docs/images/favicon.ico",
   "cdm-al-reference/simdevices/static/*",
   "cdm-al-reference/simdevices/static/images/*",
+  "misc/device-identifier.json",
+  "misc/discovery.json",
+  "misc/registry.json",
+  "misc/simulated_device_firmware_*.fwu",
   "cookiecutter-project-template/{{ cookiecutter.al_project }}/.markdownlintrc",
   "cookiecutter-project-template/{{ cookiecutter.al_project }}/go.mod.tmpl",
   "cookiecutter-project-template/{{ cookiecutter.al_project }}/registry.json",
