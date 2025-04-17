@@ -46,6 +46,17 @@ func TestNameplate(t *testing.T) {
 			assert.Equal(t, *v.IdLink, "GuidOfTheProduct")
 		}
 		assert.Equal(t, 1, found)
+
+		// test legacy support for IAH
+		legacyDescriptionOk := false
+		for _, v := range m.InstanceAnnotations {
+			if v.Key != nil && *v.Key == "description" {
+				if v.Value != nil && *v.Value == "ProductFamily" {
+					legacyDescriptionOk = true
+				}
+			}
+		}
+		assert.True(t, legacyDescriptionOk)
 	})
 }
 
@@ -53,29 +64,57 @@ func TestSoftwareNameplate(t *testing.T) {
 	t.Run("AddFirmware", func(t *testing.T) {
 		m := NewDevice("", "")
 
-		m.AddSoftware("ArtifactName", "0.1.2")
-		m.AddSoftware("ArtifactName1", "2.1.3")
+		firmwareVersion := "1.2.3"
 
-		firmware := m.getFirmware()
-		if len(firmware) != 2 {
-			fmt.Printf("Expected 1 added firmware, got %d\n", len(firmware))
+		a1Version := "1.0.0"
+		a2Version := "2.0.0"
+
+		m.AddSoftware("firmware", firmwareVersion)
+
+		m.AddSoftware("ArtifactName1", a1Version)
+		m.AddSoftware("ArtifactName2", a2Version)
+
+		runningSoftware := m.getRunningSoftware()
+
+		if len(runningSoftware) != 3 {
+			fmt.Printf("Expected 3 software entries, got %d\n", len(runningSoftware))
 			t.Fail()
 		}
-		found := 0
-		for _, v := range firmware {
-			if *v.Artifact.SoftwareIdentifier.Name == "ArtifactName" {
-				found++
-				assert.Equal(t, "ArtifactName", *v.Artifact.SoftwareIdentifier.Name)
-				assert.Equal(t, "0.1.2", *v.Artifact.SoftwareIdentifier.Version)
-				break
+
+		fwFound := false
+		a1Found := false
+		a2Found := false
+		for _, v := range runningSoftware {
+			switch *v.Artifact.SoftwareIdentifier.Name {
+			case "firmware":
+				assert.Equal(t, firmwareVersion, *v.Artifact.SoftwareIdentifier.Version)
+				fwFound = true
+			case "ArtifactName1":
+				assert.Equal(t, a1Version, *v.Artifact.SoftwareIdentifier.Version)
+				a1Found = true
+			case "ArtifactName2":
+				assert.Equal(t, a2Version, *v.Artifact.SoftwareIdentifier.Version)
+				a2Found = true
 			}
 		}
+		assert.True(t, fwFound)
+		assert.True(t, a1Found)
+		assert.True(t, a2Found)
 
-		assert.Equal(t, 1, found)
+		// test legacy support for IAH
+		legacyFirmwareVersionOk := false
+		for _, v := range m.InstanceAnnotations {
+			if v.Key != nil && *v.Key == "firmware_version" {
+				if v.Value != nil && *v.Value == firmwareVersion {
+					legacyFirmwareVersionOk = true
+				}
+			}
+		}
+		assert.True(t, legacyFirmwareVersionOk)
 	})
 }
 
-func (d *DeviceInfo) getFirmware() []RunningSoftware {
+func (d *DeviceInfo) getRunningSoftware() []RunningSoftware {
 
 	r := []RunningSoftware{}
 	for _, v := range d.SoftwareComponents {
