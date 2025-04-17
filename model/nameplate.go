@@ -71,6 +71,8 @@ func (d *DeviceInfo) AddNameplate(manufacturerName string,
 			IdentifierUncertainty: nil,
 		}
 		d.AssetIdentifiers = append(d.AssetIdentifiers, idLink)
+
+		d.addInstanceAnnotation("description", manufacturerProductDesignation) // legacy support for IAH (should be removed eventually)
 	}
 }
 
@@ -81,43 +83,66 @@ func (d *DeviceInfo) AddSoftware(name string, version string) {
 	if isNonEmptyValues(name, version) {
 		softwareIdentifier.Name = &name
 		softwareIdentifier.Version = &version
+
+		softwareArtifact := SoftwareArtifact{
+			AssetOperations:           nil,
+			ChecksumIdentifier:        nil,
+			ConnectionPoints:          nil,
+			CustomUiProperties:        nil,
+			FunctionalParts:           nil,
+			Id:                        "",
+			InstanceAnnotations:       nil,
+			ManagementState:           ManagementState{},
+			Name:                      nil,
+			OtherStates:               nil,
+			ProductInstanceIdentifier: nil,
+			ReachabilityState:         nil,
+			SoftwareComponents:        nil,
+			SoftwareIdentifier:        &softwareIdentifier,
+		}
+
+		runningSoftware := RunningSoftware{
+			Artifact:                  &softwareArtifact,
+			AssetOperations:           nil,
+			ConnectionPoints:          nil,
+			CustomRunningSoftwareType: nil,
+			CustomUiProperties:        nil,
+			FunctionalParts:           nil,
+			Id:                        "",
+			InstanceAnnotations:       nil,
+			ManagementState:           ManagementState{},
+			Name:                      nil,
+			OtherStates:               nil,
+			ProductInstanceIdentifier: nil,
+			ReachabilityState:         nil,
+			RunningSoftwareType:       nil,
+			RunningSwId:               nil,
+			SoftwareComponents:        nil,
+		}
+
+		d.SoftwareComponents = append(d.SoftwareComponents, runningSoftware)
+
+		if name == "firmware" {
+			// legacy support for IAH (should be removed eventually)
+			d.addInstanceAnnotation("firmware_version", version)
+		}
+	}
+}
+
+// instance annotations should only be used for backwards-compatibilty
+func (d *DeviceInfo) addInstanceAnnotation(key, value string) {
+	for index := range d.InstanceAnnotations {
+		annotation := &d.InstanceAnnotations[index]
+		if annotation.Key != nil && *annotation.Key == key {
+			annotation.Value = &value
+			return
+		}
 	}
 
-	softwareArtifact := SoftwareArtifact{
-		AssetOperations:           nil,
-		ChecksumIdentifier:        nil,
-		ConnectionPoints:          nil,
-		CustomUiProperties:        nil,
-		FunctionalParts:           nil,
-		Id:                        "",
-		InstanceAnnotations:       nil,
-		ManagementState:           ManagementState{},
-		Name:                      nil,
-		OtherStates:               nil,
-		ProductInstanceIdentifier: nil,
-		ReachabilityState:         nil,
-		SoftwareComponents:        nil,
-		SoftwareIdentifier:        &softwareIdentifier,
+	newAnnotation := InstanceAnnotation{
+		Key:   &key,
+		Value: &value,
 	}
 
-	runningSoftware := RunningSoftware{
-		Artifact:                  &softwareArtifact,
-		AssetOperations:           nil,
-		ConnectionPoints:          nil,
-		CustomRunningSoftwareType: nil,
-		CustomUiProperties:        nil,
-		FunctionalParts:           nil,
-		Id:                        "",
-		InstanceAnnotations:       nil,
-		ManagementState:           ManagementState{},
-		Name:                      nil,
-		OtherStates:               nil,
-		ProductInstanceIdentifier: nil,
-		ReachabilityState:         nil,
-		RunningSoftwareType:       nil,
-		RunningSwId:               nil,
-		SoftwareComponents:        nil,
-	}
-
-	d.SoftwareComponents = append(d.SoftwareComponents, runningSoftware)
+	d.InstanceAnnotations = append(d.InstanceAnnotations, newAnnotation)
 }
