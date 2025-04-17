@@ -85,7 +85,7 @@ builds:
     mod_timestamp: "{{ .CommitTimestamp }}"
 
 archives:
-  - id: al-ctl
+  - id: al-ctl-archive
     builds:
       - al-ctl
     formats: [ 'tar.gz' ]
@@ -101,7 +101,7 @@ archives:
         formats: [ 'zip' ]
     files: []
 
-  - id: registry
+  - id: registry-archive
     builds:
       - registry
     formats: [ 'tar.gz' ]
@@ -117,7 +117,7 @@ archives:
         formats: [ 'zip' ]
     files: []
 
-  - id: cdm-al-reference
+  - id: cdm-al-reference-archive
     builds:
       - cdm-al-reference
     formats: [ 'tar.gz' ]
@@ -133,7 +133,7 @@ archives:
         formats: [ 'zip' ]
     files: []
 
-  - id: cdm-al-sdk
+  - id: cdm-al-sdk-archive
     meta: true
     formats: [ 'tar.gz' ]
     wrap_in_directory: false
@@ -144,7 +144,7 @@ archives:
       {{ .ProjectName }}
 
 nfpms:
-  - id: cdm-al-reference
+  - id: cdm-al-reference-package
     package_name: cdm-al-reference
     builds:
       - cdm-al-reference
@@ -174,6 +174,7 @@ dockers:
       - registry
     image_templates:
       - "ghcr.io/industrial-asset-hub/asset-link-sdk/registry:{{ .Tag }}-linux-amd64"
+      - "ghcr.io/industrial-asset-hub/asset-link-sdk/registry:latest-linux-amd64"
     dockerfile: registry/Dockerfile
     use: buildx
     goos: linux
@@ -185,10 +186,35 @@ dockers:
       - registry
     image_templates:
       - "ghcr.io/industrial-asset-hub/asset-link-sdk/registry:{{ .Tag }}-linux-arm64"
+      - "ghcr.io/industrial-asset-hub/asset-link-sdk/registry:latest-linux-arm64"
     dockerfile: registry/Dockerfile
     use: buildx
     goos: linux
+    goarch: arm64
+    build_flag_templates:
+      - "--platform=linux/arm64"
+  - id: cdm-al-reference-image-linux-amd64
+    ids:
+      - cdm-al-reference
+    image_templates:
+      - "ghcr.io/industrial-asset-hub/asset-link-sdk/reference-asset-link:{{ .Tag }}-linux-amd64"
+      - "ghcr.io/industrial-asset-hub/asset-link-sdk/reference-asset-link:latest-linux-amd64"
+    dockerfile: cdm-al-reference/Dockerfile
+    use: buildx
+    goos: linux
     goarch: amd64
+    build_flag_templates:
+      - "--platform=linux/amd64"
+  - id: cdm-al-reference-image-linux-arm64
+    ids:
+      - cdm-al-reference
+    image_templates:
+      - "ghcr.io/industrial-asset-hub/asset-link-sdk/reference-asset-link:{{ .Tag }}-linux-arm64"
+      - "ghcr.io/industrial-asset-hub/asset-link-sdk/reference-asset-link:latest-linux-arm64"
+    dockerfile: cdm-al-reference/Dockerfile
+    use: buildx
+    goos: linux
+    goarch: arm64
     build_flag_templates:
       - "--platform=linux/arm64"
 
@@ -197,6 +223,18 @@ docker_manifests:
     image_templates:
       - "ghcr.io/industrial-asset-hub/asset-link-sdk/registry:{{ .Tag }}-linux-amd64"
       - "ghcr.io/industrial-asset-hub/asset-link-sdk/registry:{{ .Tag }}-linux-arm64"
+  - name_template: "ghcr.io/industrial-asset-hub/asset-link-sdk/registry:latest"
+    image_templates:
+      - "ghcr.io/industrial-asset-hub/asset-link-sdk/registry:latest-linux-amd64"
+      - "ghcr.io/industrial-asset-hub/asset-link-sdk/registry:latest-linux-arm64"
+  - name_template: "ghcr.io/industrial-asset-hub/asset-link-sdk/reference-asset-link:{{ .Tag }}"
+    image_templates:
+      - "ghcr.io/industrial-asset-hub/asset-link-sdk/reference-asset-link:{{ .Tag }}-linux-amd64"
+      - "ghcr.io/industrial-asset-hub/asset-link-sdk/reference-asset-link:{{ .Tag }}-linux-arm64"
+  - name_template: "ghcr.io/industrial-asset-hub/asset-link-sdk/reference-asset-link:latest"
+    image_templates:
+      - "ghcr.io/industrial-asset-hub/asset-link-sdk/reference-asset-link:latest-linux-amd64"
+      - "ghcr.io/industrial-asset-hub/asset-link-sdk/reference-asset-link:latest-linux-arm64"
 
 checksum:
   name_template: "{{.ProjectName}}_{{.Version}}.sha256"

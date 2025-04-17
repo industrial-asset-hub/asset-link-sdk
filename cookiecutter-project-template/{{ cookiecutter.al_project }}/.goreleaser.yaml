@@ -111,7 +111,7 @@ dockers:
     dockerfile: Dockerfile
     use: buildx
     goos: linux
-    goarch: amd64
+    goarch: arm64
     build_flag_templates:
       - --platform=linux/arm64
 
