@@ -46,6 +46,17 @@ func TestNameplate(t *testing.T) {
 			assert.Equal(t, *v.IdLink, "GuidOfTheProduct")
 		}
 		assert.Equal(t, 1, found)
+
+		// test legacy support for IAH
+		legacyDescriptionOk := false
+		for _, v := range m.InstanceAnnotations {
+			if v.Key != nil && *v.Key == "description" {
+				if v.Value != nil && *v.Value == "ProductFamily" {
+					legacyDescriptionOk = true
+				}
+			}
+		}
+		assert.True(t, legacyDescriptionOk)
 	})
 }
 
@@ -101,6 +112,17 @@ func TestSoftwareNameplate(t *testing.T) {
 		assert.True(t, fwFound)
 		assert.True(t, sw1Found)
 		assert.True(t, sw2Found)
+
+		// test legacy support for IAH
+		legacyFirmwareVersionOk := false
+		for _, v := range m.InstanceAnnotations {
+			if v.Key != nil && *v.Key == "firmware_version" {
+				if v.Value != nil && *v.Value == firmwareVersion {
+					legacyFirmwareVersionOk = true
+				}
+			}
+		}
+		assert.True(t, legacyFirmwareVersionOk)
 	})
 }
 
