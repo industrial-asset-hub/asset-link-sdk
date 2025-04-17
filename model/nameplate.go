@@ -74,6 +74,8 @@ func (d *DeviceInfo) AddNameplate(manufacturerName string,
 			IdentifierUncertainty: nil,
 		}
 		d.AssetIdentifiers = append(d.AssetIdentifiers, idLink)
+
+		d.addInstanceAnnotation("description", manufacturerProductDesignation) // legacy support for IAH (should be removed eventually)
 	}
 }
 
@@ -111,5 +113,28 @@ func (d *DeviceInfo) AddSoftware(name string, version string, isFirmware bool) {
 		}
 
 		d.SoftwareComponents = append(d.SoftwareComponents, softwareArtifact)
+
+		if isFirmware {
+			// legacy support for IAH (should be removed eventually)
+			d.addInstanceAnnotation("firmware_version", version)
+		}
 	}
+}
+
+// instance annotations should only be used for backwards-compatibilty
+func (d *DeviceInfo) addInstanceAnnotation(key, value string) {
+	for index := range d.InstanceAnnotations {
+		annotation := &d.InstanceAnnotations[index]
+		if annotation.Key != nil && *annotation.Key == key {
+			annotation.Value = &value
+			return
+		}
+	}
+
+	newAnnotation := InstanceAnnotation{
+		Key:   &key,
+		Value: &value,
+	}
+
+	d.InstanceAnnotations = append(d.InstanceAnnotations, newAnnotation)
 }
