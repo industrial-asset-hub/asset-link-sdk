@@ -23,13 +23,29 @@ import (
 type appTypes int
 
 const (
-	CDM_AGENT                   appTypes = 0
-	CDM_DEVICE_CLASS_DRIVER     appTypes = 1
-	APP_TYPE_CS_IAH_DISCOVER_V1          = "siemens.industrialassethub.discover.v1"
+	CDM_AGENT               appTypes = 0
+	CDM_DEVICE_CLASS_DRIVER appTypes = 1
 )
 
 func (apptypes appTypes) String() string {
 	return []string{"cdm-agent", "cdm-device-class-driver"}[apptypes]
+}
+
+// CS registry registered interfaces (former AppType) which are served by the AL
+const (
+	INTERFACE_IAH_DISCOVER_V1       string = "siemens.industrialassethub.discover.v1"
+	INTERFACE_FX_ARTEFACT_UPDATE_V1 string = "factory_x.artefact_update.v1"
+)
+
+// Global list of available CS interfaces
+var availableCSInterfaces []string
+
+func AddCsInterface(appType string) {
+	availableCSInterfaces = append(availableCSInterfaces, appType)
+}
+
+func getCsInterfaces() []string {
+	return availableCSInterfaces
 }
 
 type GrpcServerRegistry struct {
@@ -171,7 +187,8 @@ func (r *GrpcServerRegistry) register() (uint32, error) {
 		return retryRegistrationInterval, err
 	}
 	register := pb.RegisterServiceRequest{Info: &pb.ServiceInfo{
-		AppTypes:         []string{APP_TYPE_CS_IAH_DISCOVER_V1}, // TODO: add more app types here or register more services (artefact handling) ?
+		AppTypes:         getCsInterfaces(),
+		Interfaces:       getCsInterfaces(),
 		AppInstanceId:    r.appInstanceId,
 		DriverSchemaUris: []string{r.alId},
 		GrpcIpPortNumber: uint32(portNumber),
