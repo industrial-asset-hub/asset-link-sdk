@@ -124,12 +124,16 @@ func (d *AssetLink) Start(grpcServerAddress, registrationAddress, grpcRegistryAd
 	// if a custom discovery server is provided, register it
 	case d.customDiscoveryServer != nil:
 		log.Info().Msg("Registered existing discovery server")
+		registryclient.AddCsInterface(registryclient.INTERFACE_IAH_DISCOVER_V1)
+
 		generatedDiscoveryServer.RegisterDeviceDiscoverApiServer(d.grpcServer, d.customDiscoveryServer)
 
 	// if a discovery implementation is provided, register it
 	case d.discoveryImpl != nil:
 		log.Info().
 			Msg("Registered discovery feature implementation")
+		registryclient.AddCsInterface(registryclient.INTERFACE_IAH_DISCOVER_V1)
+
 		discoveryServer := &devicediscovery.DiscoverServerEntity{
 			UnimplementedDeviceDiscoverApiServer: generatedDiscoveryServer.UnimplementedDeviceDiscoverApiServer{},
 			Discovery:                            d.discoveryImpl,
@@ -146,12 +150,16 @@ func (d *AssetLink) Start(grpcServerAddress, registrationAddress, grpcRegistryAd
 	// if a custom update server is provided, register it
 	case d.customUpdateServer != nil:
 		log.Info().Msg("Registered existing update server")
+		registryclient.AddCsInterface(registryclient.INTERFACE_FX_ARTEFACT_UPDATE_V1)
+
 		generatedArefactUpdateServer.RegisterArtefactUpdateApiServer(d.grpcServer, d.customUpdateServer)
 
 	// if a update implementation is provided, register it
 	case d.updateImpl != nil:
 		log.Info().
 			Msg("Registered update feature implementation")
+		registryclient.AddCsInterface(registryclient.INTERFACE_FX_ARTEFACT_UPDATE_V1)
+
 		updateServer := &artefactupdate.ArtefactUpdateServerEntity{
 			UnimplementedArtefactUpdateApiServer: generatedArefactUpdateServer.UnimplementedArtefactUpdateApiServer{},
 			Update:                               d.updateImpl,
