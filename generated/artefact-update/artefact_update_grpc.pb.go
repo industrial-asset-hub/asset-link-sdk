@@ -34,7 +34,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ArtefactUpdateApiClient interface {
 	// Push an artefact to a driver
-	PushArtefact(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[ArtefactChunk, ArtefactUpdateStatus], error)
+	PushArtefact(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[ArtefactChunk, ArtefactOperationStatus], error)
 	// Load an artefact from a driver
 	PullArtefact(ctx context.Context, in *ArtefactMetaData, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ArtefactChunk], error)
 }
@@ -47,18 +47,18 @@ func NewArtefactUpdateApiClient(cc grpc.ClientConnInterface) ArtefactUpdateApiCl
 	return &artefactUpdateApiClient{cc}
 }
 
-func (c *artefactUpdateApiClient) PushArtefact(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[ArtefactChunk, ArtefactUpdateStatus], error) {
+func (c *artefactUpdateApiClient) PushArtefact(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[ArtefactChunk, ArtefactOperationStatus], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	stream, err := c.cc.NewStream(ctx, &ArtefactUpdateApi_ServiceDesc.Streams[0], ArtefactUpdateApi_PushArtefact_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &grpc.GenericClientStream[ArtefactChunk, ArtefactUpdateStatus]{ClientStream: stream}
+	x := &grpc.GenericClientStream[ArtefactChunk, ArtefactOperationStatus]{ClientStream: stream}
 	return x, nil
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type ArtefactUpdateApi_PushArtefactClient = grpc.BidiStreamingClient[ArtefactChunk, ArtefactUpdateStatus]
+type ArtefactUpdateApi_PushArtefactClient = grpc.BidiStreamingClient[ArtefactChunk, ArtefactOperationStatus]
 
 func (c *artefactUpdateApiClient) PullArtefact(ctx context.Context, in *ArtefactMetaData, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ArtefactChunk], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
@@ -84,7 +84,7 @@ type ArtefactUpdateApi_PullArtefactClient = grpc.ServerStreamingClient[ArtefactC
 // for forward compatibility.
 type ArtefactUpdateApiServer interface {
 	// Push an artefact to a driver
-	PushArtefact(grpc.BidiStreamingServer[ArtefactChunk, ArtefactUpdateStatus]) error
+	PushArtefact(grpc.BidiStreamingServer[ArtefactChunk, ArtefactOperationStatus]) error
 	// Load an artefact from a driver
 	PullArtefact(*ArtefactMetaData, grpc.ServerStreamingServer[ArtefactChunk]) error
 	mustEmbedUnimplementedArtefactUpdateApiServer()
@@ -97,7 +97,7 @@ type ArtefactUpdateApiServer interface {
 // pointer dereference when methods are called.
 type UnimplementedArtefactUpdateApiServer struct{}
 
-func (UnimplementedArtefactUpdateApiServer) PushArtefact(grpc.BidiStreamingServer[ArtefactChunk, ArtefactUpdateStatus]) error {
+func (UnimplementedArtefactUpdateApiServer) PushArtefact(grpc.BidiStreamingServer[ArtefactChunk, ArtefactOperationStatus]) error {
 	return status.Errorf(codes.Unimplemented, "method PushArtefact not implemented")
 }
 func (UnimplementedArtefactUpdateApiServer) PullArtefact(*ArtefactMetaData, grpc.ServerStreamingServer[ArtefactChunk]) error {
@@ -125,11 +125,11 @@ func RegisterArtefactUpdateApiServer(s grpc.ServiceRegistrar, srv ArtefactUpdate
 }
 
 func _ArtefactUpdateApi_PushArtefact_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(ArtefactUpdateApiServer).PushArtefact(&grpc.GenericServerStream[ArtefactChunk, ArtefactUpdateStatus]{ServerStream: stream})
+	return srv.(ArtefactUpdateApiServer).PushArtefact(&grpc.GenericServerStream[ArtefactChunk, ArtefactOperationStatus]{ServerStream: stream})
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type ArtefactUpdateApi_PushArtefactServer = grpc.BidiStreamingServer[ArtefactChunk, ArtefactUpdateStatus]
+type ArtefactUpdateApi_PushArtefactServer = grpc.BidiStreamingServer[ArtefactChunk, ArtefactOperationStatus]
 
 func _ArtefactUpdateApi_PullArtefact_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(ArtefactMetaData)

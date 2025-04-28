@@ -8,6 +8,7 @@
 package al
 
 import (
+	"errors"
 	"io"
 	"os"
 
@@ -21,33 +22,29 @@ func PushArtefact(endpoint string, artefactFile string, deviceIdentifierFile str
 	log.Info().Str("Endpoint", endpoint).Str("Artefact File", artefactFile).Str("Device Identifier File", deviceIdentifierFile).Str("Artefact Type", artefactType).Msg("Pushing Artefact")
 
 	if artefactFile == "" {
-		log.Error().Msg("No device identifier file provided")
+		log.Error().Msg("No artefact file provided")
 		return 1
 	}
 
-	deviceIdentifier, err := os.ReadFile(deviceIdentifierFile)
+	deviceIdentifierBlob, err := os.ReadFile(deviceIdentifierFile)
 	if err != nil {
 		log.Error().Err(err).Msg("Could not read device identifier file")
 		return 1
 	}
 
-	artefactIdentifier := generated.ArtefactIdentifier{Type: generated.ArtefactType_AT_FIRMWARE}
-	switch artefactType {
-	case "firmware":
-		artefactIdentifier.Type = generated.ArtefactType_AT_FIRMWARE
-	case "backup":
-		artefactIdentifier.Type = generated.ArtefactType_AT_BACKUP
-	case "configuration":
-		artefactIdentifier.Type = generated.ArtefactType_AT_CONFIGURATION
-	default:
-		log.Error().Str("ArtefactType", artefactType).Msg("Invalid artefact type")
+	artefactIdentifier, err := createArtefactIdentifier(artefactType)
+	if err != nil {
+		log.Error().Err(err).Str("ArtefactType", artefactType).Msg("Failed to create artefact identifier")
 		return 1
 	}
 
+	deviceIdentifier := generated.DeviceIdentifier{Blob: deviceIdentifierBlob}
+
 	artefactMetaData := &generated.ArtefactChunk{Data: &generated.ArtefactChunk_Metadata{Metadata: &generated.ArtefactMetaData{
-		Credential:         &generated.ArtefactCredentials{},
-		DeviceIdentifier:   deviceIdentifier,
-		ArtefactIdentifier: &artefactIdentifier,
+		DeviceIdentifier:    &deviceIdentifier,
+		DeviceCredentials:   &generated.DeviceCredentials{},
+		ArtefactIdentifier:  artefactIdentifier,
+		ArtefactCredentials: &generated.ArtefactCredentials{},
 	}}}
 
 	conn := shared.GrpcConnection(endpoint)
@@ -103,7 +100,7 @@ func PushArtefact(endpoint string, artefactFile string, deviceIdentifierFile str
 			return 6
 		}
 		if statusUpdate != nil {
-			log.Info().Str("State", statusUpdate.State.String()).Str("Status", statusUpdate.Status.GetStatus().String()).Str("Message", statusUpdate.Status.GetMessage()).Int32("Progress", statusUpdate.GetProgress()).Msg("Status Update")
+			handleStatusUpdate(statusUpdate)
 		}
 	}
 
@@ -121,7 +118,7 @@ func PushArtefact(endpoint string, artefactFile string, deviceIdentifierFile str
 			return 6
 		}
 		if statusUpdate != nil {
-			log.Info().Str("State", statusUpdate.State.String()).Str("Status", statusUpdate.Status.GetStatus().String()).Str("Message", statusUpdate.Status.GetMessage()).Int32("Progress", statusUpdate.GetProgress()).Msg("Status Update")
+			handleStatusUpdate(statusUpdate)
 		}
 	}
 
@@ -132,33 +129,29 @@ func PullArtefact(endpoint string, artefactFile string, deviceIdentifierFile str
 	log.Info().Str("Endpoint", endpoint).Str("Artefact File", artefactFile).Str("Device Identifier File", deviceIdentifierFile).Str("Artefact Type", artefactType).Msg("Pulling Artefact")
 
 	if artefactFile == "" {
-		log.Error().Msg("No device identifier file provided")
+		log.Error().Msg("No artefact file provided")
 		return 1
 	}
 
-	deviceIdentifier, err := os.ReadFile(deviceIdentifierFile)
+	deviceIdentifierBlob, err := os.ReadFile(deviceIdentifierFile)
 	if err != nil {
 		log.Error().Err(err).Msg("Could not read device identifier file")
 		return 1
 	}
 
-	artefactIdentifier := generated.ArtefactIdentifier{Type: generated.ArtefactType_AT_FIRMWARE}
-	switch artefactType {
-	case "firmware":
-		artefactIdentifier.Type = generated.ArtefactType_AT_FIRMWARE
-	case "backup":
-		artefactIdentifier.Type = generated.ArtefactType_AT_BACKUP
-	case "configuration":
-		artefactIdentifier.Type = generated.ArtefactType_AT_CONFIGURATION
-	default:
-		log.Error().Str("ArtefactType", artefactType).Msg("Invalid artefact type")
+	artefactIdentifier, err := createArtefactIdentifier(artefactType)
+	if err != nil {
+		log.Error().Err(err).Str("ArtefactType", artefactType).Msg("Failed to create artefact identifier")
 		return 1
 	}
 
+	deviceIdentifier := generated.DeviceIdentifier{Blob: deviceIdentifierBlob}
+
 	artefactMetaData := &generated.ArtefactMetaData{
-		Credential:         &generated.ArtefactCredentials{},
-		DeviceIdentifier:   deviceIdentifier,
-		ArtefactIdentifier: &artefactIdentifier,
+		DeviceIdentifier:    &deviceIdentifier,
+		DeviceCredentials:   &generated.DeviceCredentials{},
+		ArtefactIdentifier:  artefactIdentifier,
+		ArtefactCredentials: &generated.ArtefactCredentials{},
 	}
 
 	conn := shared.GrpcConnection(endpoint)
@@ -215,9 +208,32 @@ func PullArtefact(endpoint string, artefactFile string, deviceIdentifierFile str
 
 		statusUpdate := chunk.GetStatus()
 		if statusUpdate != nil {
-			log.Info().Str("Status", statusUpdate.GetStatus().String()).Str("Message", statusUpdate.GetMessage()).Msg("Status Update")
+			handleStatusUpdate(statusUpdate)
 		}
 	}
 
 	return 0
+}
+
+func handleStatusUpdate(statusUpdate *generated.ArtefactOperationStatus) {
+	log.Info().Str("Phase", statusUpdate.GetPhase().String()).Str("Message", statusUpdate.GetMessage()).Str("State", statusUpdate.GetState().String()).Uint32("Progress", statusUpdate.GetProgress()).Msg("Status Update")
+}
+
+func createArtefactIdentifier(artefactType string) (*generated.ArtefactIdentifier, error) {
+	artefactIdentifier := generated.ArtefactIdentifier{Type: generated.ArtefactType_AT_FIRMWARE}
+
+	switch artefactType {
+	case "firmware":
+		artefactIdentifier.Type = generated.ArtefactType_AT_FIRMWARE
+	case "backup":
+		artefactIdentifier.Type = generated.ArtefactType_AT_BACKUP
+	case "configuration":
+		artefactIdentifier.Type = generated.ArtefactType_AT_CONFIGURATION
+	case "logfile":
+		artefactIdentifier.Type = generated.ArtefactType_AT_LOGFILE
+	default:
+		return nil, errors.New("invalid artefact type")
+	}
+
+	return &artefactIdentifier, nil
 }
