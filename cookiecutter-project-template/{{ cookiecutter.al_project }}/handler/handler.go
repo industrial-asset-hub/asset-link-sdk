@@ -23,7 +23,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// Implements the Discovery interface and feature
+// Implements both the Discovery and the Upgrade interface/feature
 
 type AssetLinkImplementation struct {
 	driverLock sync.Mutex
@@ -76,6 +76,7 @@ func (m *AssetLinkImplementation) Discover(discoveryConfig config.DiscoveryConfi
 	serialNumber := "SN00012345678900001"
 	hardwareVersion := "3"
 	firmwareVersion := "1.0.0"
+	deviceIdentifierBlob := "dummy1"
 
 	productUri := fmt.Sprintf("urn:%s/%s/%s", strings.ReplaceAll(vendorName, " ", "_"), strings.ReplaceAll(productName, " ", "_"), serialNumber)
 
@@ -85,7 +86,7 @@ func (m *AssetLinkImplementation) Discover(discoveryConfig config.DiscoveryConfi
 	deviceInfo.AddCapabilities("firmware_update", false)
 	deviceInfo.AddDescription("Dummy Device")
 
-	deviceInfo.AddMetadata("DEVICE-ID") // device ID or device connection data used for artefact uploads/downloads
+	deviceInfo.AddMetadata(deviceIdentifierBlob) // device ID or device connection data used for artefact uploads/downloads
 
 	nicID := deviceInfo.AddNic("eth0", "00:16:3e:01:02:03") // random mac address
 	deviceInfo.AddIPv4(nicID, "192.168.0.10", "255.255.255.0", "")
@@ -151,10 +152,10 @@ func (m *AssetLinkImplementation) HandlePushArtefact(artefactReceiver *artefact.
 		return err
 	}
 
-	deviceIdentifier := artefactMetaData.GetDeviceIdentifier()
+	deviceIdentifierBlob := artefactMetaData.GetDeviceIdentifierBlob()
 	artefactType := artefactMetaData.GetArtefactType()
 
-	log.Info().Str("DeviceIdentifier", string(deviceIdentifier)).Str("ArtefactType", artefactType.String()).Msg("ArtefactMetaData")
+	log.Info().Str("DeviceIdentifierBlob", string(deviceIdentifierBlob)).Str("ArtefactType", artefactType.String()).Msg("ArtefactMetaData")
 
 	err = artefactReceiver.ReceiveArtefactToFile("artefact_file")
 	if err != nil {
@@ -162,7 +163,7 @@ func (m *AssetLinkImplementation) HandlePushArtefact(artefactReceiver *artefact.
 		return err
 	}
 
-	_ = artefactReceiver.UpdateStatus(ga.ArtefactUpdateState_AUS_DOWNLOAD, ga.TransferStatus_AS_OK, "Status Message", 100)
+	_ = artefactReceiver.UpdateStatus(ga.ArtefactOperationPhase_AOP_DOWNLOAD, ga.ArtefactOperationState_AOS_OK, "Status Message", 100)
 
 	return nil
 }
@@ -180,10 +181,10 @@ func (m *AssetLinkImplementation) HandlePullArtefact(artefactMetaData *artefact.
 		return status.Errorf(codes.ResourceExhausted, errMsg)
 	}
 
-	deviceIdentifier := artefactMetaData.GetDeviceIdentifier()
+	deviceIdentifierBlob := artefactMetaData.GetDeviceIdentifierBlob()
 	artefactType := artefactMetaData.GetArtefactType()
 
-	log.Info().Str("DeviceIdentifier", string(deviceIdentifier)).Str("ArtefactType", artefactType.String()).Msg("ArtefactMetaData")
+	log.Info().Str("DeviceIdentifierBlob", string(deviceIdentifierBlob)).Str("ArtefactType", artefactType.String()).Msg("ArtefactMetaData")
 
 	err := artefactTransmitter.TransmitArtefactFromFile("artefact_file", 1024)
 	if err != nil {
@@ -191,7 +192,7 @@ func (m *AssetLinkImplementation) HandlePullArtefact(artefactMetaData *artefact.
 		return err
 	}
 
-	_ = artefactTransmitter.UpdateStatus(ga.TransferStatus_AS_OK, "Status Message")
+	_ = artefactTransmitter.UpdateStatus(ga.ArtefactOperationPhase_AOP_UPLOAD, ga.ArtefactOperationState_AOS_OK, "Status Message", 100)
 
 	return nil
 }
