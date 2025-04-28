@@ -39,7 +39,7 @@ func (ar *ArtefactReceiver) ReceiveArtefactMetaData() (*ArtefactMetaData, error)
 
 	internalMetaData := chunk.GetMetadata()
 
-	metaData := NewArtefactMetaData(internalMetaData.DeviceIdentifier, internalMetaData.ArtefactIdentifier.Type)
+	metaData := NewArtefactMetaData(internalMetaData.DeviceIdentifier.Blob, internalMetaData.ArtefactIdentifier.Type)
 
 	return metaData, nil
 }
@@ -103,20 +103,18 @@ func (ar *ArtefactReceiver) ReceiveArtefactToData() (*[]byte, error) {
 	return &data, nil
 }
 
-func (ar *ArtefactReceiver) TransmitStatusUpdate(status *generated.ArtefactUpdateStatus) error {
+func (ar *ArtefactReceiver) TransmitStatusUpdate(status *generated.ArtefactOperationStatus) error {
 	ar.streamLock.Lock()
 	defer ar.streamLock.Unlock()
 	return ar.stream.Send(status)
 }
 
-func (ar *ArtefactReceiver) UpdateStatus(phase generated.ArtefactUpdateState, status generated.TransferStatus, message string, progress uint8) error {
-	statusMessage := &generated.ArtefactUpdateStatus{
-		Status: &generated.Status{
-			Status:  status,
-			Message: message,
-		},
-		State:    phase,
-		Progress: int32(progress),
+func (ar *ArtefactReceiver) UpdateStatus(phase generated.ArtefactOperationPhase, state generated.ArtefactOperationState, message string, progress uint8) error {
+	statusMessage := &generated.ArtefactOperationStatus{
+		Phase:    phase,
+		State:    state,
+		Message:  message,
+		Progress: uint32(progress),
 	}
 
 	return ar.TransmitStatusUpdate(statusMessage)
