@@ -57,7 +57,7 @@ func (d *ArtefactUpdateServerEntity) PullArtefact(artefactMetaData *generated.Ar
 	artefactTransmitter := artefact.NewArtefactTransmitter(stream)
 
 	// Create new artefact identifier and set artefact type
-	interfaceArtefactMetaData := artefact.NewArtefactMetaData(artefactMetaData.DeviceIdentifier, artefactMetaData.ArtefactIdentifier.Type)
+	interfaceArtefactMetaData := artefact.NewArtefactMetaData(artefactMetaData.DeviceIdentifier.Blob, artefactMetaData.ArtefactIdentifier.Type)
 
 	err := d.HandlePullArtefact(interfaceArtefactMetaData, artefactTransmitter)
 	if err != nil {
