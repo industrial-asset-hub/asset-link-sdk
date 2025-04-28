@@ -27,7 +27,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// Implements the Discovery interface and feature
+// Implements both the Discovery and the Upgrade interface/feature
 
 type ReferenceAssetLink struct {
 	driverLock sync.Mutex
@@ -134,13 +134,13 @@ func (m *ReferenceAssetLink) HandlePushArtefact(artefactReceiver *artefact.Artef
 		return err
 	}
 
-	deviceIdentifierBlob := artefactMetaData.GetDeviceIdentifier()
+	deviceIdentifierBlob := artefactMetaData.GetDeviceIdentifierBlob()
 	artefactType := artefactMetaData.GetArtefactType()
 
-	log.Info().Str("DeviceIdentifier", string(deviceIdentifierBlob)).Str("ArtefactType", artefactType.String()).Msg("ArtefactMetaData")
+	log.Info().Str("DeviceIdentifierBlob", string(deviceIdentifierBlob)).Str("ArtefactType", artefactType.String()).Msg("ArtefactMetaData")
 
 	// Perform checks
-	_ = artefactReceiver.UpdateStatus(ga.ArtefactUpdateState_AUS_DOWNLOAD, ga.TransferStatus_AS_OK, "Performing checks", 10)
+	_ = artefactReceiver.UpdateStatus(ga.ArtefactOperationPhase_AOP_PREPARE, ga.ArtefactOperationState_AOS_OK, "Performing checks", 10)
 
 	if artefactType != ga.ArtefactType_AT_FIRMWARE {
 		err = errors.New("artefact type not supported")
@@ -149,7 +149,7 @@ func (m *ReferenceAssetLink) HandlePushArtefact(artefactReceiver *artefact.Artef
 	}
 
 	// Receiving new firmware
-	_ = artefactReceiver.UpdateStatus(ga.ArtefactUpdateState_AUS_DOWNLOAD, ga.TransferStatus_AS_OK, "Receiving new firmware", 20)
+	_ = artefactReceiver.UpdateStatus(ga.ArtefactOperationPhase_AOP_DOWNLOAD, ga.ArtefactOperationState_AOS_OK, "Receiving new firmware", 20)
 
 	tempDir, err := os.MkdirTemp("", "artefact_push")
 	if err != nil {
@@ -167,7 +167,7 @@ func (m *ReferenceAssetLink) HandlePushArtefact(artefactReceiver *artefact.Artef
 	time.Sleep(2 * time.Second)
 
 	// Verify new firmware
-	_ = artefactReceiver.UpdateStatus(ga.ArtefactUpdateState_AUS_INSTALLATION, ga.TransferStatus_AS_OK, "Verifying new firmware", 50)
+	_ = artefactReceiver.UpdateStatus(ga.ArtefactOperationPhase_AOP_INSTALLATION, ga.ArtefactOperationState_AOS_OK, "Verifying new firmware", 50)
 
 	var deviceIdentifier DeviceIdentifierOrConnectionData
 	err = json.Unmarshal(deviceIdentifierBlob, &deviceIdentifier)
@@ -177,7 +177,7 @@ func (m *ReferenceAssetLink) HandlePushArtefact(artefactReceiver *artefact.Artef
 	}
 
 	// Connect to device
-	_ = artefactReceiver.UpdateStatus(ga.ArtefactUpdateState_AUS_INSTALLATION, ga.TransferStatus_AS_OK, "Connecting to device", 60)
+	_ = artefactReceiver.UpdateStatus(ga.ArtefactOperationPhase_AOP_INSTALLATION, ga.ArtefactOperationState_AOS_OK, "Connecting to device", 60)
 
 	device, err := simdevices.ConnectToDevice(deviceIdentifier.AssetLinkNIC, deviceIdentifier.DeviceIP)
 	if err != nil {
@@ -188,7 +188,7 @@ func (m *ReferenceAssetLink) HandlePushArtefact(artefactReceiver *artefact.Artef
 	oldFirmwareVersion := device.GetFirmwareVersion()
 
 	// Installing new firmware on device
-	_ = artefactReceiver.UpdateStatus(ga.ArtefactUpdateState_AUS_INSTALLATION, ga.TransferStatus_AS_OK, "Installing new firmware on device", 70)
+	_ = artefactReceiver.UpdateStatus(ga.ArtefactOperationPhase_AOP_INSTALLATION, ga.ArtefactOperationState_AOS_OK, "Installing new firmware on device", 70)
 
 	err = device.UpdateFirmware(artefactFilename)
 	if err != nil {
@@ -200,7 +200,7 @@ func (m *ReferenceAssetLink) HandlePushArtefact(artefactReceiver *artefact.Artef
 
 	// Report successful activation
 	finalMessage := fmt.Sprintf("New firmware activated (new version %s, old version %s)", newFirmwareVersion, oldFirmwareVersion)
-	_ = artefactReceiver.UpdateStatus(ga.ArtefactUpdateState_AUS_ACTIVATION, ga.TransferStatus_AS_OK, finalMessage, 100)
+	_ = artefactReceiver.UpdateStatus(ga.ArtefactOperationPhase_AOP_ACTIVATION, ga.ArtefactOperationState_AOS_OK, finalMessage, 100)
 
 	return nil
 }
@@ -219,12 +219,12 @@ func (m *ReferenceAssetLink) HandlePullArtefact(artefactMetaData *artefact.Artef
 	}
 
 	// Retrieve meta data
-	deviceIdentifierBlob := artefactMetaData.GetDeviceIdentifier()
+	deviceIdentifierBlob := artefactMetaData.GetDeviceIdentifierBlob()
 	artefactType := artefactMetaData.GetArtefactType()
-	log.Info().Str("DeviceIdentifier", string(deviceIdentifierBlob)).Str("ArtefactType", artefactType.String()).Msg("ArtefactMetaData")
+	log.Info().Str("DeviceIdentifierBlob", string(deviceIdentifierBlob)).Str("ArtefactType", artefactType.String()).Msg("ArtefactMetaData")
 
 	// Perform checks
-	_ = artefactTransmitter.UpdateStatus(ga.TransferStatus_AS_OK, "Performing checks")
+	_ = artefactTransmitter.UpdateStatus(ga.ArtefactOperationPhase_AOP_PREPARE, ga.ArtefactOperationState_AOS_OK, "Performing checks", 10)
 
 	if artefactType != ga.ArtefactType_AT_FIRMWARE {
 		err := errors.New("artefact type not supported")
@@ -240,7 +240,7 @@ func (m *ReferenceAssetLink) HandlePullArtefact(artefactMetaData *artefact.Artef
 	}
 
 	// Connect to device
-	_ = artefactTransmitter.UpdateStatus(ga.TransferStatus_AS_OK, "Connecting to device")
+	_ = artefactTransmitter.UpdateStatus(ga.ArtefactOperationPhase_AOP_ARCHIVE, ga.ArtefactOperationState_AOS_OK, "Connecting to device", 20)
 
 	device, err := simdevices.ConnectToDevice(deviceIdentifier.AssetLinkNIC, deviceIdentifier.DeviceIP)
 	if err != nil {
@@ -249,7 +249,7 @@ func (m *ReferenceAssetLink) HandlePullArtefact(artefactMetaData *artefact.Artef
 	}
 
 	// Retrieve current firmware from device
-	_ = artefactTransmitter.UpdateStatus(ga.TransferStatus_AS_OK, "Retrieving current firmware from device")
+	_ = artefactTransmitter.UpdateStatus(ga.ArtefactOperationPhase_AOP_ARCHIVE, ga.ArtefactOperationState_AOS_OK, "Retrieving current firmware from device", 30)
 
 	tempDir, err := os.MkdirTemp("", "artefact_pull")
 	if err != nil {
@@ -265,7 +265,7 @@ func (m *ReferenceAssetLink) HandlePullArtefact(artefactMetaData *artefact.Artef
 	}
 
 	// Transmit current firmware
-	_ = artefactTransmitter.UpdateStatus(ga.TransferStatus_AS_OK, "Transmitting current firmware")
+	_ = artefactTransmitter.UpdateStatus(ga.ArtefactOperationPhase_AOP_UPLOAD, ga.ArtefactOperationState_AOS_OK, "Transmitting current firmware", 60)
 
 	err = artefactTransmitter.TransmitArtefactFromFile(artefactFilename, 1024)
 	if err != nil {
@@ -277,7 +277,7 @@ func (m *ReferenceAssetLink) HandlePullArtefact(artefactMetaData *artefact.Artef
 
 	// Report successful transmission
 	finalMessage := fmt.Sprintf("Firmware transmission complete (version %s)", device.GetFirmwareVersion())
-	_ = artefactTransmitter.UpdateStatus(ga.TransferStatus_AS_OK, finalMessage)
+	_ = artefactTransmitter.UpdateStatus(ga.ArtefactOperationPhase_AOP_UPLOAD, ga.ArtefactOperationState_AOS_OK, finalMessage, 100)
 
 	return nil
 }
