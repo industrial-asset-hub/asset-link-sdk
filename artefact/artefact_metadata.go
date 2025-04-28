@@ -12,17 +12,17 @@ import (
 )
 
 type ArtefactMetaData struct {
-	deviceIdentifier []byte
-	artefactType     generated.ArtefactType
+	deviceIdentifierBlob []byte
+	artefactType         generated.ArtefactType
 }
 
-func NewArtefactMetaData(deviceIdentifier []byte, artefactType generated.ArtefactType) *ArtefactMetaData {
-	artefactIdentifier := &ArtefactMetaData{deviceIdentifier: deviceIdentifier, artefactType: artefactType}
+func NewArtefactMetaData(deviceIdentifierBlob []byte, artefactType generated.ArtefactType) *ArtefactMetaData {
+	artefactIdentifier := &ArtefactMetaData{deviceIdentifierBlob: deviceIdentifierBlob, artefactType: artefactType}
 	return artefactIdentifier
 }
 
-func (ai *ArtefactMetaData) GetDeviceIdentifier() []byte {
-	return ai.deviceIdentifier
+func (ai *ArtefactMetaData) GetDeviceIdentifierBlob() []byte {
+	return ai.deviceIdentifierBlob
 }
 
 func (ai *ArtefactMetaData) GetArtefactType() generated.ArtefactType {

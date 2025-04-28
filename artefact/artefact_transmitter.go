@@ -90,15 +90,17 @@ func (at *ArtefactTransmitter) TransmitArtefactFromData(data *[]byte, maxChunkSi
 	return nil
 }
 
-func (at *ArtefactTransmitter) TransmitStatusUpdate(status *generated.Status) error {
+func (at *ArtefactTransmitter) TransmitStatusUpdate(status *generated.ArtefactOperationStatus) error {
 	chunk := generated.ArtefactChunk{Data: &generated.ArtefactChunk_Status{Status: status}}
 	return at.TransmitArtefactChunk(&chunk)
 }
 
-func (at *ArtefactTransmitter) UpdateStatus(status generated.TransferStatus, message string) error {
-	statusMessage := &generated.Status{
-		Status:  status,
-		Message: message,
+func (at *ArtefactTransmitter) UpdateStatus(phase generated.ArtefactOperationPhase, state generated.ArtefactOperationState, message string, progress uint8) error {
+	statusMessage := &generated.ArtefactOperationStatus{
+		Phase:    phase,
+		State:    state,
+		Message:  message,
+		Progress: uint32(progress),
 	}
 
 	return at.TransmitStatusUpdate(statusMessage)
