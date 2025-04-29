@@ -1,0 +1,18 @@
+# SPDX-FileCopyrightText: 2025 Siemens AG
+#
+# SPDX-License-Identifier: MIT
+#
+# Starts the Registry for use with an Asset Link
+
+services:
+  grpc-server-registry:
+    restart: always
+    image: 'ghcr.io/industrial-asset-hub/asset-link-sdk/registry:latest'
+    networks:
+      - 01-cdm
+    ports:
+      - 50051:50051
+
+networks:
+  01-cdm:
+    name: cdm

@@ -1,0 +1,28 @@
+# SPDX-FileCopyrightText: 2025 Siemens AG
+#
+# SPDX-License-Identifier: MIT
+#
+# Starts the Reference Asset Link for Industrial Asset Hub (IAH)
+# Depends on an IAH gateway
+
+services:
+  reference-asset-link:
+    restart: always
+    image: 'ghcr.io/industrial-asset-hub/asset-link-sdk/reference-asset-link:latest'
+    networks:
+      - 01-cdm
+    command:
+      - '-grpc-server-endpoint-address=reference-asset-link'
+      - '-grpc-server-address=:8081'
+      - '-http-address=:8082'
+      - '-visu-address=:8083'
+      - '-grpc-registry-address=grpc-server-registry:50051'
+    ports:
+      - 8081:8081
+      - 8082:8082
+      - 8083:8083
+
+networks:
+  01-cdm:
+    name: cdm
+    external: true
