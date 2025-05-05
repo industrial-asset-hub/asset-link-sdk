@@ -58,7 +58,7 @@ archives:
 nfpms:
   - id: {{ cookiecutter.al_project }}
     package_name: {{ cookiecutter.al_project }}
-    builds:
+    ids:
       - {{ cookiecutter.al_project }}
     vendor: {{cookiecutter.company }}
     homepage: {{ cookiecutter.company_url }}

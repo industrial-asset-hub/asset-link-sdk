@@ -86,7 +86,7 @@ builds:
 
 archives:
   - id: al-ctl-archive
-    builds:
+    ids:
       - al-ctl
     formats: [ 'tar.gz' ]
     name_template: >-
@@ -102,7 +102,7 @@ archives:
     files: []
 
   - id: registry-archive
-    builds:
+    ids:
       - registry
     formats: [ 'tar.gz' ]
     name_template: >-
@@ -118,7 +118,7 @@ archives:
     files: []
 
   - id: cdm-al-reference-archive
-    builds:
+    ids:
       - cdm-al-reference
     formats: [ 'tar.gz' ]
     name_template: >-
@@ -146,7 +146,7 @@ archives:
 nfpms:
   - id: cdm-al-reference-package
     package_name: cdm-al-reference
-    builds:
+    ids:
       - cdm-al-reference
     vendor: Siemens AG
     homepage: https://www.siemens.com/
