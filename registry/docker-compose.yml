@@ -7,7 +7,7 @@
 services:
   grpc-server-registry:
     restart: always
-    image: 'ghcr.io/industrial-asset-hub/asset-link-sdk/registry:latest'
+    image: 'ghcr.io/industrial-asset-hub/iah/grpc-server-registry:0.1.6'
     networks:
       - 01-cdm
     ports:
