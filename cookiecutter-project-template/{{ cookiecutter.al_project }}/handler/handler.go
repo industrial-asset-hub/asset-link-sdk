@@ -76,7 +76,7 @@ func (m *AssetLinkImplementation) Discover(discoveryConfig config.DiscoveryConfi
 	serialNumber := "SN00012345678900001"
 	hardwareVersion := "3"
 	firmwareVersion := "1.0.0"
-	deviceIdentifierBlob := "dummy1"
+	deviceIdentifierBlob := []byte("dummy1")
 
 	productUri := fmt.Sprintf("urn:%s/%s/%s", strings.ReplaceAll(vendorName, " ", "_"), strings.ReplaceAll(productName, " ", "_"), serialNumber)
 
@@ -152,8 +152,12 @@ func (m *AssetLinkImplementation) HandlePushArtefact(artefactReceiver *artefact.
 		return err
 	}
 
-	deviceIdentifierBlob := artefactMetaData.GetDeviceIdentifierBlob()
 	artefactType := artefactMetaData.GetArtefactType()
+	deviceIdentifierBlob, err := artefactMetaData.GetDeviceIdentifierBlob()
+	if err != nil {
+		log.Err(err).Msg("Failed to retrieve device identifier blob")
+		return err
+	}
 
 	log.Info().Str("DeviceIdentifierBlob", string(deviceIdentifierBlob)).Str("ArtefactType", artefactType.String()).Msg("ArtefactMetaData")
 
@@ -181,12 +185,16 @@ func (m *AssetLinkImplementation) HandlePullArtefact(artefactMetaData *artefact.
 		return status.Errorf(codes.ResourceExhausted, errMsg)
 	}
 
-	deviceIdentifierBlob := artefactMetaData.GetDeviceIdentifierBlob()
 	artefactType := artefactMetaData.GetArtefactType()
+	deviceIdentifierBlob, err := artefactMetaData.GetDeviceIdentifierBlob()
+	if err != nil {
+		log.Err(err).Msg("Failed to retrieve device identifier blob")
+		return err
+	}
 
 	log.Info().Str("DeviceIdentifierBlob", string(deviceIdentifierBlob)).Str("ArtefactType", artefactType.String()).Msg("ArtefactMetaData")
 
-	err := artefactTransmitter.TransmitArtefactFromFile("artefact_file", 1024)
+	err = artefactTransmitter.TransmitArtefactFromFile("artefact_file", 1024)
 	if err != nil {
 		log.Err(err).Msg("Failed to transmit artefact file")
 		return err
