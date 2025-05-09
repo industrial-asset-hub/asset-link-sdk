@@ -60,29 +60,6 @@ builds:
       - goos: windows
         goarch: arm64
     mod_timestamp: "{{ .CommitTimestamp }}"
-  - id: registry
-    binary: registry
-    main: ./registry/main.go
-    flags:
-      - -trimpath
-    ldflags:
-      - -s -w -extldflags '-static'
-      - -X main.version={{.Version}}
-        -X main.commit={{.Commit}}
-        -X main.date={{.CommitDate}}
-    env:
-      - CGO_ENABLED=0
-    goos:
-      - linux
-      - darwin
-      - windows
-    goarch:
-      - amd64
-      - arm64
-    ignore:
-      - goos: windows
-        goarch: arm64
-    mod_timestamp: "{{ .CommitTimestamp }}"
 
 archives:
   - id: al-ctl-archive
@@ -91,22 +68,6 @@ archives:
     formats: [ 'tar.gz' ]
     name_template: >-
       {{  "al-ctl" }}_
-      {{- title .Os }}_
-      {{- if eq .Arch "amd64" }}x86_64
-      {{- else if eq .Arch "386" }}i386
-      {{- else }}{{ .Arch }}{{ end }}
-      {{- if .Arm }}v{{ .Arm }}{{ end }}
-    format_overrides:
-      - goos: windows
-        formats: [ 'zip' ]
-    files: []
-
-  - id: registry-archive
-    ids:
-      - registry
-    formats: [ 'tar.gz' ]
-    name_template: >-
-      {{  "registry" }}_
       {{- title .Os }}_
       {{- if eq .Arch "amd64" }}x86_64
       {{- else if eq .Arch "386" }}i386
@@ -169,30 +130,6 @@ nfpms:
       postremove: "contrib/postremove.bash"
 
 dockers:
-  - id: registry-image-linux-amd64
-    ids:
-      - registry
-    image_templates:
-      - "ghcr.io/industrial-asset-hub/asset-link-sdk/registry:{{ .Tag }}-linux-amd64"
-      - "ghcr.io/industrial-asset-hub/asset-link-sdk/registry:latest-linux-amd64"
-    dockerfile: registry/Dockerfile
-    use: buildx
-    goos: linux
-    goarch: amd64
-    build_flag_templates:
-      - "--platform=linux/amd64"
-  - id: registry-image-linux-arm64
-    ids:
-      - registry
-    image_templates:
-      - "ghcr.io/industrial-asset-hub/asset-link-sdk/registry:{{ .Tag }}-linux-arm64"
-      - "ghcr.io/industrial-asset-hub/asset-link-sdk/registry:latest-linux-arm64"
-    dockerfile: registry/Dockerfile
-    use: buildx
-    goos: linux
-    goarch: arm64
-    build_flag_templates:
-      - "--platform=linux/arm64"
   - id: cdm-al-reference-image-linux-amd64
     ids:
       - cdm-al-reference
@@ -219,14 +156,6 @@ dockers:
       - "--platform=linux/arm64"
 
 docker_manifests:
-  - name_template: "ghcr.io/industrial-asset-hub/asset-link-sdk/registry:{{ .Tag }}"
-    image_templates:
-      - "ghcr.io/industrial-asset-hub/asset-link-sdk/registry:{{ .Tag }}-linux-amd64"
-      - "ghcr.io/industrial-asset-hub/asset-link-sdk/registry:{{ .Tag }}-linux-arm64"
-  - name_template: "ghcr.io/industrial-asset-hub/asset-link-sdk/registry:latest"
-    image_templates:
-      - "ghcr.io/industrial-asset-hub/asset-link-sdk/registry:latest-linux-amd64"
-      - "ghcr.io/industrial-asset-hub/asset-link-sdk/registry:latest-linux-arm64"
   - name_template: "ghcr.io/industrial-asset-hub/asset-link-sdk/reference-asset-link:{{ .Tag }}"
     image_templates:
       - "ghcr.io/industrial-asset-hub/asset-link-sdk/reference-asset-link:{{ .Tag }}-linux-amd64"
