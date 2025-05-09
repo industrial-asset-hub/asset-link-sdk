@@ -195,7 +195,7 @@ func createDeviceInfo(device simdevices.SimulatedDeviceInfo) *model.DeviceInfo {
 
 	deviceAddress := device.GetDeviceAddress()
 	deviceIdentifierBlob, _ := json.Marshal(deviceAddress)
-	deviceInfo.AddMetadata(string(deviceIdentifierBlob)) // device ID or device connection data used for artefact uploads/downloads
+	deviceInfo.AddMetadata(deviceIdentifierBlob) // device ID or device connection data used for artefact uploads/downloads
 
 	return deviceInfo
 }
@@ -220,8 +220,12 @@ func (m *ReferenceAssetLink) HandlePushArtefact(artefactReceiver *artefact.Artef
 		return err
 	}
 
-	deviceIdentifierBlob := artefactMetaData.GetDeviceIdentifierBlob()
 	artefactType := artefactMetaData.GetArtefactType()
+	deviceIdentifierBlob, err := artefactMetaData.GetDeviceIdentifierBlob()
+	if err != nil {
+		log.Err(err).Msg("Failed to retrieve device identifier blob")
+		return err
+	}
 
 	log.Info().Str("DeviceIdentifierBlob", string(deviceIdentifierBlob)).Str("ArtefactType", artefactType.String()).Msg("ArtefactMetaData")
 
@@ -311,8 +315,13 @@ func (m *ReferenceAssetLink) HandlePullArtefact(artefactMetaData *artefact.Artef
 	}
 
 	// Retrieve meta data
-	deviceIdentifierBlob := artefactMetaData.GetDeviceIdentifierBlob()
 	artefactType := artefactMetaData.GetArtefactType()
+	deviceIdentifierBlob, err := artefactMetaData.GetDeviceIdentifierBlob()
+	if err != nil {
+		log.Err(err).Msg("Failed to retrieve device identifier blob")
+		return err
+	}
+
 	log.Info().Str("DeviceIdentifierBlob", string(deviceIdentifierBlob)).Str("ArtefactType", artefactType.String()).Msg("ArtefactMetaData")
 
 	// Perform checks
@@ -325,7 +334,7 @@ func (m *ReferenceAssetLink) HandlePullArtefact(artefactMetaData *artefact.Artef
 	}
 
 	var deviceAddress simdevices.SimulatedDeviceAddress
-	err := json.Unmarshal(deviceIdentifierBlob, &deviceAddress)
+	err = json.Unmarshal(deviceIdentifierBlob, &deviceAddress)
 	if err != nil {
 		log.Err(err).Msg("Failed to parse connection blob")
 		return err

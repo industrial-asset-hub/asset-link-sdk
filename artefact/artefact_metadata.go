@@ -9,6 +9,7 @@ package artefact
 
 import (
 	generated "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/artefact-update"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/model"
 )
 
 type ArtefactMetaData struct {
@@ -21,8 +22,8 @@ func NewArtefactMetaData(deviceIdentifierBlob []byte, artefactType generated.Art
 	return artefactIdentifier
 }
 
-func (ai *ArtefactMetaData) GetDeviceIdentifierBlob() []byte {
-	return ai.deviceIdentifierBlob
+func (ai *ArtefactMetaData) GetDeviceIdentifierBlob() ([]byte, error) {
+	return model.DecodeMetadata(string(ai.deviceIdentifierBlob))
 }
 
 func (ai *ArtefactMetaData) GetArtefactType() generated.ArtefactType {

@@ -15,6 +15,7 @@ var (
 )
 
 const (
-	DiscoveryFileDesc        string = "discovery configuration filename allows the configuration of discovery filters and options (see discovery.json for an example)"
-	DeviceIdentifierFileDesc string = "file with device identifier/connection blob (see device-address.json for an example)"
+	DiscoveryFileDesc           string = "discovery configuration filename allows the configuration of discovery filters and options (see discovery.json for an example)"
+	DeviceIdentifierFileDesc    string = "file with device identifier/connection blob (see device_address.json for an example)"
+	ConvertDeviceIdentifierDesc string = "convert device identifier in base64 encoding (required if the device identifier is not yet encoded)"
 )
