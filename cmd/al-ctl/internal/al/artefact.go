@@ -14,12 +14,14 @@ import (
 
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/shared"
 	generated "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/artefact-update"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/model"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/net/context"
 )
 
-func PushArtefact(endpoint string, artefactFile string, deviceIdentifierFile string, artefactType string) int {
-	log.Info().Str("Endpoint", endpoint).Str("Artefact File", artefactFile).Str("Device Identifier File", deviceIdentifierFile).Str("Artefact Type", artefactType).Msg("Pushing Artefact")
+func PushArtefact(endpoint string, artefactFile string, artefactType string, deviceIdentifierFile string, convertDeviceIdentifier bool) int {
+	log.Info().Str("Endpoint", endpoint).Str("Artefact File", artefactFile).Str("Artefact Type", artefactType).
+		Str("Device Identifier File", deviceIdentifierFile).Bool("Convert Device Identifier", convertDeviceIdentifier).Msg("Pushing Artefact")
 
 	if artefactFile == "" {
 		log.Error().Msg("No artefact file provided")
@@ -36,6 +38,10 @@ func PushArtefact(endpoint string, artefactFile string, deviceIdentifierFile str
 	if err != nil {
 		log.Error().Err(err).Str("ArtefactType", artefactType).Msg("Failed to create artefact identifier")
 		return 1
+	}
+
+	if convertDeviceIdentifier {
+		deviceIdentifierBlob = []byte(model.EncodeMetadata(deviceIdentifierBlob))
 	}
 
 	deviceIdentifier := generated.DeviceIdentifier{Blob: deviceIdentifierBlob}
@@ -125,8 +131,9 @@ func PushArtefact(endpoint string, artefactFile string, deviceIdentifierFile str
 	return 0
 }
 
-func PullArtefact(endpoint string, artefactFile string, deviceIdentifierFile string, artefactType string) int {
-	log.Info().Str("Endpoint", endpoint).Str("Artefact File", artefactFile).Str("Device Identifier File", deviceIdentifierFile).Str("Artefact Type", artefactType).Msg("Pulling Artefact")
+func PullArtefact(endpoint string, artefactFile string, artefactType string, deviceIdentifierFile string, convertDeviceIdentifier bool) int {
+	log.Info().Str("Endpoint", endpoint).Str("Artefact File", artefactFile).Str("Artefact Type", artefactType).
+		Str("Device Identifier File", deviceIdentifierFile).Bool("Convert Device Identifier", convertDeviceIdentifier).Msg("Pulling Artefact")
 
 	if artefactFile == "" {
 		log.Error().Msg("No artefact file provided")
@@ -143,6 +150,10 @@ func PullArtefact(endpoint string, artefactFile string, deviceIdentifierFile str
 	if err != nil {
 		log.Error().Err(err).Str("ArtefactType", artefactType).Msg("Failed to create artefact identifier")
 		return 1
+	}
+
+	if convertDeviceIdentifier {
+		deviceIdentifierBlob = []byte(model.EncodeMetadata(deviceIdentifierBlob))
 	}
 
 	deviceIdentifier := generated.DeviceIdentifier{Blob: deviceIdentifierBlob}
