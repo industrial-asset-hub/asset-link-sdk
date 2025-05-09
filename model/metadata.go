@@ -11,31 +11,32 @@ import (
 	"encoding/base64"
 )
 
-func encodeMetadata(metadata string) string {
-	return base64.StdEncoding.EncodeToString([]byte(metadata))
+func EncodeMetadata(metadata []byte) string {
+	return base64.StdEncoding.EncodeToString(metadata)
 }
 
-// TODO: return may an error
-func DecodeMetadata(metadata string) string {
+func DecodeMetadata(metadata string) ([]byte, error) {
 	decoded, err := base64.StdEncoding.DecodeString(metadata)
 	if err != nil {
-		return ""
+		return []byte{}, err
 	}
-	return string(decoded)
+	return decoded, nil
 }
 
 // AddMetadata Add Metadata blob to an asset
 // This acts as persistent storage for certain metadata
+// (e.g., custom device identifiers or connection parameters)
 // which are consumed by the Asset Link for e.g. Software Update
 // or other asset management operations
-func (d *DeviceInfo) AddMetadata(metadata string) {
-	metaDataBase64Encoded := encodeMetadata(metadata)
-	// For now stored inside the instance annotations. Should be
-	// moved to a proper field in the future
-	d.Metadata = metaDataBase64Encoded
+func (d *DeviceInfo) AddMetadata(metadata []byte) {
+	metaDataBase64Encoded := EncodeMetadata(metadata)
+	d.Metadata = metaDataBase64Encoded // this field is not yet specified in the schema
 }
 
-// TODO: return may an error
-func (d *DeviceInfo) getMetadata() string {
+func (d *DeviceInfo) getMetadataEncoded() string {
 	return d.Metadata
+}
+
+func (d *DeviceInfo) getMetadataDecoded() ([]byte, error) {
+	return DecodeMetadata(d.Metadata)
 }
