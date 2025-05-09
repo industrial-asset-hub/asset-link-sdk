@@ -8,19 +8,32 @@
 package model
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestEncodeDecode(t *testing.T) {
-	base64Encoded := encodeMetadata("test")
+	metadataBlob := []byte("test")
+	base64Encoded := EncodeMetadata(metadataBlob)
 	assert.Equal(t, "dGVzdA==", base64Encoded)
-	assert.Equal(t, "test", DecodeMetadata(base64Encoded))
+
+	decoded, err := DecodeMetadata(base64Encoded)
+	assert.NoError(t, err)
+	assert.Equal(t, metadataBlob, decoded)
 }
 
 func TestAddMetaDate(t *testing.T) {
 	d := NewDevice("", "")
-	metadataBlog := "test"
-	d.AddMetadata(metadataBlog)
-	assert.Equal(t, "test", DecodeMetadata(d.getMetadata()))
+	metadataBlob := []byte("test")
+	d.AddMetadata(metadataBlob)
+
+	encoded := d.getMetadataEncoded()
+	decoded, err := DecodeMetadata(encoded)
+	assert.NoError(t, err)
+	assert.Equal(t, metadataBlob, decoded)
+
+	decoded, err = d.getMetadataDecoded()
+	assert.NoError(t, err)
+	assert.Equal(t, metadataBlob, decoded)
 }
