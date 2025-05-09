@@ -90,7 +90,7 @@ func (m *ReferenceAssetLink) Discover(discoveryConfig config.DiscoveryConfig, de
 			DeviceIP:     device.GetIpDevice(),
 		}
 		deviceIdentifierBlob, _ := json.Marshal(deviceIdentifier)
-		deviceInfo.AddMetadata(string(deviceIdentifierBlob)) // device ID or device connection data used for artefact uploads/downloads
+		deviceInfo.AddMetadata(deviceIdentifierBlob) // device ID or device connection data used for artefact uploads/downloads
 
 		discoveredDevice := deviceInfo.ConvertToDiscoveredDevice()
 
@@ -143,8 +143,12 @@ func (m *ReferenceAssetLink) HandlePushArtefact(artefactReceiver *artefact.Artef
 		return err
 	}
 
-	deviceIdentifierBlob := artefactMetaData.GetDeviceIdentifierBlob()
 	artefactType := artefactMetaData.GetArtefactType()
+	deviceIdentifierBlob, err := artefactMetaData.GetDeviceIdentifierBlob()
+	if err != nil {
+		log.Err(err).Msg("Failed to retrieve device identifier blob")
+		return err
+	}
 
 	log.Info().Str("DeviceIdentifierBlob", string(deviceIdentifierBlob)).Str("ArtefactType", artefactType.String()).Msg("ArtefactMetaData")
 
@@ -228,8 +232,13 @@ func (m *ReferenceAssetLink) HandlePullArtefact(artefactMetaData *artefact.Artef
 	}
 
 	// Retrieve meta data
-	deviceIdentifierBlob := artefactMetaData.GetDeviceIdentifierBlob()
 	artefactType := artefactMetaData.GetArtefactType()
+	deviceIdentifierBlob, err := artefactMetaData.GetDeviceIdentifierBlob()
+	if err != nil {
+		log.Err(err).Msg("Failed to retrieve device identifier blob")
+		return err
+	}
+
 	log.Info().Str("DeviceIdentifierBlob", string(deviceIdentifierBlob)).Str("ArtefactType", artefactType.String()).Msg("ArtefactMetaData")
 
 	// Perform checks
@@ -242,7 +251,7 @@ func (m *ReferenceAssetLink) HandlePullArtefact(artefactMetaData *artefact.Artef
 	}
 
 	var deviceIdentifier DeviceIdentifierOrConnectionData
-	err := json.Unmarshal(deviceIdentifierBlob, &deviceIdentifier)
+	err = json.Unmarshal(deviceIdentifierBlob, &deviceIdentifier)
 	if err != nil {
 		log.Err(err).Msg("Failed to parse connection blob")
 		return err
