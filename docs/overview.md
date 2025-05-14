@@ -39,14 +39,14 @@ For discovery these clients need to be implemented:
 > You can download and use the [Asset Gateway](https://github.com/industrial-asset-hub/asset-gateway) from the
 > Siemens Industrial Asset Hub (IAH) for that
 
-To ease local development an implementation for a registry server is provided [here](https://github.com/industrial-asset-hub/asset-link-sdk/tree/main/registry/). Additionally,
-a command line tool called [al-ctl](https://github.com/industrial-asset-hub/asset-link-sdk/tree/main/cmd/al-ctl/al-ctl.go) is provided to locally run and test the asset links.
+To ease local development a container image of a registry server is provided as part of the [Asset Gateway](https://github.com/industrial-asset-hub/asset-gateway).
+Additionally, a command line tool called [al-ctl](https://github.com/industrial-asset-hub/asset-link-sdk/tree/main/cmd/al-ctl/al-ctl.go) is provided to locally run and test the asset links.
 
-Use `go` command to build or run these components:
+To run these components use the following commands:
 
 ```bash
 # to start the registry
-$ go run ./registry/main.go
+$ docker-compose -f registry/docker-compose.yml up
 
 # to start the al-ctl
 $ go run ./cmd/al-ctl/al-ctl.go

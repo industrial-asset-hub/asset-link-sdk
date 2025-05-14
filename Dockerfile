@@ -1,6 +1,6 @@
 FROM scratch
 
-ARG COMPONENT_NAME=registry
+ARG COMPONENT_NAME=cdm-al-reference
 ARG TARGETOS=linux
 ARG TARGETARCH=amd64
 
