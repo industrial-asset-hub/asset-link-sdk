@@ -29,7 +29,6 @@ func (d *DeviceInfo) AddNameplate(manufacturerName string,
 	hardwareVersion string,
 	serialNumber string,
 ) {
-
 	if isNonEmptyValues(manufacturerName, uriOfTheProduct, productArticleNumberOfManufacturer, manufacturerProductDesignation, hardwareVersion, serialNumber) {
 
 		// We hash the manufacturer to get a unique identifier
@@ -76,48 +75,53 @@ func (d *DeviceInfo) AddNameplate(manufacturerName string,
 
 // AddSoftware Add software information to an asset
 func (d *DeviceInfo) AddSoftware(name string, version string) {
-	softwareIdentifier := SoftwareIdentifier{}
-
 	if isNonEmptyValues(name, version) {
+		softwareIdentifier := SoftwareIdentifier{}
 		softwareIdentifier.Name = &name
 		softwareIdentifier.Version = &version
-	}
 
-	softwareArtifact := SoftwareArtifact{
-		AssetOperations:           nil,
-		ChecksumIdentifier:        nil,
-		ConnectionPoints:          nil,
-		CustomUiProperties:        nil,
-		FunctionalParts:           nil,
-		Id:                        "",
-		InstanceAnnotations:       nil,
-		ManagementState:           ManagementState{},
-		Name:                      nil,
-		OtherStates:               nil,
-		ProductInstanceIdentifier: nil,
-		ReachabilityState:         nil,
-		SoftwareComponents:        nil,
-		SoftwareIdentifier:        &softwareIdentifier,
-	}
+		isFirmware := false
+		if name == "firmware" {
+			isFirmware = true
+		}
 
-	runningSoftware := RunningSoftware{
-		Artifact:                  &softwareArtifact,
-		AssetOperations:           nil,
-		ConnectionPoints:          nil,
-		CustomRunningSoftwareType: nil,
-		CustomUiProperties:        nil,
-		FunctionalParts:           nil,
-		Id:                        "",
-		InstanceAnnotations:       nil,
-		ManagementState:           ManagementState{},
-		Name:                      nil,
-		OtherStates:               nil,
-		ProductInstanceIdentifier: nil,
-		ReachabilityState:         nil,
-		RunningSoftwareType:       nil,
-		RunningSwId:               nil,
-		SoftwareComponents:        nil,
-	}
+		softwareArtifact := SoftwareArtifact{
+			AssetOperations:           nil,
+			ChecksumIdentifier:        nil,
+			ConnectionPoints:          nil,
+			CustomUiProperties:        nil,
+			FunctionalParts:           nil,
+			Id:                        "",
+			InstanceAnnotations:       nil,
+			ManagementState:           ManagementState{},
+			Name:                      nil,
+			OtherStates:               nil,
+			ProductInstanceIdentifier: nil,
+			ReachabilityState:         nil,
+			SoftwareComponents:        nil,
+			SoftwareIdentifier:        &softwareIdentifier,
+			IsFirmware:                &isFirmware,
+		}
 
-	d.SoftwareComponents = append(d.SoftwareComponents, runningSoftware)
+		runningSoftware := RunningSoftware{
+			Artifact:                  &softwareArtifact,
+			AssetOperations:           nil,
+			ConnectionPoints:          nil,
+			CustomRunningSoftwareType: nil,
+			CustomUiProperties:        nil,
+			FunctionalParts:           nil,
+			Id:                        "",
+			InstanceAnnotations:       nil,
+			ManagementState:           ManagementState{},
+			Name:                      nil,
+			OtherStates:               nil,
+			ProductInstanceIdentifier: nil,
+			ReachabilityState:         nil,
+			RunningSoftwareType:       nil,
+			RunningSwId:               nil,
+			SoftwareComponents:        nil,
+		}
+
+		d.SoftwareComponents = append(d.SoftwareComponents, runningSoftware)
+	}
 }
