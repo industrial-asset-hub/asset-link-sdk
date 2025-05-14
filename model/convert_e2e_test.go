@@ -9,16 +9,20 @@ package model
 
 import (
 	"fmt"
-	"github.com/stretchr/testify/assert"
+	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestBackAndForthConversion(t *testing.T) {
 	testDevice := getTestDevice()
 	discoveredDevice := testDevice.ConvertToDiscoveredDevice()
 	transformedDevice := ConvertFromDiscoveredDevice(discoveredDevice, "URI")
+
 	assert.IsType(t, map[string]interface{}{}, transformedDevice)
+
 	assert.Equal(t, "Asset", transformedDevice["@type"])
 	assert.Equal(t, "TestDevice", transformedDevice["name"])
 	connectionPoint := transformedDevice["connection_points"].([]map[string]interface{})[0]
@@ -28,14 +32,20 @@ func TestBackAndForthConversion(t *testing.T) {
 	assert.Equal(t, "TestDevice", transformedDevice["product_instance_identifier"].(map[string]interface{})["manufacturer_product"].(map[string]interface{})["name"])
 	assert.Equal(t, "MyOrderNumber", transformedDevice["product_instance_identifier"].(map[string]interface{})["manufacturer_product"].(map[string]interface{})["product_id"])
 	assert.Equal(t, "1.0.0", transformedDevice["product_instance_identifier"].(map[string]interface{})["manufacturer_product"].(map[string]interface{})["product_version"])
-	name := softwareComponent["artifact"].(map[string]interface{})["software_identifier"].(map[string]interface{})["name"]
-	version := softwareComponent["artifact"].(map[string]interface{})["software_identifier"].(map[string]interface{})["version"]
+
+	swName := softwareComponent["software_identifier"].(map[string]interface{})["name"]
+	swVersion := softwareComponent["software_identifier"].(map[string]interface{})["version"]
+	isFirmwareBool, isFirmwareErr := strconv.ParseBool(softwareComponent["is_firmware"].(string))
+	assert.Equal(t, "Firmware", swName)
+	assert.Equal(t, "1.2.5", swVersion)
+	assert.Nil(t, isFirmwareErr)
+	assert.True(t, isFirmwareBool)
+
 	assert.Equal(t, "EthernetPort", connectionPoint["connection_point_type"])
 	assert.Equal(t, "enp0", connectionPoint["instance_annotations"].([]map[string]interface{})[0]["value"])
 	assert.Equal(t, "00:00:00:00:00:00", macIdentifier["mac_address"])
-	assert.Equal(t, "firmware", name)
-	assert.Equal(t, "1.2.5", version)
 	assert.Equal(t, "123456", transformedDevice["product_instance_identifier"].(map[string]interface{})["serial_number"])
+
 	assert.Equal(t, "http://rds.posccaesar.org/ontology/lis14/rdl/", transformedDevice["@context"].(map[string]interface{})["lis"])
 	assert.Equal(t, "https://common-device-management.code.siemens.io/documentation/asset-modeling/base-schema/v0.9.0/",
 		transformedDevice["@context"].(map[string]interface{})["@vocab"])
@@ -54,7 +64,7 @@ func getTestDevice() *DeviceInfo {
 
 	uriOfTheProduct := fmt.Sprintf("https://%s/%s-%s", strings.ReplaceAll(manufacturer, " ", "_"), strings.ReplaceAll(product, " ", "_"), serialNumber)
 	deviceInfo.AddNameplate(manufacturer, uriOfTheProduct, "MyOrderNumber", product, "1.0.0", serialNumber)
-	deviceInfo.AddSoftware("firmware", "1.2.5")
+	deviceInfo.AddSoftware("Firmware", "1.2.5", true)
 	macAddress := "00:00:00:00:00:00"
 	deviceNIC := "enp0"
 	_ = deviceInfo.AddNic(deviceNIC, macAddress)

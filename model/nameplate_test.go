@@ -9,10 +9,8 @@ package model
 
 import (
 	"fmt"
-	"github.com/google/uuid"
 	"reflect"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -52,41 +50,65 @@ func TestNameplate(t *testing.T) {
 }
 
 func TestSoftwareNameplate(t *testing.T) {
-	t.Run("AddFirmware", func(t *testing.T) {
+	t.Run("AddFirmwareAndOtherSoftware", func(t *testing.T) {
 		m := NewDevice("", "")
 
-		m.AddSoftware("ArtifactName", "0.1.2")
-		m.AddSoftware("ArtifactName1", "2.1.3")
+		firmwareName := "Firmware"
+		firmwareVersion := "1.2.3"
 
-		firmware := m.getFirmware()
-		if len(firmware) != 2 {
-			fmt.Printf("Expected 1 added firmware, got %d\n", len(firmware))
+		sw1Name := "SoftwareName1"
+		sw1Version := "1.0.0"
+
+		sw2Name := "SoftwareName2"
+		sw2Version := "2.0.0"
+
+		m.AddSoftware(firmwareName, firmwareVersion, true)
+		m.AddSoftware(sw1Name, sw1Version, false)
+		m.AddSoftware(sw2Name, sw2Version, false)
+
+		softwareArtifacts := m.getSoftwareArtifacts()
+
+		if len(softwareArtifacts) != 3 {
+			fmt.Printf("Expected 3 software entries, got %d\n", len(softwareArtifacts))
 			t.Fail()
 		}
-		found := 0
-		for _, v := range firmware {
-			if *v.Artifact.SoftwareIdentifier.Name == "ArtifactName" {
-				found++
-				assert.Equal(t, "ArtifactName", *v.Artifact.SoftwareIdentifier.Name)
-				assert.Equal(t, "0.1.2", *v.Artifact.SoftwareIdentifier.Version)
-				break
+
+		fwFound := false
+		sw1Found := false
+		sw2Found := false
+		for _, v := range softwareArtifacts {
+			switch *v.SoftwareIdentifier.Name {
+			case firmwareName:
+				assert.Equal(t, firmwareVersion, *v.SoftwareIdentifier.Version)
+				assert.True(t, *v.IsFirmware)
+				fwFound = true
+			case sw1Name:
+				assert.Equal(t, sw1Version, *v.SoftwareIdentifier.Version)
+				assert.False(t, *v.IsFirmware)
+				sw1Found = true
+			case sw2Name:
+				assert.Equal(t, sw2Version, *v.SoftwareIdentifier.Version)
+				assert.False(t, *v.IsFirmware)
+				sw2Found = true
 			}
+
+			assert.NotEmpty(t, v.Id)
+			stateValue := ManagementStateValuesRegarded
+			assert.Equal(t, &stateValue, v.ManagementState.StateValue)
+			assert.NotEmpty(t, v.ManagementState.StateTimestamp)
 		}
-		assert.Equal(t, 1, found)
-		assert.IsTypef(t, uuid.UUID{}.String(), m.SoftwareComponents[0].(RunningSoftware).Id, "Expected uuid.UUID, got %T", m.SoftwareComponents[0].(RunningSoftware).Id)
-		stateValue := ManagementStateValuesRegarded
-		assert.Equal(t, &stateValue, m.SoftwareComponents[0].(RunningSoftware).ManagementState.StateValue)
-		assert.IsTypef(t, &time.Time{}, m.SoftwareComponents[0].(RunningSoftware).ManagementState.StateTimestamp,
-			"Expected time.Time, got %T", m.SoftwareComponents[0].(RunningSoftware).ManagementState.StateTimestamp)
+
+		assert.True(t, fwFound)
+		assert.True(t, sw1Found)
+		assert.True(t, sw2Found)
 	})
 }
 
-func (d *DeviceInfo) getFirmware() []RunningSoftware {
-
-	r := []RunningSoftware{}
+func (d *DeviceInfo) getSoftwareArtifacts() []SoftwareArtifact {
+	r := []SoftwareArtifact{}
 	for _, v := range d.SoftwareComponents {
-		if reflect.TypeOf(v) == reflect.TypeOf(RunningSoftware{}) {
-			r = append(r, v.(RunningSoftware))
+		if reflect.TypeOf(v) == reflect.TypeOf(SoftwareArtifact{}) {
+			r = append(r, v.(SoftwareArtifact))
 		}
 	}
 	return r
