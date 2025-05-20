@@ -25,8 +25,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ArtefactUpdateApi_PushArtefact_FullMethodName = "/factory_x.artefact_update.v1.ArtefactUpdateApi/PushArtefact"
-	ArtefactUpdateApi_PullArtefact_FullMethodName = "/factory_x.artefact_update.v1.ArtefactUpdateApi/PullArtefact"
+	ArtefactUpdateApi_PushArtefact_FullMethodName   = "/factory_x.artefact_update.v1.ArtefactUpdateApi/PushArtefact"
+	ArtefactUpdateApi_PullArtefact_FullMethodName   = "/factory_x.artefact_update.v1.ArtefactUpdateApi/PullArtefact"
+	ArtefactUpdateApi_PrepareUpdate_FullMethodName  = "/factory_x.artefact_update.v1.ArtefactUpdateApi/PrepareUpdate"
+	ArtefactUpdateApi_ActivateUpdate_FullMethodName = "/factory_x.artefact_update.v1.ArtefactUpdateApi/ActivateUpdate"
 )
 
 // ArtefactUpdateApiClient is the client API for ArtefactUpdateApi service.
@@ -37,6 +39,9 @@ type ArtefactUpdateApiClient interface {
 	PushArtefact(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[ArtefactChunk, ArtefactOperationStatus], error)
 	// Load an artefact from a driver
 	PullArtefact(ctx context.Context, in *ArtefactMetaData, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ArtefactChunk], error)
+	// Two-stage update of firmware or other software
+	PrepareUpdate(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[ArtefactChunk, ArtefactUpdateMessage], error)
+	ActivateUpdate(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[ArtefactChunk, ArtefactUpdateMessage], error)
 }
 
 type artefactUpdateApiClient struct {
@@ -79,6 +84,32 @@ func (c *artefactUpdateApiClient) PullArtefact(ctx context.Context, in *Artefact
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type ArtefactUpdateApi_PullArtefactClient = grpc.ServerStreamingClient[ArtefactChunk]
 
+func (c *artefactUpdateApiClient) PrepareUpdate(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[ArtefactChunk, ArtefactUpdateMessage], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &ArtefactUpdateApi_ServiceDesc.Streams[2], ArtefactUpdateApi_PrepareUpdate_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[ArtefactChunk, ArtefactUpdateMessage]{ClientStream: stream}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type ArtefactUpdateApi_PrepareUpdateClient = grpc.BidiStreamingClient[ArtefactChunk, ArtefactUpdateMessage]
+
+func (c *artefactUpdateApiClient) ActivateUpdate(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[ArtefactChunk, ArtefactUpdateMessage], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &ArtefactUpdateApi_ServiceDesc.Streams[3], ArtefactUpdateApi_ActivateUpdate_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[ArtefactChunk, ArtefactUpdateMessage]{ClientStream: stream}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type ArtefactUpdateApi_ActivateUpdateClient = grpc.BidiStreamingClient[ArtefactChunk, ArtefactUpdateMessage]
+
 // ArtefactUpdateApiServer is the server API for ArtefactUpdateApi service.
 // All implementations must embed UnimplementedArtefactUpdateApiServer
 // for forward compatibility.
@@ -87,6 +118,9 @@ type ArtefactUpdateApiServer interface {
 	PushArtefact(grpc.BidiStreamingServer[ArtefactChunk, ArtefactOperationStatus]) error
 	// Load an artefact from a driver
 	PullArtefact(*ArtefactMetaData, grpc.ServerStreamingServer[ArtefactChunk]) error
+	// Two-stage update of firmware or other software
+	PrepareUpdate(grpc.BidiStreamingServer[ArtefactChunk, ArtefactUpdateMessage]) error
+	ActivateUpdate(grpc.BidiStreamingServer[ArtefactChunk, ArtefactUpdateMessage]) error
 	mustEmbedUnimplementedArtefactUpdateApiServer()
 }
 
@@ -102,6 +136,12 @@ func (UnimplementedArtefactUpdateApiServer) PushArtefact(grpc.BidiStreamingServe
 }
 func (UnimplementedArtefactUpdateApiServer) PullArtefact(*ArtefactMetaData, grpc.ServerStreamingServer[ArtefactChunk]) error {
 	return status.Errorf(codes.Unimplemented, "method PullArtefact not implemented")
+}
+func (UnimplementedArtefactUpdateApiServer) PrepareUpdate(grpc.BidiStreamingServer[ArtefactChunk, ArtefactUpdateMessage]) error {
+	return status.Errorf(codes.Unimplemented, "method PrepareUpdate not implemented")
+}
+func (UnimplementedArtefactUpdateApiServer) ActivateUpdate(grpc.BidiStreamingServer[ArtefactChunk, ArtefactUpdateMessage]) error {
+	return status.Errorf(codes.Unimplemented, "method ActivateUpdate not implemented")
 }
 func (UnimplementedArtefactUpdateApiServer) mustEmbedUnimplementedArtefactUpdateApiServer() {}
 func (UnimplementedArtefactUpdateApiServer) testEmbeddedByValue()                           {}
@@ -142,6 +182,20 @@ func _ArtefactUpdateApi_PullArtefact_Handler(srv interface{}, stream grpc.Server
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type ArtefactUpdateApi_PullArtefactServer = grpc.ServerStreamingServer[ArtefactChunk]
 
+func _ArtefactUpdateApi_PrepareUpdate_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(ArtefactUpdateApiServer).PrepareUpdate(&grpc.GenericServerStream[ArtefactChunk, ArtefactUpdateMessage]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type ArtefactUpdateApi_PrepareUpdateServer = grpc.BidiStreamingServer[ArtefactChunk, ArtefactUpdateMessage]
+
+func _ArtefactUpdateApi_ActivateUpdate_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(ArtefactUpdateApiServer).ActivateUpdate(&grpc.GenericServerStream[ArtefactChunk, ArtefactUpdateMessage]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type ArtefactUpdateApi_ActivateUpdateServer = grpc.BidiStreamingServer[ArtefactChunk, ArtefactUpdateMessage]
+
 // ArtefactUpdateApi_ServiceDesc is the grpc.ServiceDesc for ArtefactUpdateApi service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -160,6 +214,18 @@ var ArtefactUpdateApi_ServiceDesc = grpc.ServiceDesc{
 			StreamName:    "PullArtefact",
 			Handler:       _ArtefactUpdateApi_PullArtefact_Handler,
 			ServerStreams: true,
+		},
+		{
+			StreamName:    "PrepareUpdate",
+			Handler:       _ArtefactUpdateApi_PrepareUpdate_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
+		},
+		{
+			StreamName:    "ActivateUpdate",
+			Handler:       _ArtefactUpdateApi_ActivateUpdate_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
 		},
 	},
 	Metadata: "artefact_update.proto",
