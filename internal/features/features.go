@@ -24,6 +24,11 @@ type Discovery interface {
 }
 
 type Update interface {
+	// artefact mangement
 	HandlePushArtefact(artefactReceiver *artefact.ArtefactReceiver) error
 	HandlePullArtefact(artefactMetaData *artefact.ArtefactMetaData, artefactTransmitter *artefact.ArtefactTransmitter) error
+
+	// two-step update management
+	HandlePrepareUpdate(updateReceiver *artefact.UpdatePrepareReceiver) error
+	HandleActivateUpdate(updateReceiver *artefact.UpdateActivateReceiver) error
 }
