@@ -23,10 +23,19 @@ import (
 type SimulatedDeviceState string
 
 const (
-	StateActive     SimulatedDeviceState = "active"
-	StateReading    SimulatedDeviceState = "reading"
-	StateUpdating   SimulatedDeviceState = "updating"
-	StateRetrieving SimulatedDeviceState = "retrieving"
+	// regular operation
+	StateActive SimulatedDeviceState = "active"
+
+	// device discovery
+	StateReading SimulatedDeviceState = "reading"
+
+	// artifact management
+	StateStoring    SimulatedDeviceState = "storing"    // store config (push artefact)
+	StateRetrieving SimulatedDeviceState = "retrieving" // retrieve config (pull artefact)
+
+	// update management
+	StateUpdating SimulatedDeviceState = "updating" // update prepartion
+	StateBooting  SimulatedDeviceState = "booting"  // update activation
 )
 
 type SimulatedDevice interface {
@@ -36,7 +45,8 @@ type SimulatedDevice interface {
 	GetArticleNumber() string
 	GetSerialNumber() string
 	GetHardwareVersion() string
-	GetFirmwareVersion() string
+	GetActiveFirmwareVersion() string
+	GetInstalledFirmwareVersion() string
 	IsUpdateSupported() bool
 	GetAssetLinkNIC() string
 	GetDeviceNIC() string
@@ -46,8 +56,11 @@ type SimulatedDevice interface {
 	GetIpRoute() string
 	GetIDLink() string
 
+	StoreConfig(configFilename string) error
+	RetrieveConfig(configFilename string) error
+
 	UpdateFirmware(artefactFilename string) error
-	RetrieveFirmware(artefactFilename string) error
+	RebootDevice() error
 }
 
 type SimulatedDeviceAddress struct {
@@ -61,23 +74,25 @@ type simulatedDeviceCredentials struct {
 }
 
 type simulatedDeviceInfo struct {
-	UniqueDeviceID     string               `json:"unique_device_id"` // for internal use only
-	DeviceName         string               `json:"device_name"`
-	Manufacturer       string               `json:"manufacturer"`
-	ProductDesignation string               `json:"product_designation"`
-	ArticleNumber      string               `json:"article_number"`
-	SerialNumber       string               `json:"serial_number"`
-	HardwareVersion    string               `json:"hardware_version"`
-	FirmwareVersion    string               `json:"firmware_version"`
-	UpdateSupport      bool                 `json:"update_support"`
-	AssetLinkNIC       string               `json:"al_nic"`
-	DeviceNIC          string               `json:"device_nic"`
-	MacAddress         string               `json:"mac_address"`
-	IpDevice           string               `json:"ip_device"`
-	IpNetmask          string               `json:"ip_netmask"`
-	IpRoute            string               `json:"ip_route"`
-	DeviceState        SimulatedDeviceState `json:"device_state"`
-	credentials        *simulatedDeviceCredentials
+	UniqueDeviceID           string                      `json:"unique_device_id"` // for internal use only
+	DeviceName               string                      `json:"device_name"`
+	Manufacturer             string                      `json:"manufacturer"`
+	ProductDesignation       string                      `json:"product_designation"`
+	ArticleNumber            string                      `json:"article_number"`
+	SerialNumber             string                      `json:"serial_number"`
+	HardwareVersion          string                      `json:"hardware_version"`
+	ActiveFirmwareVersion    string                      `json:"active_firmware_version"`
+	InstalledFirmwareVersion string                      `json:"installed_firmware_version"`
+	UpdateSupport            bool                        `json:"update_support"`
+	AssetLinkNIC             string                      `json:"al_nic"`
+	DeviceNIC                string                      `json:"device_nic"`
+	MacAddress               string                      `json:"mac_address"`
+	IpDevice                 string                      `json:"ip_device"`
+	IpNetmask                string                      `json:"ip_netmask"`
+	IpRoute                  string                      `json:"ip_route"`
+	DeviceState              SimulatedDeviceState        `json:"device_state"`
+	credentials              *simulatedDeviceCredentials `json:"-"` // not exported
+
 }
 
 type firmwareFile struct {
@@ -85,6 +100,11 @@ type firmwareFile struct {
 	Manufacturer       string `json:"manufacturer"`
 	ProductDesignation string `json:"product_designation"`
 	FirmwareVersion    string `json:"firmware_version"`
+}
+
+type configFile struct {
+	ArtefactType string `json:"artefact_type"`
+	DeviceName   string `json:"device_name"`
 }
 
 const (
@@ -110,23 +130,24 @@ func assertLocked() {
 func newSimulatedDevice(alNIC, serial, mac, ip, name string, credentials *simulatedDeviceCredentials) *simulatedDeviceInfo {
 	uid := uuid.New()
 	return &simulatedDeviceInfo{
-		UniqueDeviceID:     uid.String(),
-		DeviceName:         name,
-		Manufacturer:       "Siemens AG",
-		ProductDesignation: "Simulated Device",
-		ArticleNumber:      "AN0123456789",
-		HardwareVersion:    "3",
-		FirmwareVersion:    "1.0.0",
-		UpdateSupport:      true,
-		AssetLinkNIC:       alNIC,
-		DeviceNIC:          "enp0",
-		MacAddress:         mac,
-		IpDevice:           ip,
-		IpNetmask:          "255.255.255.0",
-		IpRoute:            "",
-		SerialNumber:       serial,
-		DeviceState:        StateActive,
-		credentials:        credentials,
+		UniqueDeviceID:           uid.String(),
+		DeviceName:               name,
+		Manufacturer:             "Siemens AG",
+		ProductDesignation:       "Simulated Device",
+		ArticleNumber:            "AN0123456789",
+		HardwareVersion:          "3",
+		ActiveFirmwareVersion:    "1.0.0",
+		InstalledFirmwareVersion: "1.0.0",
+		UpdateSupport:            true,
+		AssetLinkNIC:             alNIC,
+		DeviceNIC:                "enp0",
+		MacAddress:               mac,
+		IpDevice:                 ip,
+		IpNetmask:                "255.255.255.0",
+		IpRoute:                  "",
+		SerialNumber:             serial,
+		DeviceState:              StateActive,
+		credentials:              credentials,
 	}
 }
 
@@ -201,11 +222,18 @@ func (d *simulatedDeviceInfo) GetHardwareVersion() string {
 	return d.HardwareVersion
 }
 
-func (d *simulatedDeviceInfo) GetFirmwareVersion() string {
+func (d *simulatedDeviceInfo) GetActiveFirmwareVersion() string {
 	simLock.Lock()
 	defer simLock.Unlock()
 
-	return d.FirmwareVersion
+	return d.ActiveFirmwareVersion
+}
+
+func (d *simulatedDeviceInfo) GetInstalledFirmwareVersion() string {
+	simLock.Lock()
+	defer simLock.Unlock()
+
+	return d.InstalledFirmwareVersion
 }
 
 func (d *simulatedDeviceInfo) IsUpdateSupported() bool {
