@@ -10,6 +10,7 @@ package model
 import (
 	"crypto/sha1"
 	"encoding/hex"
+	"github.com/google/uuid"
 )
 
 // AddNameplate Add a digital nameplate to an asset.
@@ -77,21 +78,28 @@ func (d *DeviceInfo) AddNameplate(manufacturerName string,
 // AddSoftware Add software information to an asset
 func (d *DeviceInfo) AddSoftware(name string, version string) {
 	softwareIdentifier := SoftwareIdentifier{}
-
+	runningSoftwareId := uuid.New().String()
+	softwareArtifactId := uuid.New().String()
 	if isNonEmptyValues(name, version) {
 		softwareIdentifier.Name = &name
 		softwareIdentifier.Version = &version
 	}
 
+	stateValue := ManagementStateValuesRegarded
+	stateTimestamp := d.getAssetCreationTimestamp()
+
 	softwareArtifact := SoftwareArtifact{
-		AssetOperations:           nil,
-		ChecksumIdentifier:        nil,
-		ConnectionPoints:          nil,
-		CustomUiProperties:        nil,
-		FunctionalParts:           nil,
-		Id:                        "",
-		InstanceAnnotations:       nil,
-		ManagementState:           ManagementState{},
+		AssetOperations:     nil,
+		ChecksumIdentifier:  nil,
+		ConnectionPoints:    nil,
+		CustomUiProperties:  nil,
+		FunctionalParts:     nil,
+		Id:                  softwareArtifactId,
+		InstanceAnnotations: nil,
+		ManagementState: ManagementState{
+			StateTimestamp: &stateTimestamp,
+			StateValue:     &stateValue,
+		},
 		Name:                      nil,
 		OtherStates:               nil,
 		ProductInstanceIdentifier: nil,
@@ -99,7 +107,6 @@ func (d *DeviceInfo) AddSoftware(name string, version string) {
 		SoftwareComponents:        nil,
 		SoftwareIdentifier:        &softwareIdentifier,
 	}
-
 	runningSoftware := RunningSoftware{
 		Artifact:                  &softwareArtifact,
 		AssetOperations:           nil,
@@ -107,9 +114,12 @@ func (d *DeviceInfo) AddSoftware(name string, version string) {
 		CustomRunningSoftwareType: nil,
 		CustomUiProperties:        nil,
 		FunctionalParts:           nil,
-		Id:                        "",
+		Id:                        runningSoftwareId,
 		InstanceAnnotations:       nil,
-		ManagementState:           ManagementState{},
+		ManagementState: ManagementState{
+			StateTimestamp: &stateTimestamp,
+			StateValue:     &stateValue,
+		},
 		Name:                      nil,
 		OtherStates:               nil,
 		ProductInstanceIdentifier: nil,

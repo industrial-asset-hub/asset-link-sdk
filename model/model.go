@@ -58,9 +58,11 @@ type AssetContext struct {
 	SchemaOrg string `json:"schemaorg"`
 }
 
-func createTimestamp() time.Time {
-	currentTime := time.Now().UTC()
-	return currentTime
+func (d *DeviceInfo) getAssetCreationTimestamp() time.Time {
+	if d.ManagementState.StateTimestamp != nil {
+		return *d.ManagementState.StateTimestamp
+	}
+	return time.Now().UTC()
 }
 
 func getAssetContext() *AssetContext {

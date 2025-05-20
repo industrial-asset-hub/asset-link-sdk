@@ -9,8 +9,10 @@ package model
 
 import (
 	"fmt"
+	"github.com/google/uuid"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -70,8 +72,12 @@ func TestSoftwareNameplate(t *testing.T) {
 				break
 			}
 		}
-
 		assert.Equal(t, 1, found)
+		assert.IsTypef(t, uuid.UUID{}.String(), m.SoftwareComponents[0].(RunningSoftware).Id, "Expected uuid.UUID, got %T", m.SoftwareComponents[0].(RunningSoftware).Id)
+		stateValue := ManagementStateValuesRegarded
+		assert.Equal(t, &stateValue, m.SoftwareComponents[0].(RunningSoftware).ManagementState.StateValue)
+		assert.IsTypef(t, &time.Time{}, m.SoftwareComponents[0].(RunningSoftware).ManagementState.StateTimestamp,
+			"Expected time.Time, got %T", m.SoftwareComponents[0].(RunningSoftware).ManagementState.StateTimestamp)
 	})
 }
 
