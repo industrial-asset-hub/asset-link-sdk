@@ -10,18 +10,45 @@
             margin: 10px;
             padding: 15px;
             border-radius: 5px;
+            background-color: #e6ffe6,
         }
         .active {
             background-color: #e6ffe6;
         }
         .reading {
             background-color: #b2dcff;
+            animation-name: colorReading;
+            animation-duration: 1s;
+            animation-iteration-count: infinite;
         }
-        .updating {
-            background-color: #ffe6e6;
-        }
-        .retrieving {
+        .retrieving,
+        .storing {
             background-color: #ffd088;
+            animation-name: colorRetrievingStoring;
+            animation-duration: 1s;
+            animation-iteration-count: infinite;
+        }
+        .updating,
+        .booting {
+            background-color: #ffe6e6;
+            animation-name: colorUpdatingBooting;
+            animation-duration: 1s;
+            animation-iteration-count: infinite;
+        }
+        @keyframes colorReading {
+            0% { background-color: #e6ffe6; }
+            50% { background-color: #b2dcff; }
+            100% { background-color: #e6ffe6; }
+        }
+        @keyframes colorUpdatingBooting {
+            0% { background-color: #e6ffe6; }
+            50% { background-color: #ffd088; }
+            100% { background-color: #e6ffe6; }
+        }
+        @keyframes colorUpdatingBooting {
+            0% { background-color: #e6ffe6; }
+            50% { background-color: #ffe6e6; }
+            100% { background-color: #e6ffe6; }
         }
     </style>
 </head>
@@ -65,7 +92,8 @@
                 deviceElement.innerHTML = `
                     <h3>${device.device_name}</h3>
                     <p><b>Device IP:</b> ${device.ip_device}</p>
-                    <p><b>Firmware Version:</b> ${device.firmware_version}</p>
+                    <p><b>Active Firmware Version:</b> ${device.active_firmware_version}</p>
+                    <p><b>Installed Firmware Version:</b> ${device.installed_firmware_version}</p>
                     <p><b>Device State:</b> ${device.device_state.toLowerCase()}</p>
                 `;
                 deviceList.appendChild(deviceElement);
