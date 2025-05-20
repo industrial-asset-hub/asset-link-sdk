@@ -96,6 +96,7 @@ func TestConfig(t *testing.T) {
 		driver.GetSupportedOptions()
 	})
 }
+
 func TestGetIdentifiers(t *testing.T) {
 	simdevices.StartSimulatedDevices("") // start without visualization web server
 	t.Run("getIdentifiersSucceeds", func(t *testing.T) {
