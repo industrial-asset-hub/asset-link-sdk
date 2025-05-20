@@ -153,8 +153,10 @@ body {
 }
 
 .reading,
+.retrieving,
+.storing,
 .updating,
-.retrieving {
+.booting {
     background-color: #22304a;
     animation-name: pulsingDeviceState;
     animation-duration: 1.0s;

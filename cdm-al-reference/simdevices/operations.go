@@ -86,7 +86,7 @@ func ConnectToDevice(alNIC, deviceIP string) (SimulatedDevice, error) {
 	return nil, errors.New("device not found")
 }
 
-func (d *simulatedDeviceInfo) UpdateFirmware(artefactFilename string) error {
+func (d *simulatedDeviceInfo) UpdateFirmware(firmwareFilename string) error {
 	simLock.Lock()
 	defer simLock.Unlock()
 
@@ -94,7 +94,7 @@ func (d *simulatedDeviceInfo) UpdateFirmware(artefactFilename string) error {
 		return errors.New("device does not support updates")
 	}
 
-	firmwareData, fileErr := os.ReadFile(artefactFilename)
+	firmwareData, fileErr := os.ReadFile(firmwareFilename)
 	if fileErr != nil {
 		return fileErr
 	}
@@ -117,7 +117,7 @@ func (d *simulatedDeviceInfo) UpdateFirmware(artefactFilename string) error {
 		return errors.New("product designation mismatch")
 	}
 
-	if fwFile.FirmwareVersion == d.FirmwareVersion {
+	if fwFile.FirmwareVersion == d.InstalledFirmwareVersion {
 		return errors.New("firmware version is already installed")
 	}
 
@@ -126,27 +126,73 @@ func (d *simulatedDeviceInfo) UpdateFirmware(artefactFilename string) error {
 
 	time.Sleep(3 * time.Second) // simulate updating firmware
 
-	d.FirmwareVersion = fwFile.FirmwareVersion
+	d.InstalledFirmwareVersion = fwFile.FirmwareVersion
 	d.DeviceState = StateActive
 	handleDeviceChanges(true)
 
 	return nil
 }
 
-func (d *simulatedDeviceInfo) RetrieveFirmware(artefactFilename string) error {
+func (d *simulatedDeviceInfo) RebootDevice() error {
+	d.DeviceState = StateBooting
+	handleDeviceChanges(true)
+
+	time.Sleep(3 * time.Second) // simulate reboot to activate firmware
+
+	d.ActiveFirmwareVersion = d.InstalledFirmwareVersion
+	d.DeviceState = StateActive
+	handleDeviceChanges(true)
+
+	return nil
+}
+
+func (d *simulatedDeviceInfo) StoreConfig(configFilename string) error {
 	simLock.Lock()
 	defer simLock.Unlock()
 
-	firmwareData := firmwareFile{
-		ArtefactType:       "firmware",
-		Manufacturer:       d.Manufacturer,
-		ProductDesignation: d.ProductDesignation,
-		FirmwareVersion:    d.FirmwareVersion,
+	if !d.UpdateSupport {
+		return errors.New("device does not support updates")
 	}
 
-	fwFile, _ := json.Marshal(firmwareData)
+	configData, fileErr := os.ReadFile(configFilename)
+	if fileErr != nil {
+		return fileErr
+	}
 
-	fileErr := os.WriteFile(artefactFilename, fwFile, 0644)
+	var configFile configFile
+	parseErr := json.Unmarshal(configData, &configFile)
+	if parseErr != nil {
+		return errors.New("invalid config artefact (overall file format)")
+	}
+
+	if configFile.ArtefactType != "config" {
+		return errors.New("artefact type mismatch")
+	}
+
+	d.DeviceState = StateStoring
+	handleDeviceChanges(true)
+
+	time.Sleep(3 * time.Second) // simulate storing config
+
+	d.DeviceName = configFile.DeviceName
+	d.DeviceState = StateActive
+	handleDeviceChanges(true)
+
+	return nil
+}
+
+func (d *simulatedDeviceInfo) RetrieveConfig(configFilename string) error {
+	simLock.Lock()
+	defer simLock.Unlock()
+
+	configData := configFile{
+		ArtefactType: "config",
+		DeviceName:   d.DeviceName,
+	}
+
+	fwFile, _ := json.Marshal(configData)
+
+	fileErr := os.WriteFile(configFilename, fwFile, 0644)
 	if fileErr != nil {
 		return fileErr
 	}
@@ -154,7 +200,7 @@ func (d *simulatedDeviceInfo) RetrieveFirmware(artefactFilename string) error {
 	d.DeviceState = StateRetrieving
 	handleDeviceChanges(true)
 
-	time.Sleep(3 * time.Second) // simulate retrieving firmware
+	time.Sleep(3 * time.Second) // simulate retrieving config
 
 	d.DeviceState = StateActive
 	handleDeviceChanges(true)

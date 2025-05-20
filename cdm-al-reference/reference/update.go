@@ -1,0 +1,187 @@
+/*
+ * SPDX-FileCopyrightText: 2024 Siemens AG
+ *
+ * SPDX-License-Identifier: MIT
+ *
+ */
+package reference
+
+import (
+	"encoding/json"
+	"errors"
+	"fmt"
+	"os"
+	"path"
+	"time"
+
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/artefact"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/cdm-al-reference/simdevices"
+	"github.com/rs/zerolog/log"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
+	ga "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/artefact-update"
+)
+
+func (m *ReferenceAssetLink) HandlePrepareUpdate(updateReceiver *artefact.UpdatePrepareReceiver) error {
+	log.Info().Msg("Handle Prepare Update")
+
+	// Check if a job is already running
+	// We currently support only one running job
+	if m.driverLock.TryLock() {
+		defer m.driverLock.Unlock()
+	} else {
+		const errMsg string = "Another job is already running"
+		log.Error().Msg(errMsg)
+		return status.Errorf(codes.ResourceExhausted, errMsg)
+	}
+
+	// Retrieve meta data
+	artefactMetaData, err := updateReceiver.ReceiveUpdateMetaData()
+	if err != nil {
+		log.Err(err).Msg("Failed to receive update meta data")
+		return err
+	}
+
+	jobId := artefactMetaData.GetJobId()
+	artefactType := artefactMetaData.GetArtefactType()
+	deviceIdentifierBlob, err := artefactMetaData.GetDeviceIdentifierBlob()
+	if err != nil {
+		log.Err(err).Msg("Failed to retrieve device identifier blob")
+		return err
+	}
+
+	log.Info().Str("JobId", jobId).Str("DeviceIdentifierBlob", string(deviceIdentifierBlob)).Str("ArtefactType", artefactType.String()).Msg("ArtefactMetaData")
+
+	// Perform checks
+	_ = updateReceiver.UpdateStatus(ga.ArtefactOperationPhase_AOP_PREPARE, ga.ArtefactOperationState_AOS_OK, "Performing checks", 0)
+
+	if artefactType != ga.ArtefactType_AT_FIRMWARE {
+		err = errors.New("artefact type not supported")
+		log.Err(err).Msg("Failed to handle push artefact")
+		return err
+	}
+
+	// Receiving new firmware
+	_ = updateReceiver.UpdateStatus(ga.ArtefactOperationPhase_AOP_DOWNLOAD, ga.ArtefactOperationState_AOS_OK, "Receiving new firmware", 0)
+
+	tempDir, err := os.MkdirTemp("", "firmware_update")
+	if err != nil {
+		return err
+	}
+	defer os.RemoveAll(tempDir)
+
+	firmwareFilename := path.Join(tempDir, "firmware.fwu")
+	err = updateReceiver.ReceiveUpdateToFile(firmwareFilename)
+	if err != nil {
+		log.Err(err).Msg("Failed to receive update file")
+		return err
+	}
+
+	time.Sleep(2 * time.Second)
+
+	// Verify new firmware, connect to device, and install new firmware
+	_ = updateReceiver.UpdateStatus(ga.ArtefactOperationPhase_AOP_INSTALLATION, ga.ArtefactOperationState_AOS_OK, "Verifying new firmware", 0)
+
+	var deviceIdentifier DeviceIdentifierOrConnectionData
+	err = json.Unmarshal(deviceIdentifierBlob, &deviceIdentifier)
+	if err != nil {
+		log.Err(err).Msg("Failed to parse connection blob")
+		return err
+	}
+
+	_ = updateReceiver.UpdateStatus(ga.ArtefactOperationPhase_AOP_INSTALLATION, ga.ArtefactOperationState_AOS_OK, "Connecting to device", 0)
+
+	device, err := simdevices.ConnectToDevice(deviceIdentifier.AssetLinkNIC, deviceIdentifier.DeviceIP)
+	if err != nil {
+		log.Err(err).Msg("Failed to connect to device")
+		return err
+	}
+
+	oldFirmwareVersion := device.GetInstalledFirmwareVersion()
+
+	_ = updateReceiver.UpdateStatus(ga.ArtefactOperationPhase_AOP_INSTALLATION, ga.ArtefactOperationState_AOS_OK, "Installing new firmware on device", 0)
+
+	err = device.UpdateFirmware(firmwareFilename)
+	if err != nil {
+		log.Err(err).Msg("Failed to update device firmware")
+		return err
+	}
+
+	newFirmwareVersion := device.GetInstalledFirmwareVersion()
+
+	finalMessage := fmt.Sprintf("New firmware installed (new version %s, old version %s)", newFirmwareVersion, oldFirmwareVersion)
+	_ = updateReceiver.UpdateStatus(ga.ArtefactOperationPhase_AOP_ACTIVATION, ga.ArtefactOperationState_AOS_OK, finalMessage, 100)
+
+	return nil
+}
+
+func (m *ReferenceAssetLink) HandleActivateUpdate(updateReceiver *artefact.UpdateActivateReceiver) error {
+	log.Info().Msg("Handle Activate Update")
+
+	// Check if a job is already running
+	// We currently support only one running job
+	if m.driverLock.TryLock() {
+		defer m.driverLock.Unlock()
+	} else {
+		const errMsg string = "Another job is already running"
+		log.Error().Msg(errMsg)
+		return status.Errorf(codes.ResourceExhausted, errMsg)
+	}
+
+	// Retrieve meta data
+	artefactMetaData, err := updateReceiver.ReceiveUpdateMetaData()
+	if err != nil {
+		log.Err(err).Msg("Failed to receive update meta data")
+		return err
+	}
+
+	jobId := artefactMetaData.GetJobId()
+	artefactType := artefactMetaData.GetArtefactType()
+	deviceIdentifierBlob, err := artefactMetaData.GetDeviceIdentifierBlob()
+	if err != nil {
+		log.Err(err).Msg("Failed to retrieve device identifier blob")
+		return err
+	}
+
+	log.Info().Str("JobId", jobId).Str("DeviceIdentifierBlob", string(deviceIdentifierBlob)).Str("ArtefactType", artefactType.String()).Msg("ArtefactMetaData")
+
+	// Connect to device and activate new firmware
+	var deviceIdentifier DeviceIdentifierOrConnectionData
+	err = json.Unmarshal(deviceIdentifierBlob, &deviceIdentifier)
+	if err != nil {
+		log.Err(err).Msg("Failed to parse connection blob")
+		return err
+	}
+
+	_ = updateReceiver.UpdateStatus(ga.ArtefactOperationPhase_AOP_ACTIVATION, ga.ArtefactOperationState_AOS_OK, "Connecting to device", 0)
+
+	device, err := simdevices.ConnectToDevice(deviceIdentifier.AssetLinkNIC, deviceIdentifier.DeviceIP)
+	if err != nil {
+		log.Err(err).Msg("Failed to connect to device")
+		return err
+	}
+
+	if device.GetActiveFirmwareVersion() == device.GetInstalledFirmwareVersion() {
+		err = errors.New("installed version and active version are the same")
+		log.Err(err).Msg("Failed to activate new firmware")
+		return err
+	}
+
+	oldFirmwareVersion := device.GetActiveFirmwareVersion()
+
+	_ = updateReceiver.UpdateStatus(ga.ArtefactOperationPhase_AOP_ACTIVATION, ga.ArtefactOperationState_AOS_OK, "Activating new firmware on device", 0)
+
+	err = device.RebootDevice()
+	if err != nil {
+		log.Err(err).Msg("Failed to reboot device")
+		return err
+	}
+
+	newFirmwareVersion := device.GetActiveFirmwareVersion()
+
+	finalMessage := fmt.Sprintf("New firmware activated (new version %s, old version %s)", newFirmwareVersion, oldFirmwareVersion)
+	_ = updateReceiver.UpdateStatus(ga.ArtefactOperationPhase_AOP_ACTIVATION, ga.ArtefactOperationState_AOS_OK, finalMessage, 100)
+
+	return nil
+}
