@@ -38,6 +38,9 @@ $ go mod tidy
 
 # Execute
 $ go run main.go --grpc-server-address=$(hostname -i):8080 --grpc-server-endpoint-address=$(hostname) --grpc-registry-address=localhost:50051
+
+# (Example) If grpc-server-registry is running in docker and asset-link in localhost
+$ go run main.go --grpc-server-address=localhost:8081 --grpc-server-endpoint-address=host.docker.internal --grpc-registry-address=localhost:50051
 [...]
 ```
 
