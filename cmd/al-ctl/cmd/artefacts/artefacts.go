@@ -14,7 +14,7 @@ import (
 var ArtefactsCmd = &cobra.Command{
 	Use:   "artefacts",
 	Short: "Artefact commands",
-	Long:  `Commands related to artefact management (e.g., firmware updates, backups).`,
+	Long:  `Commands related to artefact management (e.g., configurations, backups, logs).`,
 }
 
 func init() {
