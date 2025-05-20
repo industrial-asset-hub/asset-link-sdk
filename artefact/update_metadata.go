@@ -12,14 +12,14 @@ import (
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/model"
 )
 
-type ArtefactMetaData struct {
+type UpdateMetaData struct {
 	jobId                string
 	deviceIdentifierBlob []byte
 	artefactType         generated.ArtefactType
 }
 
-func NewArtefactMetaData(jobId string, deviceIdentifierBlob []byte, artefactType generated.ArtefactType) *ArtefactMetaData {
-	artefactIdentifier := &ArtefactMetaData{
+func NewUpdateMetaData(jobId string, deviceIdentifierBlob []byte, artefactType generated.ArtefactType) *UpdateMetaData {
+	artefactIdentifier := &UpdateMetaData{
 		jobId:                jobId,
 		deviceIdentifierBlob: deviceIdentifierBlob,
 		artefactType:         artefactType,
@@ -27,14 +27,14 @@ func NewArtefactMetaData(jobId string, deviceIdentifierBlob []byte, artefactType
 	return artefactIdentifier
 }
 
-func (am *ArtefactMetaData) GetJobId() string {
-	return am.jobId
+func (um *UpdateMetaData) GetJobId() string {
+	return um.jobId
 }
 
-func (am *ArtefactMetaData) GetDeviceIdentifierBlob() ([]byte, error) {
-	return model.DecodeMetadata(string(am.deviceIdentifierBlob))
+func (um *UpdateMetaData) GetDeviceIdentifierBlob() ([]byte, error) {
+	return model.DecodeMetadata(string(um.deviceIdentifierBlob))
 }
 
-func (am *ArtefactMetaData) GetArtefactType() generated.ArtefactType {
-	return am.artefactType
+func (um *UpdateMetaData) GetArtefactType() generated.ArtefactType {
+	return um.artefactType
 }
