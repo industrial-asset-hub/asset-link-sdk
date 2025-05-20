@@ -69,8 +69,10 @@ function addDevice(device, openSet) {
             <dd>${escapeHTML(device.manufacturer)}</dd>
             <dt>Serial Number:</dt>
             <dd>${escapeHTML(device.serial_number)}</dd>
-            <dt>Firmware Version:</dt>
-            <dd>${escapeHTML(device.firmware_version)}</dd>
+            <dt>Active Firmware Version:</dt>
+            <dd>${escapeHTML(device.active_firmware_version)}</dd>
+            <dt>Installed Firmware Version:</dt>
+            <dd>${escapeHTML(device.installed_firmware_version)}</dd>
             <dt>Hardware Version:</dt>
             <dd>${escapeHTML(device.hardware_version)}</dd>
             <dt>Device State:</dt>
