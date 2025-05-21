@@ -31,6 +31,7 @@ path = [
   "misc/discovery.json",
   "misc/registry.json",
   "misc/simulated_device_firmware_*.fwu",
+  "misc/simulated_device_cfg_*.cfg",
   "misc/*.aasx",
   "cookiecutter-project-template/{{ cookiecutter.al_project }}/.markdownlintrc",
   "cookiecutter-project-template/{{ cookiecutter.al_project }}/go.mod.tmpl",
