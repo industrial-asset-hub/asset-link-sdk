@@ -72,7 +72,7 @@ func (m *AssetLinkImplementation) Discover(discoveryConfig config.DiscoveryConfi
 
 	deviceInfo := model.NewDevice("EthernetDevice", assetName)
 	deviceInfo.AddNameplate(vendorName, productUri, orderNumber, productName, hardwareVersion, serialNumber)
-	deviceInfo.AddSoftware("firmware", firmwareVersion)
+	deviceInfo.AddSoftware("Firmware", firmwareVersion, true)
 	deviceInfo.AddCapabilities("firmware_update", false)
 
 	nicID := deviceInfo.AddNic("eth0", "00:16:3e:01:02:03") // random mac address

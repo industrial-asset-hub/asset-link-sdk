@@ -60,7 +60,7 @@ func (m *ReferenceAssetLink) Discover(discoveryConfig config.DiscoveryConfig, de
 		nicID := deviceInfo.AddNic(device.GetDeviceNIC(), device.GetMacAddress())
 		deviceInfo.AddIPv4(nicID, device.GetIpDevice(), device.GetIpNetmask(), device.GetIpRoute())
 
-		deviceInfo.AddSoftware("firmware", device.GetFirmwareVersion())
+		deviceInfo.AddSoftware("Firmware", device.GetFirmwareVersion(), true)
 		deviceInfo.AddCapabilities("firmware_update", device.IsUpdateSupported())
 
 		discoveredDevice := deviceInfo.ConvertToDiscoveredDevice()

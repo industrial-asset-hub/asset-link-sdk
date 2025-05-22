@@ -10,6 +10,7 @@ package model
 import (
 	"crypto/sha1"
 	"encoding/hex"
+
 	"github.com/google/uuid"
 )
 
@@ -30,7 +31,6 @@ func (d *DeviceInfo) AddNameplate(manufacturerName string,
 	hardwareVersion string,
 	serialNumber string,
 ) {
-
 	if isNonEmptyValues(manufacturerName, uriOfTheProduct, productArticleNumberOfManufacturer, manufacturerProductDesignation, hardwareVersion, serialNumber) {
 
 		// We hash the manufacturer to get a unique identifier
@@ -76,58 +76,38 @@ func (d *DeviceInfo) AddNameplate(manufacturerName string,
 }
 
 // AddSoftware Add software information to an asset
-func (d *DeviceInfo) AddSoftware(name string, version string) {
-	softwareIdentifier := SoftwareIdentifier{}
-	runningSoftwareId := uuid.New().String()
-	softwareArtifactId := uuid.New().String()
+func (d *DeviceInfo) AddSoftware(name string, version string, isFirmware bool) {
 	if isNonEmptyValues(name, version) {
+		softwareIdentifier := SoftwareIdentifier{}
 		softwareIdentifier.Name = &name
 		softwareIdentifier.Version = &version
-	}
 
-	stateValue := ManagementStateValuesRegarded
-	stateTimestamp := d.getAssetCreationTimestamp()
+		softwareArtifactId := uuid.New().String()
 
-	softwareArtifact := SoftwareArtifact{
-		AssetOperations:     nil,
-		ChecksumIdentifier:  nil,
-		ConnectionPoints:    nil,
-		CustomUiProperties:  nil,
-		FunctionalParts:     nil,
-		Id:                  softwareArtifactId,
-		InstanceAnnotations: nil,
-		ManagementState: ManagementState{
-			StateTimestamp: &stateTimestamp,
-			StateValue:     &stateValue,
-		},
-		Name:                      nil,
-		OtherStates:               nil,
-		ProductInstanceIdentifier: nil,
-		ReachabilityState:         nil,
-		SoftwareComponents:        nil,
-		SoftwareIdentifier:        &softwareIdentifier,
-	}
-	runningSoftware := RunningSoftware{
-		Artifact:                  &softwareArtifact,
-		AssetOperations:           nil,
-		ConnectionPoints:          nil,
-		CustomRunningSoftwareType: nil,
-		CustomUiProperties:        nil,
-		FunctionalParts:           nil,
-		Id:                        runningSoftwareId,
-		InstanceAnnotations:       nil,
-		ManagementState: ManagementState{
-			StateTimestamp: &stateTimestamp,
-			StateValue:     &stateValue,
-		},
-		Name:                      nil,
-		OtherStates:               nil,
-		ProductInstanceIdentifier: nil,
-		ReachabilityState:         nil,
-		RunningSoftwareType:       nil,
-		RunningSwId:               nil,
-		SoftwareComponents:        nil,
-	}
+		stateValue := ManagementStateValuesRegarded
+		stateTimestamp := d.getAssetCreationTimestamp()
 
-	d.SoftwareComponents = append(d.SoftwareComponents, runningSoftware)
+		softwareArtifact := SoftwareArtifact{
+			Id:                  softwareArtifactId,
+			AssetOperations:     nil,
+			ChecksumIdentifier:  nil,
+			ConnectionPoints:    nil,
+			CustomUiProperties:  nil,
+			FunctionalParts:     nil,
+			InstanceAnnotations: nil,
+			ManagementState: ManagementState{
+				StateTimestamp: &stateTimestamp,
+				StateValue:     &stateValue,
+			},
+			Name:                      nil,
+			OtherStates:               nil,
+			ProductInstanceIdentifier: nil,
+			ReachabilityState:         nil,
+			SoftwareComponents:        nil,
+			SoftwareIdentifier:        &softwareIdentifier,
+			IsFirmware:                &isFirmware,
+		}
+
+		d.SoftwareComponents = append(d.SoftwareComponents, softwareArtifact)
+	}
 }
