@@ -65,7 +65,7 @@ func TestConvertDerivedSchemaToDiscoveredDevice(t *testing.T) {
 
 func generateDevice(typeOfAsset string, assetName string) *DeviceInfo {
 	device := NewDevice(typeOfAsset, assetName)
-	timestamp := createTimestamp()
+	timestamp := device.getAssetCreationTimestamp()
 	Name := "Device"
 	device.Name = &Name
 	product := "test-product"
