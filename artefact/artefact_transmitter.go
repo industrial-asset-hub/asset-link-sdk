@@ -13,14 +13,15 @@ import (
 	"sync"
 
 	generated "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/artefact-update"
+	"google.golang.org/grpc"
 )
 
 type ArtefactTransmitter struct {
-	stream     generated.ArtefactUpdateApi_PullArtefactServer
+	stream     grpc.ServerStreamingServer[generated.ArtefactChunk]
 	streamLock sync.Mutex
 }
 
-func NewArtefactTransmitter(stream generated.ArtefactUpdateApi_PullArtefactServer) *ArtefactTransmitter {
+func NewArtefactTransmitter(stream grpc.ServerStreamingServer[generated.ArtefactChunk]) *ArtefactTransmitter {
 	artefactTransmitter := &ArtefactTransmitter{stream: stream}
 	return artefactTransmitter
 }
@@ -90,7 +91,7 @@ func (at *ArtefactTransmitter) TransmitArtefactFromData(data *[]byte, maxChunkSi
 	return nil
 }
 
-func (at *ArtefactTransmitter) TransmitStatusUpdate(status *generated.ArtefactOperationStatus) error {
+func (at *ArtefactTransmitter) transmitStatusUpdate(status *generated.ArtefactOperationStatus) error {
 	chunk := generated.ArtefactChunk{Data: &generated.ArtefactChunk_Status{Status: status}}
 	return at.TransmitArtefactChunk(&chunk)
 }
@@ -103,5 +104,5 @@ func (at *ArtefactTransmitter) UpdateStatus(phase generated.ArtefactOperationPha
 		Progress: uint32(progress),
 	}
 
-	return at.TransmitStatusUpdate(statusMessage)
+	return at.transmitStatusUpdate(statusMessage)
 }

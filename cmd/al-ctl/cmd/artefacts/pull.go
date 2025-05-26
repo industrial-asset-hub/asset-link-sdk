@@ -8,8 +8,6 @@
 package artefacts
 
 import (
-	"os"
-
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/al"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/shared"
 	"github.com/spf13/cobra"
@@ -27,8 +25,7 @@ var ArtefactPullCommand = &cobra.Command{
 	Short: "Pull artefact from device",
 	Long:  `Pulls an artefact of a specific type from the specified device`,
 	Run: func(cmd *cobra.Command, args []string) {
-		exitCode := al.PullArtefact(shared.AssetLinkEndpoint, pullJobId, pullArtefactFile, pullArtefactType, pullDeviceIdentifierFile, pullConvertDeviceIdentifier)
-		os.Exit(exitCode)
+		al.PullArtefact(shared.AssetLinkEndpoint, pullJobId, pullArtefactFile, pullArtefactType, pullDeviceIdentifierFile, pullConvertDeviceIdentifier)
 	},
 }
 
