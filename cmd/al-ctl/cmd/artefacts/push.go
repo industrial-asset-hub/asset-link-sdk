@@ -8,8 +8,6 @@
 package artefacts
 
 import (
-	"os"
-
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/al"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/shared"
 	"github.com/spf13/cobra"
@@ -27,8 +25,7 @@ var ArtefactPushCommand = &cobra.Command{
 	Short: "Push artefact to device",
 	Long:  `Pushes an artefact of a specific type to the specified device`,
 	Run: func(cmd *cobra.Command, args []string) {
-		exitCode := al.PushArtefact(shared.AssetLinkEndpoint, pushJobId, pushArtefactFile, pushArtefactType, pushDeviceIdentifierFile, pushConvertDeviceIdentifier)
-		os.Exit(exitCode)
+		al.PushArtefact(shared.AssetLinkEndpoint, pushJobId, pushArtefactFile, pushArtefactType, pushDeviceIdentifierFile, pushConvertDeviceIdentifier)
 	},
 }
 
