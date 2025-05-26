@@ -8,8 +8,6 @@
 package update
 
 import (
-	"os"
-
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/al"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/shared"
 	"github.com/spf13/cobra"
@@ -27,8 +25,7 @@ var UpdateActivateCommand = &cobra.Command{
 	Short: "Activate update on device",
 	Long:  `Activates a firmware/software update on the specified device`,
 	Run: func(cmd *cobra.Command, args []string) {
-		exitCode := al.ActivateUpdate(shared.AssetLinkEndpoint, activateJobId, activateArtefactFile, activateArtefactType, activateDeviceIdentifierFile, activateConvertDeviceIdentifier)
-		os.Exit(exitCode)
+		al.ActivateUpdate(shared.AssetLinkEndpoint, activateJobId, activateArtefactFile, activateArtefactType, activateDeviceIdentifierFile, activateConvertDeviceIdentifier)
 	},
 }
 

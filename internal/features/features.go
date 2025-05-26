@@ -34,6 +34,6 @@ type Update interface {
 	HandlePullArtefact(artefactMetaData *artefact.ArtefactMetaData, artefactTransmitter *artefact.ArtefactTransmitter) error
 
 	// two-step update management
-	HandlePrepareUpdate(updateReceiver *artefact.UpdatePrepareReceiver) error
-	HandleActivateUpdate(updateReceiver *artefact.UpdateActivateReceiver) error
+	HandlePrepareUpdate(updateReceiver *artefact.ArtefactReceiver) error
+	HandleActivateUpdate(updateReceiver *artefact.ArtefactReceiver) error
 }

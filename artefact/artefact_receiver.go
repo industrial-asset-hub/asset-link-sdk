@@ -13,10 +13,11 @@ import (
 	"sync"
 
 	generated "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/artefact-update"
+	"google.golang.org/grpc"
 )
 
 type ArtefactReceiver struct {
-	stream     generated.ArtefactUpdateApi_PushArtefactServer
+	stream     grpc.BidiStreamingServer[generated.ArtefactChunk, generated.ArtefactMessage]
 	streamLock sync.Mutex
 }
 
@@ -25,14 +26,14 @@ func NewArtefactReceiver(stream generated.ArtefactUpdateApi_PushArtefactServer) 
 	return artefactReceiver
 }
 
-func (ar *ArtefactReceiver) ReceiveArtefactChunk() (*generated.ArtefactChunk, error) {
+func (ar *ArtefactReceiver) receiveArtefactChunk() (*generated.ArtefactChunk, error) {
 	ar.streamLock.Lock()
 	defer ar.streamLock.Unlock()
 	return ar.stream.Recv()
 }
 
 func (ar *ArtefactReceiver) ReceiveArtefactMetaData() (*ArtefactMetaData, error) {
-	chunk, err := ar.ReceiveArtefactChunk()
+	chunk, err := ar.receiveArtefactChunk()
 	if err != nil {
 		return nil, err
 	}
@@ -55,8 +56,13 @@ func (ar *ArtefactReceiver) ReceiveArtefactToFile(filename string) error {
 }
 
 func (ar *ArtefactReceiver) ReceiveArtefactToWriter(writer io.Writer) error {
+	err := ar.issueRequest(generated.ArtefactOperationRequestType_AORT_ARTEFACT_TRANSMISSION)
+	if err != nil {
+		return err
+	}
+
 	for {
-		chunk, err := ar.ReceiveArtefactChunk()
+		chunk, err := ar.receiveArtefactChunk()
 		if err == io.EOF {
 			break
 		} else if err != nil {
@@ -86,10 +92,14 @@ func (ar *ArtefactReceiver) ReceiveArtefactToWriter(writer io.Writer) error {
 }
 
 func (ar *ArtefactReceiver) ReceiveArtefactToData() (*[]byte, error) {
-	var data []byte
+	err := ar.issueRequest(generated.ArtefactOperationRequestType_AORT_ARTEFACT_TRANSMISSION)
+	if err != nil {
+		return nil, err
+	}
 
+	var data []byte
 	for {
-		chunk, err := ar.ReceiveArtefactChunk()
+		chunk, err := ar.receiveArtefactChunk()
 		if err == io.EOF {
 			break
 		} else if err != nil {
@@ -103,10 +113,26 @@ func (ar *ArtefactReceiver) ReceiveArtefactToData() (*[]byte, error) {
 	return &data, nil
 }
 
-func (ar *ArtefactReceiver) TransmitStatusUpdate(status *generated.ArtefactOperationStatus) error {
+func (ar *ArtefactReceiver) transmitRequest(request *generated.ArtefactOperationRequest) error {
 	ar.streamLock.Lock()
 	defer ar.streamLock.Unlock()
-	return ar.stream.Send(status)
+
+	message := &generated.ArtefactMessage{Message: &generated.ArtefactMessage_Request{Request: request}}
+	return ar.stream.Send(message)
+}
+
+func (ar *ArtefactReceiver) issueRequest(requestType generated.ArtefactOperationRequestType) error {
+	request := &generated.ArtefactOperationRequest{Type: requestType}
+
+	return ar.transmitRequest(request)
+}
+
+func (ar *ArtefactReceiver) transmitStatusUpdate(status *generated.ArtefactOperationStatus) error {
+	ar.streamLock.Lock()
+	defer ar.streamLock.Unlock()
+
+	message := &generated.ArtefactMessage{Message: &generated.ArtefactMessage_Status{Status: status}}
+	return ar.stream.Send(message)
 }
 
 func (ar *ArtefactReceiver) UpdateStatus(phase generated.ArtefactOperationPhase, state generated.ArtefactOperationState, message string, progress uint8) error {
@@ -117,5 +143,5 @@ func (ar *ArtefactReceiver) UpdateStatus(phase generated.ArtefactOperationPhase,
 		Progress: uint32(progress),
 	}
 
-	return ar.TransmitStatusUpdate(statusMessage)
+	return ar.transmitStatusUpdate(statusMessage)
 }
