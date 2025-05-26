@@ -16,7 +16,7 @@ import (
 	ga "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/artefact-update"
 )
 
-func (m *AssetLinkImplementation) HandlePrepareUpdate(updateReceiver *artefact.UpdatePrepareReceiver) error {
+func (m *AssetLinkImplementation) HandlePrepareUpdate(artefactReceiver *artefact.ArtefactReceiver) error {
 	log.Info().Msg("Handle Prepare Update")
 
 	// Check if a job is already running
@@ -29,7 +29,7 @@ func (m *AssetLinkImplementation) HandlePrepareUpdate(updateReceiver *artefact.U
 		return status.Errorf(codes.ResourceExhausted, errMsg)
 	}
 
-	updateMetaData, err := updateReceiver.ReceiveUpdateMetaData()
+	updateMetaData, err := artefactReceiver.ReceiveArtefactMetaData()
 	if err != nil {
 		log.Err(err).Msg("Failed to receive artefact meta data")
 		return err
@@ -45,18 +45,18 @@ func (m *AssetLinkImplementation) HandlePrepareUpdate(updateReceiver *artefact.U
 
 	log.Info().Str("JobId", jobId).Str("DeviceIdentifierBlob", string(deviceIdentifierBlob)).Str("ArtefactType", artefactType.String()).Msg("UpdateMetaData")
 
-	err = updateReceiver.ReceiveUpdateToFile("artefact_file")
+	err = artefactReceiver.ReceiveArtefactToFile("artefact_file")
 	if err != nil {
 		log.Err(err).Msg("Failed to receive artefact file")
 		return err
 	}
 
-	_ = updateReceiver.UpdateStatus(ga.ArtefactOperationPhase_AOP_DOWNLOAD, ga.ArtefactOperationState_AOS_OK, "Status Message", 100)
+	_ = artefactReceiver.UpdateStatus(ga.ArtefactOperationPhase_AOP_DOWNLOAD, ga.ArtefactOperationState_AOS_OK, "Status Message", 100)
 
 	return nil
 }
 
-func (m *AssetLinkImplementation) HandleActivateUpdate(updateReceiver *artefact.UpdateActivateReceiver) error {
+func (m *AssetLinkImplementation) HandleActivateUpdate(artefactReceiver *artefact.ArtefactReceiver) error {
 	log.Info().Msg("Handle Activate Update")
 
 	// Check if a job is already running
@@ -69,9 +69,9 @@ func (m *AssetLinkImplementation) HandleActivateUpdate(updateReceiver *artefact.
 		return status.Errorf(codes.ResourceExhausted, errMsg)
 	}
 
-	updateMetaData, err := updateReceiver.ReceiveUpdateMetaData()
+	updateMetaData, err := artefactReceiver.ReceiveArtefactMetaData()
 	if err != nil {
-		log.Err(err).Msg("Failed to receive update meta data")
+		log.Err(err).Msg("Failed to receive artefact meta data")
 		return err
 	}
 
@@ -85,13 +85,13 @@ func (m *AssetLinkImplementation) HandleActivateUpdate(updateReceiver *artefact.
 
 	log.Info().Str("JobId", jobId).Str("DeviceIdentifierBlob", string(deviceIdentifierBlob)).Str("ArtefactType", artefactType.String()).Msg("UpdateMetaData")
 
-	err = updateReceiver.ReceiveUpdateToFile("artefact_file")
+	err = artefactReceiver.ReceiveArtefactToFile("artefact_file")
 	if err != nil {
 		log.Err(err).Msg("Failed to receive update file")
 		return err
 	}
 
-	_ = updateReceiver.UpdateStatus(ga.ArtefactOperationPhase_AOP_DOWNLOAD, ga.ArtefactOperationState_AOS_OK, "Status Message", 100)
+	_ = artefactReceiver.UpdateStatus(ga.ArtefactOperationPhase_AOP_DOWNLOAD, ga.ArtefactOperationState_AOS_OK, "Status Message", 100)
 
 	return nil
 }
