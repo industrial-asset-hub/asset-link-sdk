@@ -23,7 +23,7 @@ import (
 	ga "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/artefact-update"
 )
 
-func (m *ReferenceAssetLink) HandlePrepareUpdate(updateReceiver *artefact.UpdatePrepareReceiver) error {
+func (m *ReferenceAssetLink) HandlePrepareUpdate(artefactReceiver *artefact.ArtefactReceiver) error {
 	log.Info().Msg("Handle Prepare Update")
 
 	// Check if a job is already running
@@ -37,9 +37,9 @@ func (m *ReferenceAssetLink) HandlePrepareUpdate(updateReceiver *artefact.Update
 	}
 
 	// Retrieve meta data
-	artefactMetaData, err := updateReceiver.ReceiveUpdateMetaData()
+	artefactMetaData, err := artefactReceiver.ReceiveArtefactMetaData()
 	if err != nil {
-		log.Err(err).Msg("Failed to receive update meta data")
+		log.Err(err).Msg("Failed to receive artefact meta data")
 		return err
 	}
 
@@ -54,7 +54,7 @@ func (m *ReferenceAssetLink) HandlePrepareUpdate(updateReceiver *artefact.Update
 	log.Info().Str("JobId", jobId).Str("DeviceIdentifierBlob", string(deviceIdentifierBlob)).Str("ArtefactType", artefactType.String()).Msg("ArtefactMetaData")
 
 	// Perform checks
-	_ = updateReceiver.UpdateStatus(ga.ArtefactOperationPhase_AOP_PREPARE, ga.ArtefactOperationState_AOS_OK, "Performing checks", 0)
+	_ = artefactReceiver.UpdateStatus(ga.ArtefactOperationPhase_AOP_PREPARE, ga.ArtefactOperationState_AOS_OK, "Performing checks", 0)
 
 	if artefactType != ga.ArtefactType_AT_FIRMWARE {
 		err = errors.New("artefact type not supported")
@@ -63,7 +63,7 @@ func (m *ReferenceAssetLink) HandlePrepareUpdate(updateReceiver *artefact.Update
 	}
 
 	// Receiving new firmware
-	_ = updateReceiver.UpdateStatus(ga.ArtefactOperationPhase_AOP_DOWNLOAD, ga.ArtefactOperationState_AOS_OK, "Receiving new firmware", 0)
+	_ = artefactReceiver.UpdateStatus(ga.ArtefactOperationPhase_AOP_DOWNLOAD, ga.ArtefactOperationState_AOS_OK, "Receiving new firmware", 0)
 
 	tempDir, err := os.MkdirTemp("", "firmware_update")
 	if err != nil {
@@ -72,7 +72,7 @@ func (m *ReferenceAssetLink) HandlePrepareUpdate(updateReceiver *artefact.Update
 	defer os.RemoveAll(tempDir)
 
 	firmwareFilename := path.Join(tempDir, "firmware.fwu")
-	err = updateReceiver.ReceiveUpdateToFile(firmwareFilename)
+	err = artefactReceiver.ReceiveArtefactToFile(firmwareFilename)
 	if err != nil {
 		log.Err(err).Msg("Failed to receive update file")
 		return err
@@ -81,7 +81,7 @@ func (m *ReferenceAssetLink) HandlePrepareUpdate(updateReceiver *artefact.Update
 	time.Sleep(2 * time.Second)
 
 	// Verify new firmware, connect to device, and install new firmware
-	_ = updateReceiver.UpdateStatus(ga.ArtefactOperationPhase_AOP_INSTALLATION, ga.ArtefactOperationState_AOS_OK, "Verifying new firmware", 0)
+	_ = artefactReceiver.UpdateStatus(ga.ArtefactOperationPhase_AOP_INSTALLATION, ga.ArtefactOperationState_AOS_OK, "Verifying new firmware", 0)
 
 	var deviceAddress simdevices.SimulatedDeviceAddress
 	err = json.Unmarshal(deviceIdentifierBlob, &deviceAddress)
@@ -90,7 +90,7 @@ func (m *ReferenceAssetLink) HandlePrepareUpdate(updateReceiver *artefact.Update
 		return err
 	}
 
-	_ = updateReceiver.UpdateStatus(ga.ArtefactOperationPhase_AOP_INSTALLATION, ga.ArtefactOperationState_AOS_OK, "Connecting to device", 0)
+	_ = artefactReceiver.UpdateStatus(ga.ArtefactOperationPhase_AOP_INSTALLATION, ga.ArtefactOperationState_AOS_OK, "Connecting to device", 0)
 
 	device, err := simdevices.ConnectToDevice(deviceAddress, nil)
 	if err != nil {
@@ -100,7 +100,7 @@ func (m *ReferenceAssetLink) HandlePrepareUpdate(updateReceiver *artefact.Update
 
 	oldFirmwareVersion := device.GetInstalledFirmwareVersion()
 
-	_ = updateReceiver.UpdateStatus(ga.ArtefactOperationPhase_AOP_INSTALLATION, ga.ArtefactOperationState_AOS_OK, "Installing new firmware on device", 0)
+	_ = artefactReceiver.UpdateStatus(ga.ArtefactOperationPhase_AOP_INSTALLATION, ga.ArtefactOperationState_AOS_OK, "Installing new firmware on device", 0)
 
 	err = device.UpdateFirmware(firmwareFilename)
 	if err != nil {
@@ -111,12 +111,12 @@ func (m *ReferenceAssetLink) HandlePrepareUpdate(updateReceiver *artefact.Update
 	newFirmwareVersion := device.GetInstalledFirmwareVersion()
 
 	finalMessage := fmt.Sprintf("New firmware installed (new version %s, old version %s)", newFirmwareVersion, oldFirmwareVersion)
-	_ = updateReceiver.UpdateStatus(ga.ArtefactOperationPhase_AOP_ACTIVATION, ga.ArtefactOperationState_AOS_OK, finalMessage, 100)
+	_ = artefactReceiver.UpdateStatus(ga.ArtefactOperationPhase_AOP_ACTIVATION, ga.ArtefactOperationState_AOS_OK, finalMessage, 100)
 
 	return nil
 }
 
-func (m *ReferenceAssetLink) HandleActivateUpdate(updateReceiver *artefact.UpdateActivateReceiver) error {
+func (m *ReferenceAssetLink) HandleActivateUpdate(artefactReceiver *artefact.ArtefactReceiver) error {
 	log.Info().Msg("Handle Activate Update")
 
 	// Check if a job is already running
@@ -130,9 +130,9 @@ func (m *ReferenceAssetLink) HandleActivateUpdate(updateReceiver *artefact.Updat
 	}
 
 	// Retrieve meta data
-	artefactMetaData, err := updateReceiver.ReceiveUpdateMetaData()
+	artefactMetaData, err := artefactReceiver.ReceiveArtefactMetaData()
 	if err != nil {
-		log.Err(err).Msg("Failed to receive update meta data")
+		log.Err(err).Msg("Failed to receive artefact meta data")
 		return err
 	}
 
@@ -154,7 +154,7 @@ func (m *ReferenceAssetLink) HandleActivateUpdate(updateReceiver *artefact.Updat
 		return err
 	}
 
-	_ = updateReceiver.UpdateStatus(ga.ArtefactOperationPhase_AOP_ACTIVATION, ga.ArtefactOperationState_AOS_OK, "Connecting to device", 0)
+	_ = artefactReceiver.UpdateStatus(ga.ArtefactOperationPhase_AOP_ACTIVATION, ga.ArtefactOperationState_AOS_OK, "Connecting to device", 0)
 
 	device, err := simdevices.ConnectToDevice(deviceAddress, nil)
 	if err != nil {
@@ -170,7 +170,7 @@ func (m *ReferenceAssetLink) HandleActivateUpdate(updateReceiver *artefact.Updat
 
 	oldFirmwareVersion := device.GetActiveFirmwareVersion()
 
-	_ = updateReceiver.UpdateStatus(ga.ArtefactOperationPhase_AOP_ACTIVATION, ga.ArtefactOperationState_AOS_OK, "Activating new firmware on device", 0)
+	_ = artefactReceiver.UpdateStatus(ga.ArtefactOperationPhase_AOP_ACTIVATION, ga.ArtefactOperationState_AOS_OK, "Activating new firmware on device", 0)
 
 	err = device.RebootDevice()
 	if err != nil {
@@ -181,7 +181,7 @@ func (m *ReferenceAssetLink) HandleActivateUpdate(updateReceiver *artefact.Updat
 	newFirmwareVersion := device.GetActiveFirmwareVersion()
 
 	finalMessage := fmt.Sprintf("New firmware activated (new version %s, old version %s)", newFirmwareVersion, oldFirmwareVersion)
-	_ = updateReceiver.UpdateStatus(ga.ArtefactOperationPhase_AOP_ACTIVATION, ga.ArtefactOperationState_AOS_OK, finalMessage, 100)
+	_ = artefactReceiver.UpdateStatus(ga.ArtefactOperationPhase_AOP_ACTIVATION, ga.ArtefactOperationState_AOS_OK, finalMessage, 100)
 
 	return nil
 }
