@@ -79,7 +79,7 @@ func (d *ArtefactUpdateServerEntity) PrepareUpdate(stream generated.ArtefactUpda
 	}
 
 	// Create and update receiver and pass the stream
-	updateReceiver := artefact.NewUpdatePrepareReceiver(stream)
+	updateReceiver := artefact.NewArtefactReceiver(stream)
 
 	err := d.HandlePrepareUpdate(updateReceiver)
 	if err != nil {
@@ -101,7 +101,7 @@ func (d *ArtefactUpdateServerEntity) ActivateUpdate(stream generated.ArtefactUpd
 	}
 
 	// Create and update receiver and pass the stream
-	updateReceiver := artefact.NewUpdateActivateReceiver(stream)
+	updateReceiver := artefact.NewArtefactReceiver(stream)
 
 	err := d.HandleActivateUpdate(updateReceiver)
 	if err != nil {

@@ -9,9 +9,9 @@ package al
 
 import (
 	"errors"
-	"io"
 	"os"
 
+	client "github.com/industrial-asset-hub/asset-link-sdk/v3/artefact/client"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/shared"
 	generated "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/artefact-update"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/model"
@@ -19,236 +19,173 @@ import (
 	"golang.org/x/net/context"
 )
 
-func PushArtefact(endpoint string, jobId string, artefactFile string, artefactType string, deviceIdentifierFile string, convertDeviceIdentifier bool) int {
+type StatusUpdateHandler struct {
+	jobId string
+}
+
+func NewStatusUpdateHandler(jobId string) *StatusUpdateHandler {
+	return &StatusUpdateHandler{
+		jobId: jobId,
+	}
+}
+
+func (suh *StatusUpdateHandler) HandleStatusUpdate(statusUpdate *generated.ArtefactOperationStatus) {
+	log.Info().Str("JobId", suh.jobId).Str("Phase", statusUpdate.GetPhase().String()).Str("Message", statusUpdate.GetMessage()).Str("State", statusUpdate.GetState().String()).Uint32("Progress", statusUpdate.GetProgress()).Msg("Status Update")
+}
+
+func (suh *StatusUpdateHandler) HandleError(err error) {
+	log.Error().Str("JobId", suh.jobId).Err(err).Msg("Error")
+}
+
+func artefactReadDeviceIdentifier(deviceIdentifierFile string, convertDeviceIdentifier bool) ([]byte, error) {
+	if deviceIdentifierFile == "" {
+		return nil, errors.New("no device identifier file provided")
+	}
+
+	deviceIdentifierBlob, err := os.ReadFile(deviceIdentifierFile)
+	if err != nil {
+		return nil, err
+	}
+
+	if convertDeviceIdentifier {
+		deviceIdentifierBlob = []byte(model.EncodeMetadata(deviceIdentifierBlob))
+	}
+
+	return deviceIdentifierBlob, nil
+}
+
+func PushArtefact(endpoint string, jobId string, artefactFile string, artefactType string, deviceIdentifierFile string, convertDeviceIdentifier bool) {
 	log.Info().Str("Endpoint", endpoint).Str("Job Identifier", jobId).Str("Artefact File", artefactFile).Str("Artefact Type", artefactType).
 		Str("Device Identifier File", deviceIdentifierFile).Bool("Convert Device Identifier", convertDeviceIdentifier).Msg("Pushing Artefact")
 
-	if artefactFile == "" {
-		log.Error().Msg("No artefact file provided")
-		return 1
-	}
-
-	jobIdentifier := generated.JobIdenfifier{JobId: jobId}
-
-	deviceIdentifierBlob, err := os.ReadFile(deviceIdentifierFile)
+	deviceIdentifier, err := artefactReadDeviceIdentifier(deviceIdentifierFile, convertDeviceIdentifier)
 	if err != nil {
-		log.Error().Err(err).Msg("Could not read device identifier file")
-		return 1
+		log.Fatal().Err(err).Msg("Failed to push artefact")
 	}
 
-	artefactIdentifier, err := artefactCreateArtefactIdentifier(artefactType)
+	artefactMetaData, err := client.ArtefactCreateMetadata(jobId, deviceIdentifier, artefactType)
 	if err != nil {
-		log.Error().Err(err).Str("ArtefactType", artefactType).Msg("Failed to create artefact identifier")
-		return 1
+		log.Fatal().Err(err).Msg("Failed to push artefact")
 	}
-
-	if convertDeviceIdentifier {
-		deviceIdentifierBlob = []byte(model.EncodeMetadata(deviceIdentifierBlob))
-	}
-
-	deviceIdentifier := generated.DeviceIdentifier{Blob: deviceIdentifierBlob}
-
-	artefactMetaData := &generated.ArtefactChunk{Data: &generated.ArtefactChunk_Metadata{Metadata: &generated.ArtefactMetaData{
-		JobIdentifier:       &jobIdentifier,
-		DeviceIdentifier:    &deviceIdentifier,
-		DeviceCredentials:   &generated.DeviceCredentials{},
-		ArtefactIdentifier:  artefactIdentifier,
-		ArtefactCredentials: &generated.ArtefactCredentials{},
-	}}}
 
 	conn := shared.GrpcConnection(endpoint)
 	defer conn.Close()
 
-	client := generated.NewArtefactUpdateApiClient(conn)
+	apiClient := generated.NewArtefactUpdateApiClient(conn)
 	ctx := context.Background()
-	stream, err := client.PushArtefact(ctx)
+	stream, err := apiClient.PushArtefact(ctx)
 	if err != nil {
-		log.Error().Err(err).Msg("PushArtefact returned an error")
-		return 1
+		log.Error().Err(err).Msg("Failed to push artefact")
+		return
 	}
 
-	err = stream.Send(artefactMetaData)
+	handler := NewStatusUpdateHandler(jobId)
+	artefactTransmitter := client.NewArtefactTransmitter(stream, artefactFile, artefactMetaData, handler)
+	err = artefactTransmitter.HandleInteraction()
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to send meta data")
-		return 4
+		log.Error().Err(err).Msg("Failed to push artefact")
+		return
 	}
-
-	artefactFileIn, err := os.Open(artefactFile)
-	if err != nil {
-		log.Error().Err(err).Msg("Failed to open artefact file")
-		return 2
-	}
-	defer artefactFileIn.Close()
-
-	maxChunkSize := 1024
-	var data = make([]byte, maxChunkSize)
-	for {
-		n, err := artefactFileIn.Read(data)
-		if err == io.EOF {
-			break
-		} else if err != nil {
-			log.Error().Err(err).Msg("Could not read from file")
-			return 3
-		}
-
-		if n > 0 {
-			actualData := data[:n]
-			chunk := generated.ArtefactChunk{Data: &generated.ArtefactChunk_FileContent{FileContent: actualData}}
-			err = stream.Send(&chunk)
-			if err != nil {
-				log.Error().Err(err).Msg("Failed to send artefact")
-				return 4
-			}
-		}
-
-		statusUpdate, err := stream.Recv()
-		if err == io.EOF {
-			break
-		} else if err != nil {
-			log.Error().Err(err).Msg("Could not receive status update")
-			return 6
-		}
-		if statusUpdate != nil {
-			artefactHandleStatusUpdate(statusUpdate)
-		}
-	}
-
-	err = stream.CloseSend()
-	if err != nil {
-		return 5
-	}
-
-	for {
-		statusUpdate, err := stream.Recv()
-		if err == io.EOF {
-			break
-		} else if err != nil {
-			log.Error().Err(err).Msg("Could not receive status update")
-			return 6
-		}
-		if statusUpdate != nil {
-			artefactHandleStatusUpdate(statusUpdate)
-		}
-	}
-
-	return 0
 }
 
-func PullArtefact(endpoint string, jobId string, artefactFile string, artefactType string, deviceIdentifierFile string, convertDeviceIdentifier bool) int {
+func PullArtefact(endpoint string, jobId string, artefactFile string, artefactType string, deviceIdentifierFile string, convertDeviceIdentifier bool) {
 	log.Info().Str("Endpoint", endpoint).Str("Job Identifier", jobId).Str("Artefact File", artefactFile).Str("Artefact Type", artefactType).
 		Str("Device Identifier File", deviceIdentifierFile).Bool("Convert Device Identifier", convertDeviceIdentifier).Msg("Pulling Artefact")
 
-	if artefactFile == "" {
-		log.Error().Msg("No artefact file provided")
-		return 1
-	}
-
-	jobIdentifier := generated.JobIdenfifier{JobId: jobId}
-
-	deviceIdentifierBlob, err := os.ReadFile(deviceIdentifierFile)
+	deviceIdentifier, err := artefactReadDeviceIdentifier(deviceIdentifierFile, convertDeviceIdentifier)
 	if err != nil {
-		log.Error().Err(err).Msg("Could not read device identifier file")
-		return 1
+		log.Fatal().Err(err).Msg("Failed to pull artefact")
 	}
 
-	artefactIdentifier, err := artefactCreateArtefactIdentifier(artefactType)
+	artefactMetaData, err := client.ArtefactCreateMetadata(jobId, deviceIdentifier, artefactType)
 	if err != nil {
-		log.Error().Err(err).Str("ArtefactType", artefactType).Msg("Failed to create artefact identifier")
-		return 1
-	}
-
-	if convertDeviceIdentifier {
-		deviceIdentifierBlob = []byte(model.EncodeMetadata(deviceIdentifierBlob))
-	}
-
-	deviceIdentifier := generated.DeviceIdentifier{Blob: deviceIdentifierBlob}
-
-	artefactMetaData := &generated.ArtefactMetaData{
-		JobIdentifier:       &jobIdentifier,
-		DeviceIdentifier:    &deviceIdentifier,
-		DeviceCredentials:   &generated.DeviceCredentials{},
-		ArtefactIdentifier:  artefactIdentifier,
-		ArtefactCredentials: &generated.ArtefactCredentials{},
+		log.Fatal().Err(err).Msg("Failed to pull artefact")
 	}
 
 	conn := shared.GrpcConnection(endpoint)
 	defer conn.Close()
 
-	client := generated.NewArtefactUpdateApiClient(conn)
+	apiClient := generated.NewArtefactUpdateApiClient(conn)
 	ctx := context.Background()
-	stream, err := client.PullArtefact(ctx, artefactMetaData)
+	stream, err := apiClient.PullArtefact(ctx, artefactMetaData)
 	if err != nil {
-		log.Error().Err(err).Msg("PullArtefact returned an error")
-		return 2
+		log.Error().Err(err).Msg("Failed to pull artefact")
+		return
 	}
 
-	artefactFileOut, err := os.Create(artefactFile)
+	handler := NewStatusUpdateHandler(jobId)
+	artefactReceiver := client.NewArtefactReceiver(stream, artefactFile, artefactMetaData, handler)
+	err = artefactReceiver.HandleInteraction()
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to create artefact file")
-		return 3
+		log.Error().Err(err).Msg("Failed to pull artefact")
+		return
 	}
-	defer artefactFileOut.Close()
-
-	for {
-		chunk, err := stream.Recv()
-		if err == io.EOF {
-			break
-		} else if err != nil {
-			log.Error().Err(err).Msg("Failed to receive artefact")
-			return 4
-		}
-
-		if chunk == nil {
-			continue
-		}
-
-		data := chunk.GetFileContent()
-		if data != nil {
-			lenData := len(data)
-			if lenData > 0 {
-				start := 0
-				for {
-					remainingData := data[start:]
-					n, err := artefactFileOut.Write(remainingData)
-					if err != nil {
-						log.Error().Err(err).Msg("Failed to write artefact file")
-						return 5
-					}
-
-					start += n
-					if start == lenData {
-						break
-					}
-				}
-			}
-		}
-
-		statusUpdate := chunk.GetStatus()
-		if statusUpdate != nil {
-			artefactHandleStatusUpdate(statusUpdate)
-		}
-	}
-
-	return 0
 }
 
-func artefactHandleStatusUpdate(statusUpdate *generated.ArtefactOperationStatus) {
-	log.Info().Str("Phase", statusUpdate.GetPhase().String()).Str("Message", statusUpdate.GetMessage()).Str("State", statusUpdate.GetState().String()).Uint32("Progress", statusUpdate.GetProgress()).Msg("Status Update")
-}
+func PrepareUpdate(endpoint string, jobId string, artefactFile string, artefactType string, deviceIdentifierFile string, convertDeviceIdentifier bool) {
+	log.Info().Str("Endpoint", endpoint).Str("Job Identifier", jobId).Str("Artefact File", artefactFile).Str("Artefact Type", artefactType).
+		Str("Device Identifier File", deviceIdentifierFile).Bool("Convert Device Identifier", convertDeviceIdentifier).Msg("Preparing Update")
 
-func artefactCreateArtefactIdentifier(artefactType string) (*generated.ArtefactIdentifier, error) {
-	artefactIdentifier := generated.ArtefactIdentifier{Type: generated.ArtefactType_AT_CONFIGURATION}
-
-	switch artefactType {
-	case "configuration":
-		artefactIdentifier.Type = generated.ArtefactType_AT_CONFIGURATION
-	case "backup":
-		artefactIdentifier.Type = generated.ArtefactType_AT_BACKUP
-	case "logfile":
-		artefactIdentifier.Type = generated.ArtefactType_AT_LOGFILE
-	default:
-		return nil, errors.New("invalid artefact type")
+	deviceIdentifier, err := artefactReadDeviceIdentifier(deviceIdentifierFile, convertDeviceIdentifier)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed to prepare update")
 	}
 
-	return &artefactIdentifier, nil
+	artefactMetaData, err := client.ArtefactCreateMetadata(jobId, deviceIdentifier, artefactType)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed to prepare update")
+	}
+
+	conn := shared.GrpcConnection(endpoint)
+	defer conn.Close()
+
+	apiClient := generated.NewArtefactUpdateApiClient(conn)
+	ctx := context.Background()
+	stream, err := apiClient.PrepareUpdate(ctx)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to prepare update")
+		return
+	}
+
+	handler := NewStatusUpdateHandler(jobId)
+	artefactTransmitter := client.NewArtefactTransmitter(stream, artefactFile, artefactMetaData, handler)
+	err = artefactTransmitter.HandleInteraction()
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to prepare update")
+		return
+	}
+}
+
+func ActivateUpdate(endpoint string, jobId string, artefactFile string, artefactType string, deviceIdentifierFile string, convertDeviceIdentifier bool) {
+	log.Info().Str("Endpoint", endpoint).Str("Job Identifier", jobId).Str("Artefact File", artefactFile).Str("Artefact Type", artefactType).
+		Str("Device Identifier File", deviceIdentifierFile).Bool("Convert Device Identifier", convertDeviceIdentifier).Msg("Activating Update")
+
+	deviceIdentifier, err := artefactReadDeviceIdentifier(deviceIdentifierFile, convertDeviceIdentifier)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed to activate update")
+	}
+
+	artefactMetaData, err := client.ArtefactCreateMetadata(jobId, deviceIdentifier, artefactType)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed to activate update")
+	}
+
+	conn := shared.GrpcConnection(endpoint)
+	defer conn.Close()
+
+	apiClient := generated.NewArtefactUpdateApiClient(conn)
+	ctx := context.Background()
+	stream, err := apiClient.ActivateUpdate(ctx)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to activate update")
+		return
+	}
+
+	handler := NewStatusUpdateHandler(jobId)
+	artefactTransmitter := client.NewArtefactTransmitter(stream, artefactFile, artefactMetaData, handler)
+	err = artefactTransmitter.HandleInteraction()
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to activate update")
+		return
+	}
 }
