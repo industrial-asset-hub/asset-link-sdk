@@ -30,10 +30,10 @@ type Identifiers interface {
 
 type Update interface {
 	// artefact mangement
-	HandlePushArtefact(artefactReceiver *artefact.ArtefactReceiver) error
-	HandlePullArtefact(artefactMetaData *artefact.ArtefactMetaData, artefactTransmitter *artefact.ArtefactTransmitter) error
+	HandlePushArtefact(artefactMetaData artefact.ArtefactMetaData, artefactReceiver artefact.ArtefactReceiver) error
+	HandlePullArtefact(artefactMetaData artefact.ArtefactMetaData, artefactTransmitter artefact.ArtefactTransmitter) error
 
 	// two-step update management
-	HandlePrepareUpdate(updateReceiver *artefact.ArtefactReceiver) error
-	HandleActivateUpdate(updateReceiver *artefact.ArtefactReceiver) error
+	HandlePrepareUpdate(artefactMetaData artefact.ArtefactMetaData, artefactReceiver artefact.ArtefactReceiver) error
+	HandleActivateUpdate(artefactMetaData artefact.ArtefactMetaData, artefactReceiver artefact.ArtefactReceiver) error
 }
