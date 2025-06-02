@@ -12,14 +12,20 @@ import (
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/model"
 )
 
-type ArtefactMetaData struct {
+type ArtefactMetaData interface {
+	GetJobId() string
+	GetDeviceIdentifierBlob() []byte
+	GetArtefactType() generated.ArtefactType
+}
+
+type ArtefactMetaDataImpl struct {
 	jobId                string
 	deviceIdentifierBlob []byte
 	artefactType         generated.ArtefactType
 }
 
-func NewArtefactMetaData(jobId string, deviceIdentifierBlob []byte, artefactType generated.ArtefactType) *ArtefactMetaData {
-	artefactIdentifier := &ArtefactMetaData{
+func NewArtefactMetaData(jobId string, deviceIdentifierBlob []byte, artefactType generated.ArtefactType) *ArtefactMetaDataImpl {
+	artefactIdentifier := &ArtefactMetaDataImpl{
 		jobId:                jobId,
 		deviceIdentifierBlob: deviceIdentifierBlob,
 		artefactType:         artefactType,
@@ -27,14 +33,32 @@ func NewArtefactMetaData(jobId string, deviceIdentifierBlob []byte, artefactType
 	return artefactIdentifier
 }
 
-func (am *ArtefactMetaData) GetJobId() string {
+func NewArtefactMetaDataFromInternal(internalMetaData *generated.ArtefactMetaData) (*ArtefactMetaDataImpl, error) {
+	if internalMetaData == nil {
+		return nil, nil
+	}
+
+	deviceIdentifierBlob, err := model.DecodeMetadata(string(internalMetaData.DeviceIdentifier.Blob))
+	if err != nil {
+		return nil, err
+	}
+
+	artefactIdentifier := &ArtefactMetaDataImpl{
+		jobId:                internalMetaData.JobIdentifier.JobId,
+		deviceIdentifierBlob: deviceIdentifierBlob,
+		artefactType:         internalMetaData.ArtefactIdentifier.Type,
+	}
+	return artefactIdentifier, nil
+}
+
+func (am *ArtefactMetaDataImpl) GetJobId() string {
 	return am.jobId
 }
 
-func (am *ArtefactMetaData) GetDeviceIdentifierBlob() ([]byte, error) {
-	return model.DecodeMetadata(string(am.deviceIdentifierBlob))
+func (am *ArtefactMetaDataImpl) GetDeviceIdentifierBlob() []byte {
+	return am.deviceIdentifierBlob
 }
 
-func (am *ArtefactMetaData) GetArtefactType() generated.ArtefactType {
+func (am *ArtefactMetaDataImpl) GetArtefactType() generated.ArtefactType {
 	return am.artefactType
 }
