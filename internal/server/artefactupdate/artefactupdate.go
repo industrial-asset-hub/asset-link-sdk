@@ -34,13 +34,23 @@ func (d *ArtefactUpdateServerEntity) PushArtefact(stream generated.ArtefactUpdat
 	// Create and artefact receiver and pass the stream
 	artefactReceiver := artefact.NewArtefactReceiver(stream)
 
-	err := d.HandlePushArtefact(artefactReceiver)
+	// Receive artefact meta data
+	artefactMetaData, err := artefactReceiver.ReceiveArtefactMetaData()
+	if err != nil {
+		errMsg := "Failed to receive artefact meta data"
+		log.Error().Err(err).Msg(errMsg)
+		return status.Errorf(codes.Internal, errMsg)
+	}
+
+	// Handle push artefact request
+	err = d.HandlePushArtefact(artefactMetaData, artefactReceiver)
 	if err != nil {
 		errMsg := "Error during handling of push artefact"
 		log.Error().Err(err).Msg(errMsg)
+		return err
 	}
 
-	return err
+	return nil
 }
 
 func (d *ArtefactUpdateServerEntity) PullArtefact(artefactMetaData *generated.ArtefactMetaData, stream generated.ArtefactUpdateApi_PullArtefactServer) error {
@@ -56,16 +66,23 @@ func (d *ArtefactUpdateServerEntity) PullArtefact(artefactMetaData *generated.Ar
 	// Create and artefact receiver and pass the stream
 	artefactTransmitter := artefact.NewArtefactTransmitter(stream)
 
-	// Create new artefact identifier and set artefact type
-	metaData := artefact.NewArtefactMetaData(artefactMetaData.JobIdentifier.JobId, artefactMetaData.DeviceIdentifier.Blob, artefactMetaData.ArtefactIdentifier.Type)
+	// Create new meta data from the internal artefact meta data and convert the device identifier blob
+	metaData, err := artefact.NewArtefactMetaDataFromInternal(artefactMetaData)
+	if err != nil {
+		errMsg := "Failed to create artefact meta data from internal data"
+		log.Error().Err(err).Msg(errMsg)
+		return status.Errorf(codes.Internal, errMsg)
+	}
 
-	err := d.HandlePullArtefact(metaData, artefactTransmitter)
+	// Handle pull artefact request
+	err = d.HandlePullArtefact(metaData, artefactTransmitter)
 	if err != nil {
 		errMsg := "Error during handling of pull artefact"
 		log.Error().Err(err).Msg(errMsg)
+		return err
 	}
 
-	return err
+	return nil
 }
 
 func (d *ArtefactUpdateServerEntity) PrepareUpdate(stream generated.ArtefactUpdateApi_PrepareUpdateServer) error {
@@ -79,15 +96,25 @@ func (d *ArtefactUpdateServerEntity) PrepareUpdate(stream generated.ArtefactUpda
 	}
 
 	// Create and update receiver and pass the stream
-	updateReceiver := artefact.NewArtefactReceiver(stream)
+	artefactReceiver := artefact.NewArtefactReceiver(stream)
 
-	err := d.HandlePrepareUpdate(updateReceiver)
+	// Receive artefact meta data
+	artefactMetaData, err := artefactReceiver.ReceiveArtefactMetaData()
+	if err != nil {
+		errMsg := "Failed to receive artefact meta data"
+		log.Error().Err(err).Msg(errMsg)
+		return status.Errorf(codes.Internal, errMsg)
+	}
+
+	// Handle prepare update request
+	err = d.HandlePrepareUpdate(artefactMetaData, artefactReceiver)
 	if err != nil {
 		errMsg := "Error during handling of prepare update"
 		log.Error().Err(err).Msg(errMsg)
+		return err
 	}
 
-	return err
+	return nil
 }
 
 func (d *ArtefactUpdateServerEntity) ActivateUpdate(stream generated.ArtefactUpdateApi_ActivateUpdateServer) error {
@@ -101,13 +128,23 @@ func (d *ArtefactUpdateServerEntity) ActivateUpdate(stream generated.ArtefactUpd
 	}
 
 	// Create and update receiver and pass the stream
-	updateReceiver := artefact.NewArtefactReceiver(stream)
+	artefactReceiver := artefact.NewArtefactReceiver(stream)
 
-	err := d.HandleActivateUpdate(updateReceiver)
+	// Receive artefact meta data
+	artefactMetaData, err := artefactReceiver.ReceiveArtefactMetaData()
+	if err != nil {
+		errMsg := "Failed to receive artefact meta data"
+		log.Error().Err(err).Msg(errMsg)
+		return status.Errorf(codes.Internal, errMsg)
+	}
+
+	// Handle activate update request
+	err = d.HandleActivateUpdate(artefactMetaData, artefactReceiver)
 	if err != nil {
 		errMsg := "Error during handling of activate update"
 		log.Error().Err(err).Msg(errMsg)
+		return err
 	}
 
-	return err
+	return nil
 }
