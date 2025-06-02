@@ -16,36 +16,39 @@ import (
 	"google.golang.org/grpc"
 )
 
-type ArtefactReceiver struct {
+type ArtefactReceiver interface {
+	ReceiveArtefactToData() (*[]byte, error)
+	ReceiveArtefactToFile(filename string) error
+	ReceiveArtefactToWriter(writer io.Writer) error
+	UpdateStatus(phase generated.ArtefactOperationPhase, state generated.ArtefactOperationState, message string, progress uint8) error
+}
+
+type ArtefactReceiverImpl struct {
 	stream     grpc.BidiStreamingServer[generated.ArtefactChunk, generated.ArtefactMessage]
 	streamLock sync.Mutex
 }
 
-func NewArtefactReceiver(stream generated.ArtefactUpdateApi_PushArtefactServer) *ArtefactReceiver {
-	artefactReceiver := &ArtefactReceiver{stream: stream}
+func NewArtefactReceiver(stream generated.ArtefactUpdateApi_PushArtefactServer) *ArtefactReceiverImpl {
+	artefactReceiver := &ArtefactReceiverImpl{stream: stream}
 	return artefactReceiver
 }
 
-func (ar *ArtefactReceiver) receiveArtefactChunk() (*generated.ArtefactChunk, error) {
+func (ar *ArtefactReceiverImpl) receiveArtefactChunk() (*generated.ArtefactChunk, error) {
 	ar.streamLock.Lock()
 	defer ar.streamLock.Unlock()
 	return ar.stream.Recv()
 }
 
-func (ar *ArtefactReceiver) ReceiveArtefactMetaData() (*ArtefactMetaData, error) {
+func (ar *ArtefactReceiverImpl) ReceiveArtefactMetaData() (ArtefactMetaData, error) {
 	chunk, err := ar.receiveArtefactChunk()
 	if err != nil {
 		return nil, err
 	}
 
-	internalMetaData := chunk.GetMetadata()
-
-	metaData := NewArtefactMetaData(internalMetaData.JobIdentifier.JobId, internalMetaData.DeviceIdentifier.Blob, internalMetaData.ArtefactIdentifier.Type)
-
-	return metaData, nil
+	return NewArtefactMetaDataFromInternal(chunk.GetMetadata())
 }
 
-func (ar *ArtefactReceiver) ReceiveArtefactToFile(filename string) error {
+func (ar *ArtefactReceiverImpl) ReceiveArtefactToFile(filename string) error {
 	file, err := os.Create(filename)
 	if err != nil {
 		return err
@@ -55,7 +58,7 @@ func (ar *ArtefactReceiver) ReceiveArtefactToFile(filename string) error {
 	return ar.ReceiveArtefactToWriter(file)
 }
 
-func (ar *ArtefactReceiver) ReceiveArtefactToWriter(writer io.Writer) error {
+func (ar *ArtefactReceiverImpl) ReceiveArtefactToWriter(writer io.Writer) error {
 	err := ar.issueRequest(generated.ArtefactOperationRequestType_AORT_ARTEFACT_TRANSMISSION)
 	if err != nil {
 		return err
@@ -91,7 +94,7 @@ func (ar *ArtefactReceiver) ReceiveArtefactToWriter(writer io.Writer) error {
 	return nil
 }
 
-func (ar *ArtefactReceiver) ReceiveArtefactToData() (*[]byte, error) {
+func (ar *ArtefactReceiverImpl) ReceiveArtefactToData() (*[]byte, error) {
 	err := ar.issueRequest(generated.ArtefactOperationRequestType_AORT_ARTEFACT_TRANSMISSION)
 	if err != nil {
 		return nil, err
@@ -113,7 +116,7 @@ func (ar *ArtefactReceiver) ReceiveArtefactToData() (*[]byte, error) {
 	return &data, nil
 }
 
-func (ar *ArtefactReceiver) transmitRequest(request *generated.ArtefactOperationRequest) error {
+func (ar *ArtefactReceiverImpl) transmitRequest(request *generated.ArtefactOperationRequest) error {
 	ar.streamLock.Lock()
 	defer ar.streamLock.Unlock()
 
@@ -121,13 +124,13 @@ func (ar *ArtefactReceiver) transmitRequest(request *generated.ArtefactOperation
 	return ar.stream.Send(message)
 }
 
-func (ar *ArtefactReceiver) issueRequest(requestType generated.ArtefactOperationRequestType) error {
+func (ar *ArtefactReceiverImpl) issueRequest(requestType generated.ArtefactOperationRequestType) error {
 	request := &generated.ArtefactOperationRequest{Type: requestType}
 
 	return ar.transmitRequest(request)
 }
 
-func (ar *ArtefactReceiver) transmitStatusUpdate(status *generated.ArtefactOperationStatus) error {
+func (ar *ArtefactReceiverImpl) transmitStatusUpdate(status *generated.ArtefactOperationStatus) error {
 	ar.streamLock.Lock()
 	defer ar.streamLock.Unlock()
 
@@ -135,7 +138,7 @@ func (ar *ArtefactReceiver) transmitStatusUpdate(status *generated.ArtefactOpera
 	return ar.stream.Send(message)
 }
 
-func (ar *ArtefactReceiver) UpdateStatus(phase generated.ArtefactOperationPhase, state generated.ArtefactOperationState, message string, progress uint8) error {
+func (ar *ArtefactReceiverImpl) UpdateStatus(phase generated.ArtefactOperationPhase, state generated.ArtefactOperationState, message string, progress uint8) error {
 	statusMessage := &generated.ArtefactOperationStatus{
 		Phase:    phase,
 		State:    state,
