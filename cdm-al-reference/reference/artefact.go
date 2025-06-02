@@ -22,7 +22,7 @@ import (
 	ga "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/artefact-update"
 )
 
-func (m *ReferenceAssetLink) HandlePushArtefact(artefactReceiver *artefact.ArtefactReceiver) error {
+func (m *ReferenceAssetLink) HandlePushArtefact(artefactMetaData artefact.ArtefactMetaData, artefactReceiver artefact.ArtefactReceiver) error {
 	log.Info().Msg("Handle Push Artefact by receiving the artefact")
 
 	// Check if a job is already running
@@ -35,28 +35,16 @@ func (m *ReferenceAssetLink) HandlePushArtefact(artefactReceiver *artefact.Artef
 		return status.Errorf(codes.ResourceExhausted, errMsg)
 	}
 
-	// Retrieve meta data
-	artefactMetaData, err := artefactReceiver.ReceiveArtefactMetaData()
-	if err != nil {
-		log.Err(err).Msg("Failed to receive artefact meta data")
-		return err
-	}
-
 	jobId := artefactMetaData.GetJobId()
 	artefactType := artefactMetaData.GetArtefactType()
-	deviceIdentifierBlob, err := artefactMetaData.GetDeviceIdentifierBlob()
-	if err != nil {
-		log.Err(err).Msg("Failed to retrieve device identifier blob")
-		return err
-	}
-
+	deviceIdentifierBlob := artefactMetaData.GetDeviceIdentifierBlob()
 	log.Info().Str("JobId", jobId).Str("DeviceIdentifierBlob", string(deviceIdentifierBlob)).Str("ArtefactType", artefactType.String()).Msg("ArtefactMetaData")
 
 	// Perform checks
 	_ = artefactReceiver.UpdateStatus(ga.ArtefactOperationPhase_AOP_PREPARE, ga.ArtefactOperationState_AOS_OK, "Performing checks", 0)
 
 	if artefactType != ga.ArtefactType_AT_CONFIGURATION {
-		err = errors.New("artefact type not supported")
+		err := errors.New("artefact type not supported")
 		log.Err(err).Msg("Failed to handle push artefact")
 		return err
 	}
@@ -110,7 +98,7 @@ func (m *ReferenceAssetLink) HandlePushArtefact(artefactReceiver *artefact.Artef
 	return nil
 }
 
-func (m *ReferenceAssetLink) HandlePullArtefact(artefactMetaData *artefact.ArtefactMetaData, artefactTransmitter *artefact.ArtefactTransmitter) error {
+func (m *ReferenceAssetLink) HandlePullArtefact(artefactMetaData artefact.ArtefactMetaData, artefactTransmitter artefact.ArtefactTransmitter) error {
 	log.Info().Msg("Handle Pull Artefact by transmitting the arefact")
 
 	// Check if a job is already running
@@ -123,15 +111,9 @@ func (m *ReferenceAssetLink) HandlePullArtefact(artefactMetaData *artefact.Artef
 		return status.Errorf(codes.ResourceExhausted, errMsg)
 	}
 
-	// Retrieve meta data
 	jobId := artefactMetaData.GetJobId()
 	artefactType := artefactMetaData.GetArtefactType()
-	deviceIdentifierBlob, err := artefactMetaData.GetDeviceIdentifierBlob()
-	if err != nil {
-		log.Err(err).Msg("Failed to retrieve device identifier blob")
-		return err
-	}
-
+	deviceIdentifierBlob := artefactMetaData.GetDeviceIdentifierBlob()
 	log.Info().Str("JobId", jobId).Str("DeviceIdentifierBlob", string(deviceIdentifierBlob)).Str("ArtefactType", artefactType.String()).Msg("ArtefactMetaData")
 
 	// Perform checks
@@ -144,7 +126,7 @@ func (m *ReferenceAssetLink) HandlePullArtefact(artefactMetaData *artefact.Artef
 	}
 
 	var deviceAddress simdevices.SimulatedDeviceAddress
-	err = json.Unmarshal(deviceIdentifierBlob, &deviceAddress)
+	err := json.Unmarshal(deviceIdentifierBlob, &deviceAddress)
 	if err != nil {
 		log.Err(err).Msg("Failed to parse connection blob")
 		return err
