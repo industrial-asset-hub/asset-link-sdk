@@ -16,7 +16,7 @@ import (
 	ga "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/artefact-update"
 )
 
-func (m *AssetLinkImplementation) HandlePrepareUpdate(artefactReceiver *artefact.ArtefactReceiver) error {
+func (m *AssetLinkImplementation) HandlePrepareUpdate(artefactMetaData artefact.ArtefactMetaData, artefactReceiver artefact.ArtefactReceiver) error {
 	log.Info().Msg("Handle Prepare Update")
 
 	// Check if a job is already running
@@ -29,23 +29,12 @@ func (m *AssetLinkImplementation) HandlePrepareUpdate(artefactReceiver *artefact
 		return status.Errorf(codes.ResourceExhausted, errMsg)
 	}
 
-	updateMetaData, err := artefactReceiver.ReceiveArtefactMetaData()
-	if err != nil {
-		log.Err(err).Msg("Failed to receive artefact meta data")
-		return err
-	}
+	jobId := artefactMetaData.GetJobId()
+	artefactType := artefactMetaData.GetArtefactType()
+	deviceIdentifierBlob := artefactMetaData.GetDeviceIdentifierBlob()
+	log.Info().Str("JobId", jobId).Str("DeviceIdentifierBlob", string(deviceIdentifierBlob)).Str("ArtefactType", artefactType.String()).Msg("ArtefactMetaData")
 
-	jobId := updateMetaData.GetJobId()
-	artefactType := updateMetaData.GetArtefactType()
-	deviceIdentifierBlob, err := updateMetaData.GetDeviceIdentifierBlob()
-	if err != nil {
-		log.Err(err).Msg("Failed to retrieve device identifier blob")
-		return err
-	}
-
-	log.Info().Str("JobId", jobId).Str("DeviceIdentifierBlob", string(deviceIdentifierBlob)).Str("ArtefactType", artefactType.String()).Msg("UpdateMetaData")
-
-	err = artefactReceiver.ReceiveArtefactToFile("artefact_file")
+	err := artefactReceiver.ReceiveArtefactToFile("artefact_file")
 	if err != nil {
 		log.Err(err).Msg("Failed to receive artefact file")
 		return err
@@ -56,7 +45,7 @@ func (m *AssetLinkImplementation) HandlePrepareUpdate(artefactReceiver *artefact
 	return nil
 }
 
-func (m *AssetLinkImplementation) HandleActivateUpdate(artefactReceiver *artefact.ArtefactReceiver) error {
+func (m *AssetLinkImplementation) HandleActivateUpdate(artefactMetaData artefact.ArtefactMetaData, artefactReceiver artefact.ArtefactReceiver) error {
 	log.Info().Msg("Handle Activate Update")
 
 	// Check if a job is already running
@@ -69,23 +58,12 @@ func (m *AssetLinkImplementation) HandleActivateUpdate(artefactReceiver *artefac
 		return status.Errorf(codes.ResourceExhausted, errMsg)
 	}
 
-	updateMetaData, err := artefactReceiver.ReceiveArtefactMetaData()
-	if err != nil {
-		log.Err(err).Msg("Failed to receive artefact meta data")
-		return err
-	}
+	jobId := artefactMetaData.GetJobId()
+	artefactType := artefactMetaData.GetArtefactType()
+	deviceIdentifierBlob := artefactMetaData.GetDeviceIdentifierBlob()
+	log.Info().Str("JobId", jobId).Str("DeviceIdentifierBlob", string(deviceIdentifierBlob)).Str("ArtefactType", artefactType.String()).Msg("ArtefactMetaData")
 
-	jobId := updateMetaData.GetJobId()
-	artefactType := updateMetaData.GetArtefactType()
-	deviceIdentifierBlob, err := updateMetaData.GetDeviceIdentifierBlob()
-	if err != nil {
-		log.Err(err).Msg("Failed to retrieve device identifier blob")
-		return err
-	}
-
-	log.Info().Str("JobId", jobId).Str("DeviceIdentifierBlob", string(deviceIdentifierBlob)).Str("ArtefactType", artefactType.String()).Msg("UpdateMetaData")
-
-	err = artefactReceiver.ReceiveArtefactToFile("artefact_file")
+	err := artefactReceiver.ReceiveArtefactToFile("artefact_file")
 	if err != nil {
 		log.Err(err).Msg("Failed to receive update file")
 		return err

@@ -16,27 +16,34 @@ import (
 	"google.golang.org/grpc"
 )
 
-type ArtefactTransmitter struct {
+type ArtefactTransmitter interface {
+	TransmitArtefactFromFile(filename string, maxChunkSize uint64) error
+	TransmitArtefactFromReader(reader io.Reader, maxChunkSize uint64) error
+	TransmitArtefactFromData(data *[]byte, maxChunkSize uint64) error
+	UpdateStatus(phase generated.ArtefactOperationPhase, state generated.ArtefactOperationState, message string, progress uint8) error
+}
+
+type ArtefactTransmitterImpl struct {
 	stream     grpc.ServerStreamingServer[generated.ArtefactChunk]
 	streamLock sync.Mutex
 }
 
-func NewArtefactTransmitter(stream grpc.ServerStreamingServer[generated.ArtefactChunk]) *ArtefactTransmitter {
-	artefactTransmitter := &ArtefactTransmitter{stream: stream}
+func NewArtefactTransmitter(stream grpc.ServerStreamingServer[generated.ArtefactChunk]) *ArtefactTransmitterImpl {
+	artefactTransmitter := &ArtefactTransmitterImpl{stream: stream}
 	return artefactTransmitter
 }
 
-func (at *ArtefactTransmitter) TransmitArtefactChunk(artefactChunk *generated.ArtefactChunk) error {
+func (at *ArtefactTransmitterImpl) TransmitArtefactChunk(artefactChunk *generated.ArtefactChunk) error {
 	at.streamLock.Lock()
 	defer at.streamLock.Unlock()
 	return at.stream.Send(artefactChunk)
 }
 
-func (at *ArtefactTransmitter) TransmitArtefactMetaData(artefactMetaData *generated.ArtefactMetaData) error {
+func (at *ArtefactTransmitterImpl) TransmitArtefactMetaData(artefactMetaData *generated.ArtefactMetaData) error {
 	return at.TransmitArtefactChunk(&generated.ArtefactChunk{Data: &generated.ArtefactChunk_Metadata{Metadata: artefactMetaData}})
 }
 
-func (at *ArtefactTransmitter) TransmitArtefactFromFile(filename string, maxChunkSize uint64) error {
+func (at *ArtefactTransmitterImpl) TransmitArtefactFromFile(filename string, maxChunkSize uint64) error {
 	file, err := os.Open(filename)
 	if err != nil {
 		return err
@@ -46,7 +53,7 @@ func (at *ArtefactTransmitter) TransmitArtefactFromFile(filename string, maxChun
 	return at.TransmitArtefactFromReader(file, maxChunkSize)
 }
 
-func (at *ArtefactTransmitter) TransmitArtefactFromReader(reader io.Reader, maxChunkSize uint64) error {
+func (at *ArtefactTransmitterImpl) TransmitArtefactFromReader(reader io.Reader, maxChunkSize uint64) error {
 	var data = make([]byte, maxChunkSize)
 	for {
 		n, err := reader.Read(data)
@@ -69,7 +76,7 @@ func (at *ArtefactTransmitter) TransmitArtefactFromReader(reader io.Reader, maxC
 	return nil
 }
 
-func (at *ArtefactTransmitter) TransmitArtefactFromData(data *[]byte, maxChunkSize uint64) error {
+func (at *ArtefactTransmitterImpl) TransmitArtefactFromData(data *[]byte, maxChunkSize uint64) error {
 	chunkSize := int(maxChunkSize)
 	lenData := len(*data)
 	for start := 0; start < lenData; start += chunkSize {
@@ -91,12 +98,12 @@ func (at *ArtefactTransmitter) TransmitArtefactFromData(data *[]byte, maxChunkSi
 	return nil
 }
 
-func (at *ArtefactTransmitter) transmitStatusUpdate(status *generated.ArtefactOperationStatus) error {
+func (at *ArtefactTransmitterImpl) transmitStatusUpdate(status *generated.ArtefactOperationStatus) error {
 	chunk := generated.ArtefactChunk{Data: &generated.ArtefactChunk_Status{Status: status}}
 	return at.TransmitArtefactChunk(&chunk)
 }
 
-func (at *ArtefactTransmitter) UpdateStatus(phase generated.ArtefactOperationPhase, state generated.ArtefactOperationState, message string, progress uint8) error {
+func (at *ArtefactTransmitterImpl) UpdateStatus(phase generated.ArtefactOperationPhase, state generated.ArtefactOperationState, message string, progress uint8) error {
 	statusMessage := &generated.ArtefactOperationStatus{
 		Phase:    phase,
 		State:    state,
