@@ -35,7 +35,7 @@ Note: LinkML is used to validate assets against the schema.
 
 - If LinkML is already installed and available in the testing environment, use the `-l` flag for validation.
 - Otherwise, the validation will be performed using Docker to run the linkml-validator.
-- The iah-base.yaml is used as the base schema for validation, which can be found in the `model` directory of this repository.
+- The iah-base.yaml is used as the base schema for validation, which can be found [here](../model/iah_base_v0.9.0.yaml).
 
 ### Command Line Tool for Local Debugging
 
