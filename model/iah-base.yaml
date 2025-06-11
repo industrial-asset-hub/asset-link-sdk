@@ -1,0 +1,1754 @@
+# yaml-language-server: $schema=https://linkml.io/linkml-model/linkml_model/jsonschema/meta.schema.json
+id: https://common-device-management.code.siemens.io/documentation/asset-modeling/base-schema/v0.9.0/iah-base.jsonld
+version: 0.9.0
+name: IAH-Base
+title: Industrial Asset Hub Base Schema
+description: >-
+  This schema defines the base classes needed for Industrial Asset Hub (IAH).
+
+  The hereby defined classes provide a schema to model assets and devices (as a special asset subtype) and a vocabulary valid for the whole project and all stakeholders.
+  They are very generic and abstract on purpose so that multiple different specializations can be derived from it without constraining them needlessly.
+prefixes:
+  linkml: https://w3id.org/linkml/
+  lis: http://rds.posccaesar.org/ontology/lis14/rdl/
+  schema: http://schema.org/
+  base: https://common-device-management.code.siemens.io/documentation/asset-modeling/base-schema/v0.9.0/
+  sietechas: http://ontology.siemens.com/base/enterprise/technical-asset#
+  sieiot: http://ontology.siemens.com/base/enterprise/iot#
+imports:
+  - linkml:types
+default_prefix: base
+default_range: string
+
+subsets:
+  MostRelevant:
+    description: >-
+      Entry elements for the Industrial Asset Hub (IAH) base schema.
+
+      This subset includes the most relevant elements (classes, slots, enumerations,...) to understand the Industrial Asset Hub (IAH) base schema.
+  Connectivity:
+    description: >-
+      Elements that are related to connectivity.
+
+      These elements enable modeling complex device-internal network setups and
+      also complex multi-device network setups.
+
+      Device-internal network setups examples:
+      - Ethernet interface with MAC and IP address.
+      - Ethernet and WLAN interfaces bonded to a new interface.
+  IndustryDomain:
+    description: >-
+      Elements that are specifically relevant for the industry domain.
+  DeviceInteraction:
+    description: >-
+      Elements that are related with interactions with the devices.
+      For example: configure a device, reboot a device, update the firmware of a device,...
+
+classes:
+  Asset:
+    description: >-
+      An asset is the representation of a functional object with a technical function that is known to Industrial Asset Hub (IAH).
+      Industrial Asset Hub (IAH) might want to manage the asset, to model its relationships with other assets, it might know the asset and ignore it,...
+
+      The only attributes that an instance of this class must provide are an ID to refer to it and the asset management state.
+
+      An asset instance might represent a physical object (like a Raspberry Pi or an application running on a system) or a virtual object (like a router in a network topology, no matter which physical device it is).
+      In both cases an identifier for the object being represented is needed.
+    is_a: FunctionalObject
+    close_mappings:
+      - sietechas:TechnicalAsset
+    in_subset:
+      - MostRelevant
+    examples:
+      - value: Device
+      - value: "PCI-card"
+      - value: "USB-stick"
+      - value: Production line
+      - value: Factory
+    attributes:
+      management_state:
+        title: management state
+        required: true
+        range: ManagementState
+        description: >-
+          A manage state is an attribute of an asset that specifies how an asset is being regarded by an asset management system (is it being regarded or ignored).
+          Some assets might be known to the Industrial Asset Hub (for example, discovered through a network scan), but want to be ignored for different reasons.
+
+          The goals of this attribute are: to avoid rediscovering assets being ignored and to focus management activities on those assets being regarded.
+
+          Assets that can be discovered, but not supported, might evolve from an "ignored" to a "regarded" state, once supported.
+      other_states:
+        title: other states
+        multivalued: true
+        range: State
+        description: >-
+          Specify the state of other aspects apart from management state.
+        examples:
+          - value: reachability_state
+            description: Could an asset be reached lately over a port?
+          - value: Runtime state
+            description: Is a device running normally? Is it in maintenance mode?
+    slots:
+      - product_instance_identifier
+      - connection_points
+      - software_components
+      - reachability_state
+      - functional_parts
+      - asset_operations
+      - custom_ui_properties
+      - last_modified_timestamp
+      - asset_identifiers
+      - zone
+    rank: 10
+
+  Device:
+    description: >-
+      A device is a special type of asset that can be managed with some asset management system.
+      In order to be manageable, it requires at least one connection point for the asset management to communicate with the device and software capable of interacting with the asset management.
+    is_a: Asset
+    close_mappings:
+      - sietechas:Device
+    in_subset:
+      - MostRelevant
+    examples:
+      - value: Industrial PC
+      - value: PLC
+      - value: Virtual Machine
+    slot_usage:
+      software_components:
+        required: true
+      reachability_state:
+        required: true
+      connection_points:
+        recommended: true
+    rank: 10
+
+  FunctionalObject:
+    class_uri: lis:FunctionalObject
+    description: A part of a system, and has a function whose realization contributes to the performance of the system as a whole.
+    slots:
+      - id
+      - name
+      - instance_annotations
+      - functional_object_type
+
+  State:
+    description: State in which a certain item be.
+    slots:
+      - state_value
+      - state_timestamp
+
+  ManagementState:
+    title: Management State
+    is_a: State
+    description: >-
+      Documents if the asset is being regarded (managed) by any AssetManagement or not.
+      AssetManagement systems regarding the asset will be listed in the "managedBy" property.
+    slot_usage:
+      state_value:
+        range: ManagementStateValues
+        ifabsent: string(regarded)
+
+  ReachabilityState:
+    title: reachability_state
+    is_a: State
+    description: >-
+      The reachability_state based on when an asset that can be contacted (typically a device) was reached (or not) for the last time.
+    slot_usage:
+      state_value:
+        range: ReachabilityStateValues
+        ifabsent: string(reached)
+
+  ConnectionPoint:
+    title: Connection Point
+    close_mappings:
+      - sietechas:Port
+    in_subset:
+      - MostRelevant
+      - Connectivity
+    aliases:
+      - Port
+    description: >-
+      A connection point is a hardware or software interface that enables an asset to communicate with other assets.
+
+      As of now this schema doesn't specify the structure of common connection points like Ethernet ports.
+      But it will probably be added in future versions of this schema.
+      Otherwise the details will be provided on specialized schemas.
+    slots:
+      - id
+      - instance_annotations
+      - related_connection_points
+      - connection_point_type
+    examples:
+      - value: Ethernet port
+      - value: SNMP protocol
+      - value: API
+      - value: Bluetooth port
+      - value: Unix Domain Socket (UDS)
+      - value: Wireless port
+      - value: File
+      - value: Serial port
+      - value: WebUI
+      - value: USB port
+      - value: shared memory
+
+  IdentifierType:
+    title: Identifier Type
+    description: >-
+      Provides the context needed to interpret an identifier based on standards, code tables,...
+
+      Creating an Identifier subclass provides a more powerful mechanism to specify an identifier type.
+      Since it supports the addition of further slots and patterns for the Identifiers.
+    slots:
+      - id
+    examples:
+      - value: ECLASS IRDIs
+        description: https://eclass.eu/
+      - value: IEC 61987 CDD IRDIs
+        description: Common Data Dictionary, https://cdd.iec.ch/
+      - value: ISO/IEC 6523-1:1998 (subset of ECLASS IRDIs)
+        description: "Information technology — Structure for the identification of organizations and organization parts — Part 1: Identification of organization identification schemes, https://www.iso.org/standard/25773.html"
+      - value: ISO/TS 29002-5:2009 (subset of ECLASS IRDIs)
+        description: "Industrial automation systems and integration — Exchange of characteristic data — Part 5: Identification scheme, https://www.iso.org/standard/50773.html"
+      - value: ISO/IEC 11179-6 (subset of ECLASS IRDIs)
+        description: "Information technology — Metadata registries (MDR) — Part 6: Registration, https://www.iso.org/standard/78916.html"
+      - value: IEC 61406 Digital Nameplate
+        description: https://www.vde-verlag.de/standards/1800736/e-din-en-iec-61406-vde-0810-406-2022-08.html
+      - value: IEC 63365 Digital Nameplate
+        description: https://www.vde-verlag.de/standards/1100703/e-din-en-iec-63365-vde-0170-100-2022-06.html
+      - value: OPC-UA Vendor Nameplate
+        description: https://reference.opcfoundation.org/v104/DI/v102/docs/5.5.2/
+      - value: DIN SPEC 91406:2019-12
+        description: https://www.beuth.de/de/technische-regel/din-spec-91406/314564057
+      - value: ISO 5598:2020
+        description: Fluid power systems and components — Vocabulary, https://www.iso.org/standard/67985.html
+      - value: Tax-Id
+      - value: SAP-Id
+      - value: Profibus Manufacturer list
+        description: https://www.profibus.com/IM/Man_ID_Table.xml
+
+  Identifier:
+    description: >-
+      An element that provides an unambiguous identification of an item.
+
+      It can be an object, in which case the combination of the attributes specified as "unique keys" must be unique.
+    close_mappings:
+      - sieiot:ThingIdentifier
+    examples:
+      - value: The combination of the 'manufacturer' 'Siemens' and the 'order ID' '6DR5513-0NG00-0AA0'.
+      - value: a combination of the values "vendor", "product ID" and "serial number"
+      - value: a MAC-address (can be modified on some systems, but might be considered static on certain environments)
+    slots:
+      - identifier_type
+      - identifier_uncertainty
+
+  AssetIdentifier:
+    title: Asset Identifier
+    is_a: Identifier
+    close_mappings:
+      - sieiot:DeviceIdentifier
+    description: >-
+      An Identifier that provides an unambiguous identification of an asset instance.
+    examples:
+      - value: a combination of the values "vendor", "product ID" and "serial number"
+      - value: a MAC-address (can be modified on some systems, but might be considered static on certain environments)
+    slots:
+      - asset_identifier_type
+
+  IdLink:
+    title: ID-Link
+    description: >-
+      Asset identifier based on the ID-Link standard (IEC 61406).
+    is_a: AssetIdentifier
+    conforms_to: International Electrotechnical Commision specification IEC-61406-1:2022
+    attributes:
+      id_link:
+        range: uri
+        description: >-
+          Link to identify the asset.
+          It can also provide information about the product.
+        examples:
+          - value: https://i.siemens.com/1P6ES7131-6BF00-0CA0+SC-P4TM3526
+
+  SiemensIdLink:
+    title: Siemens ID-Link
+    description: >-
+      Asset identifier based on the ID-Link standard (IEC 61406).
+    is_a: IdLink
+    close_mappings:
+      - base:ProductSerialIdentifier
+    conforms_to: Siemens specification SN 60450
+    attributes:
+      id_link:
+        range: uri
+        description: >-
+          Link to identify the asset.
+          It can also provide information about the product.
+        examples:
+          - value: https://i.siemens.com/1P6ES7131-6BF00-0CA0+SC-P4TM3526
+        pattern: "^https://i\\.siemens\\.com((/1P(.*?)\\+S(.*?)(\\+23S(.*?))?(\\+30P(.*?))?)|(\\?1P=(.*?)&S=(.*?)(&23S=(.*?))?(&30P=(.*?))?))$"
+
+  InstanceAnnotation:
+    description: Key/value pair that can be used to add metadata to an object.
+    attributes:
+      key:
+        description: The identifier of a key/value pair.
+        range: string
+      value:
+        description: The real metadata of a key/value pair.
+        range: string
+
+  SoftwareAsset:
+    is_a: Asset
+    description: >-
+      Any kind of software element that needs to be considered.
+      From artifacts (executables, libraries, archives,...) to running software (process, container, virtual machine,...).
+
+  SoftwareIdentifier:
+    description: >-
+      Well established
+    is_a: AssetIdentifier
+    slots:
+      - name
+      - version
+    unique_keys:
+      identifier:
+        unique_key_slots:
+          - name
+          - version
+
+  ArtifactChecksum:
+    description: >-
+      Artifact identifier based on the artifact checksum.
+
+      Such an identifier is good to confirm the identity of an artifact, but not so good to find that artifact.
+    is_a: AssetIdentifier
+    slots:
+      - checksum
+    unique_keys:
+      identifier:
+        unique_key_slots:
+          - checksum
+
+  SoftwareArtifact:
+    is_a: SoftwareAsset
+    close_mappings:
+      - sietechas:SoftwareAsset
+    description: >-
+      Software asset representing software on rest.
+    attributes:
+      is_firmware:
+        description: >-
+          Flag that marks that the software artifact is being provided by a hardware manufacturer for one or more of its devices.
+
+          In contrast with other software artifacts, updating the software of firmware requires contacting the source specified by the device manufacturer.
+
+          Due to this definition, firmware in IAH has a much wider scope than in some domains, where firmware is only meant to be close-to-the-silicon software.
+        range: boolean
+    slots:
+      - software_identifier
+      - checksum_identifier
+    examples:
+      - value: executable
+      - value: script
+      - value: container image
+      - value: firmware image
+    rank: 10
+
+  RunningSoftware:
+    title: Running Software
+    is_a: SoftwareAsset
+    description: >-
+      Software asset representing running software.
+
+      Please, notice the difference with SoftwareArtifacts used to instance
+      running software out of them.
+      Multiple RunningSoftware items can be instantiated from a single
+      SoftwareArtifact.
+      For example, multiple containers can be instantiated from a single
+      container image.
+    slots:
+      - running_software_type
+    attributes:
+      running_sw_id:
+        description: Identifier for a running software instance.
+        range: string
+      artifact:
+        description: >-
+          Reference to the software artifact which the running software has
+          been instantiated from.
+
+          As of now the combination of multiple software artifacts into a
+          running software (for example with plug-ins) is not supported and
+          can not be natively modeled.
+          Instance annotations need to be used for that purpose.
+        range: SoftwareArtifact
+        inlined: true
+      custom_running_software_type:
+        description: Custom running software type.
+        range: string
+    unique_keys:
+      identifier:
+        unique_key_slots:
+          - running_sw_id
+    examples:
+      - value: Asset gateway
+        description: Software hosting the Field Agent.
+      - value: firmware
+      - value: OS
+      - value: program
+      - value: service
+      - value: container
+      - value: virtual machine
+    rank: 10
+
+  AssetOperation:
+    title: Asset Operation
+    in_subset:
+      - MostRelevant
+    description: >-
+      Operations that can be performed on the asset
+    slots:
+      - operation_name
+      - activation_flag
+    examples:
+      - value: Firmware Update
+      - value: Factory Reset
+      - value: Program Update
+      - value: Memory Reset
+      - value: Backup
+
+  ProductSerialIdentifier:
+    title: Product Serial Identifier
+    is_a: AssetIdentifier
+    close_mappings:
+      - schema:IndividualProduct
+      - base:IdLink
+    description: >-
+      Identifier for an Asset instance using the product (asset class) identifier and serial number.
+    slots:
+      - manufacturer_product
+      - serial_number
+    unique_keys:
+      identifier:
+        unique_key_slots:
+          - manufacturer_product
+          - serial_number
+    rank: 10
+
+  MacIdentifier:
+    title: MAC Address Identifier
+    is_a: AssetIdentifier
+    description: >-
+      Identifier for an Asset instance using the mac address.
+    slots:
+      - mac_address
+    unique_keys:
+      identifier:
+        unique_key_slots:
+          - mac_address
+    rank: 10
+
+  Ipv4Identifier:
+    title: IPv4 Address Identifier
+    is_a: AssetIdentifier
+    description: >-
+      Identifier for an Asset instance using one IPv4 address assigned to it.
+    slots:
+      - ipv4_address
+    unique_keys:
+      identifier:
+        unique_key_slots:
+          - ipv4_address
+    rank: 10
+
+  Ipv6Identifier:
+    title: IPv6 Address Identifier
+    is_a: AssetIdentifier
+    description: >-
+      Identifier for an Asset instance using one IPv6 address assigned to it.
+    slots:
+      - ipv6_address
+    unique_keys:
+      identifier:
+        unique_key_slots:
+          - ipv6_address
+    rank: 10
+
+  RelatedConnectionPoint:
+    title: Related ConnectionPoint
+    description: >-
+      Relationship of a ConnectionPoint with another one.
+      This relationship could be of the type "ConnectionPoint A relies on the
+      connectivity of ConnectionPoint B to work".
+    in_subset:
+      - Connectivity
+    attributes:
+      connection_point:
+        description: Reference to the related ConnectionPoint.
+        range: ConnectionPoint
+      custom_relationship:
+        description: Type of relationship in an unstructured format.
+        range: string
+
+  Ipv4Connectivity:
+    title: IPv4 Connectivity
+    is_a: ConnectionPoint
+    in_subset:
+      - DeviceInteraction
+      - Connectivity
+    description: >-
+      Configuration of an IP port.
+      Please notice that the configuration of an IP address is independent of the Ethernet port configuration.
+    slots:
+      - ipv4_address
+      - router_ipv4_address
+    attributes:
+      network_mask:
+        title: network mask
+        description: >-
+          The mask that segregates IPs v4 belonging to the same sub-network from the rest.
+        range: string
+        pattern: "^(255)\\.(0|128|192|224|240|248|252|254|255)\\.(0|128|192|224|240|248|252|254|255)\\.(0|128|192|224|240|248|252|254|255)$"
+    defining_slots:
+      - ipv4_address
+    slot_usage:
+      connection_point_type:
+        equals_string: Ipv4Connectivity
+    rank: 10
+
+  Ipv6Connectivity:
+    title: IPv6 Connectivity
+    is_a: ConnectionPoint
+    in_subset:
+      - DeviceInteraction
+      - Connectivity
+    description: >-
+      Configuration of an IP port.
+      Please notice that the configuration of an IP address is independent of the Ethernet port configuration.
+    slots:
+      - ipv6_address
+      - router_ipv6_address
+    attributes:
+      ipv6_network_prefix:
+        title: network prefix
+        description: >-
+          Prefix of the subnetwork in which the IP address is located.
+        range: string
+        # Only canonical extended form ('0' padding for fixed lenght) accepted for IPv6 prefixes
+        pattern: "^[a-fA-F0-9]{1,4}:(?:[a-fA-F0-9]{0,4}:){1,7}/([0-9]{1,2}|1[01][0-9]|12[0-8])$"
+        conforms_to: "https://www.rfc-editor.org/rfc/rfc4291#section-2.3 (only compressed form)"
+    defining_slots:
+      - ipv6_address
+    slot_usage:
+      connection_point_type:
+        equals_string: Ipv6Connectivity
+    rank: 10
+
+  EthernetPort:
+    title: Ethernet Port
+    is_a: ConnectionPoint
+    in_subset:
+      - Connectivity
+    description: >-
+      A hardware ConnectionPoint that supports one of the Ethernet networking protocol as defined in the standard [IEEE 802.3](https://en.wikipedia.org/wiki/IEEE_802.3).
+    slots:
+      - mac_address
+    defining_slots:
+      - mac_address
+    slot_usage:
+      connection_point_type:
+        equals_string: EthernetPort
+    rank: 10
+
+  Thing:
+    class_uri: schema:Thing
+    mixin: true
+    description: >-
+      The identifier property represents any kind of identifier for any kind of
+      Thing, such as ISBNs, GTIN codes, UUIDs etc.
+      Schema.org provides dedicated properties for representing many of these,
+      either as textual strings or as URL (URI) links.
+    slots:
+      - id
+      - name
+
+  Intangible:
+    class_uri: schema:Intangible
+    is_a: Thing
+    description: >-
+      A utility class that serves as the umbrella for a number of 'intangible'
+      things such as quantities, structured values, etc.
+
+  Person:
+    class_uri: schema:Person
+    is_a: Thing
+    description: A person (alive, dead, undead, or fictional).
+    slots:
+      - family_name
+      - given_name
+      - contact_point
+
+  SchemaOrgProduct:
+    class_uri: schema:Product
+    is_a: Thing
+    description: >-
+      Any offered product or service.
+      For example: a pair of shoes; a concert ticket; the rental of a car; a
+      haircut; or an episode of a TV show streamed online.
+    slots:
+      - manufacturer
+      - product_id
+
+  Product:
+    is_a: SchemaOrgProduct
+    description: >-
+      Any offered product or service that might have different versions for the
+      same product ID.
+    attributes:
+      product_link:
+        range: uri
+        description: >-
+          Link to identify a product.
+          It can also provide additional information about the product.
+    slots:
+      - product_version
+    unique_keys:
+      identifier:
+        unique_key_slots:
+          - manufacturer
+          - product_id
+          - product_version
+    rank: 10
+
+  Organization:
+    class_uri: schema:Organization
+    is_a: Thing
+    description: An organization such as a school, NGO, corporation, club, etc.
+    slots:
+      - address
+      - contact_point
+      - alternate_names
+    unique_keys:
+      identifier:
+        unique_key_slots:
+          - name
+
+  StructuredValue:
+    class_uri: schema:StructuredValue
+    is_a: Intangible
+    description: >-
+      Structured values are used when the value of a property has a more
+      complex structure than simply being a textual value or a reference to
+      another thing.
+
+  ContactPoint:
+    class_uri: schema:ContactPoint
+    is_a: StructuredValue
+    description: A contact point—for example, a Customer Complaints department.
+    slots:
+      - email
+      - telephone
+
+  PostalAddress:
+    class_uri: schema:PostalAddress
+    is_a: ContactPoint
+    title: Postal Address
+    description: The mailing address.
+    attributes:
+      address_country:
+        slot_uri: schema:addressCountry
+        range: CountryCode
+        description: 2-letter code of the country.
+      address_locality:
+        slot_uri: schema:addressLocality
+        range: string
+        description: Locality name in the local language.
+      address_region:
+        slot_uri: schema:addressRegion
+        range: string
+        description: Region name in the local language.
+      postal_code:
+        slot_uri: schema:postalCode
+        range: string
+        description: Postal code (AKA ZIP-code) of the address.
+      street_address:
+        slot_uri: schema:streetAddress
+        range: string
+        description: Street and number of the address.
+
+  GatewayIdentifier:
+    is_a: AssetIdentifier
+    description: >-
+      GatewayId and Base64 encoded version of certificate subject key identifer will be the identifier for the Gateway.
+    slots:
+      - certificate_id
+    unique_keys:
+      identifier:
+        unique_key_slots:
+          - certificate_id
+
+  TrustEstablishedState:
+    title: trust established state
+    is_a: State
+    description: >-
+      The trust establishment state is based on if the asset is a trusted asset or not.
+    slot_usage:
+      state_value:
+        range: TrustEstablishedStateValues
+        ifabsent: string(pending)
+
+  AssetLink:
+    description: >-
+      Asset Link (AL) running and registered.
+    is_a: RunningSoftware
+    rank: 10
+
+  Dcd:
+    description: >-
+      Device Class Driver (DCD) running and registered.
+    is_a: RunningSoftware
+    deprecated: >-
+      Dcd (from Device Class Driver) was an old name, use AssetLink instead
+    deprecated_element_has_exact_replacement: AssetLink
+
+  Gateway:
+    is_a: RunningSoftware
+    description: >-
+      Gateway as a software asset can be mapped using the class
+    slots:
+      - trust_established_state
+      - gateway_identifier
+    slot_usage:
+      running_software_type:
+        ifabsent: string(iah_gateway)
+    attributes:
+      running_asset_links:
+        description: List of Link Assets running on an Asset Gateway and registered.
+        range: AssetLink
+        multivalued: true
+        inlined: true
+        inlined_as_list: true
+      running_dcds:
+        description: List of Link Assets running on an Asset Gateway and registered.
+        range: Dcd
+        multivalued: true
+        inlined: true
+        inlined_as_list: true
+        deprecated: >-
+          Dcd (from Device Class Driver) was an old name, this slot name has
+          been renamed accordingly.
+          Use running_asset_links instead.
+        deprecated_element_has_exact_replacement: running_asset_links
+    rank: 10
+
+  AssetRelationship:
+    description: Relationship between two different assets.
+    represents_relationship: true
+    attributes:
+      subject:
+        description: The origin of a relationship between two assets.
+        range: Asset
+        relational_role: SUBJECT
+      object:
+        description: The target of a relationship between two assets.
+        range: Asset
+        relational_role: OBJECT
+      predicate:
+        description: A relationship type.
+        range: PredicateValues
+        relational_role: PREDICATE
+    rank: 10
+
+  CustomProperty:
+    title: Custom property
+    description: >-
+      Instance annotation hosting a custom property with a label.
+    is_a: InstanceAnnotation
+    attributes:
+      label:
+        title: label
+        description: >-
+          Human readable label to show the property in the UI.
+        range: string
+
+slots:
+  id:
+    slot_uri: schema:identifier
+    identifier: true
+    description: >-
+      The identifier property represents any kind of identifier for any kind of
+      Thing, such as ISBNs, GTIN codes, UUIDs etc.
+      Schema.org provides dedicated properties for representing many of these,
+      either as textual strings or as URL (URI) links.
+
+  name:
+    slot_uri: schema:name
+    range: string
+    description: The name of the item.
+
+  connection_points:
+    range: ConnectionPoint
+    multivalued: true
+    inlined: true
+    inlined_as_list: true
+    description: >-
+      An asset might have a connection point that can be used to connect with the asset.
+      In the case of devices, at least one connection point is required.
+      It might be a connection point needed for AssetManagement for interaction with the asset or for other connections of the asset related to the asset function but not to device management.
+
+  related_connection_points:
+    range: RelatedConnectionPoint
+    multivalued: true
+    description: >-
+      A connection point might rely on another connection point to work.
+
+      Examples: a TCP/IP connection can only work if there is some kind of
+      connection point at physical level (e.g. Ethernet Port, Bluetooth Port),
+      a container might be connected over a virtual ethernet to a software
+      bridge, a software bridge might be directly connected to an ethernet port.
+
+      This attribute enables modeling these kind of dependencies in a limited way.
+      Other modeling mechanisms might be needed to model complex networking set-ups.
+
+  asset_identifiers:
+    title: asset identifiers
+    recommended: true
+    range: AssetIdentifier
+    multivalued: true
+    inlined: true
+    inlined_as_list: true
+    description: >-
+      An asset identifier is an asset attribute that provides enough information to unequivocally identify the represented object.
+
+      In some cases the ID attribute acts simultaneously as a reference for the asset instance and as identifier for the represented object, otherwise at least one asset identifier is needed.
+
+      There can be multiple asset_identifiers with different goals.
+      For example, the information of a metal nameplate can be used by a human-being to identify a device represented by an asset instance, but a software certificate provided by a device might help a software component identify the device in the network,...
+
+      An asset identifier might have an identifier_type, that defines its format and possibly even semantics.
+    examples:
+      - value: "'Nameplate': { 'vendor id': 'siemens', 'product id': '1FN3050-1ND00-0EA3', 'serial number': '0011223344' }"
+        description: Object that provides a set of values that unequivocally identify a Siemens device.
+      - value: "'Product ID': { 'Vendor': 'Rexroth', 'Type Code': 'VDP16.3DBN-D1-NN-NN', 'Type Name': 'IndraControl VPB 40.4, Control Cabinet PC'}, 'Instance ID': { 'Serial Number': 'SN:008595411' }"
+        description: Object that provides a set of values that unequivocally identify a Rexroth device.
+      - value: "123e4567-e89b-12d3-a456-426655440000"
+        description: Universal Unique ID (UUID AKA GUID) that identifies an asset instance.
+      - value: "123e4567-e89b-12d3-a456-426655440000"
+        description: Universal Unique ID (UUID AKA GUID) that identifies an asset instance.
+      - value: "MAC-Address: 00:11:22:33:44"
+        description: "Identify a device by its MAC-Address, assuming that it cannot be changed."
+      - value: "'Device Certificate': { 'Certificate ID': '1wlkq3', 'Certificate PubKey': 'xxxxxxxxxxxx' }"
+        description: Information needed to challenge the certificate of a device with its public key.
+
+  product_instance_identifier:
+    description: Identifier of a device based on its serial number.
+    range: ProductSerialIdentifier
+
+  functional_parts:
+    title: functional parts
+    multivalued: true
+    range: Asset
+    inlined: true
+    inlined_as_list: true
+    description: >-
+      The functional objects that an asset is composed of, in case such a level of decomposition is desired.
+      This is enables having assets composed of other assets and even devices composed of other devices and assets.
+
+      An Asset must be addressable independently from other Assets (therefore they need to have an "id") and are therefore individually modeled.
+      But not all parts of an Asset that are modeled need to be individually addressable, these are FunctionalObjects, but not Assets.
+
+      Probably those functional_parts of an Asset providing some function for the Asset will be modeled here.
+      Therefore an Asset can delegate the Interactions that it's offering to its functional_parts.
+    examples:
+      - value: "A server rack Asset can have following functional_parts that can be modeled like this: a frame (an Asset), servers (Devices), network switches/routers (Devices), power supply (a FunctionalObject),..."
+      - value: "A library installed on a device"
+      - value: "The firmware of a device"
+
+  state_value:
+    title: state value
+    description: >-
+      The state of an object.
+
+  state_timestamp:
+    title: state timestamp
+    description: Time when the current state has been observed.
+    range: datetime
+
+  software_components:
+    multivalued: true
+    range: SoftwareAsset
+    description: >-
+      An asset can host software artifacts that might want to be tracked.
+      This can be used simply to keep track of the firmware version or to keep a full-blown Software Bill of Material (SBOM).
+
+      Please notice that this attribute is not meant to model relationships between the different software assets available in a device.
+      Static relationships implicit to the SoftwareAssets themselves (like "firmware image A contains package X" or "package X depends on package Y") might be modeled on the Software Assets, if desired.
+      Although it probably goes beyond the purpose of asset modeling.
+      Deployment dependent relationships (like "firmware image needs to be installed before installing app") might be modeled as external AssetLinks, if desired.
+      Once again it probably goes beyond the purpose of asset modeling.
+    inlined: true
+    inlined_as_list: true
+
+  reachability_state:
+    title: reachability state
+    range: ReachabilityState
+    description: >-
+      A slot to track the last observed reachability state and when it was observed.
+
+  trust_established_state:
+    title: trust establishment state
+    range: TrustEstablishedState
+    description: >-
+      A slot to track the trust establishment of the asset
+
+  version:
+    description: Version of a software artifact.
+    range: string
+    close_mappings:
+      - schema:softwareVersion
+
+  semantic_version:
+    description: >-
+      Version of a software artifact according the Semantic Versioning 2.0.0
+      specification (https://semver.org/).
+    range: string
+    pattern: "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$"
+
+  certificate_id:
+    description: Base64 encoded version of certificate subject key identifer
+    range: string
+
+  gateway_identifier:
+    description: >-
+      Provides an AssetIdentifier for Gateways that uses the ID of the
+      certificate used to onboard the Gateway.
+    range: GatewayIdentifier
+
+  identifier_type:
+    title: identifier type
+    description: Type of an items identifier.
+    range: IdentifierType
+
+  identifier_uncertainty:
+    title: identifier uncertainty
+    range: integer
+    description: >-
+      Number that tells how uncertain an identifier is compared with other identifiers provided by an Asset Link.
+      The highest the number, the more uncertain the identification must be considered.
+      This number has to be considered relative to the other identifiers for the same element.
+      The default value is 0, meaning no uncertainty.
+
+      This index helps decide across Asset Links which identifiers are better suited for deduplication.
+      The identifier provided by two different Asset Links with the lowest uncertainty should be chosen for deduplication purposes.
+
+  asset_operations:
+    description: >-
+      List of device management operations supported by an asset.
+      Each operation type might appear only once.
+    range: AssetOperation
+    multivalued: true
+
+  operation_name:
+    description: Name of a device management operation.
+    range: string
+
+  activation_flag:
+    description: >-
+      Attribute for specifying if the operation is available in terms of true or false
+    range: boolean
+    ifabsent: true
+
+  inline_manufacturer:
+    description: Identifier of an asset manufacturer.
+    range: Organization
+    recommended: true
+    inlined: true
+    inlined_as_list: true
+
+  manufacturer_product:
+    description: >-
+      A way to identify a product based on the manufacturer and the product identifier given by the manufacturer.
+    inlined: true
+    range: Product
+
+  product_name:
+    description: >-
+      A name or ID that help identify a product among those of a specific manufacturer.
+      The same name or ID might be used by other manufacturers, but it must be unambiguous within the scope of a manufacturer.
+    range: string
+    recommended: true
+    examples:
+      - value: S6ES7135-6HB00-0DA1
+      - value: iPhone 13 Mini 128 GB
+      - value: Raspberry Pi Zero W
+
+  ipv4_address:
+    title: IPv4 address
+    description: >-
+      The IP v4 address of a device port.
+    range: string
+    pattern: "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
+
+  router_ipv4_address:
+    title: IPv4 router address
+    is_a: ipv4_address
+    description: >-
+      The IPv4 address of the router (AKA gateway) corresponding to a IPv4
+      address.
+    recommended: true
+
+  ipv6_address:
+    title: IPv6 address
+    description: >-
+      The IP v6 address of a device port.
+    range: string
+    # Enforcement of a canonical extended form ('0' padding) that complies with following pattern
+    # is planned in the future. Hereby the correponding regular-expression is documented.
+    #pattern: "^[a-fA-F0-9]{1,4}:(?:[a-fA-F0-9]{0,4}:){1,6}[a-fA-F0-9]{1,4}$"
+    pattern: "^(?:[a-fA-F0-9]{1,4}:){7}[a-fA-F0-9]{1,4}$"
+    conforms_to: "https://www.rfc-editor.org/rfc/rfc4291#section-2.2 (except compressed form)"
+
+  router_ipv6_address:
+    title: router IPv6 address
+    is_a: ipv6_address
+    description: >-
+      The IP v6 address of the default IP v6 router (AKA gateway).
+    recommended: true
+    # Enforcement of a canonical extended form ('0' padding) that complies with following pattern
+    # is planned in the future. Hereby the correponding regular-expression is documented.
+    #pattern: "^[a-fA-F0-9]{1,4}:(?:[a-fA-F0-9]{0,4}:){1,6}[a-fA-F0-9]{1,4}$"
+    pattern: "^(?:[a-fA-F0-9]{0,4}:){1,7}[a-fA-F0-9]{1,4}$"
+    conforms_to: "https://www.rfc-editor.org/rfc/rfc4291#section-2.2 (except compressed form)"
+
+  mac_identifiers:
+    description: Identifier of a device based on its MAC address(es).
+    range: MacIdentifier
+    multivalued: true
+
+  ipv4_identifiers:
+    description: Identifier of a device based on its IPv4 address(es).
+    range: Ipv4Identifier
+    multivalued: true
+
+  ipv6_identifiers:
+    description: Identifier of a device based on its IPv6 address(es).
+    range: Ipv6Identifier
+    multivalued: true
+
+  mac_address:
+    title: MAC address
+    description: >-
+      The MAC address of the port.
+      It is expected to be fixed, but in some ethernet ports it can be changed.
+
+      An asset instance must provide for each ethernet port the default MAC address.
+    range: string
+    pattern: "^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$"
+
+  connection_point_type:
+    description: >-
+      Type designator that provides support for polymorphism using connection
+      points.
+    range: string
+    designates_type: true
+
+  functional_object_type:
+    description: >-
+      Type designator that provides support for polymorphism using functional
+      parts.
+    range: string
+    designates_type: true
+
+  asset_identifier_type:
+    title: asset identifier type
+    description: >-
+      Type designator that provides support for polymorphism using asset identifiers.
+    range: string
+    designates_type: true
+
+  instance_annotations:
+    title: instance annotations
+    description: Metadata associated to an object.
+    range: InstanceAnnotation
+    multivalued: true
+
+  custom_ui_properties:
+    title: custom properties for User Interface
+    description: Metadata associated with Asset in User Interface
+    range: CustomProperty
+    multivalued: true
+
+  family_name:
+    slot_uri: schema:familyName
+    range: string
+    description: >-
+      Family name.
+      In the U.S., the last name of a Person.
+
+  given_name:
+    slot_uri: schema:givenName
+    range: string
+    description: >-
+      Given name.
+      In the U.S., the first name of a Person.
+
+  contact_point:
+    slot_uri: schema:contactPoint
+    range: ContactPoint
+    description: A contact point for a person or organization.
+    inlined: true
+    inlined_as_list: true
+
+  product_id:
+    slot_uri: schema:productID
+    range: string
+    description: The product identifiers, such as ISBN.
+
+  product_version:
+    range: string
+    description: >-
+      Some products might have different versions under the same product ID, the
+      product version helps differentiating the different versions of a product,
+      if multiple exist.
+
+  manufacturer:
+    slot_uri: schema:manufacturer
+    range: Organization
+    description: The manufacturer of the product.
+    inlined: true
+    inlined_as_list: true
+
+  address:
+    slot_uri: schema:address
+    range: PostalAddress
+    description: Physical address of the item.
+    inlined: true
+    inlined_as_list: true
+
+  alternate_names:
+    slot_uri: schema:alternateName
+    range: string
+    multivalued: true
+    description: An alias for the item.
+
+  email:
+    slot_uri: schema:email
+    range: string
+    description: Email address.
+
+  telephone:
+    slot_uri: schema:telephone
+    range: string
+    description: The telephone number.
+
+  serial_number:
+    slot_uri: schema:serialNumber
+    range: string
+    description: >-
+      The serial number or any alphanumeric identifier of a particular product.
+      When attached to an offer, it is a shortcut for the serial number of the
+      product included in the offer.
+
+  checksum:
+    description: >-
+      The checksum string as a URN.
+      The URN scheme for checksums is "urn:<format>:<checksum>", being format
+      the checksum format (MD5, SHA1,...).
+    range: uriorcurie
+
+  last_modified_timestamp:
+    description: Timestamp of last asset modification
+    range: datetime
+
+  running_software_type:
+    description: Type of running software.
+    range: RunningSoftwareValues
+
+  software_identifier:
+    description: >-
+      Identifier for a software artifact based on the well-established pattern
+      name and version.
+    range: SoftwareIdentifier
+
+  checksum_identifier:
+    description: >-
+      Provides an AssetIdentifier based on a SoftwareArtifact checksum
+    range: ArtifactChecksum
+
+  zone:
+    description: >-
+      Provides references to the different zones that an asset belongs to.
+
+      Zones are typically used to group assets logically mostly for the
+      purpose of access control.
+      That way it is possible to give certain roles or persons specific
+      permissions to all assets associated to a zone.
+    range: string
+
+enums:
+  ManagementStateValues:
+    title: management state values
+    description: Possible management states.
+    permissible_values:
+      regarded:
+        description: >-
+          The asset is known to AssetManagement (for example, automatically discovered) and being regarded (possibly being managed).
+      ignored:
+        description: >-
+          The asset is known to AssetManagement (for example, automatically discovered), but is being ignored.
+      unknown:
+        description: >-
+          The asset is known to AssetManagement (for example, automatically discovered), but it has not been declared yet, if it should be regarded or ignored.
+
+  ReachabilityStateValues:
+    title: reachability state values
+    description: Possible reachability states.
+    permissible_values:
+      reached:
+        description: >-
+          The asset has been reached from the asset management system.
+      failed:
+        description: >-
+          The asset could not be reached from the asset management system.
+      unknown:
+        description: >-
+          No try to connect the device has been done yet.
+
+  TrustEstablishedStateValues:
+    title: trust establishment state values
+    description: Possible trust establishment states.
+    permissible_values:
+      trusted:
+        description: >-
+          The asset is trusted through the certificate
+      failed:
+        description: >-
+          The asset is not trusted through the certificate
+      pending:
+        description: >-
+          The trust establishement process for asset is in progress
+
+  PredicateValues:
+    title: predicate values
+    description: Possible relationship predicates.
+    permissible_values:
+      related_to:
+        description: >-
+          Most generic relationship possible.
+          It simple states that an asset (subject) is related to another one (object).
+
+  CountryCode:
+    description: Two-letter ISO 3166-1 alpha-2 country code.
+    see_also:
+      - https://www.iso.org/iso-3166-country-codes.html
+      - https://www.iso.org/obp/ui/#search
+      - https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
+    permissible_values:
+      af:
+        title: Afghanistan
+      ax:
+        title: Åland Islands
+      al:
+        title: Albania
+      dz:
+        title: Algeria
+      as:
+        title: American Samoa
+      ad:
+        title: Andorra
+      ao:
+        title: Angola
+      ai:
+        title: Anguilla
+      aq:
+        title: Antarctica
+      ag:
+        title: Antigua and Barbuda
+      ar:
+        title: Argentina
+      am:
+        title: Armenia
+      aw:
+        title: Aruba
+      au:
+        title: Australia
+      at:
+        title: Austria
+      az:
+        title: Azerbaijan
+      bs:
+        title: Bahamas
+      bh:
+        title: Bahrain
+      bd:
+        title: Bangladesh
+      bb:
+        title: Barbados
+      by:
+        title: Belarus
+      be:
+        title: Belgium
+      bz:
+        title: Belize
+      bj:
+        title: Benin
+      bm:
+        title: Bermuda
+      bt:
+        title: Bhutan
+      bo:
+        title: Bolivia, Plurinational State of
+      bq:
+        title: Bonaire, Sint Eustatius and Saba
+      ba:
+        title: Bosnia and Herzegovina
+      bw:
+        title: Botswana
+      bv:
+        title: Bouvet Island
+      br:
+        title: Brazil
+      io:
+        title: British Indian Ocean Territory
+      bn:
+        title: Brunei Darussalam
+      bg:
+        title: Bulgaria
+      bf:
+        title: Burkina Faso
+      bi:
+        title: Burundi
+      kh:
+        title: Cambodia
+      cm:
+        title: Cameroon
+      ca:
+        title: Canada
+      cv:
+        title: Cape Verde
+      ky:
+        title: Cayman Islands
+      cf:
+        title: Central African Republic
+      td:
+        title: Chad
+      cl:
+        title: Chile
+      cn:
+        title: China
+      cx:
+        title: Christmas Island
+      cc:
+        title: Cocos (Keeling) Islands
+      co:
+        title: Colombia
+      km:
+        title: Comoros
+      cg:
+        title: Congo
+      cd:
+        title: Congo, the Democratic Republic of the
+      ck:
+        title: Cook Islands
+      cr:
+        title: Costa Rica
+      ci:
+        title: Côte d'Ivoire
+      hr:
+        title: Croatia
+      cu:
+        title: Cuba
+      cw:
+        title: Curaçao
+      cy:
+        title: Cyprus
+      cz:
+        title: Czech Republic
+      dk:
+        title: Denmark
+      dj:
+        title: Djibouti
+      dm:
+        title: Dominica
+      do:
+        title: Dominican Republic
+      ec:
+        title: Ecuador
+      eg:
+        title: Egypt
+      sv:
+        title: El Salvador
+      gq:
+        title: Equatorial Guinea
+      er:
+        title: Eritrea
+      ee:
+        title: Estonia
+      et:
+        title: Ethiopia
+      fk:
+        title: Falkland Islands (Malvinas)
+      fo:
+        title: Faroe Islands
+      fj:
+        title: Fiji
+      fi:
+        title: Finland
+      fr:
+        title: France
+      gf:
+        title: French Guiana
+      pf:
+        title: French Polynesia
+      tf:
+        title: French Southern Territories
+      ga:
+        title: Gabon
+      gm:
+        title: Gambia
+      ge:
+        title: Georgia
+      de:
+        title: Germany
+      gh:
+        title: Ghana
+      gi:
+        title: Gibraltar
+      gr:
+        title: Greece
+      gl:
+        title: Greenland
+      gd:
+        title: Grenada
+      gp:
+        title: Guadeloupe
+      gu:
+        title: Guam
+      gt:
+        title: Guatemala
+      gg:
+        title: Guernsey
+      gn:
+        title: Guinea
+      gw:
+        title: Guinea-Bissau
+      gy:
+        title: Guyana
+      ht:
+        title: Haiti
+      hm:
+        title: Heard Island and McDonald Islands
+      va:
+        title: Holy See (Vatican City State)
+      hn:
+        title: Honduras
+      hk:
+        title: Hong Kong
+      hu:
+        title: Hungary
+      is:
+        title: Iceland
+      in:
+        title: India
+      id:
+        title: Indonesia
+      ir:
+        title: Iran, Islamic Republic of
+      iq:
+        title: Iraq
+      ie:
+        title: Ireland
+      im:
+        title: Isle of Man
+      il:
+        title: Israel
+      it:
+        title: Italy
+      jm:
+        title: Jamaica
+      jp:
+        title: Japan
+      je:
+        title: Jersey
+      jo:
+        title: Jordan
+      kz:
+        title: Kazakhstan
+      ke:
+        title: Kenya
+      ki:
+        title: Kiribati
+      kp:
+        title: Korea, Democratic People's Republic of
+      kr:
+        title: Korea, Republic of
+      kw:
+        title: Kuwait
+      kg:
+        title: Kyrgyzstan
+      la:
+        title: Lao People's Democratic Republic
+      lv:
+        title: Latvia
+      lb:
+        title: Lebanon
+      ls:
+        title: Lesotho
+      lr:
+        title: Liberia
+      ly:
+        title: Libya
+      li:
+        title: Liechtenstein
+      lt:
+        title: Lithuania
+      lu:
+        title: Luxembourg
+      mo:
+        title: Macao
+      mk:
+        title: Macedonia, the Former Yugoslav Republic of
+      mg:
+        title: Madagascar
+      mw:
+        title: Malawi
+      my:
+        title: Malaysia
+      mv:
+        title: Maldives
+      ml:
+        title: Mali
+      mt:
+        title: Malta
+      mh:
+        title: Marshall Islands
+      mq:
+        title: Martinique
+      mr:
+        title: Mauritania
+      mu:
+        title: Mauritius
+      yt:
+        title: Mayotte
+      mx:
+        title: Mexico
+      fm:
+        title: Micronesia, Federated States of
+      md:
+        title: Moldova, Republic of
+      mc:
+        title: Monaco
+      mn:
+        title: Mongolia
+      me:
+        title: Montenegro
+      ms:
+        title: Montserrat
+      ma:
+        title: Morocco
+      mz:
+        title: Mozambique
+      mm:
+        title: Myanmar
+      na:
+        title: Namibia
+      nr:
+        title: Nauru
+      np:
+        title: Nepal
+      nl:
+        title: Netherlands
+      nc:
+        title: New Caledonia
+      nz:
+        title: New Zealand
+      ni:
+        title: Nicaragua
+      ne:
+        title: Niger
+      ng:
+        title: Nigeria
+      nu:
+        title: Niue
+      nf:
+        title: Norfolk Island
+      mp:
+        title: Northern Mariana Islands
+      "no":
+        title: Norway
+      om:
+        title: Oman
+      pk:
+        title: Pakistan
+      pw:
+        title: Palau
+      ps:
+        title: Palestine, State of
+      pa:
+        title: Panama
+      pg:
+        title: Papua New Guinea
+      py:
+        title: Paraguay
+      pe:
+        title: Peru
+      ph:
+        title: Philippines
+      pn:
+        title: Pitcairn
+      pl:
+        title: Poland
+      pt:
+        title: Portugal
+      pr:
+        title: Puerto Rico
+      qa:
+        title: Qatar
+      re:
+        title: Réunion
+      ro:
+        title: Romania
+      ru:
+        title: Russian Federation
+      rw:
+        title: Rwanda
+      bl:
+        title: Saint Barthélemy
+      sh:
+        title: Saint Helena, Ascension and Tristan da Cunha
+      kn:
+        title: Saint Kitts and Nevis
+      lc:
+        title: Saint Lucia
+      mf:
+        title: Saint Martin (French part)
+      pm:
+        title: Saint Pierre and Miquelon
+      vc:
+        title: Saint Vincent and the Grenadines
+      ws:
+        title: Samoa
+      sm:
+        title: San Marino
+      st:
+        title: Sao Tome and Principe
+      sa:
+        title: Saudi Arabia
+      sn:
+        title: Senegal
+      rs:
+        title: Serbia
+      sc:
+        title: Seychelles
+      sl:
+        title: Sierra Leone
+      sg:
+        title: Singapore
+      sx:
+        title: Sint Maarten (Dutch part)
+      sk:
+        title: Slovakia
+      si:
+        title: Slovenia
+      sb:
+        title: Solomon Islands
+      so:
+        title: Somalia
+      za:
+        title: South Africa
+      gs:
+        title: South Georgia and the South Sandwich Islands
+      ss:
+        title: South Sudan
+      es:
+        title: Spain
+      lk:
+        title: Sri Lanka
+      sd:
+        title: Sudan
+      sr:
+        title: Suriname
+      sj:
+        title: Svalbard and Jan Mayen
+      sz:
+        title: Swaziland
+      se:
+        title: Sweden
+      ch:
+        title: Switzerland
+      sy:
+        title: Syrian Arab Republic
+      tw:
+        title: Taiwan, Province of China
+      tj:
+        title: Tajikistan
+      tz:
+        title: Tanzania, United Republic of
+      th:
+        title: Thailand
+      tl:
+        title: Timor-Leste
+      tg:
+        title: Togo
+      tk:
+        title: Tokelau
+      to:
+        title: Tonga
+      tt:
+        title: Trinidad and Tobago
+      tn:
+        title: Tunisia
+      tr:
+        title: Turkey
+      tm:
+        title: Turkmenistan
+      tc:
+        title: Turks and Caicos Islands
+      tv:
+        title: Tuvalu
+      ug:
+        title: Uganda
+      ua:
+        title: Ukraine
+      ae:
+        title: United Arab Emirates
+      gb:
+        title: United Kingdom
+      us:
+        title: United States
+      um:
+        title: United States Minor Outlying Islands
+      uy:
+        title: Uruguay
+      uz:
+        title: Uzbekistan
+      vu:
+        title: Vanuatu
+      ve:
+        title: Venezuela, Bolivarian Republic of
+      vn:
+        title: Viet Nam
+      vg:
+        title: Virgin Islands, British
+      vi:
+        title: Virgin Islands, U.S.
+      wf:
+        title: Wallis and Futuna
+      eh:
+        title: Western Sahara
+      ye:
+        title: Yemen
+      zm:
+        title: Zambia
+      zw:
+        title: Zimbabwe
+
+  RunningSoftwareValues:
+    title: running software values
+    description: Possible running software types.
+    permissible_values:
+      cdm_gateway:
+        deprecated_element_has_exact_replacement: base:iah_gateway
+      iah_gateway:
+      other:
