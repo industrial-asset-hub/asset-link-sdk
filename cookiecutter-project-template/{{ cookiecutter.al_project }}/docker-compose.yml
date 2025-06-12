@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: {{cookiecutter.year}} {{cookiecutter.company}}
 #
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: {{cookiecutter.license}}
 #
 # Starts the {{ cookiecutter.al_project }} Asset Link for Industrial Asset Hub (IAH)
 # Depends on an IAH gateway
