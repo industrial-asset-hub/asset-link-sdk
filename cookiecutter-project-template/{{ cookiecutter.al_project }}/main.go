@@ -1,7 +1,7 @@
 /*
  * SPDX-FileCopyrightText: {{cookiecutter.year}} {{cookiecutter.company}}
  *
- * SPDX-License-Identifier: MIT
+ * SPDX-License-Identifier: {{cookiecutter.license}}
  *
  * Author: {{cookiecutter.author_name}} <{{cookiecutter.author_email}}>
  */
