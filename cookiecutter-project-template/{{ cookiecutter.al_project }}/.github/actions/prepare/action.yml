@@ -1,0 +1,43 @@
+# SPDX-FileCopyrightText: {{cookiecutter.year}} {{cookiecutter.company}}
+#
+# SPDX-License-Identifier: MIT
+
+name: Prepare Environment
+description: Setup Go and install dependencies
+
+inputs:
+  go-version:
+    description: 'Desired Go version'
+    required: false
+    default: 'stable'
+
+# outputs:
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: stable
+    - name: Install Dependencies
+      shell: bash
+      run: |
+        export GOPATH=$HOME/go
+        export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
+        sudo apt-get update
+        sudo apt-get install -y protobuf-compiler
+        go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.35.1
+        go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.5.1
+        go install github.com/atombender/go-jsonschema@v0.16.0
+    - name: Set Environment Variables
+      shell: bash
+      run: |
+          echo "OS_NAME=${{'{{'}} runner.os {{'}}'}}" >> $GITHUB_ENV
+          if [ "${{'{{'}} runner.arch {{'}}'}}" == "X64" ]; then
+            echo "ARCH_NAME=x86_64" >> $GITHUB_ENV
+          elif [ "${{'{{'}} runner.arch {{'}}'}}" == "ARM64" ]; then
+            echo "ARCH_NAME=arm64" >> $GITHUB_ENV
+          else
+            echo "ARCH_NAME=${{'{{'}} runner.arch {{'}}'}}" >> $GITHUB_ENV
+          fi
