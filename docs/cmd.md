@@ -5,7 +5,7 @@ nav_order: 4
 
 ### Command line tool
 
-To ease development or testing of the asset link, the discovery can be interactively triggered using a command line tool. This command will provide the results (i.e., the devices or assets discovered by the asset link) as output.
+To ease development or testing of the Asset Link, the discovery can be interactively triggered using a command line tool. This command will provide the results (i.e., the devices or assets discovered by the Asset Link) as output.
 For example discovery can be started/stopped and results can be retrieved.
 Moreover, there is also a test-suite that can be used as follows:
 
@@ -39,7 +39,7 @@ Note: LinkML is used to validate assets against the schema.
 
 ### Command Line Tool for Local Debugging
 
-As mentioned above, the asset link can be interactively triggered using a command line tool.
+As mentioned above, the Asset Link can be interactively triggered using a command line tool.
 Build it locally or install it by running:
 
 ```bash

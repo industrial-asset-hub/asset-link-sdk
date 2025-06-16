@@ -5,7 +5,7 @@ nav_order: 3
 
 ### Bootstrapping your own Asset Link
 
-To bootstrap your own asset link, a template using the well-known
+To bootstrap your own Asset Link, a template using the well-known
 [cookiecutter](https://github.com/cookiecutter/cookiecutter/) is available in this repository.
 
 Run the following command, which provides a text-based questionnaire to set up a skeleton.
@@ -44,8 +44,8 @@ $ go run main.go --grpc-server-address=localhost:8081 --grpc-server-endpoint-add
 [...]
 ```
 
-This registers the asset link as **custom-asset-link** in the registry provided by your gateway, e.g. the IAH Asset Gateway.
-The asset link starts a gRPC server on your machine on port 8080. The example asset link creates a device whenever a
+This registers the Asset Link as **custom-asset-link** in the registry provided by your gateway, e.g. the IAH Asset Gateway.
+The Asset Link starts a gRPC server on your machine on port 8080. The example Asset Link creates a device whenever a
 discovery is started via the gRPC interface or the CLI.
 
 > Security remark:\

@@ -5,8 +5,8 @@ nav_order: 2
 
 ### Overview
 
-The SDK is designed in such a way that to create a new asset link, you need to implement the
-interfaces of the feature that the particular asset link is intended to provide
+The SDK is designed in such a way that to create a new Asset Link, you need to implement the
+interfaces of the feature that the particular Asset Link is intended to provide
 Currently, one interface is supported:
 
 **Discovery Interface** (allows device discoveries and consists of three functions):
@@ -28,9 +28,9 @@ Tooling:
 
 Gateway:
 
-Have a gateway stack running to connect the asset link to. The gateway needs to
+Have a gateway stack running to connect the Asset Link to. The gateway needs to
 implement server for the [grpcRegistry](https://github.com/industrial-asset-hub/asset-link-sdk/tree/main/specs/conn_suite_registry.proto) and implement the
-necessary clients for the specific asset link capabilities.
+necessary clients for the specific Asset Link capabilities.
 For discovery these clients need to be implemented:
 
 - [DriverInfo](https://github.com/industrial-asset-hub/asset-link-sdk/tree/main/specs/conn_suite_drv_info.proto)
@@ -40,7 +40,7 @@ For discovery these clients need to be implemented:
 > Siemens Industrial Asset Hub (IAH) for that
 
 To ease local development a container image of a registry server is provided as part of the [Asset Gateway](https://github.com/industrial-asset-hub/asset-gateway).
-Additionally, a command line tool called [al-ctl](https://github.com/industrial-asset-hub/asset-link-sdk/tree/main/cmd/al-ctl/al-ctl.go) is provided to locally run and test the asset links.
+Additionally, a command line tool called [al-ctl](https://github.com/industrial-asset-hub/asset-link-sdk/tree/main/cmd/al-ctl/al-ctl.go) is provided to locally run and test the Asset Links.
 
 To run these components use the following commands:
 
