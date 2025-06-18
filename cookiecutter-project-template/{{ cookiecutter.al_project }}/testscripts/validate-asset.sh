@@ -1,14 +1,19 @@
+#!/usr/bin/env bash
+
 # SPDX-FileCopyrightText: {{cookiecutter.year}} {{cookiecutter.company}}
 #
 # SPDX-License-Identifier: MIT
 
-nohup go run main.go &
-sleep 10
+nohup go run -tags webserver main.go &
+bash ./testscripts/wait_till_al_is_started.sh
 
 ASSET_ENDPOINT_PORT=${ASSET_ENDPOINT_PORT:-localhost:8081}
 
-curl -L -o al-ctl_Linux_x86_64.tar.gz https://github.com/industrial-asset-hub/asset-link-sdk/releases/download/v3.4.3/al-ctl_Linux_x86_64.tar.gz
-tar -xf al-ctl_Linux_x86_64.tar.gz
+echo "OS_NAME: ${OS_NAME}"
+echo "ARCH_NAME: ${ARCH_NAME}"
+
+curl -L -o al-ctl_${OS_NAME}_${ARCH_NAME}.tar.gz https://github.com/industrial-asset-hub/asset-link-sdk/releases/download/v3.4.3/al-ctl_${OS_NAME}_${ARCH_NAME}.tar.gz
+tar -xf al-ctl_${OS_NAME}_${ARCH_NAME}.tar.gz
 chmod +x al-ctl
 
 # Download the base schema for validation

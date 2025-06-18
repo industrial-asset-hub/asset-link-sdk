@@ -57,7 +57,7 @@ func main() {
 	flag.StringVar(&grpcServerAddress, "grpc-server-address", "localhost:8081", "gRPC server endpoint")
 	flag.StringVar(&grpcServerEndpointAddress, "grpc-server-endpoint-address", "localhost", "Address which is registered")
 	flag.StringVar(&httpServerAddress, "http-address", "localhost:8082", "HTTP server endpoint")
-	flag.StringVar(&registryAddress, "grpc-registry-address", "localhost:50051", "gRPC registry address")
+	flag.StringVar(&registryAddress, "grpc-registry-address", "grpc-server-registry:50051", "gRPC registry address")
 
 	// Parse the CLI flags
 	flag.Parse()
