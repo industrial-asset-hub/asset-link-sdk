@@ -42,6 +42,12 @@ func main() {
 		Str("commit", commit).
 		Str("date", date).
 		Msg("Starting " + alName + " driver")
+	logging.SetupLogging()
+	log.Info().
+		Str("Version", version).
+		Str("commit", commit).
+		Str("date", date).
+		Msg("Starting " + alName + " driver")
 
 	// Setup log of log infrastructure
 	var logLevel string
