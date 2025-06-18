@@ -28,3 +28,8 @@ $ goreleaser release --snapshot --clean
 $ ls -al dist/
 [...]
 ```
+
+## Run the Pipeline
+The reference Asset Link includes GitHub workflow that automates the pipeline steps.
+The pipeline will be executed automatically during push operation or creation of pull request.
+
