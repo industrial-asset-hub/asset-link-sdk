@@ -79,7 +79,7 @@ func createAssetFilesFromDiscoveryResponse(data interface{}) (numberOfAssetsToVa
 			transformedDevice["id"] = uuid.New().String()
 
 			if transformedDevice["meta"] != nil {
-				//Remove meta field if it exists before validation
+				// Remove meta field if it exists before validation
 				delete(transformedDevice, "meta")
 			}
 
