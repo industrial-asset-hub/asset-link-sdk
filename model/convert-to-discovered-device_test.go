@@ -23,7 +23,7 @@ func TestConvertToDiscoveredDevice(t *testing.T) {
 	device := generateDevice("Profinet", "Device")
 	discoveredDevice := device.ConvertToDiscoveredDevice()
 	discoveredDeviceType := fmt.Sprintf("%s/%s", baseSchemaPrefix, "Asset#@type")
-	assert.Equal(t, 22, len(discoveredDevice.Identifiers))
+	assert.Equal(t, 23, len(discoveredDevice.Identifiers))
 	assert.Equal(t, "URI", discoveredDevice.Identifiers[0].Classifiers[0].GetType())
 	assert.Equal(t, discoveredDeviceType, discoveredDevice.Identifiers[0].Classifiers[0].GetValue())
 }
@@ -32,7 +32,7 @@ func TestConvertFromDerivedSchemaToDiscoveredDevice(t *testing.T) {
 	schemaUri := "https://schema.industrial-assets.io/sat/v0.8.2"
 	device := generateDevice("SatController", "Device")
 	discoveredDevice := ConvertFromDerivedSchemaToDiscoveredDevice(device, schemaUri, "SatController")
-	assert.Equal(t, 22, len(discoveredDevice.Identifiers))
+	assert.Equal(t, 23, len(discoveredDevice.Identifiers))
 	assert.Equal(t, "URI", discoveredDevice.Identifiers[0].Classifiers[0].GetType())
 	assert.Equal(t, "https://schema.industrial-assets.io/sat/v0.8.2/SatController#@type", discoveredDevice.Identifiers[0].Classifiers[0].GetValue())
 }
@@ -52,7 +52,7 @@ func TestConvertDerivedSchemaToDiscoveredDevice(t *testing.T) {
 	*satDevice.PasswordProtected = true
 
 	discoveredDevice := ConvertFromDerivedSchemaToDiscoveredDevice(satDevice, "https://schema.industrial-assets.io/sat/v0.8.2", "SatController")
-	assert.Equal(t, 23, len(discoveredDevice.Identifiers))
+	assert.Equal(t, 24, len(discoveredDevice.Identifiers))
 	passwordProtectedFound := false
 	for _, identifier := range discoveredDevice.Identifiers {
 		if strings.Contains(identifier.Classifiers[0].GetValue(), "password_protected") {
@@ -154,6 +154,14 @@ func generateDevice(typeOfAsset string, assetName string) *DeviceInfo {
 		StateValue:     &reachabilityStateValue,
 	}
 	device.ReachabilityState = &reachabilityState
+
+	assetOperationName := "Firmware Update"
+	assetOperationActivationFlag := true
+	assetOperations := AssetOperation{
+		OperationName:  &assetOperationName,
+		ActivationFlag: &assetOperationActivationFlag,
+	}
+	device.AssetOperations = append(device.AssetOperations, assetOperations)
 	return device
 }
 
@@ -304,8 +312,8 @@ func TestConvertToDeviceIdentifiers_IgnoredIdentifier(t *testing.T) {
 		fieldValue interface{}
 		uri        string
 	}{
-		{device.ProductInstanceIdentifier.IdentifierUncertainty, "https://schema.industrial-assets.io/base/v0.9.0/Asset#asset_identifiers/identifier_uncertainty"},
-		{device.InstanceAnnotations, "https://schema.industrial-assets.io/base/v0.9.0/Asset#instance_annotations"},
+		{device.ProductInstanceIdentifier.IdentifierUncertainty, "https://schema.industrial-assets.io/base/v0.10.0/Asset#asset_identifiers/identifier_uncertainty"},
+		{device.InstanceAnnotations, "https://schema.industrial-assets.io/base/v0.10.0/Asset#instance_annotations"},
 	}
 
 	for _, testCase := range testCases {

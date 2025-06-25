@@ -2,8 +2,8 @@
 #   SPDX-License-Identifier: MIT
 
 # yaml-language-server: $schema=https://linkml.io/linkml-model/linkml_model/jsonschema/meta.schema.json
-id: https://common-device-management.code.siemens.io/documentation/asset-modeling/base-schema/v0.9.0/iah-base.jsonld
-version: 0.9.0
+id: https://common-device-management.code.siemens.io/documentation/asset-modeling/base-schema/v0.10.0/iah-base.jsonld
+version: 0.10.0
 name: IAH-Base
 title: Industrial Asset Hub Base Schema
 description: >-
@@ -15,7 +15,7 @@ prefixes:
   linkml: https://w3id.org/linkml/
   lis: http://rds.posccaesar.org/ontology/lis14/rdl/
   schema: http://schema.org/
-  base: https://common-device-management.code.siemens.io/documentation/asset-modeling/base-schema/v0.9.0/
+  base: https://common-device-management.code.siemens.io/documentation/asset-modeling/base-schema/v0.10.0/
   sietechas: http://ontology.siemens.com/base/enterprise/technical-asset#
   sieiot: http://ontology.siemens.com/base/enterprise/iot#
 imports:
@@ -102,6 +102,7 @@ classes:
       - last_modified_timestamp
       - asset_identifiers
       - zone
+      - responsible
     rank: 10
 
   Device:
@@ -1187,6 +1188,11 @@ slots:
       purpose of access control.
       That way it is possible to give certain roles or persons specific
       permissions to all assets associated to a zone.
+    range: string
+
+  responsible:
+    description: >-
+      Provides the id of the user or client that onboarded the asset
     range: string
 
 enums:
