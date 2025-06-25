@@ -35,6 +35,6 @@ SPDX-FileCopyrightText = "2024 Siemens AG"
 SPDX-License-Identifier = "MIT"
 
 [[annotations]]
-path = "model/iah_base.schema*.json"
+path = "model/cdm_base.schema*.json"
 SPDX-FileCopyrightText = "2024 Siemens AG"
 SPDX-License-Identifier = "MIT"
