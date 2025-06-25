@@ -78,6 +78,11 @@ func createAssetFilesFromDiscoveryResponse(data interface{}) (numberOfAssetsToVa
 			// Add a unique id to the transformed device
 			transformedDevice["id"] = uuid.New().String()
 
+			if transformedDevice["meta"] != nil {
+				// Remove meta field if it exists before validation
+				delete(transformedDevice, "meta")
+			}
+
 			// Marshal the transformed device
 			jsonDevice, err := json.Marshal(transformedDevice)
 			if err != nil {
