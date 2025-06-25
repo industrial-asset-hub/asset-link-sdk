@@ -147,6 +147,9 @@ type Asset struct {
 	// A slot to track the last observed reachability state and when it was observed.
 	ReachabilityState *ReachabilityState `json:"reachability_state,omitempty" yaml:"reachability_state,omitempty" mapstructure:"reachability_state,omitempty"`
 
+	// Provides the id of the user or client that onboarded the asset
+	Responsible *string `json:"responsible,omitempty" yaml:"responsible,omitempty" mapstructure:"responsible,omitempty"`
+
 	// An asset can host software artifacts that might want to be tracked. This can be
 	// used simply to keep track of the firmware version or to keep a full-blown
 	// Software Bill of Material (SBOM).
@@ -331,6 +334,9 @@ type AssetLink struct {
 	// A slot to track the last observed reachability state and when it was observed.
 	ReachabilityState *ReachabilityState `json:"reachability_state,omitempty" yaml:"reachability_state,omitempty" mapstructure:"reachability_state,omitempty"`
 
+	// Provides the id of the user or client that onboarded the asset
+	Responsible *string `json:"responsible,omitempty" yaml:"responsible,omitempty" mapstructure:"responsible,omitempty"`
+
 	// Type of running software.
 	RunningSoftwareType *RunningSoftwareValues `json:"running_software_type,omitempty" yaml:"running_software_type,omitempty" mapstructure:"running_software_type,omitempty"`
 
@@ -450,7 +456,7 @@ func (j *Asset) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-type CdmBaseSchemaV090Json map[string]interface{}
+type CdmBaseSchemaV0100Json map[string]interface{}
 
 // A connection point is a hardware or software interface that enables an asset to
 // communicate with other assets.
@@ -1186,6 +1192,9 @@ type Dcd struct {
 	// A slot to track the last observed reachability state and when it was observed.
 	ReachabilityState *ReachabilityState `json:"reachability_state,omitempty" yaml:"reachability_state,omitempty" mapstructure:"reachability_state,omitempty"`
 
+	// Provides the id of the user or client that onboarded the asset
+	Responsible *string `json:"responsible,omitempty" yaml:"responsible,omitempty" mapstructure:"responsible,omitempty"`
+
 	// Type of running software.
 	RunningSoftwareType *RunningSoftwareValues `json:"running_software_type,omitempty" yaml:"running_software_type,omitempty" mapstructure:"running_software_type,omitempty"`
 
@@ -1342,6 +1351,9 @@ type Device struct {
 
 	// A slot to track the last observed reachability state and when it was observed.
 	ReachabilityState ReachabilityState `json:"reachability_state" yaml:"reachability_state" mapstructure:"reachability_state"`
+
+	// Provides the id of the user or client that onboarded the asset
+	Responsible *string `json:"responsible,omitempty" yaml:"responsible,omitempty" mapstructure:"responsible,omitempty"`
 
 	// An asset can host software artifacts that might want to be tracked. This can be
 	// used simply to keep track of the firmware version or to keep a full-blown
@@ -1652,6 +1664,9 @@ type Gateway struct {
 
 	// A slot to track the last observed reachability state and when it was observed.
 	ReachabilityState *ReachabilityState `json:"reachability_state,omitempty" yaml:"reachability_state,omitempty" mapstructure:"reachability_state,omitempty"`
+
+	// Provides the id of the user or client that onboarded the asset
+	Responsible *string `json:"responsible,omitempty" yaml:"responsible,omitempty" mapstructure:"responsible,omitempty"`
 
 	// List of Link Assets running on an Asset Gateway and registered.
 	RunningAssetLinks []AssetLink `json:"running_asset_links,omitempty" yaml:"running_asset_links,omitempty" mapstructure:"running_asset_links,omitempty"`
@@ -2689,6 +2704,9 @@ type RunningSoftware struct {
 	// A slot to track the last observed reachability state and when it was observed.
 	ReachabilityState *ReachabilityState `json:"reachability_state,omitempty" yaml:"reachability_state,omitempty" mapstructure:"reachability_state,omitempty"`
 
+	// Provides the id of the user or client that onboarded the asset
+	Responsible *string `json:"responsible,omitempty" yaml:"responsible,omitempty" mapstructure:"responsible,omitempty"`
+
 	// Type of running software.
 	RunningSoftwareType *RunningSoftwareValues `json:"running_software_type,omitempty" yaml:"running_software_type,omitempty" mapstructure:"running_software_type,omitempty"`
 
@@ -2973,6 +2991,9 @@ type SoftwareArtifact struct {
 	// A slot to track the last observed reachability state and when it was observed.
 	ReachabilityState *ReachabilityState `json:"reachability_state,omitempty" yaml:"reachability_state,omitempty" mapstructure:"reachability_state,omitempty"`
 
+	// Provides the id of the user or client that onboarded the asset
+	Responsible *string `json:"responsible,omitempty" yaml:"responsible,omitempty" mapstructure:"responsible,omitempty"`
+
 	// An asset can host software artifacts that might want to be tracked. This can be
 	// used simply to keep track of the firmware version or to keep a full-blown
 	// Software Bill of Material (SBOM).
@@ -3126,6 +3147,9 @@ type SoftwareAsset struct {
 
 	// A slot to track the last observed reachability state and when it was observed.
 	ReachabilityState *ReachabilityState `json:"reachability_state,omitempty" yaml:"reachability_state,omitempty" mapstructure:"reachability_state,omitempty"`
+
+	// Provides the id of the user or client that onboarded the asset
+	Responsible *string `json:"responsible,omitempty" yaml:"responsible,omitempty" mapstructure:"responsible,omitempty"`
 
 	// An asset can host software artifacts that might want to be tracked. This can be
 	// used simply to keep track of the firmware version or to keep a full-blown
