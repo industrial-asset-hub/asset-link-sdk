@@ -56,7 +56,14 @@ jobs:
       - name: Prepare Environment
         uses: ./.github/actions/prepare
       - name: Test
-        run: go test -v ./...
+        run: |
+          mkdir coverage
+          go test ./... -coverprofile=coverage/coverage.out -covermode=atomic -v
+      - name: Upload Coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage.out
+
 
   check:
     runs-on: ubuntu-latest
