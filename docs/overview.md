@@ -5,19 +5,18 @@ nav_order: 2
 
 ### Overview
 
-The SDK is designed in such a way that to create a new Asset Link, you need to implement the
-interfaces of the feature that the particular Asset Link is intended to provide
+The SDK is designed in such a way that to create a new Asset Link, you need to implement the interfaces of the feature that the particular Asset Link is intended to provide
 Currently, one interface is supported:
 
 **Discovery Interface** (allows device discoveries and consists of three functions):
 
-1. `Discover`: This interface handles device discovery requests when requested by Common Device Management (CDM) like Industrial Asset Hub (IAH) and its gateway. It ensures only one discovery job runs at a time, retrieves option and filter settings from the provided configuration, performs device discovery logic, and publishes discovered devices using the provided data publisher.
+1. `Discover`: This interface handles device discovery requests. It ensures only one discovery job runs at a time, retrieves option and filter settings from the provided configuration, performs device discovery logic, and publishes discovered devices using the provided data publisher.
 
-2. `GetSupportedFilters`: This interface returns a list of supported discovery options, describing which configuration options can be used during device discovery.  
+2. `GetSupportedOptions`: This interface returns a list of supported discovery options, describing which configuration options can be used during device discovery.  
 **Example:**  
 - `interface to scan`, `timeout`
 
-3. `GetSupportedOptions`: This interface returns a list of supported discovery filters, describing which filter criteria can be applied to limit or customize the discovery process.
+3. `GetSupportedFilters` : This interface returns a list of supported discovery filters, describing which filter criteria can be applied to limit or customize the discovery process.
 **Example:**  
 - `IP`, `MAC`, `device type`
 

@@ -24,7 +24,7 @@ $ cookiecutter https://github.com/industrial-asset-hub/asset-link-sdk.git
 ```
 ![Bootstrapping Steps](https://github.com/industrial-asset-hub/asset-link-sdk/tree/main/docs/images/bootstrap-steps.gif)
 
-**Note:As a recommendation, Asset Link should be named in a way that clearly includes the phrase “Asset Link”. This ensures a consistent and recognizable naming convention across the project.**
+**Note:As a recommendation, Asset Link should be named in a way that clearly includes the phrase “Asset Link”. This ensures a consistent and recognizable naming convention for created Asset Link.**
 
 There should now be a directory called **custom-asset-link**.
 The directory contains a number of files. The AL is ready to run out of the box.

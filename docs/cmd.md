@@ -8,7 +8,7 @@ nav_order: 4
 To facilitate development and testing of the Asset Link, an interactive command-line tool is provided to manually trigger the discovery process. This command will provide the results (i.e., the devices or assets discovered by the Asset Link) as output.
 For example discovery can be started/stopped and results can be retrieved.
 
-The command line tool provides a possibility for user to test the Asset Link created using asset-link-sdk even without having an associated gateway. The discovered assets can be retrieved in a file using various commands and the same can be validated against the underlying data model.
+The command line tool provides a possibility for user to test the Asset Link created using al-ctl even without having an associated gateway. The discovered assets can be retrieved in a file using various commands and the same can be validated against the underlying data model.
 The details of the test-suite are as follows:
 
 ```bash
@@ -66,7 +66,7 @@ Examples of actions which can be performed on the Asset Link:
 |--------------------|--------------------------------------------|
 | test api           | Run the Api Tests on Asset Link            |
 | assets discover    | Runs the discovery on Asset Link           |
-| test assets        | Validates the Asset against base-schema    |
+| test assets        | Validates the Asset against schema         |
 | test registration  | Validates the Registration of Asset Link   |
 ---
 
@@ -133,8 +133,8 @@ $ al-ctl test assets --base-schema-path <base-schema> --asset-path <asset>
 |-----------------------|--------------------------------------------------------|
 | '--base-schema-path'  | Base-Schema path against which asset will be validated |
 | '--asset-path'        | Asset path of the Asset to be validated                |
-| '--target-class'      | Discovery config file in json format                   |
-| '-extended-schema'    | Validation of cancellation of Discovery                |
+| '--target-class'      | Target class for validation of asset                   |
+| '--extended-schema'   | Path to the extended schema                            |
 ---
 
 ## Command: "test registration"
