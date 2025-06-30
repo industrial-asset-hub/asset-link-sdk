@@ -1,0 +1,147 @@
+# SPDX-FileCopyrightText: {{cookiecutter.year}} {{cookiecutter.company}}
+#
+# SPDX-License-Identifier: MIT
+
+name: {{ cookiecutter.al_project }}
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare Environment
+        uses: ./.github/actions/prepare
+      - name: Run golangci-lint
+        uses: golangci/golangci-lint-action@v8
+        with:
+          version: v2.1
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare Environment
+        uses: ./.github/actions/prepare
+      - name: Build
+        run: go build -v ./...
+      - name: Docker Login
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{'{{'}} github.repository_owner {{'}}'}}
+          password: ${{'{{'}} secrets.GITHUB_TOKEN {{'}}'}}
+
+  unit-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare Environment
+        uses: ./.github/actions/prepare
+      - name: Run Unit Test
+        run: go test -v ./...
+
+  test-discovery:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare Environment
+        uses: ./.github/actions/prepare
+      - name: Run Test Discovery
+        run: bash ./testscripts/discovery.sh
+
+  test-api:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare Environment
+        uses: ./.github/actions/prepare
+      - name: Run Test Api
+        run: bash ./testscripts/test-api.sh
+
+  validate-asset:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare Environment
+        uses: ./.github/actions/prepare
+      - name: Run Validate Asset
+        run: |
+            pip install --upgrade argcomplete
+            pip install linkml-validator
+            bash ./testscripts/validate-asset.sh
+
+  test-registration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare Environment
+        uses: ./.github/actions/prepare
+      - name: Login to Docker Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{'{{'}} github.actor {{'}}'}}
+          password: ${{'{{'}} secrets.GITHUB_TOKEN {{'}}'}}
+      - name: Pull gRPC Server Registry Image
+        run: docker pull ghcr.io/industrial-asset-hub/iah/grpc-server-registry:0.1.6
+      - name: Run grpc server registry
+        run: docker run -d --name grpc-server-registry -p 50051:50051 ghcr.io/industrial-asset-hub/iah/grpc-server-registry:0.1.6
+      - name: Wait for registry
+        run: |
+          echo "Waiting for gRPC registry to start..."
+          timeout 30s bash -c 'until nc -z localhost 50051; do sleep 10; done'
+          echo "gRPC registry is up and running."
+      - name: Run Test Registration
+        run: bash ./testscripts/registration.sh
+
+  release:
+    runs-on: ubuntu-latest
+    needs: [lint, build, unit-test, test-discovery, test-api, test-registration]
+    if: github.event_name != 'pull_request' && github.ref_type == 'tag'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare Environment
+        uses: ./.github/actions/prepare
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Login to GitHub Container Registry (GHCR.io)
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{'{{'}} github.actor {{'}}'}}
+          password: ${{'{{'}} secrets.GITHUB_TOKEN {{'}}'}}
+      - name: Release (official)
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          distribution: goreleaser
+          version: "~> v2"
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{'{{'}} secrets.GITHUB_TOKEN {{'}}'}}
+
+  release-dry-run:
+    runs-on: ubuntu-latest
+    needs: [lint, build, unit-test, test-discovery, test-api, test-registration]
+    if: github.event_name == 'pull_request' || github.ref_type != 'tag'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare Environment
+        uses: ./.github/actions/prepare
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Release (dry-run)
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          distribution: goreleaser
+          version: "~> v2"
+          args: release --clean --snapshot
+        env:
+          GITHUB_TOKEN: ${{'{{'}} secrets.GITHUB_TOKEN {{'}}'}}

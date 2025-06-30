@@ -29,6 +29,7 @@ path = [
   "cdm-al-reference/simdevices/static/index.html",
   "cookiecutter-project-template/{{ cookiecutter.al_project }}/.markdownlintrc",
   "cookiecutter-project-template/{{ cookiecutter.al_project }}/go.mod.tmpl",
+  "cookiecutter-project-template/{{ cookiecutter.al_project }}/registry.json",
   "cookiecutter-project-template/*.json",
 ]
 SPDX-FileCopyrightText = "2024 Siemens AG"
