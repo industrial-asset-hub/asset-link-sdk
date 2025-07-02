@@ -22,6 +22,9 @@ $ cookiecutter https://github.com/industrial-asset-hub/asset-link-sdk.git
 [7/8] company_url (https://www.device-builder.local): https://www.device-builder.local
 [8/8] year (2024): 2024
 ```
+- [Bootstrapping Steps](https://github.com/industrial-asset-hub/asset-link-sdk/tree/main/docs/images/bootstrap-steps.gif)
+
+**Note: As a recommendation,  the Asset Link naming should include the identifier “Asset Link”. This ensures a consistent and recognisable naming convention for created Asset Link. For example: Custom Asset Link, Default Asset Link.**
 
 There should now be a directory called **custom-asset-link**.
 The directory contains a number of files. The AL is ready to run out of the box.
@@ -30,9 +33,6 @@ There is no fancy logic inside.
 To start the AL execute inside the generated directory:
 
 ```bash
-# Copy templated go.mod file
-$ cp go.mod.tmpl go.mod
-
 # Synchronize Go modules
 $ go mod tidy
 
@@ -52,8 +52,9 @@ discovery is started via the gRPC interface or the CLI.
 > The command above binds the Asset Link to a publicly accessible IP address on your host.
 > Please ensure that the port is protected from external access.
 
-To implement your own logic, take a look at the **handler/handler.go** file and do your first steps.
-This Go module contains the implementations for the Asset Link functionality. Please adapt it to your needs.
+## Handler Implementation and Interfaces
+To implement your own discovery logic, open the **handler/handler.go** file. This Go module contains the core implementations for Asset Link functionality, including device discovery and configuration handling. You can customize functions such as `Discover`, `GetSupportedOptions`, and `GetSupportedFilters` to fit your specific requirements for actual device discovery and to retrieve information about the discovery parameters that are supported by the specific Asset Link.
+- [Discovery Interface](https://github.com/industrial-asset-hub/asset-link-sdk/tree/main/docs/overview.md)
 
 Or, for even faster results, use [GoReleaser](https://goreleaser.com/), which generates binaries for Linux/Windows and
 various architectures, as well as a Debian package.
