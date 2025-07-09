@@ -10,6 +10,7 @@ package model
 import (
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
 )
 
@@ -28,6 +29,7 @@ func NewDevice(typeOfAsset string, assetName string) *DeviceInfo {
 		return &d
 	}
 
+	d.Id = uuid.New().String() // assign a temporary device ID to enable device relationships
 	d.Type = typeOfAsset
 	d.Name = &assetName
 	d.Context = getAssetContext()

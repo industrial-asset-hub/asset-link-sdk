@@ -4,70 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simulated Devices</title>
-    <style>
-        .device {
-            border: 1px solid #ccc;
-            margin: 10px;
-            padding: 15px;
-            border-radius: 5px;
-        }
-        .active {
-            background-color: #e6ffe6;
-        }
-        .reading {
-            background-color: #b2dcff;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Simulated Devices</h1>
+    <div class="main-header">Simulated Devices</div>
     <div id="deviceList"></div>
-
-    <script>
-        let ws;
-
-        function connectWebSocket() {
-            const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
-            const host = window.location.host;
-            const wsURL = `${protocol}${host}/ws`;
-
-            ws = new WebSocket(wsURL);
-
-            ws.onopen = function() {
-                console.log('Connected to WebSocket');
-            };
-
-            ws.onmessage = function(event) {
-                const devices = JSON.parse(event.data);
-                updateDeviceList(devices);
-            };
-
-            ws.onclose = function() {
-                console.log('WebSocket connection closed');
-                // Attempt to reconnect after 3 seconds
-                setTimeout(connectWebSocket, 3000);
-            };
-        }
-
-        function updateDeviceList(devices) {
-            const deviceList = document.getElementById('deviceList');
-            deviceList.innerHTML = '';
-
-            devices.forEach(device => {
-                const deviceElement = document.createElement('div');
-                deviceElement.className = `device ${device.device_state.toLowerCase()}`;
-                deviceElement.innerHTML = `
-                    <h3>${device.device_name}</h3>
-                    <p><b>Device IP:</b> ${device.ip_device}</p>
-                    <p><b>Firmware Version:</b> ${device.firmware_version}</p>
-                    <p><b>Device State:</b> ${device.device_state.toLowerCase()}</p>
-                `;
-                deviceList.appendChild(deviceElement);
-            });
-        }
-
-        // Connect when page loads
-        connectWebSocket();
-    </script>
+    <div id="info" class="info">Reference Asset Link</div>
+    <script src="script.js"></script>
 </body>
 </html>

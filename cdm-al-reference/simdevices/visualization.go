@@ -9,6 +9,7 @@ package simdevices
 import (
 	"embed"
 	"net/http"
+	"path"
 
 	"github.com/gin-contrib/logger"
 	"github.com/gin-gonic/gin"
@@ -37,14 +38,39 @@ func startDeviceVisualization(serverAddress string) {
 		return log.Logger
 	})))
 
-	// Serve static index file
 	router.GET("/", func(c *gin.Context) {
-		content, err := staticFiles.ReadFile("static/index.html")
+		c.Redirect(http.StatusPermanentRedirect, "/static/")
+	})
+
+	// Serve static files (HTML, JS, CSS, images, etc.)
+	router.GET("/static/*filepath", func(c *gin.Context) {
+		filepath := c.Param("filepath")
+		if filepath == "" || filepath == "/" {
+			filepath = "index.html" // Default to index.html if no path is provided
+		}
+
+		localFilepath := path.Join("static/", filepath)
+		content, err := staticFiles.ReadFile(localFilepath)
 		if err != nil {
-			c.String(http.StatusInternalServerError, "Error reading file")
+			c.String(http.StatusNotFound, "File not found")
+			log.Err(err).Msgf("Failed to serve static file: %s (%s)", filepath, localFilepath)
 			return
 		}
-		c.Header("Content-Type", "text/html")
+
+		contentType := "text/plain"
+		extension := path.Ext(filepath)
+		switch extension {
+		case ".js":
+			contentType = "application/javascript"
+		case ".css":
+			contentType = "text/css"
+		case ".html":
+			contentType = "text/html"
+		case ".svg":
+			contentType = "image/svg+xml"
+		}
+
+		c.Header("Content-Type", contentType)
 		c.String(http.StatusOK, string(content))
 	})
 
