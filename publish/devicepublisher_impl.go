@@ -31,3 +31,11 @@ func (d *DevicePublisherImplementation) PublishDevices(devices []*generated.Disc
 	defer d.streamLock.Unlock()
 	return d.Stream.SendMsg(response)
 }
+
+func (d *DevicePublisherImplementation) PublishDeviceRelationship(realationship *generated.DiscoveredDevice) error {
+	return d.PublishDevice(realationship)
+}
+
+func (d *DevicePublisherImplementation) PublishDeviceRelationships(realationships []*generated.DiscoveredDevice) error {
+	return d.PublishDevices(realationships)
+}
