@@ -24,13 +24,13 @@ $ cookiecutter https://github.com/industrial-asset-hub/asset-link-sdk.git
 ```
 - [Bootstrapping Steps](https://github.com/industrial-asset-hub/asset-link-sdk/tree/main/docs/images/bootstrap-steps.gif)
 
-**Note: As a recommendation,  the Asset Link naming should include the identifier “Asset Link”. This ensures a consistent and recognisable naming convention for created Asset Link. For example: Custom Asset Link, Default Asset Link.**
+**Note: As a recommendation, the Asset Link naming should include the identifier “Asset Link”. This ensures a consistent and recognisable naming convention for created Asset Link. For example: Custom Asset Link, Default Asset Link.**
 
 There should now be a directory called **custom-asset-link**.
-The directory contains a number of files. The AL is ready to run out of the box.
+The directory contains a number of files. The Asset Link is ready to run out of the box.
 There is no fancy logic inside.
 
-To start the AL execute inside the generated directory:
+To start the Asset Link, execute inside the generated directory:
 
 ```bash
 # Synchronize Go modules
