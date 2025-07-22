@@ -1,5 +1,14 @@
 let ws;
 
+function escapeHTML(str) {
+    return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+
 function connectWebSocket() {
     const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
     const host = window.location.host;
@@ -36,9 +45,9 @@ function addDevice(device, openSet) {
             <span class="device-icon" aria-hidden="true">
                 <img src="images/device.svg" alt="Device Icon" />
             </span>
-            <span>${device.device_name}</span>
+            <span>${escapeHTML(device.device_name)}</span>
         </span>
-        <span class="state-tag ${device.device_state.toLowerCase()}">${device.device_state.toLowerCase()}</span>
+        <span class="state-tag ${escapeHTML(device.device_state.toLowerCase())}">${escapeHTML(device.device_state.toLowerCase())}</span>
         <button class="toggle-btn" aria-label="Toggle device details">
             <img class="plusminus-icon" src="images/plus.svg" width="24" height="24" alt="Expand" />
         </button>
@@ -51,25 +60,25 @@ function addDevice(device, openSet) {
     content.innerHTML = `
         <dl>
             <dt>Device Name:</dt>
-            <dd>${device.device_name}</dd>
+            <dd>${escapeHTML(device.device_name)}</dd>
             <dt>Product Designation:</dt>
-            <dd>${device.product_designation}</dd>
+            <dd>${escapeHTML(device.product_designation)}</dd>
             <dt>Article Number:</dt>
-            <dd>${device.article_number}</dd>
+            <dd>${escapeHTML(device.article_number)}</dd>
             <dt>Manufacturer:</dt>
-            <dd>${device.manufacturer}</dd>
+            <dd>${escapeHTML(device.manufacturer)}</dd>
             <dt>Serial Number:</dt>
-            <dd>${device.serial_number}</dd>
+            <dd>${escapeHTML(device.serial_number)}</dd>
             <dt>Firmware Version:</dt>
-            <dd>${device.firmware_version}</dd>
+            <dd>${escapeHTML(device.firmware_version)}</dd>
             <dt>Hardware Version:</dt>
-            <dd>${device.hardware_version}</dd>
+            <dd>${escapeHTML(device.hardware_version)}</dd>
             <dt>Device State:</dt>
-            <dd>${device.device_state.toLowerCase()}</dd>
+            <dd>${escapeHTML(device.device_state.toLowerCase())}</dd>
             <dt>IP Address:</dt>
-            <dd>${device.ip_device !== undefined && device.ip_device !== '' ? device.ip_device : '-'}</dd>
+            <dd>${device.ip_device !== undefined && device.ip_device !== '' ? escapeHTML(device.ip_device) : '-'}</dd>
             <dt>MAC Address:</dt>
-            <dd>${device.mac_address !== undefined && device.mac_address !== '' ? device.mac_address : '-'}</dd>
+            <dd>${device.mac_address !== undefined && device.mac_address !== '' ? escapeHTML(device.mac_address) : '-'}</dd>
         </dl>
     `;
     element.appendChild(content);
