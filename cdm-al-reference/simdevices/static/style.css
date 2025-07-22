@@ -1,0 +1,181 @@
+/* Page */
+
+body {
+    margin: 0;
+    font-family: "Segoe UI", "Roboto", "Arial", "Liberation Sans", "Helvetica Neue", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background: #00182b;
+    color: #f3f3f3;
+}
+
+.main-header {
+    position: relative;
+    left: 0;
+    top: 0;
+    right: 0;
+    background: #23233c;
+    color: #fff;
+    font-size: 2em;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    padding: 20px 0 16px 24px;
+    margin: 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    text-align: left;
+}
+
+.info {
+    text-align: center;
+    font-size: 0.8em;
+    color: #b0b8c9;
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+/* Collapsible Devices */
+
+.device {
+    border: 1px solid #22304a;
+    margin: 15px;
+    padding: 0;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    background: rgb(35,35,60);
+    overflow: hidden;
+    transition: box-shadow 0.2s;
+}
+
+.device-header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    background: #00243d;
+    padding: 0 20px;
+    min-height: 56px;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: bold;
+    border-bottom: 1px solid #22304a;
+    color: #fff;
+}
+
+.device:not(.active) > .device-header {
+    border-bottom: none;
+}
+
+.device-icon svg {
+    display: block;
+    height: 36px;
+    width: 36px;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.device-header .toggle-btn {
+    background: none;
+    border: none;
+    font-size: 1.8em;
+    cursor: pointer;
+    color: #009999;
+    margin-left: 8px;
+    transition: transform 0.2s;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    padding-top: 0;
+    padding-bottom: 0;
+    height: 1.5em;
+}
+
+.device-content {
+    padding: 15px 20px;
+    display: none;
+    background: #16213a;
+}
+
+.device.open .device-content {
+    display: block;
+}
+
+.device-header:hover {
+    background: #00334d;
+    box-shadow: 0 2px 12px rgba(0,153,153,0.18);
+}
+
+/* State tag and device states */
+
+.state-tag {
+    display: inline-block;
+    margin-left: 16px;
+    margin-right: 0;
+    padding: 2px 12px;
+    border-radius: 12px;
+    font-size: 0.95em;
+    font-weight: 600;
+    background: #22304a;
+    color: #fff;
+    border: 1px solid #009999;
+    vertical-align: middle;
+    text-transform: lowercase;
+}
+
+@keyframes pulsingDeviceState {
+    0% { background-color: #22304a; }
+    50% { background-color: #8b98b1; }
+    100% { background-color: #22304a; }
+}
+
+.active {
+    background-color: #00334d;
+}
+
+.reading {
+    background-color: #22304a;
+    animation-name: pulsingDeviceState;
+    animation-duration: 1.0s;
+    animation-iteration-count: infinite;
+}
+
+/* Device Attributes */
+
+dl {
+    display: grid;
+    grid-template-columns: repeat(3, auto 1fr);
+    gap: 0 32px;
+    margin: 0;
+}
+
+@media (max-width: 1100px) {
+    dl {
+        grid-template-columns: repeat(2, auto 1fr);
+    }
+}
+
+@media (max-width: 700px) {
+    dl {
+        grid-template-columns: auto 1fr;
+    }
+}
+
+dt, dd {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+dt {
+    font-weight: bold;
+    color: #fff;
+}
+
+dd {
+    color: #b0b8c9;
+}

@@ -44,7 +44,7 @@ func ScanDevices(ethInterface, ipRangeFilter string) []SimulatedDevice {
 		device.DeviceState = StateReading
 		handleDeviceChanges(true)
 
-		time.Sleep(1 * time.Second) // simulate reading information from device
+		time.Sleep(2 * time.Second) // simulate reading information from device
 
 		device.DeviceState = StateActive
 		handleDeviceChanges(true)
