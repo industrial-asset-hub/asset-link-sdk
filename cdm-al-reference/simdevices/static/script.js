@@ -1,5 +1,14 @@
 let ws;
 
+function escapeHTML(str) {
+    return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+
 function connectWebSocket() {
     const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
     const host = window.location.host;
@@ -23,6 +32,76 @@ function connectWebSocket() {
     };
 }
 
+function addDevice(device, openSet) {
+    const element = document.createElement('div');
+    element.className = 'device';
+    element.id = device.unique_device_id;
+
+    // Header
+    const header = document.createElement('div');
+    header.className = 'header';
+    header.innerHTML = `
+        <span class="header-left">
+            <span class="device-icon" aria-hidden="true">
+                <img src="images/device.svg" alt="Device Icon" />
+            </span>
+            <span>${escapeHTML(device.device_name)}</span>
+        </span>
+        <span class="state-tag ${escapeHTML(device.device_state.toLowerCase())}">${escapeHTML(device.device_state.toLowerCase())}</span>
+        <button class="toggle-btn" aria-label="Toggle device details">
+            <img class="plusminus-icon" src="images/plus.svg" width="24" height="24" alt="Expand" />
+        </button>
+    `;
+    element.appendChild(header);
+
+    // Content
+    const content = document.createElement('div');
+    content.className = 'content';
+    content.innerHTML = `
+        <dl>
+            <dt>Device Name:</dt>
+            <dd>${escapeHTML(device.device_name)}</dd>
+            <dt>Product Designation:</dt>
+            <dd>${escapeHTML(device.product_designation)}</dd>
+            <dt>Article Number:</dt>
+            <dd>${escapeHTML(device.article_number)}</dd>
+            <dt>Manufacturer:</dt>
+            <dd>${escapeHTML(device.manufacturer)}</dd>
+            <dt>Serial Number:</dt>
+            <dd>${escapeHTML(device.serial_number)}</dd>
+            <dt>Firmware Version:</dt>
+            <dd>${escapeHTML(device.firmware_version)}</dd>
+            <dt>Hardware Version:</dt>
+            <dd>${escapeHTML(device.hardware_version)}</dd>
+            <dt>Device State:</dt>
+            <dd>${escapeHTML(device.device_state.toLowerCase())}</dd>
+            <dt>IP Address:</dt>
+            <dd>${device.ip_device !== undefined && device.ip_device !== '' ? escapeHTML(device.ip_device) : '-'}</dd>
+            <dt>MAC Address:</dt>
+            <dd>${device.mac_address !== undefined && device.mac_address !== '' ? escapeHTML(device.mac_address) : '-'}</dd>
+        </dl>
+    `;
+    element.appendChild(content);
+
+    // Collapse logic
+    header.addEventListener('click', function(e) {
+        const isOpen = element.classList.toggle('open');
+        const btnImg = header.querySelector('.toggle-btn img');
+        btnImg.src = isOpen ? 'images/minus.svg' : 'images/plus.svg';
+        btnImg.alt = isOpen ? 'Collapse' : 'Expand';
+    });
+
+    // Open if previously open
+    if (openSet.has(device.unique_device_id)) {
+        element.classList.add('open');
+        const btnImg = header.querySelector('.toggle-btn img');
+        btnImg.src = 'images/minus.svg';
+        btnImg.alt = 'Collapse';
+    }
+
+    return element;
+}
+
 function updateDeviceList(devices) {
     const deviceList = document.getElementById('deviceList');
 
@@ -33,74 +112,8 @@ function updateDeviceList(devices) {
     });
     deviceList.innerHTML = '';
 
-    devices.forEach((device, deviceIdx) => {
-        const deviceElement = document.createElement('div');
-        deviceElement.className = `device`;
-        deviceElement.id = device.unique_device_id;
-
-        // Device Header (collapsible)
-        const deviceHeader = document.createElement('div');
-        deviceHeader.className = 'device-header';
-        deviceHeader.innerHTML = `
-            <span class="header-left">
-                <span class="device-icon" aria-hidden="true" style="display:inline-flex;align-items:center;margin-right:16px;">
-                    <img src="images/device.svg" width="32" height="32" alt="Device Icon" />
-                </span>
-                <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${device.device_name}</span>
-            </span>
-            <span class="state-tag ${device.device_state.toLowerCase()}">${device.device_state.toLowerCase()}</span>
-            <button class="toggle-btn" aria-label="Toggle device details">
-                <img class="plusminus-icon" src="images/plus.svg" width="24" height="24" alt="Expand" />
-            </button>
-        `;
-        deviceElement.appendChild(deviceHeader);
-
-        // Device Content
-        const deviceContent = document.createElement('div');
-        deviceContent.className = 'device-content';
-        deviceContent.innerHTML = `
-            <dl>
-                <dt>Device Name:</dt>
-                <dd>${device.device_name}</dd>
-                <dt>Product Designation:</dt>
-                <dd>${device.product_designation}</dd>
-                <dt>Article Number:</dt>
-                <dd>${device.article_number}</dd>
-                <dt>Manufacturer:</dt>
-                <dd>${device.manufacturer}</dd>
-                <dt>Serial Number:</dt>
-                <dd>${device.serial_number}</dd>
-                <dt>Firmware Version:</dt>
-                <dd>${device.firmware_version}</dd>
-                <dt>Hardware Version:</dt>
-                <dd>${device.hardware_version}</dd>
-                <dt>Device State:</dt>
-                <dd>${device.device_state.toLowerCase()}</dd>
-                <dt>IP Address:</dt>
-                <dd>${device.ip_device}</dd>
-                <dt>MAC Address:</dt>
-                <dd>${device.mac_address}</dd>
-            </dl>
-        `;
-
-        deviceElement.appendChild(deviceContent);
-
-        // Device collapse logic
-        deviceHeader.addEventListener('click', function() {
-            const isOpen = deviceElement.classList.toggle('open');
-            const btnImg = deviceHeader.querySelector('.toggle-btn img');
-            btnImg.src = isOpen ? 'images/minus.svg' : 'images/plus.svg';
-            btnImg.alt = isOpen ? 'Collapse' : 'Expand';
-        });
-
-        // Open device if it was previously open
-        if (openDevices.has(device.unique_device_id)) {
-            deviceElement.classList.add('open');
-            const btnImg = deviceHeader.querySelector('.toggle-btn img');
-            btnImg.src = 'images/minus.svg';
-            btnImg.alt = 'Collapse';
-        }
-
+    devices.forEach((device) => {
+        const deviceElement = addDevice(device, openDevices);
         deviceList.appendChild(deviceElement);
     });
 }
