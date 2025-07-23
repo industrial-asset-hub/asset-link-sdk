@@ -117,7 +117,8 @@ func (d *simulatedDeviceInfo) UpdateFirmware(firmwareFilename string) error {
 		return errors.New("product designation mismatch")
 	}
 
-	if fwFile.FirmwareVersion == d.InstalledFirmwareVersion {
+	//nolint:gocritic
+	if fwFile.FirmwareVersion == d.InstalledFirmwareVersion && fwFile.FirmwareVersion == d.ActiveFirmwareVersion {
 		return errors.New("firmware version is already installed")
 	}
 
