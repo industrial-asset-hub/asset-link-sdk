@@ -7,7 +7,6 @@
 package reference
 
 //TODO: make sure that an activation actually activtates the expected version and that no other preparation has taken place in the mean time
-//TODO: adjust update logic (i.e., the same version check) to allow installing a specific firmware version after the activation was cancelled right after the preparation
 //TODO: support explicit cancellation of an update after preparation
 
 import (
