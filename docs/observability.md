@@ -7,7 +7,7 @@ nav_order: 5
 
 The Asset Link also starts a web server that contains a REST API for observability reasons.
 The web server is enabled
-for the **GoReleaser** builds by default and the following endpoints are currently available
+for the **GoReleaser** builds by default and the following endpoints are currently available.
 
 To enable the web server, the Go build
 constraint `webserver` is used (see [Go build contraints](https://pkg.go.dev/cmd/go#hdr-Build_constraints)).
