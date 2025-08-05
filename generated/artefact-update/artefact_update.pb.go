@@ -338,7 +338,7 @@ type ArtefactMetaData struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	JobIdentifier       *JobIdenfifier       `protobuf:"bytes,1,opt,name=job_identifier,json=jobIdentifier,proto3" json:"job_identifier,omitempty"`
+	JobIdentifier       *JobIdentifier       `protobuf:"bytes,1,opt,name=job_identifier,json=jobIdentifier,proto3" json:"job_identifier,omitempty"`
 	ArtefactIdentifier  *ArtefactIdentifier  `protobuf:"bytes,2,opt,name=artefact_identifier,json=artefactIdentifier,proto3" json:"artefact_identifier,omitempty"`
 	ArtefactCredentials *ArtefactCredentials `protobuf:"bytes,3,opt,name=artefact_credentials,json=artefactCredentials,proto3" json:"artefact_credentials,omitempty"`
 	DeviceIdentifier    *DeviceIdentifier    `protobuf:"bytes,4,opt,name=device_identifier,json=deviceIdentifier,proto3" json:"device_identifier,omitempty"`
@@ -375,7 +375,7 @@ func (*ArtefactMetaData) Descriptor() ([]byte, []int) {
 	return file_artefact_update_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *ArtefactMetaData) GetJobIdentifier() *JobIdenfifier {
+func (x *ArtefactMetaData) GetJobIdentifier() *JobIdentifier {
 	if x != nil {
 		return x.JobIdentifier
 	}
@@ -410,7 +410,7 @@ func (x *ArtefactMetaData) GetDeviceCredentials() *DeviceCredentials {
 	return nil
 }
 
-type JobIdenfifier struct {
+type JobIdentifier struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
@@ -418,20 +418,20 @@ type JobIdenfifier struct {
 	JobId string `protobuf:"bytes,1,opt,name=job_id,json=jobId,proto3" json:"job_id,omitempty"` //OperationType operation_type = 2;
 }
 
-func (x *JobIdenfifier) Reset() {
-	*x = JobIdenfifier{}
+func (x *JobIdentifier) Reset() {
+	*x = JobIdentifier{}
 	mi := &file_artefact_update_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *JobIdenfifier) String() string {
+func (x *JobIdentifier) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*JobIdenfifier) ProtoMessage() {}
+func (*JobIdentifier) ProtoMessage() {}
 
-func (x *JobIdenfifier) ProtoReflect() protoreflect.Message {
+func (x *JobIdentifier) ProtoReflect() protoreflect.Message {
 	mi := &file_artefact_update_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -443,12 +443,12 @@ func (x *JobIdenfifier) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use JobIdenfifier.ProtoReflect.Descriptor instead.
-func (*JobIdenfifier) Descriptor() ([]byte, []int) {
+// Deprecated: Use JobIdentifier.ProtoReflect.Descriptor instead.
+func (*JobIdentifier) Descriptor() ([]byte, []int) {
 	return file_artefact_update_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *JobIdenfifier) GetJobId() string {
+func (x *JobIdentifier) GetJobId() string {
 	if x != nil {
 		return x.JobId
 	}
@@ -869,7 +869,7 @@ var file_artefact_update_proto_rawDesc = []byte{
 	0x69, 0x64, 0x65, 0x6e, 0x74, 0x69, 0x66, 0x69, 0x65, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b,
 	0x32, 0x2b, 0x2e, 0x66, 0x61, 0x63, 0x74, 0x6f, 0x72, 0x79, 0x5f, 0x78, 0x2e, 0x61, 0x72, 0x74,
 	0x65, 0x66, 0x61, 0x63, 0x74, 0x5f, 0x75, 0x70, 0x64, 0x61, 0x74, 0x65, 0x2e, 0x76, 0x31, 0x2e,
-	0x4a, 0x6f, 0x62, 0x49, 0x64, 0x65, 0x6e, 0x66, 0x69, 0x66, 0x69, 0x65, 0x72, 0x52, 0x0d, 0x6a,
+	0x4a, 0x6f, 0x62, 0x49, 0x64, 0x65, 0x6e, 0x74, 0x69, 0x66, 0x69, 0x65, 0x72, 0x52, 0x0d, 0x6a,
 	0x6f, 0x62, 0x49, 0x64, 0x65, 0x6e, 0x74, 0x69, 0x66, 0x69, 0x65, 0x72, 0x12, 0x61, 0x0a, 0x13,
 	0x61, 0x72, 0x74, 0x65, 0x66, 0x61, 0x63, 0x74, 0x5f, 0x69, 0x64, 0x65, 0x6e, 0x74, 0x69, 0x66,
 	0x69, 0x65, 0x72, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x30, 0x2e, 0x66, 0x61, 0x63, 0x74,
@@ -895,7 +895,7 @@ var file_artefact_update_proto_rawDesc = []byte{
 	0x61, 0x63, 0x74, 0x5f, 0x75, 0x70, 0x64, 0x61, 0x74, 0x65, 0x2e, 0x76, 0x31, 0x2e, 0x44, 0x65,
 	0x76, 0x69, 0x63, 0x65, 0x43, 0x72, 0x65, 0x64, 0x65, 0x6e, 0x74, 0x69, 0x61, 0x6c, 0x73, 0x52,
 	0x11, 0x64, 0x65, 0x76, 0x69, 0x63, 0x65, 0x43, 0x72, 0x65, 0x64, 0x65, 0x6e, 0x74, 0x69, 0x61,
-	0x6c, 0x73, 0x22, 0x26, 0x0a, 0x0d, 0x4a, 0x6f, 0x62, 0x49, 0x64, 0x65, 0x6e, 0x66, 0x69, 0x66,
+	0x6c, 0x73, 0x22, 0x26, 0x0a, 0x0d, 0x4a, 0x6f, 0x62, 0x49, 0x64, 0x65, 0x6e, 0x74, 0x69, 0x66,
 	0x69, 0x65, 0x72, 0x12, 0x15, 0x0a, 0x06, 0x6a, 0x6f, 0x62, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20,
 	0x01, 0x28, 0x09, 0x52, 0x05, 0x6a, 0x6f, 0x62, 0x49, 0x64, 0x22, 0x54, 0x0a, 0x12, 0x41, 0x72,
 	0x74, 0x65, 0x66, 0x61, 0x63, 0x74, 0x49, 0x64, 0x65, 0x6e, 0x74, 0x69, 0x66, 0x69, 0x65, 0x72,
@@ -1035,7 +1035,7 @@ var file_artefact_update_proto_goTypes = []any{
 	(ArtefactOperationRequestType)(0), // 3: factory_x.artefact_update.v1.ArtefactOperationRequestType
 	(*ArtefactChunk)(nil),             // 4: factory_x.artefact_update.v1.ArtefactChunk
 	(*ArtefactMetaData)(nil),          // 5: factory_x.artefact_update.v1.ArtefactMetaData
-	(*JobIdenfifier)(nil),             // 6: factory_x.artefact_update.v1.JobIdenfifier
+	(*JobIdentifier)(nil),             // 6: factory_x.artefact_update.v1.JobIdentifier
 	(*ArtefactIdentifier)(nil),        // 7: factory_x.artefact_update.v1.ArtefactIdentifier
 	(*ArtefactCredentials)(nil),       // 8: factory_x.artefact_update.v1.ArtefactCredentials
 	(*DeviceIdentifier)(nil),          // 9: factory_x.artefact_update.v1.DeviceIdentifier
@@ -1047,7 +1047,7 @@ var file_artefact_update_proto_goTypes = []any{
 var file_artefact_update_proto_depIdxs = []int32{
 	5,  // 0: factory_x.artefact_update.v1.ArtefactChunk.metadata:type_name -> factory_x.artefact_update.v1.ArtefactMetaData
 	11, // 1: factory_x.artefact_update.v1.ArtefactChunk.status:type_name -> factory_x.artefact_update.v1.ArtefactOperationStatus
-	6,  // 2: factory_x.artefact_update.v1.ArtefactMetaData.job_identifier:type_name -> factory_x.artefact_update.v1.JobIdenfifier
+	6,  // 2: factory_x.artefact_update.v1.ArtefactMetaData.job_identifier:type_name -> factory_x.artefact_update.v1.JobIdentifier
 	7,  // 3: factory_x.artefact_update.v1.ArtefactMetaData.artefact_identifier:type_name -> factory_x.artefact_update.v1.ArtefactIdentifier
 	8,  // 4: factory_x.artefact_update.v1.ArtefactMetaData.artefact_credentials:type_name -> factory_x.artefact_update.v1.ArtefactCredentials
 	9,  // 5: factory_x.artefact_update.v1.ArtefactMetaData.device_identifier:type_name -> factory_x.artefact_update.v1.DeviceIdentifier
