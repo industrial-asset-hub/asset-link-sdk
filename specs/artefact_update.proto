@@ -32,7 +32,7 @@ message ArtefactChunk {
 }
 
 message ArtefactMetaData {
-  JobIdenfifier job_identifier = 1;
+  JobIdentifier job_identifier = 1;
   ArtefactIdentifier artefact_identifier = 2;
   ArtefactCredentials artefact_credentials = 3;
   DeviceIdentifier device_identifier = 4;
@@ -46,7 +46,7 @@ message ArtefactMetaData {
 //   JT_UPDATE_ACTIVATE = 3;
 // }
 
-message JobIdenfifier {
+message JobIdentifier {
   string job_id = 1;
   //OperationType operation_type = 2;
 }
