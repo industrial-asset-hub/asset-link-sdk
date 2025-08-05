@@ -40,7 +40,7 @@ func ArtefactCreateArtefactIdentifier(artefactType string) (*generated.ArtefactI
 }
 
 func ArtefactCreateMetadata(jobId string, deviceIdentifierBlob []byte, artefactType string) (*generated.ArtefactMetaData, error) {
-	jobIdentifier := generated.JobIdenfifier{JobId: jobId}
+	jobIdentifier := generated.JobIdentifier{JobId: jobId}
 
 	artefactIdentifier, err := ArtefactCreateArtefactIdentifier(artefactType)
 	if err != nil {
