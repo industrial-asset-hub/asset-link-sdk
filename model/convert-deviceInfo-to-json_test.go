@@ -8,6 +8,8 @@
 package model
 
 import (
+	"encoding/json"
+	"fmt"
 	"testing"
 )
 
@@ -20,13 +22,20 @@ func TestConvertToJson(t *testing.T) {
 	device.AddIPv4(nicID, "192.168.1.100", "255.255.255.0", "192.168.1.1")
 	device.AddSoftware("DummySoftware", "1.0.0", true)
 	device.AddCapabilities("firmware_update", true)
+	firmwareVersionKey := "firmware_version"
+	firmwareVersionValue := "1.0.0"
+
+	device.InstanceAnnotations = append(device.InstanceAnnotations, InstanceAnnotation{
+		Key:   &firmwareVersionKey,
+		Value: &firmwareVersionValue,
+	})
 
 	jsonMap, err := device.convertToJson()
 	if err != nil {
 		t.Fatalf("convertToJson failed: %v", err)
 	}
 
-	expectedLength := 11
+	expectedLength := 12
 	if len(jsonMap) != expectedLength {
 		t.Fatalf("convertToJson should return %d keys, got: %d", expectedLength, len(jsonMap))
 	}
@@ -34,6 +43,13 @@ func TestConvertToJson(t *testing.T) {
 	if _, ok := jsonMap["id"]; ok {
 		t.Errorf("convertToJson should not return 'id' key")
 	}
+	rawJson, err := json.MarshalIndent(jsonMap, "", "  ")
+	if err != nil {
+		t.Fatalf("Failed to marshal jsonMap: %v", err)
+	}
+
+	// Print the raw JSON
+	fmt.Println(string(rawJson))
 }
 
 func TestConvertToJsonWithNilDevice(t *testing.T) {
