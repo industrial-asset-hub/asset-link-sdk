@@ -74,7 +74,7 @@ func TestCancelDiscovery(testConfig TestConfig) bool {
 	}
 }
 
-func TestGetFilterTypes(testConfig TestConfig) bool {
+func TestGetFilterTypes(_ TestConfig) bool {
 	fmt.Println("Running Test for GetFilterTypes")
 	data := al.GetFilterTypes(shared.AssetLinkEndpoint)
 	if data == nil {
@@ -84,7 +84,7 @@ func TestGetFilterTypes(testConfig TestConfig) bool {
 	return true
 }
 
-func TestGetFilterOptions(testConfig TestConfig) bool {
+func TestGetFilterOptions(_ TestConfig) bool {
 	fmt.Println("Running Test for GetFilterOptions")
 	data := al.GetFilterOptions(shared.AssetLinkEndpoint)
 	if data == nil {
