@@ -33,7 +33,8 @@ type Test struct {
 
 func RunApiTests(serviceName string, cancelValidationRequired bool, testConfig TestConfig) {
 	allTests := []Test{}
-	if serviceName == "discovery" {
+	switch serviceName {
+	case "discovery":
 		allTests = []Test{
 			{"TestDiscoverDevices", TestDiscoverDevices},
 			{"TestGetFilterTypes", TestGetFilterTypes},
@@ -44,7 +45,11 @@ func RunApiTests(serviceName string, cancelValidationRequired bool, testConfig T
 				{"TestCancelDiscovery", TestCancelDiscovery},
 			}
 		}
-	} else {
+	case "identifiers":
+		allTests = []Test{
+			{"TestGetIdentifiers", TestGetIdentifiers},
+		}
+	default:
 		log.Fatal().Msgf("Service \"%s\"is not supported", serviceName)
 	}
 

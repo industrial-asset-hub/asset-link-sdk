@@ -90,6 +90,12 @@ $ al-ctl test api -e localhost:8081 --service-name discovery [-d <discovery-conf
 ```
 
 ```bash
+# To validate the get-identifiers grpc api
+$ al-ctl test api -e localhost:8081 --service-name identifiers
+# The Asset Link must be running on the provided address, for example here: localhost:8081 and the Asset Link must implement Get Identifiers API
+```
+
+```bash
 # To validate the asset against the base-schema using linkml-validator where schema file should be yaml
 $ al-ctl test assets --base-schema-path <base-schema> --asset-path <asset>
 --target-class <target-class>
