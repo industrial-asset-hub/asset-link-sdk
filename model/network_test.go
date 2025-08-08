@@ -56,10 +56,13 @@ func TestNetwork(t *testing.T) {
 		assert.NotEmpty(t, m.AddIPv4("nic99",
 			"172.16.0.1", "255.255.255.0",
 			""))
+		assert.Empty(t, m.AddIPv4("nic101",
+			"", "",
+			""))
 
 		addresses := m.getIPv4()
 		if len(addresses) != 2 {
-			fmt.Printf("Expected 1 address, got %d\n", len(addresses))
+			fmt.Printf("Expected 2 address, got %d\n", len(addresses))
 			t.Fail()
 		}
 		found := 0
