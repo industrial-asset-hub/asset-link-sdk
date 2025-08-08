@@ -17,72 +17,65 @@ func (d *DeviceInfo) convertToJson() (map[string]interface{}, error) {
 	if d == nil {
 		return nil, fmt.Errorf("DeviceInfo is nil")
 	}
-	v := reflect.ValueOf(d)
-	v = deref(v)
-	deviceInfoJson := map[string]interface{}{}
+	deviceInfoValue := reflect.ValueOf(d)
+	deviceInfoValue = dereferenceDeviceInfoValue(deviceInfoValue)
 
-	switch v.Kind() {
+	switch deviceInfoValue.Kind() {
 	case reflect.Struct:
-		m, err := structToMap(v)
+		deviceInfoMap, err := convertDeviceInfoToMap(deviceInfoValue)
 		if err != nil {
 			return nil, err
 		}
-
 		// Delete the "id" key from the map
-		delete(m, "id")
-
-		return m, nil
+		delete(deviceInfoMap, "id")
+		return deviceInfoMap, nil
 	default:
-		converted, err := toInterface(v)
-		if err != nil {
-			return nil, err
-		}
-		deviceInfoJson[""] = converted
-		return deviceInfoJson, nil
+		return map[string]interface{}{}, nil
 	}
 }
 
-func structToMap(v reflect.Value) (map[string]interface{}, error) {
-	if isTime(v.Type()) {
-		return map[string]interface{}{"": v.Interface()}, nil
+func convertDeviceInfoToMap(deviceInfoValue reflect.Value) (map[string]interface{}, error) {
+	if isTime(deviceInfoValue.Type()) {
+		return map[string]interface{}{"": deviceInfoValue.Interface()}, nil
 	}
 
-	out := make(map[string]interface{})
-	t := v.Type()
+	deviceInfoMap := make(map[string]interface{})
+	t := deviceInfoValue.Type()
 
-	fields := reflect.VisibleFields(t)
-	for _, f := range fields {
-		name, opts, include := jsonNameAndOpts(f)
+	deviceInfoFields := reflect.VisibleFields(t)
+	for _, deviceInfoField := range deviceInfoFields {
+		name, opts, include := extractJsonNameAndOptions(deviceInfoField)
 		if !include {
 			continue
 		}
-		fv := v.FieldByIndex(f.Index)
+		fieldValue := deviceInfoValue.FieldByIndex(deviceInfoField.Index)
 
-		if opts["omitempty"] && isZero(fv) {
+		if opts["omitempty"] && isFieldValueZero(fieldValue) {
 			continue
 		}
 
-		val, err := toInterface(fv)
+		propertyValue, err := changePropertyValueToInterface(fieldValue)
 		if err != nil {
 			return nil, err
 		}
 
+		// Handle special case for "Asset" type
 		if name == "Asset" {
-			if assetMap, ok := val.(map[string]interface{}); ok {
-				for k, v := range assetMap {
-					out[k] = v
+			if assetMap, ok := propertyValue.(map[string]interface{}); ok {
+				for key, value := range assetMap {
+					deviceInfoMap[key] = value
 				}
 				continue
 			}
 		}
 
-		out[name] = val
+		deviceInfoMap[name] = propertyValue
 	}
-	return out, nil
+	return deviceInfoMap, nil
 }
 
-func toInterface(v reflect.Value) (interface{}, error) {
-	v = deref(v)
+func changePropertyValueToInterface(v reflect.Value) (interface{}, error) {
+	v = dereferenceDeviceInfoValue(v)
 	if !v.IsValid() {
 		return nil, nil
 	}
@@ -93,12 +86,12 @@ func toInterface(v reflect.Value) (interface{}, error) {
 
 	switch v.Kind() {
 	case reflect.Struct:
-		return structToMap(v)
+		return convertDeviceInfoToMap(v)
 	case reflect.Slice, reflect.Array:
 		n := v.Len()
 		out := make([]interface{}, n)
 		for i := 0; i < n; i++ {
-			x, err := toInterface(v.Index(i))
+			x, err := changePropertyValueToInterface(v.Index(i))
 			if err != nil {
 				return nil, err
 			}
@@ -115,7 +108,7 @@ func toInterface(v reflect.Value) (interface{}, error) {
 			} else {
 				ks = fmt.Sprint(key)
 			}
-			val, err := toInterface(v.MapIndex(k))
+			val, err := changePropertyValueToInterface(v.MapIndex(k))
 			if err != nil {
 				return nil, err
 			}
@@ -142,17 +135,17 @@ func toInterface(v reflect.Value) (interface{}, error) {
 	}
 }
 
-func deref(v reflect.Value) reflect.Value {
-	for v.IsValid() && (v.Kind() == reflect.Pointer || v.Kind() == reflect.Interface) {
-		if v.IsNil() {
+func dereferenceDeviceInfoValue(deviceInfoValue reflect.Value) reflect.Value {
+	for deviceInfoValue.IsValid() && (deviceInfoValue.Kind() == reflect.Pointer || deviceInfoValue.Kind() == reflect.Interface) {
+		if deviceInfoValue.IsNil() {
 			return reflect.Value{}
 		}
-		v = v.Elem()
+		deviceInfoValue = deviceInfoValue.Elem()
 	}
-	return v
+	return deviceInfoValue
 }
 
-func isZero(v reflect.Value) bool {
+func isFieldValueZero(v reflect.Value) bool {
 	return !v.IsValid() || v.IsZero()
 }
 
@@ -160,27 +153,27 @@ func isTime(t reflect.Type) bool {
 	return t.PkgPath() == "time" && t.Name() == "Time"
 }
 
-func jsonNameAndOpts(sf reflect.StructField) (name string, opts map[string]bool, include bool) {
-	tag := sf.Tag.Get("json")
+func extractJsonNameAndOptions(structField reflect.StructField) (name string, opts map[string]bool, include bool) {
+	jsonTag := structField.Tag.Get("json")
 	opts = map[string]bool{}
 
-	if tag == "-" {
+	if jsonTag == "-" {
 		return "", opts, false
 	}
-	if tag == "" {
-		return sf.Name, opts, true
+	if jsonTag == "" {
+		return structField.Name, opts, true
 	}
-	parts := strings.Split(tag, ",")
+	parts := strings.Split(jsonTag, ",")
 	if len(parts) == 0 || parts[0] == "" {
-		return sf.Name, opts, true
+		return structField.Name, opts, true
 	}
 	name = parts[0]
 	if name == "" {
-		name = sf.Name
+		name = structField.Name
 	}
-	for _, p := range parts[1:] {
-		if p != "" {
-			opts[p] = true
+	for _, part := range parts[1:] {
+		if part != "" {
+			opts[part] = true
 		}
 	}
 	return name, opts, true

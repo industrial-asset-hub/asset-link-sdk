@@ -8,8 +8,6 @@
 package model
 
 import (
-	"encoding/json"
-	"fmt"
 	"testing"
 )
 
@@ -39,17 +37,9 @@ func TestConvertToJson(t *testing.T) {
 	if len(jsonMap) != expectedLength {
 		t.Fatalf("convertToJson should return %d keys, got: %d", expectedLength, len(jsonMap))
 	}
-	// Ensure "id" key is not present
 	if _, ok := jsonMap["id"]; ok {
 		t.Errorf("convertToJson should not return 'id' key")
 	}
-	rawJson, err := json.MarshalIndent(jsonMap, "", "  ")
-	if err != nil {
-		t.Fatalf("Failed to marshal jsonMap: %v", err)
-	}
-
-	// Print the raw JSON
-	fmt.Println(string(rawJson))
 }
 
 func TestConvertToJsonWithNilDevice(t *testing.T) {
