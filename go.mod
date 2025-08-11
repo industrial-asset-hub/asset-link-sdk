@@ -1,6 +1,6 @@
 module github.com/industrial-asset-hub/asset-link-sdk/v3
 
-go 1.23.0
+go 1.23.12
 
 toolchain go1.24.1
 
