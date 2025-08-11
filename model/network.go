@@ -52,7 +52,7 @@ func (d *DeviceInfo) AddNic(name string, macAddress string) (nicId string) {
 // No validation of is currently done
 func (d *DeviceInfo) AddIPv4(nicId string, address string, networkMask string, router string) (id string) {
 
-	if isNonEmptyValues(address) {
+	if isNonEmptyValues(address, networkMask, router) {
 		id = uuid.New().String()
 
 		t := Ipv4ConnectivityConnectionPointTypeIpv4Connectivity
