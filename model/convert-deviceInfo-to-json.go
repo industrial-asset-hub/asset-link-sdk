@@ -59,7 +59,7 @@ func convertDeviceInfoToMap(deviceInfoValue reflect.Value) (map[string]interface
 			return nil, err
 		}
 
-		// Handle special case for "Asset" type
+		// Handle special case for "Asset" property in device-info model
 		if name == "Asset" {
 			if assetMap, ok := propertyValue.(map[string]interface{}); ok {
 				for key, value := range assetMap {
