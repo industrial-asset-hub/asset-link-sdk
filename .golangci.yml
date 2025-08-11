@@ -7,7 +7,7 @@ version: "2"
 run:
   concurrency: 4
 
-  go: "1.23"
+  go: "1.23.12"
 
   # timeout for analysis, e.g. 30s, 5m, default is 1m
   timeout: 5m
