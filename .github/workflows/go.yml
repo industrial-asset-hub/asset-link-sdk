@@ -23,14 +23,14 @@ jobs:
   reuse:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: REUSE Compliance Check
         uses: fsfe/reuse-action@v5
 
   generate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Prepare Environment
         uses: ./.github/actions/prepare
       - name: Generate Code
@@ -41,7 +41,7 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Prepare Environment
         uses: ./.github/actions/prepare
       - name: Lint
@@ -52,7 +52,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Prepare Environment
         uses: ./.github/actions/prepare
       - name: Test
@@ -64,7 +64,7 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Vulnerability Check
         uses: golang/govulncheck-action@v1
         with:
@@ -73,7 +73,7 @@ jobs:
   build-sdk:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Prepare Environment
         uses: ./.github/actions/prepare
       - name: Build
@@ -92,7 +92,7 @@ jobs:
       matrix:
         go-version: ["1.23.12", "1.24", "stable"]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Prepare Environment
         with:
           go-version: ${{ matrix.go-version }}
@@ -142,7 +142,7 @@ jobs:
   generate-sbom:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Prepare Environment
         uses: ./.github/actions/prepare
       - name: Generate SBOM
@@ -158,7 +158,7 @@ jobs:
     needs: [reuse, generate, lint, test, check, build-sdk, build-asset-link, generate-sbom]
     if: github.event_name != 'pull_request' && github.ref_type == 'tag'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Prepare Environment
         uses: ./.github/actions/prepare
       - name: Set up QEMU
@@ -183,7 +183,7 @@ jobs:
     needs: [reuse, generate, lint, test, check, build-sdk, build-asset-link, generate-sbom]
     if: github.event_name == 'pull_request' || github.ref_type != 'tag'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Prepare Environment
         uses: ./.github/actions/prepare
       - name: Set up QEMU
