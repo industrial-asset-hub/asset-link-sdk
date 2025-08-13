@@ -90,9 +90,21 @@ $ al-ctl test api -e localhost:8081 --service-name discovery [-d <discovery-conf
 ```
 
 ```bash
-# To validate the get-identifiers grpc api
-$ al-ctl test api -e localhost:8081 --service-name identifiers
-# The Asset Link must be running on the provided address, for example here: localhost:8081 and the Asset Link must implement Get Identifiers API
+# To test the get-identifiers grpc api
+$ al-ctl test api -e localhost:8081 --service-name identifiers -r <credential-file-path>
+# The Asset Link must be running on the provided address, for example here: localhost:8081 and the Asset Link must implement Get Identifiers API. Optionally provide the credential file path, default is empty.
+
+# Example: al-ctl test api -e localhost:8081 --service-name identifiers -r ./credential.json
+```
+
+```bash
+# To validate the response from get-identifiers grpc api with base-schema
+$ al-ctl test api -e localhost:8081 --service-name identifiers -r <credential-file-path> -v --base-schema-path <base-schema> --target-class Asset
+# The Asset Link must be running on the provided address. Provide the credential file path and base schema path.
+
+# SPECIAL NOTE: Depending on the asset link implementation of Get Identifiers, the asset returned may be incomplete. Hence, the validation may fail.
+
+# Example: al-ctl test api -e localhost:8081 --service-name identifiers -r ./credential.json -v --base-schema-path ./iah_base-v0.10.0.yaml --target-class Asset
 ```
 
 ```bash
