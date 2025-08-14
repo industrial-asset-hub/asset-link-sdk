@@ -11,3 +11,4 @@ nav_order: 1
 - [Bootstrapping your own Asset Link](bootstrap.md)
 - [Command line tool](cmd.md)
 - [Observability Webserver](observability.md)
+- [Asset Model](model.md)
