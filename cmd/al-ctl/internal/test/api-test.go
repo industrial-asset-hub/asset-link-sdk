@@ -12,6 +12,7 @@ import (
 	"os"
 
 	"github.com/google/uuid"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/al"
 	iah_discovery "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/model"
 	"github.com/rs/zerolog/log"
@@ -19,6 +20,7 @@ import (
 
 type TestConfig struct {
 	DiscoveryFile           string
+	Credential              string
 	AssetValidationRequired bool
 	LinkMLSupported         bool
 	AssetValidationParams   AssetValidationParams
@@ -33,7 +35,8 @@ type Test struct {
 
 func RunApiTests(serviceName string, cancelValidationRequired bool, testConfig TestConfig) {
 	allTests := []Test{}
-	if serviceName == "discovery" {
+	switch serviceName {
+	case "discovery":
 		allTests = []Test{
 			{"TestDiscoverDevices", TestDiscoverDevices},
 			{"TestGetFilterTypes", TestGetFilterTypes},
@@ -44,7 +47,11 @@ func RunApiTests(serviceName string, cancelValidationRequired bool, testConfig T
 				{"TestCancelDiscovery", TestCancelDiscovery},
 			}
 		}
-	} else {
+	case "identifiers":
+		allTests = []Test{
+			{"TestGetIdentifiers", TestGetIdentifiers},
+		}
+	default:
 		log.Fatal().Msgf("Service \"%s\"is not supported", serviceName)
 	}
 
@@ -63,6 +70,34 @@ func RunApiTests(serviceName string, cancelValidationRequired bool, testConfig T
 	if testPassed < len(allTests) {
 		os.Exit(1)
 	}
+}
+
+func createAndValidateDiscoveredAsset(testConfig TestConfig, data []*iah_discovery.DiscoverResponse) bool {
+	err := al.WriteDiscoveryResponsesFile("test_result.json", data)
+	if err != nil {
+		log.Err(err).Msg("Error writing discovery responses to file")
+		return false
+	}
+
+	if testConfig.AssetValidationRequired {
+		numberOfAssetsToValidate, errOccurredDuringValidation := createAssetFilesFromDiscoveryResponse(data)
+		for i := range numberOfAssetsToValidate {
+			assetFileName := fmt.Sprintf("Test-%d.json", i)
+			if fileExists(assetFileName) {
+				testConfig.AssetValidationParams.AssetJsonPath = assetFileName
+				err := ValidateAsset(testConfig.AssetValidationParams, testConfig.LinkMLSupported)
+				if err != nil {
+					errOccurredDuringValidation = true
+					log.Err(err).Str("asset-file-name", assetFileName).Msg("failed to validate asset against schema")
+				}
+			}
+		}
+
+		if errOccurredDuringValidation {
+			return false
+		}
+	}
+	return true
 }
 
 func createAssetFilesFromDiscoveryResponse(data interface{}) (numberOfAssetsToValidate int, errOccurred bool) {

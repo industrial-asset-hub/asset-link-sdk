@@ -46,6 +46,7 @@ var (
 	targetClass             string
 	discoveryFile           string
 	assetJsonPath           string
+	credentialPath          string
 	assetValidationRequired bool
 
 	serviceName              string
@@ -71,8 +72,10 @@ func init() {
 		"should be true if linkml is already supported in the test environment")
 	apiCmd.Flags().StringVarP(&baseSchemaPath, "base-schema-path", "b", "", "Path to the base schema YAML file")
 	apiCmd.Flags().StringVarP(&extendedSchemaPath, "extended-schema-path", "s", "", "Path to the extended schema YAML file")
+	apiCmd.Flags().StringVarP(&credentialPath, "credential-path", "p", "", "Path to the credential file")
 	apiCmd.Flags().StringVarP(&targetClass, "target-class", "t", "", "Target class for validation")
-	apiCmd.Flags().StringVarP(&serviceName, "service-name", "u", "", "Service to be valdiated (supported services: discovery)")
+	apiCmd.Flags().StringVarP(&serviceName, "service-name", "u", "",
+		"Service to be validated (supported services: discovery, identifiers)")
 	apiCmd.Flags().BoolVarP(&cancelValidationRequired, "cancel", "c", false, "Check cancellation of the service request")
 	registerCmd.Flags().StringVarP(&registryJsonPath, "registry-json-path", "f", "", "Registration param file path")
 }
@@ -99,6 +102,7 @@ func runApiTests(cmd *cobra.Command, args []string) {
 
 	testConfig := test.TestConfig{
 		DiscoveryFile:           discoveryFile,
+		Credential:              credentialPath,
 		AssetValidationRequired: assetValidationRequired,
 		LinkMLSupported:         linkmlSupported,
 		AssetValidationParams:   assetValidationParams,

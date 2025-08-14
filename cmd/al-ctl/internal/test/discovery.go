@@ -24,32 +24,7 @@ func TestDiscoverDevices(testConfig TestConfig) bool {
 		return false
 	}
 
-	err = al.WriteDiscoveryResponsesFile("test_result.json", data)
-	if err != nil {
-		log.Err(err).Msg("Error writing discovery responses to file")
-		return false
-	}
-
-	if testConfig.AssetValidationRequired {
-		numberOfAssetsToValidate, errOccurredDuringValidation := createAssetFilesFromDiscoveryResponse(data)
-		for i := range numberOfAssetsToValidate {
-			assetFileName := fmt.Sprintf("Test-%d.json", i)
-			if fileExists(assetFileName) {
-				testConfig.AssetValidationParams.AssetJsonPath = assetFileName
-				err := ValidateAsset(testConfig.AssetValidationParams, testConfig.LinkMLSupported)
-				if err != nil {
-					errOccurredDuringValidation = true
-					log.Err(err).Str("asset-file-name", assetFileName).Msg("failed to validate asset against schema")
-				}
-			}
-		}
-
-		if errOccurredDuringValidation {
-			return false
-		}
-	}
-
-	return true
+	return createAndValidateDiscoveredAsset(testConfig, data)
 }
 
 func TestCancelDiscovery(testConfig TestConfig) bool {
@@ -74,7 +49,7 @@ func TestCancelDiscovery(testConfig TestConfig) bool {
 	}
 }
 
-func TestGetFilterTypes(testConfig TestConfig) bool {
+func TestGetFilterTypes(_ TestConfig) bool {
 	fmt.Println("Running Test for GetFilterTypes")
 	data := al.GetFilterTypes(shared.AssetLinkEndpoint)
 	if data == nil {
@@ -84,7 +59,7 @@ func TestGetFilterTypes(testConfig TestConfig) bool {
 	return true
 }
 
-func TestGetFilterOptions(testConfig TestConfig) bool {
+func TestGetFilterOptions(_ TestConfig) bool {
 	fmt.Println("Running Test for GetFilterOptions")
 	data := al.GetFilterOptions(shared.AssetLinkEndpoint)
 	if data == nil {
