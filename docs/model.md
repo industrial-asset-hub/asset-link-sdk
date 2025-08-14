@@ -1,10 +1,9 @@
 ---
----
 title: "Working with the Asset Model"
 nav_order: 5
 ---
 
-## Asset Model Creation
+### Working with the Asset Model
 
 Asset models can be created using convenience methods to simplify the process.
 There are helper methods for commonly used parameters.
