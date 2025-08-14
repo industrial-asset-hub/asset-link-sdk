@@ -17,7 +17,7 @@ The following documentation is available in [docs/](docs/):
 - [Bootstrapping your own Asset Link](docs/bootstrap.md)
 - [Command line tool](docs/cmd.md)
 - [Observability Webserver](docs/observability.md)
-- [Asset Model](docs/model.md)
+- [Working with the Asset Model](docs/model.md)
 
 Documentation is also available to browse online at <https://industrial-asset-hub.github.io/asset-link-sdk/>.
 

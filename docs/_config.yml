@@ -19,3 +19,4 @@ include:
   - bootstrap.md
   - cmd.md
   - observability.md
+  - model.md
