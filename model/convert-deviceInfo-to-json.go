@@ -13,7 +13,7 @@ import (
 	"strings"
 )
 
-func (d *DeviceInfo) convertToJson() (map[string]interface{}, error) {
+func (d *DeviceInfo) ConvertToJson() (map[string]interface{}, error) {
 	if d == nil {
 		return nil, fmt.Errorf("DeviceInfo is nil")
 	}

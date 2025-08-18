@@ -28,7 +28,7 @@ func TestConvertToJson(t *testing.T) {
 		Value: &firmwareVersionValue,
 	})
 
-	jsonMap, err := device.convertToJson()
+	jsonMap, err := device.ConvertToJson()
 	if err != nil {
 		t.Fatalf("convertToJson failed: %v", err)
 	}
@@ -44,7 +44,7 @@ func TestConvertToJson(t *testing.T) {
 
 func TestConvertToJsonWithNilDevice(t *testing.T) {
 	var device *DeviceInfo
-	jsonMap, err := device.convertToJson()
+	jsonMap, err := device.ConvertToJson()
 	if err == nil {
 		t.Fatalf("Expected an error for nil DeviceInfo, but got none")
 	}
