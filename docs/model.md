@@ -27,5 +27,5 @@ device.AddIPv4(nicID, "192.168.1.100", "255.255.255.0", "192.168.1.1")
 device.AddSoftware("DummySoftware", "1.0.0", true)
 device.AddCapabilities("firmware_update", true)
 
-jsonMap, _ := device.convertToJson()
+jsonMap, _ := device.ConvertToJson()
 ```

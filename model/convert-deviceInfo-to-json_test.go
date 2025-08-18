@@ -30,15 +30,15 @@ func TestConvertToJson(t *testing.T) {
 
 	jsonMap, err := device.ConvertToJson()
 	if err != nil {
-		t.Fatalf("convertToJson failed: %v", err)
+		t.Fatalf("ConvertToJson failed: %v", err)
 	}
 
 	expectedLength := 12
 	if len(jsonMap) != expectedLength {
-		t.Fatalf("convertToJson should return %d keys, got: %d", expectedLength, len(jsonMap))
+		t.Fatalf("ConvertToJson should return %d keys, got: %d", expectedLength, len(jsonMap))
 	}
 	if _, ok := jsonMap["id"]; ok {
-		t.Errorf("convertToJson should not return 'id' key")
+		t.Errorf("ConvertToJson should not return 'id' key")
 	}
 }
 
