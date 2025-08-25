@@ -96,7 +96,7 @@ func (at *ArtefactTransmitter) HandleInteraction() error {
 		}
 		if message != nil {
 			statusUpdate := message.GetStatus()
-			if statusUpdate == nil {
+			if statusUpdate != nil {
 				at.handler.HandleStatusUpdate(statusUpdate)
 			}
 
