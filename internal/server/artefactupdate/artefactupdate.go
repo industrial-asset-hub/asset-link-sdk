@@ -26,12 +26,12 @@ func (d *ArtefactUpdateServerEntity) PushArtefact(stream generated.ArtefactUpdat
 
 	// Check if discovery feature implementation is available
 	if d.Update == nil {
-		const errMsg string = "No Update implementation found"
+		const errMsg = "No Update implementation found"
 		log.Info().Msg(errMsg)
 		return status.Errorf(codes.Unimplemented, errMsg)
 	}
 
-	// Create and artefact receiver and pass the stream
+	// Create an artefact receiver and pass the stream
 	artefactReceiver := artefact.NewArtefactReceiver(stream)
 
 	// Receive artefact meta data
@@ -58,12 +58,12 @@ func (d *ArtefactUpdateServerEntity) PullArtefact(artefactMetaData *generated.Ar
 
 	// Check if update feature implementation is available
 	if d.Update == nil {
-		const errMsg string = "No Update implementation found"
+		const errMsg = "No Update implementation found"
 		log.Info().Msg(errMsg)
 		return status.Errorf(codes.Unimplemented, errMsg)
 	}
 
-	// Create and artefact receiver and pass the stream
+	// Create an artefact receiver and pass the stream
 	artefactTransmitter := artefact.NewArtefactTransmitter(stream)
 
 	// Create new meta data from the internal artefact meta data and convert the device identifier blob
@@ -90,12 +90,12 @@ func (d *ArtefactUpdateServerEntity) PrepareUpdate(stream generated.ArtefactUpda
 
 	// Check if update feature implementation is available
 	if d.Update == nil {
-		const errMsg string = "No Update implementation found"
+		const errMsg = "No Update implementation found"
 		log.Info().Msg(errMsg)
 		return status.Errorf(codes.Unimplemented, errMsg)
 	}
 
-	// Create and update receiver and pass the stream
+	// Create an update receiver and pass the stream
 	artefactReceiver := artefact.NewArtefactReceiver(stream)
 
 	// Receive artefact meta data
@@ -122,12 +122,12 @@ func (d *ArtefactUpdateServerEntity) ActivateUpdate(stream generated.ArtefactUpd
 
 	// Check if update feature implementation is available
 	if d.Update == nil {
-		const errMsg string = "No Update implementation found"
+		const errMsg = "No Update implementation found"
 		log.Info().Msg(errMsg)
 		return status.Errorf(codes.Unimplemented, errMsg)
 	}
 
-	// Create and update receiver and pass the stream
+	// Create an update receiver and pass the stream
 	artefactReceiver := artefact.NewArtefactReceiver(stream)
 
 	// Receive artefact meta data
