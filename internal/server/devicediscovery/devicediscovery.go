@@ -36,7 +36,7 @@ func (d *DiscoverServerEntity) DiscoverDevices(req *generated.DiscoverRequest, s
 
 	// Check if discovery feature implementation is available
 	if d.Discovery == nil {
-		const errMsg string = "No Discovery implementation found"
+		const errMsg = "No Discovery implementation found"
 		log.Info().Msg(errMsg)
 		return status.Errorf(codes.Unimplemented, errMsg)
 	}
@@ -53,7 +53,7 @@ func (d *DiscoverServerEntity) DiscoverDevices(req *generated.DiscoverRequest, s
 
 	err := d.Discover(discoveryConfig, devicePublisher)
 	if err != nil {
-		errMsg := "Error during starting of the discovery job"
+		const errMsg = "Error during starting of the discovery job"
 		log.Error().Err(err).Msg(errMsg)
 	}
 
