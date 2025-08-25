@@ -27,7 +27,7 @@ import (
 )
 
 func (m *ReferenceAssetLink) HandlePrepareUpdate(artefactMetaData artefact.ArtefactMetaData, artefactReceiver artefact.ArtefactReceiver) error {
-	log.Info().Msg("Handle Prepare Update")
+	log.Info().Str("JobID", artefactMetaData.GetJobId()).Msg("Handle Prepare Update")
 
 	// Check if a job is already running
 	// We currently support only one running job
@@ -108,7 +108,7 @@ func (m *ReferenceAssetLink) HandlePrepareUpdate(artefactMetaData artefact.Artef
 }
 
 func (m *ReferenceAssetLink) HandleActivateUpdate(artefactMetaData artefact.ArtefactMetaData, artefactReceiver artefact.ArtefactReceiver) error {
-	log.Info().Msg("Handle Activate Update")
+	log.Info().Str("JobID", artefactMetaData.GetJobId()).Msg("Handle Activate Update")
 
 	// Check if a job is already running
 	// We currently support only one running job
