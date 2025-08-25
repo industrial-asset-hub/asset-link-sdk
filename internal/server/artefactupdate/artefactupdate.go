@@ -148,3 +148,35 @@ func (d *ArtefactUpdateServerEntity) ActivateUpdate(stream generated.ArtefactUpd
 
 	return nil
 }
+
+func (d *ArtefactUpdateServerEntity) CancelUpdate(artefactMetaData *generated.ArtefactMetaData, stream generated.ArtefactUpdateApi_CancelUpdateServer) error {
+	log.Info().Msg("Cancel Update request")
+
+	// Check if update feature implementation is available
+	if d.Update == nil {
+		const errMsg string = "No Update implementation found"
+		log.Info().Msg(errMsg)
+		return status.Errorf(codes.Unimplemented, errMsg)
+	}
+
+	// Create a status transmitter and pass the stream
+	statusTransmitter := artefact.NewStatusTransmitter(stream)
+
+	// Convert the artefact meta data
+	amd, err := artefact.NewArtefactMetaDataFromInternal(artefactMetaData)
+	if err != nil {
+		const errMsg string = "Failed to convert artefact meta data"
+		log.Error().Err(err).Msg(errMsg)
+		return status.Errorf(codes.Internal, errMsg)
+	}
+
+	// Handle cancel update request
+	err = d.HandleCancelUpdate(amd, statusTransmitter)
+	if err != nil {
+		const errMsg string = "Error during handling of cancel update"
+		log.Error().Err(err).Msg(errMsg)
+		return err
+	}
+
+	return nil
+}

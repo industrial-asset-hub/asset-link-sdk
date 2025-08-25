@@ -31,4 +31,5 @@ type Update interface {
 	// two-step update management
 	HandlePrepareUpdate(artefactMetaData artefact.ArtefactMetaData, artefactReceiver artefact.ArtefactReceiver) error
 	HandleActivateUpdate(artefactMetaData artefact.ArtefactMetaData, artefactReceiver artefact.ArtefactReceiver) error
+	HandleCancelUpdate(artefactMetaData artefact.ArtefactMetaData, statusTransmitter artefact.StatusTransmitter) error
 }

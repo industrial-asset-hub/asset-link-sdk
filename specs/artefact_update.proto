@@ -18,9 +18,7 @@ service ArtefactUpdateApi {
   // Two-stage update of firmware or other software
   rpc PrepareUpdate(stream ArtefactChunk) returns (stream ArtefactMessage) {}
   rpc ActivateUpdate(stream ArtefactChunk) returns (stream ArtefactMessage) {}
-
-  // generic interface to simplify code reuse
-  //rpc PerformArtefactOperation(stream ArtefactChunk) returns (stream ArtefactOperationMessage) {}
+  rpc CancelUpdate(ArtefactMetaData) returns (stream ArtefactOperationStatus) {}
 }
 
 message ArtefactChunk {
@@ -39,16 +37,8 @@ message ArtefactMetaData {
   DeviceCredentials device_credentials = 5;
 }
 
-// enum OperationType {
-//   JT_ARTEFACT_PULL = 0;
-//   JT_ARTEFACT_PUSH = 1;
-//   JT_UPDATE_PREPARE = 2;
-//   JT_UPDATE_ACTIVATE = 3;
-// }
-
 message JobIdentifier {
   string job_id = 1;
-  //OperationType operation_type = 2;
 }
 
 enum ArtefactType {
@@ -90,6 +80,7 @@ enum ArtefactOperationPhase {
   AOP_ACTIVATION = 4;
   AOP_ARCHIVE = 5;
   AOP_UPLOAD = 6;
+  AOP_CANCELLATION = 7;
   // TBD ...
 }
 
