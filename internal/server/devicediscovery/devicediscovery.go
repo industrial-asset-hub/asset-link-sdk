@@ -53,7 +53,7 @@ func (d *DiscoverServerEntity) DiscoverDevices(req *generated.DiscoverRequest, s
 
 	err := d.Discover(discoveryConfig, devicePublisher)
 	if err != nil {
-		errMsg := "Error during starting of the discovery job"
+		const errMsg string = "Error during starting of the discovery job"
 		log.Error().Err(err).Msg(errMsg)
 	}
 
