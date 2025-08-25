@@ -18,9 +18,7 @@ service ArtefactUpdateApi {
   // Two-stage update of firmware or other software
   rpc PrepareUpdate(stream ArtefactChunk) returns (stream ArtefactMessage) {}
   rpc ActivateUpdate(stream ArtefactChunk) returns (stream ArtefactMessage) {}
-
-  // generic interface to simplify code reuse
-  //rpc PerformArtefactOperation(stream ArtefactChunk) returns (stream ArtefactOperationMessage) {}
+  rpc CancelUpdate(ArtefactMetaData) returns (stream ArtefactOperationStatus) {}
 }
 
 message ArtefactChunk {
@@ -90,6 +88,7 @@ enum ArtefactOperationPhase {
   AOP_ACTIVATION = 4;
   AOP_ARCHIVE = 5;
   AOP_UPLOAD = 6;
+  AOP_CANCELLATION = 7;
   // TBD ...
 }
 
