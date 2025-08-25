@@ -73,3 +73,11 @@ func (m *AssetLinkImplementation) HandleActivateUpdate(artefactMetaData artefact
 
 	return nil
 }
+
+func (m *AssetLinkImplementation) HandleCancelUpdate(artefactMetaData artefact.ArtefactMetaData, statusTransmitter artefact.StatusTransmitter) error {
+	log.Info().Str("JobID", artefactMetaData.GetJobId()).Msg("Handle Cancel Update")
+
+	_ = statusTransmitter.UpdateStatus(ga.ArtefactOperationPhase_AOP_CANCELLATION, ga.ArtefactOperationState_AOS_OK, "Update cancelled", 100)
+
+	return nil
+}
