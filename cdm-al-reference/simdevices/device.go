@@ -104,7 +104,7 @@ func newSimulatedDevice(alNIC, serial, mac, ip, name string) *simulatedDeviceInf
 	}
 }
 
-func newSimulatedSubDevice(name, serial string) *simulatedDeviceInfo {
+func newSimulatedSubDevice(name, serial, mac, ip string) *simulatedDeviceInfo {
 	uid := uuid.New()
 	return &simulatedDeviceInfo{
 		UniqueDeviceID:     uid.String(),
@@ -116,10 +116,10 @@ func newSimulatedSubDevice(name, serial string) *simulatedDeviceInfo {
 		FirmwareVersion:    "1.2.3",
 		UpdateSupport:      false,
 		AssetLinkNIC:       "",
-		DeviceNIC:          "",
-		MacAddress:         "",
-		IpDevice:           "",
-		IpNetmask:          "",
+		DeviceNIC:          "enp0",
+		MacAddress:         mac,
+		IpDevice:           ip,
+		IpNetmask:          "255.255.255.0",
 		IpRoute:            "",
 		SerialNumber:       serial,
 		DeviceState:        StateActive,
@@ -153,11 +153,11 @@ func StartSimulatedDevices(visuServerAddress string) {
 
 	// Eth 1 (device B1 and subdevices)
 	deviceB1 := newSimulatedDevice(interfaceEth1, "SN123450101", "00:16:3e:00:01:01", "192.168.1.11", "Simulated Device B1")
-	subDeviceB10 := newSimulatedSubDevice("Simulated Sub Device B1-0", "SN123450101-0")
+	subDeviceB10 := newSimulatedSubDevice("Simulated Sub Device B1-0", "SN123450101-0", "00:16:3e:00:01:02", "192.168.1.12")
 	deviceB1.appendSimulatedSubDevice(subDeviceB10)
-	subDeviceB11 := newSimulatedSubDevice("Simulated Sub Device B1-1", "SN123450101-1")
+	subDeviceB11 := newSimulatedSubDevice("Simulated Sub Device B1-1", "SN123450101-1", "00:16:3e:00:01:03", "192.168.1.13")
 	deviceB1.appendSimulatedSubDevice(subDeviceB11)
-	subDeviceB12 := newSimulatedSubDevice("Simulated Sub Device B1-2", "SN123450101-2")
+	subDeviceB12 := newSimulatedSubDevice("Simulated Sub Device B1-2", "SN123450101-2", "00:16:3e:00:01:04", "192.168.1.14")
 	deviceB1.appendSimulatedSubDevice(subDeviceB12)
 	simulatedDevicesEth1 = append(simulatedDevicesEth1, deviceB1)
 
