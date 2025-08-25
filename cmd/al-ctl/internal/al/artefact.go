@@ -189,3 +189,37 @@ func ActivateUpdate(endpoint string, jobId string, artefactFile string, artefact
 		return
 	}
 }
+
+func CancelUpdate(endpoint string, jobId string, artefactType string, deviceIdentifierFile string, convertDeviceIdentifier bool) {
+	log.Info().Str("Endpoint", endpoint).Str("Job Identifier", jobId).Str("Artefact Type", artefactType).
+		Str("Device Identifier File", deviceIdentifierFile).Bool("Convert Device Identifier", convertDeviceIdentifier).Msg("Cancelling Update")
+
+	deviceIdentifier, err := artefactReadDeviceIdentifier(deviceIdentifierFile, convertDeviceIdentifier)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed to cancel update")
+	}
+
+	artefactMetaData, err := client.ArtefactCreateMetadata(jobId, deviceIdentifier, artefactType)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed to cancel update")
+	}
+
+	conn := shared.GrpcConnection(endpoint)
+	defer conn.Close()
+
+	apiClient := generated.NewArtefactUpdateApiClient(conn)
+	ctx := context.Background()
+	stream, err := apiClient.CancelUpdate(ctx, artefactMetaData)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to cancel update")
+		return
+	}
+
+	handler := NewStatusUpdateHandler(jobId)
+	statusReceiver := client.NewStatusReceiver(stream, handler)
+	err = statusReceiver.HandleInteraction()
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to cancel update")
+		return
+	}
+}
