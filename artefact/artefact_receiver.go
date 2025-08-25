@@ -13,6 +13,7 @@ import (
 	"sync"
 
 	generated "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/artefact-update"
+	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
 )
 
@@ -139,6 +140,8 @@ func (ar *ArtefactReceiverImpl) transmitStatusUpdate(status *generated.ArtefactO
 }
 
 func (ar *ArtefactReceiverImpl) UpdateStatus(phase generated.ArtefactOperationPhase, state generated.ArtefactOperationState, message string, progress uint8) error {
+	log.Info().Str("Phase", phase.String()).Str("State", state.String()).Str("Message", message).Uint8("Progress", progress).Msg("Status Update")
+
 	statusMessage := &generated.ArtefactOperationStatus{
 		Phase:    phase,
 		State:    state,
