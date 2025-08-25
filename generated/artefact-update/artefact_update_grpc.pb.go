@@ -29,6 +29,7 @@ const (
 	ArtefactUpdateApi_PullArtefact_FullMethodName   = "/factory_x.artefact_update.v1.ArtefactUpdateApi/PullArtefact"
 	ArtefactUpdateApi_PrepareUpdate_FullMethodName  = "/factory_x.artefact_update.v1.ArtefactUpdateApi/PrepareUpdate"
 	ArtefactUpdateApi_ActivateUpdate_FullMethodName = "/factory_x.artefact_update.v1.ArtefactUpdateApi/ActivateUpdate"
+	ArtefactUpdateApi_CancelUpdate_FullMethodName   = "/factory_x.artefact_update.v1.ArtefactUpdateApi/CancelUpdate"
 )
 
 // ArtefactUpdateApiClient is the client API for ArtefactUpdateApi service.
@@ -42,6 +43,7 @@ type ArtefactUpdateApiClient interface {
 	// Two-stage update of firmware or other software
 	PrepareUpdate(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[ArtefactChunk, ArtefactMessage], error)
 	ActivateUpdate(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[ArtefactChunk, ArtefactMessage], error)
+	CancelUpdate(ctx context.Context, in *ArtefactMetaData, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ArtefactOperationStatus], error)
 }
 
 type artefactUpdateApiClient struct {
@@ -110,6 +112,25 @@ func (c *artefactUpdateApiClient) ActivateUpdate(ctx context.Context, opts ...gr
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type ArtefactUpdateApi_ActivateUpdateClient = grpc.BidiStreamingClient[ArtefactChunk, ArtefactMessage]
 
+func (c *artefactUpdateApiClient) CancelUpdate(ctx context.Context, in *ArtefactMetaData, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ArtefactOperationStatus], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &ArtefactUpdateApi_ServiceDesc.Streams[4], ArtefactUpdateApi_CancelUpdate_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[ArtefactMetaData, ArtefactOperationStatus]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type ArtefactUpdateApi_CancelUpdateClient = grpc.ServerStreamingClient[ArtefactOperationStatus]
+
 // ArtefactUpdateApiServer is the server API for ArtefactUpdateApi service.
 // All implementations must embed UnimplementedArtefactUpdateApiServer
 // for forward compatibility.
@@ -121,6 +142,7 @@ type ArtefactUpdateApiServer interface {
 	// Two-stage update of firmware or other software
 	PrepareUpdate(grpc.BidiStreamingServer[ArtefactChunk, ArtefactMessage]) error
 	ActivateUpdate(grpc.BidiStreamingServer[ArtefactChunk, ArtefactMessage]) error
+	CancelUpdate(*ArtefactMetaData, grpc.ServerStreamingServer[ArtefactOperationStatus]) error
 	mustEmbedUnimplementedArtefactUpdateApiServer()
 }
 
@@ -142,6 +164,9 @@ func (UnimplementedArtefactUpdateApiServer) PrepareUpdate(grpc.BidiStreamingServ
 }
 func (UnimplementedArtefactUpdateApiServer) ActivateUpdate(grpc.BidiStreamingServer[ArtefactChunk, ArtefactMessage]) error {
 	return status.Errorf(codes.Unimplemented, "method ActivateUpdate not implemented")
+}
+func (UnimplementedArtefactUpdateApiServer) CancelUpdate(*ArtefactMetaData, grpc.ServerStreamingServer[ArtefactOperationStatus]) error {
+	return status.Errorf(codes.Unimplemented, "method CancelUpdate not implemented")
 }
 func (UnimplementedArtefactUpdateApiServer) mustEmbedUnimplementedArtefactUpdateApiServer() {}
 func (UnimplementedArtefactUpdateApiServer) testEmbeddedByValue()                           {}
@@ -196,6 +221,17 @@ func _ArtefactUpdateApi_ActivateUpdate_Handler(srv interface{}, stream grpc.Serv
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type ArtefactUpdateApi_ActivateUpdateServer = grpc.BidiStreamingServer[ArtefactChunk, ArtefactMessage]
 
+func _ArtefactUpdateApi_CancelUpdate_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(ArtefactMetaData)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(ArtefactUpdateApiServer).CancelUpdate(m, &grpc.GenericServerStream[ArtefactMetaData, ArtefactOperationStatus]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type ArtefactUpdateApi_CancelUpdateServer = grpc.ServerStreamingServer[ArtefactOperationStatus]
+
 // ArtefactUpdateApi_ServiceDesc is the grpc.ServiceDesc for ArtefactUpdateApi service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -226,6 +262,11 @@ var ArtefactUpdateApi_ServiceDesc = grpc.ServiceDesc{
 			Handler:       _ArtefactUpdateApi_ActivateUpdate_Handler,
 			ServerStreams: true,
 			ClientStreams: true,
+		},
+		{
+			StreamName:    "CancelUpdate",
+			Handler:       _ArtefactUpdateApi_CancelUpdate_Handler,
+			ServerStreams: true,
 		},
 	},
 	Metadata: "artefact_update.proto",
