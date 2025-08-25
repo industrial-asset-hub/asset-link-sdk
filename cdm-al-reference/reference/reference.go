@@ -75,9 +75,12 @@ func (m *ReferenceAssetLink) Discover(discoveryConfig config.DiscoveryConfig, de
 
 		// handle sub-devices (if any)
 		for _, subDevice := range device.GetSubDevices() {
-			subDeviceInfo := model.NewDevice("SubDevice", subDevice.GetDeviceName())
+			subDeviceInfo := model.NewDevice("EthernetDevice", subDevice.GetDeviceName())
 			subDeviceInfo.AddNameplate(subDevice.GetManufacturer(), subDevice.GetIDLink(), subDevice.GetArticleNumber(),
 				subDevice.GetProductDesignation(), subDevice.GetHardwareVersion(), subDevice.GetSerialNumber())
+
+			subDeviceNicID := subDeviceInfo.AddNic(subDevice.GetDeviceNIC(), subDevice.GetMacAddress())
+			subDeviceInfo.AddIPv4(subDeviceNicID, subDevice.GetIpDevice(), subDevice.GetIpNetmask(), subDevice.GetIpRoute())
 
 			subDeviceInfo.AddSoftware("Firmware", subDevice.GetFirmwareVersion(), true)
 			subDeviceInfo.AddCapabilities("firmware_update", subDevice.IsUpdateSupported())
