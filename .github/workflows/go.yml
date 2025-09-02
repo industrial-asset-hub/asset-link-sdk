@@ -14,7 +14,7 @@ permissions:
 
 env:
   GOPRIVATE: github.com/industrial-asset-hub
-  GO_MINIMAL_VERSION: 1.23.12
+  GO_MINIMAL_VERSION: 1.24.6
   GO_LINT_VERSION: v2.1
   TEST_PROJECT: cookiecutter-test
   TEST_PROJECT_NAME: test-asset-link
@@ -90,7 +90,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        go-version: ["1.23.12", "1.24", "stable"]
+        go-version: ["1.24.6", "1.25", "stable"]
     steps:
       - uses: actions/checkout@v5
       - name: Prepare Environment
