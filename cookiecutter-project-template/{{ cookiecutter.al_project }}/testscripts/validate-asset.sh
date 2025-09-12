@@ -17,7 +17,7 @@ tar -xf al-ctl_${OS_NAME}_${ARCH_NAME}.tar.gz
 chmod +x al-ctl
 
 # Download the base schema for validation
-curl -o iah_base.yaml https://raw.githubusercontent.com/industrial-asset-hub/asset-link-sdk/main/model/iah_base_v0.10.0.yaml
+curl -o iah_base.yaml https://raw.githubusercontent.com/industrial-asset-hub/asset-link-sdk/main/model/iah_base_v0.12.0.yaml
 chmod +x iah_base.yaml
 
 # Run the validate asset tests

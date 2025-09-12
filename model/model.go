@@ -8,13 +8,11 @@
 package model
 
 import (
-	"time"
-
 	"github.com/rs/zerolog/log"
 )
 
 const (
-	baseSchemaVersion   = "v0.10.0"
+	baseSchemaVersion   = "v0.12.0"
 	baseSchemaPrefix    = "https://schema.industrial-assets.io/base/" + baseSchemaVersion
 	baseSchemaInContext = "https://common-device-management.code.siemens.io/documentation/asset-modeling/base-schema/" + baseSchemaVersion + "/"
 )
@@ -58,20 +56,8 @@ type AssetContext struct {
 	SchemaOrg string `json:"schemaorg"`
 }
 
-func (d *DeviceInfo) getAssetCreationTimestamp() time.Time {
-	if d.ManagementState.StateTimestamp != nil {
-		return *d.ManagementState.StateTimestamp
-	}
-	return time.Now().UTC()
-}
-
-func getAssetContext() *AssetContext {
-	return &AssetContext{
-		Lis:       "http://rds.posccaesar.org/ontology/lis14/rdl/",
-		Base:      baseSchemaInContext,
-		Skos:      "http://www.w3.org/2004/02/skos/core#",
-		Vocab:     baseSchemaInContext,
-		Linkml:    "https://w3id.org/linkml/",
-		SchemaOrg: "https://schema.org/",
+func (d *DeviceInfo) AddDescription(description string) {
+	if isNonEmptyValues(description) {
+		d.Description = &description
 	}
 }

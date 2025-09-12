@@ -80,7 +80,7 @@ $ al-ctl test api -e localhost:8081 --service-name discovery [-d <discovery-conf
 $ al-ctl test api -l -e localhost:8081 --service-name discovery -v --base-schema-path <base-schema> --target-class Asset
 # The Asset Link must be running on the provided address, for example here: localhost:8081
 
-# Example: al-ctl test api -l -e localhost:8081 --service-name discovery -v --base-schema-path ./iah_base-v0.10.0.yaml --target-class Asset
+# Example: al-ctl test api -l -e localhost:8081 --service-name discovery -v --base-schema-path ./iah_base-v0.12.0.yaml --target-class Asset
 ```
 
 ```bash
@@ -104,7 +104,7 @@ $ al-ctl test api -e localhost:8081 --service-name identifiers -r <credential-fi
 
 # SPECIAL NOTE: Depending on the asset link implementation of Get Identifiers, the asset returned may be incomplete. Hence, the validation may fail.
 
-# Example: al-ctl test api -e localhost:8081 --service-name identifiers -r ./credential.json -v --base-schema-path ./iah_base-v0.10.0.yaml --target-class Asset
+# Example: al-ctl test api -e localhost:8081 --service-name identifiers -r ./credential.json -v --base-schema-path ./iah_base-v0.12.0.yaml --target-class Asset
 ```
 
 ```bash
@@ -112,7 +112,7 @@ $ al-ctl test api -e localhost:8081 --service-name identifiers -r <credential-fi
 $ al-ctl test assets --base-schema-path <base-schema> --asset-path <asset>
 --target-class <target-class>
 
-# Example: al-ctl test assets --base-schema-path ./iah_base-v0.10.0.yaml --asset-path ./Asset-001.ld.json --target-class Asset
+# Example: al-ctl test assets --base-schema-path ./iah_base-v0.12.0.yaml --asset-path ./Asset-001.ld.json --target-class Asset
 ```
 
 ```bash
@@ -120,14 +120,14 @@ $ al-ctl test assets --base-schema-path <base-schema> --asset-path <asset>
 $ al-ctl test assets --base-schema-path <base-schema> --asset-path <asset>
 --schema-path <extended-schema> --target-class <target-class>
 
-# Example: al-ctl test assets --base-schema-path ./iah_base-v0.10.0.yaml --asset-path ./SatController-001.json --schema-path ./cdm_sat.yaml --target-class SatController
+# Example: al-ctl test assets --base-schema-path ./iah_base-v0.12.0.yaml --asset-path ./SatController-001.json --schema-path ./cdm_sat.yaml --target-class SatController
 ```
 
 Note: LinkML is used to validate assets against the schema.
 
 - If LinkML is already installed and available in the testing environment, use the `-l` flag for validation.
 - Otherwise, the validation will be performed using Docker to run the linkml-validator.
-- The iah_base_v0.10.0.yaml is used as the base schema for validation, which can be found in the [model](https://github.com/industrial-asset-hub/asset-link-sdk/tree/main/model) directory
+- The iah_base_v0.12.0.yaml is used as the base schema for validation, which can be found in the [model](https://github.com/industrial-asset-hub/asset-link-sdk/tree/main/model) directory
 
 ```bash
 # To validate the registration of asset-link created via asset-link-SDK
