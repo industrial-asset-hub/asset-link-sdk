@@ -8,8 +8,6 @@
 package model
 
 import (
-	"time"
-
 	"github.com/rs/zerolog/log"
 )
 
@@ -32,7 +30,7 @@ func NewDevice(typeOfAsset string, assetName string) *DeviceInfo {
 	d.Name = &assetName
 	d.Context = getAssetContext()
 
-	d.addManagementState()
+	d.AddManagementState(ManagementStateValuesUnknown)
 	d.addReachabilityState()
 
 	return &d
@@ -58,20 +56,24 @@ type AssetContext struct {
 	SchemaOrg string `json:"schemaorg"`
 }
 
-func (d *DeviceInfo) getAssetCreationTimestamp() time.Time {
-	if d.ManagementState.StateTimestamp != nil {
-		return *d.ManagementState.StateTimestamp
-	}
-	return time.Now().UTC()
-}
+// Add Management state to the asset
+func (d *DeviceInfo) AddManagementState(stateValue ManagementStateValues) {
 
-func getAssetContext() *AssetContext {
-	return &AssetContext{
-		Lis:       "http://rds.posccaesar.org/ontology/lis14/rdl/",
-		Base:      baseSchemaInContext,
-		Skos:      "http://www.w3.org/2004/02/skos/core#",
-		Vocab:     baseSchemaInContext,
-		Linkml:    "https://w3id.org/linkml/",
-		SchemaOrg: "https://schema.org/",
+	if !isNonEmptyValues(string(stateValue)) {
+		log.Warn().Msg("Management state value is empty")
+		return
 	}
+	if stateValue != ManagementStateValuesIgnored && stateValue != ManagementStateValuesRegarded && stateValue != ManagementStateValuesUnknown {
+		log.Warn().Msgf("Management state value %s is not valid", stateValue)
+		return
+	}
+	timestamp := d.getAssetCreationTimestamp()
+	state := stateValue
+
+	mgmtState := ManagementState{
+		StateTimestamp: &timestamp,
+		StateValue:     &state,
+	}
+
+	d.ManagementState = mgmtState
 }

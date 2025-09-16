@@ -25,3 +25,35 @@ func TestNewDevice(t *testing.T) {
 	assert.Equal(t, ManagementStateValuesUnknown, *deviceInfo.ManagementState.StateValue)
 	assert.Equal(t, getAssetContext(), deviceInfo.Context)
 }
+func TestAddManagementStateValidStates(t *testing.T) {
+	deviceInfo := NewDevice("testAsset", "test")
+
+	deviceInfo.AddManagementState(ManagementStateValuesUnknown)
+	assert.Equal(t, ManagementStateValuesUnknown, *deviceInfo.ManagementState.StateValue)
+
+	deviceInfo.AddManagementState(ManagementStateValuesIgnored)
+	assert.Equal(t, ManagementStateValuesIgnored, *deviceInfo.ManagementState.StateValue)
+
+	deviceInfo.AddManagementState(ManagementStateValuesRegarded)
+	assert.Equal(t, ManagementStateValuesRegarded, *deviceInfo.ManagementState.StateValue)
+}
+
+func TestAddManagementStateEmptyState(t *testing.T) {
+	deviceInfo := NewDevice("testAsset", "test")
+	// Save previous state
+	prevState := deviceInfo.ManagementState
+
+	deviceInfo.AddManagementState("")
+	// Should not update state
+	assert.Equal(t, prevState, deviceInfo.ManagementState)
+}
+
+func TestAddManagementStateInvalidState(t *testing.T) {
+	deviceInfo := NewDevice("testAsset", "test")
+	// Save previous state
+	prevState := deviceInfo.ManagementState
+
+	deviceInfo.AddManagementState("invalid_state")
+	// Should not update state
+	assert.Equal(t, prevState, deviceInfo.ManagementState)
+}

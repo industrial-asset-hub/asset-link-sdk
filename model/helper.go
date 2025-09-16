@@ -7,6 +7,8 @@
 
 package model
 
+import "time"
+
 func (d *DeviceInfo) addIdentifier(mac string) {
 
 	if isNonEmptyValues(mac) {
@@ -33,17 +35,20 @@ func (d *DeviceInfo) addReachabilityState() {
 	d.ReachabilityState = &reachabilityState
 }
 
-// Add Management state to the asset
-// Only used internal
-func (d *DeviceInfo) addManagementState() {
-
-	timestamp := d.getAssetCreationTimestamp()
-	state := ManagementStateValuesUnknown
-
-	mgmtState := ManagementState{
-		StateTimestamp: &timestamp,
-		StateValue:     &state,
+func (d *DeviceInfo) getAssetCreationTimestamp() time.Time {
+	if d.ManagementState.StateTimestamp != nil {
+		return *d.ManagementState.StateTimestamp
 	}
+	return time.Now().UTC()
+}
 
-	d.ManagementState = mgmtState
+func getAssetContext() *AssetContext {
+	return &AssetContext{
+		Lis:       "http://rds.posccaesar.org/ontology/lis14/rdl/",
+		Base:      baseSchemaInContext,
+		Skos:      "http://www.w3.org/2004/02/skos/core#",
+		Vocab:     baseSchemaInContext,
+		Linkml:    "https://w3id.org/linkml/",
+		SchemaOrg: "https://schema.org/",
+	}
 }
