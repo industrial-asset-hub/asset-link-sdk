@@ -180,7 +180,7 @@ type Asset struct {
 	// Thing, such as ISBNs, GTIN codes, UUIDs etc. Schema.org provides dedicated
 	// properties for representing many of these, either as textual strings or as URL
 	// (URI) links.
-	Id *string `json:"id" yaml:"id" mapstructure:"id"`
+	Id string `json:"id" yaml:"id" mapstructure:"id"`
 
 	// Metadata associated to an object.
 	InstanceAnnotations []InstanceAnnotation `json:"instance_annotations,omitempty" yaml:"instance_annotations,omitempty" mapstructure:"instance_annotations,omitempty"`
@@ -208,10 +208,10 @@ type Asset struct {
 	OtherStates []State `json:"other_states,omitempty" yaml:"other_states,omitempty" mapstructure:"other_states,omitempty"`
 
 	// Identifier of a device based on its serial number.
-	ProductInstanceIdentifier interface{} `json:"product_instance_identifier,omitempty" yaml:"product_instance_identifier,omitempty" mapstructure:"product_instance_identifier,omitempty"`
+	ProductInstanceIdentifier *ProductSerialIdentifier `json:"product_instance_identifier,omitempty" yaml:"product_instance_identifier,omitempty" mapstructure:"product_instance_identifier,omitempty"`
 
 	// A slot to track the last observed reachability state and when it was observed.
-	ReachabilityState interface{} `json:"reachability_state,omitempty" yaml:"reachability_state,omitempty" mapstructure:"reachability_state,omitempty"`
+	ReachabilityState *ReachabilityState `json:"reachability_state,omitempty" yaml:"reachability_state,omitempty" mapstructure:"reachability_state,omitempty"`
 
 	// Provides the id of the user or client that onboarded the asset
 	Responsible *string `json:"responsible,omitempty" yaml:"responsible,omitempty" mapstructure:"responsible,omitempty"`
@@ -319,7 +319,7 @@ type AssetLink struct {
 	// As of now the combination of multiple software artifacts into a running
 	// software (for example with plug-ins) is not supported and can not be natively
 	// modeled. Instance annotations need to be used for that purpose.
-	Artifact interface{} `json:"artifact,omitempty" yaml:"artifact,omitempty" mapstructure:"artifact,omitempty"`
+	Artifact *SoftwareArtifact `json:"artifact,omitempty" yaml:"artifact,omitempty" mapstructure:"artifact,omitempty"`
 
 	// An asset identifier is an asset attribute that provides enough information to
 	// unequivocally identify the represented object.
@@ -401,10 +401,10 @@ type AssetLink struct {
 	OtherStates []State `json:"other_states,omitempty" yaml:"other_states,omitempty" mapstructure:"other_states,omitempty"`
 
 	// Identifier of a device based on its serial number.
-	ProductInstanceIdentifier interface{} `json:"product_instance_identifier,omitempty" yaml:"product_instance_identifier,omitempty" mapstructure:"product_instance_identifier,omitempty"`
+	ProductInstanceIdentifier *ProductSerialIdentifier `json:"product_instance_identifier,omitempty" yaml:"product_instance_identifier,omitempty" mapstructure:"product_instance_identifier,omitempty"`
 
 	// A slot to track the last observed reachability state and when it was observed.
-	ReachabilityState interface{} `json:"reachability_state,omitempty" yaml:"reachability_state,omitempty" mapstructure:"reachability_state,omitempty"`
+	ReachabilityState *ReachabilityState `json:"reachability_state,omitempty" yaml:"reachability_state,omitempty" mapstructure:"reachability_state,omitempty"`
 
 	// Provides the id of the user or client that onboarded the asset
 	Responsible *string `json:"responsible,omitempty" yaml:"responsible,omitempty" mapstructure:"responsible,omitempty"`
@@ -1223,7 +1223,7 @@ type Dcd struct {
 	// As of now the combination of multiple software artifacts into a running
 	// software (for example with plug-ins) is not supported and can not be natively
 	// modeled. Instance annotations need to be used for that purpose.
-	Artifact interface{} `json:"artifact,omitempty" yaml:"artifact,omitempty" mapstructure:"artifact,omitempty"`
+	Artifact *SoftwareArtifact `json:"artifact,omitempty" yaml:"artifact,omitempty" mapstructure:"artifact,omitempty"`
 
 	// An asset identifier is an asset attribute that provides enough information to
 	// unequivocally identify the represented object.
@@ -1305,10 +1305,10 @@ type Dcd struct {
 	OtherStates []State `json:"other_states,omitempty" yaml:"other_states,omitempty" mapstructure:"other_states,omitempty"`
 
 	// Identifier of a device based on its serial number.
-	ProductInstanceIdentifier interface{} `json:"product_instance_identifier,omitempty" yaml:"product_instance_identifier,omitempty" mapstructure:"product_instance_identifier,omitempty"`
+	ProductInstanceIdentifier *ProductSerialIdentifier `json:"product_instance_identifier,omitempty" yaml:"product_instance_identifier,omitempty" mapstructure:"product_instance_identifier,omitempty"`
 
 	// A slot to track the last observed reachability state and when it was observed.
-	ReachabilityState interface{} `json:"reachability_state,omitempty" yaml:"reachability_state,omitempty" mapstructure:"reachability_state,omitempty"`
+	ReachabilityState *ReachabilityState `json:"reachability_state,omitempty" yaml:"reachability_state,omitempty" mapstructure:"reachability_state,omitempty"`
 
 	// Provides the id of the user or client that onboarded the asset
 	Responsible *string `json:"responsible,omitempty" yaml:"responsible,omitempty" mapstructure:"responsible,omitempty"`
@@ -1471,7 +1471,7 @@ type Device struct {
 	OtherStates []State `json:"other_states,omitempty" yaml:"other_states,omitempty" mapstructure:"other_states,omitempty"`
 
 	// Identifier of a device based on its serial number.
-	ProductInstanceIdentifier interface{} `json:"product_instance_identifier,omitempty" yaml:"product_instance_identifier,omitempty" mapstructure:"product_instance_identifier,omitempty"`
+	ProductInstanceIdentifier *ProductSerialIdentifier `json:"product_instance_identifier,omitempty" yaml:"product_instance_identifier,omitempty" mapstructure:"product_instance_identifier,omitempty"`
 
 	// A slot to track the last observed reachability state and when it was observed.
 	ReachabilityState ReachabilityState `json:"reachability_state" yaml:"reachability_state" mapstructure:"reachability_state"`
@@ -1710,7 +1710,7 @@ type Gateway struct {
 	// As of now the combination of multiple software artifacts into a running
 	// software (for example with plug-ins) is not supported and can not be natively
 	// modeled. Instance annotations need to be used for that purpose.
-	Artifact interface{} `json:"artifact,omitempty" yaml:"artifact,omitempty" mapstructure:"artifact,omitempty"`
+	Artifact *SoftwareArtifact `json:"artifact,omitempty" yaml:"artifact,omitempty" mapstructure:"artifact,omitempty"`
 
 	// An asset identifier is an asset attribute that provides enough information to
 	// unequivocally identify the represented object.
@@ -1762,7 +1762,7 @@ type Gateway struct {
 
 	// Provides an AssetIdentifier for Gateways that uses the ID of the certificate
 	// used to onboard the Gateway.
-	GatewayIdentifier interface{} `json:"gateway_identifier,omitempty" yaml:"gateway_identifier,omitempty" mapstructure:"gateway_identifier,omitempty"`
+	GatewayIdentifier *GatewayIdentifier `json:"gateway_identifier,omitempty" yaml:"gateway_identifier,omitempty" mapstructure:"gateway_identifier,omitempty"`
 
 	// The identifier property represents any kind of identifier for any kind of
 	// Thing, such as ISBNs, GTIN codes, UUIDs etc. Schema.org provides dedicated
@@ -1796,10 +1796,10 @@ type Gateway struct {
 	OtherStates []State `json:"other_states,omitempty" yaml:"other_states,omitempty" mapstructure:"other_states,omitempty"`
 
 	// Identifier of a device based on its serial number.
-	ProductInstanceIdentifier interface{} `json:"product_instance_identifier,omitempty" yaml:"product_instance_identifier,omitempty" mapstructure:"product_instance_identifier,omitempty"`
+	ProductInstanceIdentifier *ProductSerialIdentifier `json:"product_instance_identifier,omitempty" yaml:"product_instance_identifier,omitempty" mapstructure:"product_instance_identifier,omitempty"`
 
 	// A slot to track the last observed reachability state and when it was observed.
-	ReachabilityState interface{} `json:"reachability_state,omitempty" yaml:"reachability_state,omitempty" mapstructure:"reachability_state,omitempty"`
+	ReachabilityState *ReachabilityState `json:"reachability_state,omitempty" yaml:"reachability_state,omitempty" mapstructure:"reachability_state,omitempty"`
 
 	// Provides the id of the user or client that onboarded the asset
 	Responsible *string `json:"responsible,omitempty" yaml:"responsible,omitempty" mapstructure:"responsible,omitempty"`
@@ -1831,7 +1831,7 @@ type Gateway struct {
 	SoftwareComponents []interface{} `json:"software_components,omitempty" yaml:"software_components,omitempty" mapstructure:"software_components,omitempty"`
 
 	// A slot to track the trust establishment of the asset
-	TrustEstablishedState interface{} `json:"trust_established_state,omitempty" yaml:"trust_established_state,omitempty" mapstructure:"trust_established_state,omitempty"`
+	TrustEstablishedState *TrustEstablishedState `json:"trust_established_state,omitempty" yaml:"trust_established_state,omitempty" mapstructure:"trust_established_state,omitempty"`
 
 	// Provides references to the different zones that an asset belongs to.
 	// Zones are typically used to group assets logically mostly for the purpose of
@@ -2553,13 +2553,13 @@ func (j *Okz) UnmarshalJSON(b []byte) error {
 // An organization such as a school, NGO, corporation, club, etc.
 type Organization struct {
 	// Physical address of the item.
-	Address interface{} `json:"address,omitempty" yaml:"address,omitempty" mapstructure:"address,omitempty"`
+	Address *PostalAddress `json:"address,omitempty" yaml:"address,omitempty" mapstructure:"address,omitempty"`
 
 	// An alias for the item.
 	AlternateNames []string `json:"alternate_names,omitempty" yaml:"alternate_names,omitempty" mapstructure:"alternate_names,omitempty"`
 
 	// A contact point for a person or organization.
-	ContactPoint interface{} `json:"contact_point,omitempty" yaml:"contact_point,omitempty" mapstructure:"contact_point,omitempty"`
+	ContactPoint *ContactPoint `json:"contact_point,omitempty" yaml:"contact_point,omitempty" mapstructure:"contact_point,omitempty"`
 
 	// The identifier property represents any kind of identifier for any kind of
 	// Thing, such as ISBNs, GTIN codes, UUIDs etc. Schema.org provides dedicated
@@ -2592,7 +2592,7 @@ func (j *Organization) UnmarshalJSON(b []byte) error {
 // A person (alive, dead, undead, or fictional).
 type Person struct {
 	// A contact point for a person or organization.
-	ContactPoint interface{} `json:"contact_point,omitempty" yaml:"contact_point,omitempty" mapstructure:"contact_point,omitempty"`
+	ContactPoint *ContactPoint `json:"contact_point,omitempty" yaml:"contact_point,omitempty" mapstructure:"contact_point,omitempty"`
 
 	// Family name. In the U.S., the last name of a Person.
 	FamilyName *string `json:"family_name,omitempty" yaml:"family_name,omitempty" mapstructure:"family_name,omitempty"`
@@ -2717,7 +2717,7 @@ type Product struct {
 	Id string `json:"id" yaml:"id" mapstructure:"id"`
 
 	// The manufacturer of the product.
-	Manufacturer interface{} `json:"manufacturer,omitempty" yaml:"manufacturer,omitempty" mapstructure:"manufacturer,omitempty"`
+	Manufacturer *Organization `json:"manufacturer,omitempty" yaml:"manufacturer,omitempty" mapstructure:"manufacturer,omitempty"`
 
 	// The name of the item.
 	Name *string `json:"name,omitempty" yaml:"name,omitempty" mapstructure:"name,omitempty"`
@@ -2756,7 +2756,7 @@ type ProductSerialIdentifier struct {
 
 	// A way to identify a product based on the manufacturer and the product
 	// identifier given by the manufacturer.
-	ManufacturerProduct interface{} `json:"manufacturer_product,omitempty" yaml:"manufacturer_product,omitempty" mapstructure:"manufacturer_product,omitempty"`
+	ManufacturerProduct *Product `json:"manufacturer_product,omitempty" yaml:"manufacturer_product,omitempty" mapstructure:"manufacturer_product,omitempty"`
 
 	// The serial number or any alphanumeric identifier of a particular product. When
 	// attached to an offer, it is a shortcut for the serial number of the product
@@ -2874,7 +2874,7 @@ type RunningSoftware struct {
 	// As of now the combination of multiple software artifacts into a running
 	// software (for example with plug-ins) is not supported and can not be natively
 	// modeled. Instance annotations need to be used for that purpose.
-	Artifact interface{} `json:"artifact,omitempty" yaml:"artifact,omitempty" mapstructure:"artifact,omitempty"`
+	Artifact *SoftwareArtifact `json:"artifact,omitempty" yaml:"artifact,omitempty" mapstructure:"artifact,omitempty"`
 
 	// An asset identifier is an asset attribute that provides enough information to
 	// unequivocally identify the represented object.
@@ -2956,10 +2956,10 @@ type RunningSoftware struct {
 	OtherStates []State `json:"other_states,omitempty" yaml:"other_states,omitempty" mapstructure:"other_states,omitempty"`
 
 	// Identifier of a device based on its serial number.
-	ProductInstanceIdentifier interface{} `json:"product_instance_identifier,omitempty" yaml:"product_instance_identifier,omitempty" mapstructure:"product_instance_identifier,omitempty"`
+	ProductInstanceIdentifier *ProductSerialIdentifier `json:"product_instance_identifier,omitempty" yaml:"product_instance_identifier,omitempty" mapstructure:"product_instance_identifier,omitempty"`
 
 	// A slot to track the last observed reachability state and when it was observed.
-	ReachabilityState interface{} `json:"reachability_state,omitempty" yaml:"reachability_state,omitempty" mapstructure:"reachability_state,omitempty"`
+	ReachabilityState *ReachabilityState `json:"reachability_state,omitempty" yaml:"reachability_state,omitempty" mapstructure:"reachability_state,omitempty"`
 
 	// Provides the id of the user or client that onboarded the asset
 	Responsible *string `json:"responsible,omitempty" yaml:"responsible,omitempty" mapstructure:"responsible,omitempty"`
@@ -3082,7 +3082,7 @@ type SchemaOrgProduct struct {
 	Id string `json:"id" yaml:"id" mapstructure:"id"`
 
 	// The manufacturer of the product.
-	Manufacturer interface{} `json:"manufacturer,omitempty" yaml:"manufacturer,omitempty" mapstructure:"manufacturer,omitempty"`
+	Manufacturer *Organization `json:"manufacturer,omitempty" yaml:"manufacturer,omitempty" mapstructure:"manufacturer,omitempty"`
 
 	// The name of the item.
 	Name *string `json:"name,omitempty" yaml:"name,omitempty" mapstructure:"name,omitempty"`
@@ -3179,7 +3179,7 @@ type SoftwareArtifact struct {
 	AssetOperations []AssetOperation `json:"asset_operations,omitempty" yaml:"asset_operations,omitempty" mapstructure:"asset_operations,omitempty"`
 
 	// Provides an AssetIdentifier based on a SoftwareArtifact checksum
-	ChecksumIdentifier interface{} `json:"checksum_identifier,omitempty" yaml:"checksum_identifier,omitempty" mapstructure:"checksum_identifier,omitempty"`
+	ChecksumIdentifier *ArtifactChecksum `json:"checksum_identifier,omitempty" yaml:"checksum_identifier,omitempty" mapstructure:"checksum_identifier,omitempty"`
 
 	// An asset might have a connection point that can be used to connect with the
 	// asset. In the case of devices, at least one connection point is required. It
@@ -3249,10 +3249,10 @@ type SoftwareArtifact struct {
 	OtherStates []State `json:"other_states,omitempty" yaml:"other_states,omitempty" mapstructure:"other_states,omitempty"`
 
 	// Identifier of a device based on its serial number.
-	ProductInstanceIdentifier interface{} `json:"product_instance_identifier,omitempty" yaml:"product_instance_identifier,omitempty" mapstructure:"product_instance_identifier,omitempty"`
+	ProductInstanceIdentifier *ProductSerialIdentifier `json:"product_instance_identifier,omitempty" yaml:"product_instance_identifier,omitempty" mapstructure:"product_instance_identifier,omitempty"`
 
 	// A slot to track the last observed reachability state and when it was observed.
-	ReachabilityState interface{} `json:"reachability_state,omitempty" yaml:"reachability_state,omitempty" mapstructure:"reachability_state,omitempty"`
+	ReachabilityState *ReachabilityState `json:"reachability_state,omitempty" yaml:"reachability_state,omitempty" mapstructure:"reachability_state,omitempty"`
 
 	// Provides the id of the user or client that onboarded the asset
 	Responsible *string `json:"responsible,omitempty" yaml:"responsible,omitempty" mapstructure:"responsible,omitempty"`
@@ -3273,7 +3273,7 @@ type SoftwareArtifact struct {
 
 	// Identifier for a software artifact based on the well-established pattern name
 	// and version.
-	SoftwareIdentifier interface{} `json:"software_identifier,omitempty" yaml:"software_identifier,omitempty" mapstructure:"software_identifier,omitempty"`
+	SoftwareIdentifier *SoftwareIdentifier `json:"software_identifier,omitempty" yaml:"software_identifier,omitempty" mapstructure:"software_identifier,omitempty"`
 
 	// Provides references to the different zones that an asset belongs to.
 	// Zones are typically used to group assets logically mostly for the purpose of
@@ -3412,10 +3412,10 @@ type SoftwareAsset struct {
 	OtherStates []State `json:"other_states,omitempty" yaml:"other_states,omitempty" mapstructure:"other_states,omitempty"`
 
 	// Identifier of a device based on its serial number.
-	ProductInstanceIdentifier interface{} `json:"product_instance_identifier,omitempty" yaml:"product_instance_identifier,omitempty" mapstructure:"product_instance_identifier,omitempty"`
+	ProductInstanceIdentifier *ProductSerialIdentifier `json:"product_instance_identifier,omitempty" yaml:"product_instance_identifier,omitempty" mapstructure:"product_instance_identifier,omitempty"`
 
 	// A slot to track the last observed reachability state and when it was observed.
-	ReachabilityState interface{} `json:"reachability_state,omitempty" yaml:"reachability_state,omitempty" mapstructure:"reachability_state,omitempty"`
+	ReachabilityState *ReachabilityState `json:"reachability_state,omitempty" yaml:"reachability_state,omitempty" mapstructure:"reachability_state,omitempty"`
 
 	// Provides the id of the user or client that onboarded the asset
 	Responsible *string `json:"responsible,omitempty" yaml:"responsible,omitempty" mapstructure:"responsible,omitempty"`
