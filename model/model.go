@@ -77,3 +77,13 @@ func (d *DeviceInfo) AddManagementState(stateValue ManagementStateValues) {
 
 	d.ManagementState = mgmtState
 }
+
+func (d *DeviceInfo) AddDescription(description string) {
+
+	if !isNonEmptyValues(description) {
+		log.Warn().Msg("Description is empty")
+		return
+	}
+
+	d.Description = &description
+}
