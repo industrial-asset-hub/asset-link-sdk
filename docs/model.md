@@ -29,3 +29,14 @@ device.AddCapabilities("firmware_update", true)
 
 jsonMap, _ := device.ConvertToJson()
 ```
+
+Example: Creating a Gateway Structure
+
+```go
+gateway := NewGateway("new-gateway")
+
+gateway.AddTrustEstablishmentState("trusted") // allowed values (failed, pending, trusted)
+gateway.AddProductInstanceIdentifier("PROD123", "v1.0.0", "Test Gateway", "Test Manufacturer", "SN123456")
+gateway.AddReachabilityState("reached") // allowed values (failed, reached, unknown)
+gateway.AddRunningSoftwareType("cdm_gateway") // allowed values (cdm_gateway, iah_gateway, other)
+```

@@ -8,6 +8,8 @@
 package model
 
 import (
+	"time"
+
 	"github.com/rs/zerolog/log"
 )
 
@@ -15,6 +17,8 @@ const (
 	baseSchemaVersion   = "v0.12.0"
 	baseSchemaPrefix    = "https://schema.industrial-assets.io/base/" + baseSchemaVersion
 	baseSchemaInContext = "https://common-device-management.code.siemens.io/documentation/asset-modeling/base-schema/" + baseSchemaVersion + "/"
+
+	gateway = "Gateway"
 )
 
 // NewDevice Generates a new asset skeleton
@@ -36,6 +40,20 @@ func NewDevice(typeOfAsset string, assetName string) *DeviceInfo {
 	return &d
 }
 
+// NewGateway Generates a new gateway skeleton
+func NewGateway(gatewayName string) *GatewayInfo {
+
+	d := GatewayInfo{}
+
+	d.Type = gateway
+	d.Name = &gatewayName
+	d.Context = getAssetContext()
+
+	d.addManagementState(ManagementStateValuesRegarded)
+
+	return &d
+}
+
 type DeviceInfo struct {
 	Type    string        `json:"@type"`
 	Context *AssetContext `json:"@context,omitempty"`
@@ -45,6 +63,12 @@ type DeviceInfo struct {
 	MacIdentifiers []MacIdentifier `json:"mac_identifiers"`
 	// To Be clarified
 	SoftwareComponents []any `json:"software_components,omitempty"`
+}
+
+type GatewayInfo struct {
+	Type    string        `json:"@type"`
+	Context *AssetContext `json:"@context,omitempty"`
+	Gateway
 }
 
 type AssetContext struct {
@@ -58,24 +82,39 @@ type AssetContext struct {
 
 // Add Management state to the asset
 func (d *DeviceInfo) AddManagementState(stateValue ManagementStateValues) {
+	mgmtState := managementStatePtr(stateValue, getAssetCreationTimestamp(d.ManagementState.StateTimestamp))
+	if mgmtState == nil {
+		return
+	}
 
+	d.ManagementState = *mgmtState
+}
+
+func (d *GatewayInfo) addManagementState(stateValue ManagementStateValues) {
+	mgmtState := managementStatePtr(stateValue, getAssetCreationTimestamp(d.ManagementState.StateTimestamp))
+	if mgmtState == nil {
+		return
+	}
+
+	d.ManagementState = *mgmtState
+}
+
+func managementStatePtr(stateValue ManagementStateValues, timestamp time.Time) *ManagementState {
 	if !isNonEmptyValues(string(stateValue)) {
 		log.Warn().Msg("Management state value is empty")
-		return
+		return nil
 	}
 	if stateValue != ManagementStateValuesIgnored && stateValue != ManagementStateValuesRegarded && stateValue != ManagementStateValuesUnknown {
 		log.Warn().Msgf("Management state value %s is not valid", stateValue)
-		return
+		return nil
 	}
-	timestamp := d.getAssetCreationTimestamp()
-	state := stateValue
 
 	mgmtState := ManagementState{
 		StateTimestamp: &timestamp,
-		StateValue:     &state,
+		StateValue:     &stateValue,
 	}
 
-	d.ManagementState = mgmtState
+	return &mgmtState
 }
 
 func (d *DeviceInfo) AddDescription(description string) {

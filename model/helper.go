@@ -24,7 +24,7 @@ func (d *DeviceInfo) addIdentifier(mac string) {
 
 // Add reachability state to the asset
 func (d *DeviceInfo) addReachabilityState() {
-	timestamp := d.getAssetCreationTimestamp()
+	timestamp := getAssetCreationTimestamp(d.ManagementState.StateTimestamp)
 	state := ReachabilityStateValuesReached
 
 	reachabilityState := ReachabilityState{
@@ -35,9 +35,9 @@ func (d *DeviceInfo) addReachabilityState() {
 	d.ReachabilityState = &reachabilityState
 }
 
-func (d *DeviceInfo) getAssetCreationTimestamp() time.Time {
-	if d.ManagementState.StateTimestamp != nil {
-		return *d.ManagementState.StateTimestamp
+func getAssetCreationTimestamp(timestamp *time.Time) time.Time {
+	if timestamp != nil {
+		return *timestamp
 	}
 	return time.Now().UTC()
 }
