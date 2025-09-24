@@ -2,8 +2,8 @@
 #   SPDX-License-Identifier: MIT
 
 # yaml-language-server: $schema=https://linkml.io/linkml-model/linkml_model/jsonschema/meta.schema.json
-id: https://common-device-management.code.siemens.io/documentation/asset-modeling/base-schema/v0.10.0/iah-base.jsonld
-version: 0.10.0
+id: https://common-device-management.code.siemens.io/documentation/asset-modeling/base-schema/v0.12.0/iah-base.jsonld
+version: 0.12.0
 name: IAH-Base
 title: Industrial Asset Hub Base Schema
 description: >-
@@ -15,9 +15,11 @@ prefixes:
   linkml: https://w3id.org/linkml/
   lis: http://rds.posccaesar.org/ontology/lis14/rdl/
   schema: http://schema.org/
-  base: https://common-device-management.code.siemens.io/documentation/asset-modeling/base-schema/v0.10.0/
+  base: https://common-device-management.code.siemens.io/documentation/asset-modeling/base-schema/v0.12.0/
   sietechas: http://ontology.siemens.com/base/enterprise/technical-asset#
   sieiot: http://ontology.siemens.com/base/enterprise/iot#
+  btlo: https://ontology.siemens.com/bt/shared/btlo/version/1.0/#
+  s4ehaw: https://saref.etsi.org/saref4ehaw/
 imports:
   - linkml:types
 default_prefix: base
@@ -91,6 +93,11 @@ classes:
             description: Could an asset be reached lately over a port?
           - value: Runtime state
             description: Is a device running normally? Is it in maintenance mode?
+      location:
+        description: >-
+          Possible ways to know where an asset is located.
+        multivalued: true
+        range: AssetLocation
     slots:
       - product_instance_identifier
       - connection_points
@@ -103,6 +110,7 @@ classes:
       - asset_identifiers
       - zone
       - responsible
+      - description
     rank: 10
 
   Device:
@@ -151,7 +159,7 @@ classes:
     slot_usage:
       state_value:
         range: ManagementStateValues
-        ifabsent: string(regarded)
+        # ifabsent: string(regarded)
 
   ReachabilityState:
     title: reachability_state
@@ -161,7 +169,7 @@ classes:
     slot_usage:
       state_value:
         range: ReachabilityStateValues
-        ifabsent: string(reached)
+        # ifabsent: string(reached)
 
   ConnectionPoint:
     title: Connection Point
@@ -178,6 +186,16 @@ classes:
       As of now this schema doesn't specify the structure of common connection points like Ethernet ports.
       But it will probably be added in future versions of this schema.
       Otherwise the details will be provided on specialized schemas.
+    attributes:
+      name:
+        description: >-
+          Name of the connection point.
+          The name is provided by the Asset Link during the discovery process.
+          It can be used to identify the connection point on the asset.
+          Usually, the name is provided by the operating system of the asset or may be labeled on the asset itself.
+        range: string
+        examples:
+          - value: "eth0"
     slots:
       - id
       - instance_annotations
@@ -615,8 +633,64 @@ classes:
         description: >-
           Link to identify a product.
           It can also provide additional information about the product.
+        structured_aliases:
+          - literal_form: 0112/2///61987#ABN590#002
+            description: IEC CDD IRDI for Digital Nameplate v3.0 "URIOfTheProduct"
+            source: https://github.com/admin-shell-io/submodel-templates/blob/e45fb10d744289a4655b8203f9c2a005bebff4b9/published/Digital%20nameplate/3/0/IDTA%2002006-3-0_Template_Digital%20Nameplate.json#L1656
+            categories:
+              - urn:iso:std:iso-iec:11179:-6:ed-3:en
+              - https://www.iso.org/standard/78916.html
+          - literal_form: 0173-1#02-ABH173#003
+            description: ECLASS IRDI for Digital Nameplate v3.0 "URIOfTheProduct"
+            source: https://github.com/admin-shell-io/submodel-templates/blob/e45fb10d744289a4655b8203f9c2a005bebff4b9/published/Digital%20nameplate/3/0/IDTA%2002006-3-0_Template_Digital%20Nameplate.json#L68
+            categories:
+              - urn:iso:std:iso-iec:11179:-6:ed-3:en
+              - https://www.iso.org/standard/78916.html
     slots:
       - product_version
+    slot_usage:
+      name:
+        structured_aliases:
+          - literal_form: 0173-1#02-AAW338#003
+            description: ECLASS IRDI for Digital Nameplate v3.0 "ManufacturerProductDesignation"
+            source: https://github.com/admin-shell-io/submodel-templates/blob/e45fb10d744289a4655b8203f9c2a005bebff4b9/published/Digital%20nameplate/3/0/IDTA%2002006-3-0_Template_Digital%20Nameplate.json#L158
+            categories:
+              - urn:iso:std:iso-iec:11179:-6:ed-3:en
+              - https://www.iso.org/standard/78916.html
+          - literal_form: 0112/2///61987#ABA567#009
+            description: IEC CDD IRDI for Digital Nameplate v3.0 "ManufacturerProductDesignation"
+            source: https://github.com/admin-shell-io/submodel-templates/blob/e45fb10d744289a4655b8203f9c2a005bebff4b9/published/Digital%20nameplate/3/0/IDTA%2002006-3-0_Template_Digital%20Nameplate.json#L1730
+            categories:
+              - urn:iso:std:iso-iec:11179:-6:ed-3:en
+              - https://www.iso.org/standard/78916.html
+      product_id:
+        structured_aliases:
+          - literal_form: 0173-1#02-AAO057#004
+            description: ECLASS IRDI for Digital Nameplate v3.0 "ManufacturerProductType"
+            source: https://github.com/admin-shell-io/submodel-templates/blob/e45fb10d744289a4655b8203f9c2a005bebff4b9/published/Digital%20nameplate/3/0/IDTA%2002006-3-0_Template_Digital%20Nameplate.json#L373
+            categories:
+              - urn:iso:std:iso-iec:11179:-6:ed-3:en
+              - https://www.iso.org/standard/78916.html
+          - literal_form: 0112/2///61987#ABA300#008
+            description: IEC CDD IRDI for Digital Nameplate v3.0 "ManufacturerProductType"
+            source: https://github.com/admin-shell-io/submodel-templates/blob/e45fb10d744289a4655b8203f9c2a005bebff4b9/published/Digital%20nameplate/3/0/IDTA%2002006-3-0_Template_Digital%20Nameplate.json#L1832
+            categories:
+              - urn:iso:std:iso-iec:11179:-6:ed-3:en
+              - https://www.iso.org/standard/78916.html
+      product_version:
+        structured_aliases:
+          - literal_form: 0112/2///61987#ABA926#008
+            description: IEC CDD IRDI for Digital Nameplate v3.0 "HardwareVersion"
+            source: https://github.com/admin-shell-io/submodel-templates/blob/e45fb10d744289a4655b8203f9c2a005bebff4b9/published/Digital%20nameplate/3/0/IDTA%2002006-3-0_Template_Digital%20Nameplate.json#L2036
+            categories:
+              - urn:iso:std:iso-iec:11179:-6:ed-3:en
+              - https://www.iso.org/standard/78916.html
+          - literal_form: 0173-1#02-AAN270#004
+            description: ECLASS IRDI for Digital Nameplate v3.0 for "HardwareVersion"
+            source: https://github.com/admin-shell-io/submodel-templates/blob/5cf33804147c204c538515d4e53bcf7d40ba2c8c/published/Digital%20nameplate/3/0/IDTA%2002006-3-0_Template_Digital%20Nameplate.json#L631
+            categories:
+              - urn:iso:std:iso-iec:11179:-6:ed-3:en
+              - https://www.iso.org/standard/78916.html
     unique_keys:
       identifier:
         unique_key_slots:
@@ -659,6 +733,25 @@ classes:
     is_a: ContactPoint
     title: Postal Address
     description: The mailing address.
+    structured_aliases:
+      - literal_form: 0112/2///61360_7#AAS002#001
+        description: IEC CDD IRDI for Digital Nameplate v3.0 "AddressInformation"
+        source: https://github.com/admin-shell-io/submodel-templates/blob/5cf33804147c204c538515d4e53bcf7d40ba2c8c/published/Digital%20nameplate/3/0/IDTA%2002006-3-0_Template_Digital%20Nameplate.json#L220
+        categories:
+          - urn:iso:std:iso-iec:11179:-6:ed-3:en
+          - https://www.iso.org/standard/78916.html
+      - literal_form: 0173-1#02-AAQ837#008
+        description: ECLASS IRDI for Digital Nameplate v3.0 "AddressInformation"
+        source: https://github.com/admin-shell-io/submodel-templates/blob/5cf33804147c204c538515d4e53bcf7d40ba2c8c/published/Digital%20nameplate/3/0/IDTA%2002006-3-0_Template_Digital%20Nameplate.json#L229
+        categories:
+          - urn:iso:std:iso-iec:11179:-6:ed-3:en
+          - https://www.iso.org/standard/78916.html
+      - literal_form: 0173-1#01-ADR448#008
+        description: ECLASS IRDI for Digital Nameplate v3.0 "AddressInformation"
+        source: https://github.com/admin-shell-io/submodel-templates/blob/5cf33804147c204c538515d4e53bcf7d40ba2c8c/published/Digital%20nameplate/3/0/IDTA%2002006-3-0_Template_Digital%20Nameplate.json#L229
+        categories:
+          - urn:iso:std:iso-iec:11179:-6:ed-3:en
+          - https://www.iso.org/standard/78916.html
     attributes:
       address_country:
         slot_uri: schema:addressCountry
@@ -700,7 +793,7 @@ classes:
     slot_usage:
       state_value:
         range: TrustEstablishedStateValues
-        ifabsent: string(pending)
+        # ifabsent: string(pending)
 
   AssetLink:
     description: >-
@@ -776,6 +869,81 @@ classes:
           Human readable label to show the property in the UI.
         range: string
 
+  AssetLocation:
+    title: Asset Location
+    description: >-
+      Attributes that help locate where an asset can be physically found.
+    close_mappings:
+      - btlo:Location
+      - s4ehaw:PhysicalLocation
+    slots:
+      - location_type
+
+  GeoLocation:
+    is_a: AssetLocation
+    close_mappings:
+      - schema:GeoCoordinates
+    title: Asset geographic coordinates
+    description: >-
+      Geografic coordinates in which an asset can be found.
+    attributes:
+      elevation:
+        slot_uri: schema:elevation
+        description: >-
+          The elevation of a location in meters (WGS 84).
+        range: float
+        conforms_to: WGS 84
+      latitude:
+        slot_uri: schema:latitude
+        description: >-
+          The latitude of a location. For example 37.42242 (WGS 84).
+        range: float
+        conforms_to: WGS 84
+      longitude:
+        slot_uri: schema:longitude
+        description: >-
+          The longitude of a location. For example -122.08585 (WGS 84).
+        range: float
+        conforms_to: WGS 84
+
+  Okz:
+    is_a: AssetLocation
+    title: OKZ
+    description: >-
+      Plant Labeling System very well-established in Germany which helps locating a device in a plant based on references and coordinates in the plant.
+      The acronym originates from the German word "Ortskennzeichnung" (something like "location coding system").
+    attributes:
+      location_identifier:
+        description: >-
+          String that provides the location of the plant.
+          This string is built-up concatenating different information items with separators.
+          Some of these systems are standardized, some others are company-specific.
+        aliases:
+          - Ortskennzeichnung
+          - OKZ
+        range: string
+        required: true
+
+  Akz:
+    is_a: AssetLocation
+    title: AKZ
+    description: >-
+      Plant Labeling System very well-established in Germany which helps locating a device in a plant based on its function in the plant.
+      The acronym originates from the German word "Anlagekennzeichnung" (something like "plant coding system").
+    attributes:
+      plant_designation:
+        description: >-
+          String that provides the location of the device in the plant.
+          This string is built-up concatenating different information items with separators.
+          Some of these systems are standardized, some others are company-specific.
+        aliases:
+          - Anlagekennzeichnungssystem
+          - AKS
+          - Anlagekennzeichnung
+          - AKZ
+        range: string
+        required: true
+
 slots:
   id:
     slot_uri: schema:identifier
@@ -790,6 +958,11 @@ slots:
     slot_uri: schema:name
     range: string
     description: The name of the item.
+
+  description:
+    slot_uri: linkml:description
+    range: string
+    description: A textual description of the item's purpose and use.
 
   connection_points:
     range: ConnectionPoint
@@ -1153,6 +1326,19 @@ slots:
       The serial number or any alphanumeric identifier of a particular product.
       When attached to an offer, it is a shortcut for the serial number of the
       product included in the offer.
+    structured_aliases:
+      - literal_form: 0173-1#02-AAM556#004
+        description: ECLASS IRDI for Digital Nameplate v3.0 "SerialNumber"
+        source: https://github.com/admin-shell-io/submodel-templates/blob/5cf33804147c204c538515d4e53bcf7d40ba2c8c/published/Digital%20nameplate/3/0/IDTA%2002006-3-0_Template_Digital%20Nameplate.json#L502
+        categories:
+          - urn:iso:std:iso-iec:11179:-6:ed-3:en
+          - https://www.iso.org/standard/78916.html
+      - literal_form: 0112/2///61987#ABA951#009
+        description: IEC CDD IRDI for Digital Nameplate v3.0 "SerialNumber"
+        source: https://github.com/admin-shell-io/submodel-templates/blob/5cf33804147c204c538515d4e53bcf7d40ba2c8c/published/Digital%20nameplate/3/0/IDTA%2002006-3-0_Template_Digital%20Nameplate.json#L492
+        categories:
+          - urn:iso:std:iso-iec:11179:-6:ed-3:en
+          - https://tc3.iec.ch/tc-activity/common-data-dictionary-cdd/
 
   checksum:
     description: >-
@@ -1194,6 +1380,12 @@ slots:
     description: >-
       Provides the id of the user or client that onboarded the asset
     range: string
+
+  location_type:
+    description: >-
+      Type designator that provides support for polymorphism using location.
+    range: string
+    designates_type: true
 
 enums:
   ManagementStateValues:

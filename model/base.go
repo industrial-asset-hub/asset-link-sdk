@@ -7,6 +7,66 @@ import "fmt"
 import "reflect"
 import "time"
 
+// Plant Labeling System very well-established in Germany which helps locating a
+// device in a plant based on its function in the plant. The acronym originates
+// from the German word "Anlagekennzeichnung" (something like "plant coding
+// system").
+type Akz struct {
+	// Type designator that provides support for polymorphism using location.
+	LocationType *AkzLocationType `json:"location_type,omitempty" yaml:"location_type,omitempty" mapstructure:"location_type,omitempty"`
+
+	// String that provides the location of the device in the plant. This string is
+	// built-up concatenating different information items with separators. Some of
+	// these systems are standardized, some others are company-specific.
+	PlantDesignation string `json:"plant_designation" yaml:"plant_designation" mapstructure:"plant_designation"`
+}
+
+type AkzLocationType string
+
+const AkzLocationTypeAkz AkzLocationType = "Akz"
+
+var enumValues_AkzLocationType = []interface{}{
+	"Akz",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *AkzLocationType) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_AkzLocationType {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_AkzLocationType, v)
+	}
+	*j = AkzLocationType(v)
+	return nil
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *Akz) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if _, ok := raw["plant_designation"]; raw != nil && !ok {
+		return fmt.Errorf("field plant_designation in Akz: required")
+	}
+	type Plain Akz
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = Akz(plain)
+	return nil
+}
+
 // Artifact identifier based on the artifact checksum.
 // Such an identifier is good to confirm the identity of an artifact, but not so
 // good to find that artifact.
@@ -98,6 +158,9 @@ type Asset struct {
 	// Metadata associated with Asset in User Interface
 	CustomUiProperties []CustomProperty `json:"custom_ui_properties,omitempty" yaml:"custom_ui_properties,omitempty" mapstructure:"custom_ui_properties,omitempty"`
 
+	// A textual description of the item's purpose and use.
+	Description *string `json:"description,omitempty" yaml:"description,omitempty" mapstructure:"description,omitempty"`
+
 	// Type designator that provides support for polymorphism using functional parts.
 	FunctionalObjectType *AssetFunctionalObjectType `json:"functional_object_type,omitempty" yaml:"functional_object_type,omitempty" mapstructure:"functional_object_type,omitempty"`
 
@@ -124,6 +187,9 @@ type Asset struct {
 
 	// Timestamp of last asset modification
 	LastModifiedTimestamp *time.Time `json:"last_modified_timestamp,omitempty" yaml:"last_modified_timestamp,omitempty" mapstructure:"last_modified_timestamp,omitempty"`
+
+	// Possible ways to know where an asset is located.
+	Location []interface{} `json:"location,omitempty" yaml:"location,omitempty" mapstructure:"location,omitempty"`
 
 	// A manage state is an attribute of an asset that specifies how an asset is being
 	// regarded by an asset management system (is it being regarded or ignored). Some
@@ -285,6 +351,9 @@ type AssetLink struct {
 	// Metadata associated with Asset in User Interface
 	CustomUiProperties []CustomProperty `json:"custom_ui_properties,omitempty" yaml:"custom_ui_properties,omitempty" mapstructure:"custom_ui_properties,omitempty"`
 
+	// A textual description of the item's purpose and use.
+	Description *string `json:"description,omitempty" yaml:"description,omitempty" mapstructure:"description,omitempty"`
+
 	// Type designator that provides support for polymorphism using functional parts.
 	FunctionalObjectType *AssetLinkFunctionalObjectType `json:"functional_object_type,omitempty" yaml:"functional_object_type,omitempty" mapstructure:"functional_object_type,omitempty"`
 
@@ -311,6 +380,9 @@ type AssetLink struct {
 
 	// Timestamp of last asset modification
 	LastModifiedTimestamp *time.Time `json:"last_modified_timestamp,omitempty" yaml:"last_modified_timestamp,omitempty" mapstructure:"last_modified_timestamp,omitempty"`
+
+	// Possible ways to know where an asset is located.
+	Location []interface{} `json:"location,omitempty" yaml:"location,omitempty" mapstructure:"location,omitempty"`
 
 	// A manage state is an attribute of an asset that specifies how an asset is being
 	// regarded by an asset management system (is it being regarded or ignored). Some
@@ -413,6 +485,40 @@ func (j *AssetLink) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+// Attributes that help locate where an asset can be physically found.
+type AssetLocation struct {
+	// Type designator that provides support for polymorphism using location.
+	LocationType *AssetLocationLocationType `json:"location_type,omitempty" yaml:"location_type,omitempty" mapstructure:"location_type,omitempty"`
+}
+
+type AssetLocationLocationType string
+
+const AssetLocationLocationTypeAssetLocation AssetLocationLocationType = "AssetLocation"
+
+var enumValues_AssetLocationLocationType = []interface{}{
+	"AssetLocation",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *AssetLocationLocationType) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_AssetLocationLocationType {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_AssetLocationLocationType, v)
+	}
+	*j = AssetLocationLocationType(v)
+	return nil
+}
+
 // Operations that can be performed on the asset
 type AssetOperation struct {
 	// Attribute for specifying if the operation is available in terms of true or
@@ -456,7 +562,7 @@ func (j *Asset) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-type CdmBaseSchemaV0100Json map[string]interface{}
+type CdmBaseSchemaV0120Json map[string]interface{}
 
 // A connection point is a hardware or software interface that enables an asset to
 // communicate with other assets.
@@ -475,6 +581,12 @@ type ConnectionPoint struct {
 
 	// Metadata associated to an object.
 	InstanceAnnotations []InstanceAnnotation `json:"instance_annotations,omitempty" yaml:"instance_annotations,omitempty" mapstructure:"instance_annotations,omitempty"`
+
+	// Name of the connection point. The name is provided by the Asset Link during the
+	// discovery process. It can be used to identify the connection point on the
+	// asset. Usually, the name is provided by the operating system of the asset or
+	// may be labeled on the asset itself.
+	Name *string `json:"name,omitempty" yaml:"name,omitempty" mapstructure:"name,omitempty"`
 
 	// A connection point might rely on another connection point to work.
 	// Examples: a TCP/IP connection can only work if there is some kind of connection
@@ -1143,6 +1255,9 @@ type Dcd struct {
 	// Metadata associated with Asset in User Interface
 	CustomUiProperties []CustomProperty `json:"custom_ui_properties,omitempty" yaml:"custom_ui_properties,omitempty" mapstructure:"custom_ui_properties,omitempty"`
 
+	// A textual description of the item's purpose and use.
+	Description *string `json:"description,omitempty" yaml:"description,omitempty" mapstructure:"description,omitempty"`
+
 	// Type designator that provides support for polymorphism using functional parts.
 	FunctionalObjectType *DcdFunctionalObjectType `json:"functional_object_type,omitempty" yaml:"functional_object_type,omitempty" mapstructure:"functional_object_type,omitempty"`
 
@@ -1169,6 +1284,9 @@ type Dcd struct {
 
 	// Timestamp of last asset modification
 	LastModifiedTimestamp *time.Time `json:"last_modified_timestamp,omitempty" yaml:"last_modified_timestamp,omitempty" mapstructure:"last_modified_timestamp,omitempty"`
+
+	// Possible ways to know where an asset is located.
+	Location []interface{} `json:"location,omitempty" yaml:"location,omitempty" mapstructure:"location,omitempty"`
 
 	// A manage state is an attribute of an asset that specifies how an asset is being
 	// regarded by an asset management system (is it being regarded or ignored). Some
@@ -1303,6 +1421,9 @@ type Device struct {
 	// Metadata associated with Asset in User Interface
 	CustomUiProperties []CustomProperty `json:"custom_ui_properties,omitempty" yaml:"custom_ui_properties,omitempty" mapstructure:"custom_ui_properties,omitempty"`
 
+	// A textual description of the item's purpose and use.
+	Description *string `json:"description,omitempty" yaml:"description,omitempty" mapstructure:"description,omitempty"`
+
 	// Type designator that provides support for polymorphism using functional parts.
 	FunctionalObjectType *DeviceFunctionalObjectType `json:"functional_object_type,omitempty" yaml:"functional_object_type,omitempty" mapstructure:"functional_object_type,omitempty"`
 
@@ -1329,6 +1450,9 @@ type Device struct {
 
 	// Timestamp of last asset modification
 	LastModifiedTimestamp *time.Time `json:"last_modified_timestamp,omitempty" yaml:"last_modified_timestamp,omitempty" mapstructure:"last_modified_timestamp,omitempty"`
+
+	// Possible ways to know where an asset is located.
+	Location []interface{} `json:"location,omitempty" yaml:"location,omitempty" mapstructure:"location,omitempty"`
 
 	// A manage state is an attribute of an asset that specifies how an asset is being
 	// regarded by an asset management system (is it being regarded or ignored). Some
@@ -1451,6 +1575,12 @@ type EthernetPort struct {
 	// ports it can be changed.
 	// An asset instance must provide for each ethernet port the default MAC address.
 	MacAddress *string `json:"mac_address,omitempty" yaml:"mac_address,omitempty" mapstructure:"mac_address,omitempty"`
+
+	// Name of the connection point. The name is provided by the Asset Link during the
+	// discovery process. It can be used to identify the connection point on the
+	// asset. Usually, the name is provided by the operating system of the asset or
+	// may be labeled on the asset itself.
+	Name *string `json:"name,omitempty" yaml:"name,omitempty" mapstructure:"name,omitempty"`
 
 	// A connection point might rely on another connection point to work.
 	// Examples: a TCP/IP connection can only work if there is some kind of connection
@@ -1612,6 +1742,9 @@ type Gateway struct {
 	// Metadata associated with Asset in User Interface
 	CustomUiProperties []CustomProperty `json:"custom_ui_properties,omitempty" yaml:"custom_ui_properties,omitempty" mapstructure:"custom_ui_properties,omitempty"`
 
+	// A textual description of the item's purpose and use.
+	Description *string `json:"description,omitempty" yaml:"description,omitempty" mapstructure:"description,omitempty"`
+
 	// Type designator that provides support for polymorphism using functional parts.
 	FunctionalObjectType *GatewayFunctionalObjectType `json:"functional_object_type,omitempty" yaml:"functional_object_type,omitempty" mapstructure:"functional_object_type,omitempty"`
 
@@ -1642,6 +1775,9 @@ type Gateway struct {
 
 	// Timestamp of last asset modification
 	LastModifiedTimestamp *time.Time `json:"last_modified_timestamp,omitempty" yaml:"last_modified_timestamp,omitempty" mapstructure:"last_modified_timestamp,omitempty"`
+
+	// Possible ways to know where an asset is located.
+	Location []interface{} `json:"location,omitempty" yaml:"location,omitempty" mapstructure:"location,omitempty"`
 
 	// A manage state is an attribute of an asset that specifies how an asset is being
 	// regarded by an asset management system (is it being regarded or ignored). Some
@@ -1804,6 +1940,49 @@ func (j *Gateway) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+// Geografic coordinates in which an asset can be found.
+type GeoLocation struct {
+	// The elevation of a location in meters (WGS 84).
+	Elevation *float64 `json:"elevation,omitempty" yaml:"elevation,omitempty" mapstructure:"elevation,omitempty"`
+
+	// The latitude of a location. For example 37.42242 (WGS 84).
+	Latitude *float64 `json:"latitude,omitempty" yaml:"latitude,omitempty" mapstructure:"latitude,omitempty"`
+
+	// Type designator that provides support for polymorphism using location.
+	LocationType *GeoLocationLocationType `json:"location_type,omitempty" yaml:"location_type,omitempty" mapstructure:"location_type,omitempty"`
+
+	// The longitude of a location. For example -122.08585 (WGS 84).
+	Longitude *float64 `json:"longitude,omitempty" yaml:"longitude,omitempty" mapstructure:"longitude,omitempty"`
+}
+
+type GeoLocationLocationType string
+
+const GeoLocationLocationTypeGeoLocation GeoLocationLocationType = "GeoLocation"
+
+var enumValues_GeoLocationLocationType = []interface{}{
+	"GeoLocation",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *GeoLocationLocationType) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_GeoLocationLocationType {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_GeoLocationLocationType, v)
+	}
+	*j = GeoLocationLocationType(v)
+	return nil
+}
+
 // Asset identifier based on the ID-Link standard (IEC 61406).
 type IdLink struct {
 	// Type designator that provides support for polymorphism using asset identifiers.
@@ -1961,6 +2140,12 @@ type Ipv4Connectivity struct {
 	// The IP v4 address of a device port.
 	Ipv4Address *string `json:"ipv4_address,omitempty" yaml:"ipv4_address,omitempty" mapstructure:"ipv4_address,omitempty"`
 
+	// Name of the connection point. The name is provided by the Asset Link during the
+	// discovery process. It can be used to identify the connection point on the
+	// asset. Usually, the name is provided by the operating system of the asset or
+	// may be labeled on the asset itself.
+	Name *string `json:"name,omitempty" yaml:"name,omitempty" mapstructure:"name,omitempty"`
+
 	// The mask that segregates IPs v4 belonging to the same sub-network from the
 	// rest.
 	NetworkMask *string `json:"network_mask,omitempty" yaml:"network_mask,omitempty" mapstructure:"network_mask,omitempty"`
@@ -2094,6 +2279,12 @@ type Ipv6Connectivity struct {
 
 	// Prefix of the subnetwork in which the IP address is located.
 	Ipv6NetworkPrefix *string `json:"ipv6_network_prefix,omitempty" yaml:"ipv6_network_prefix,omitempty" mapstructure:"ipv6_network_prefix,omitempty"`
+
+	// Name of the connection point. The name is provided by the Asset Link during the
+	// discovery process. It can be used to identify the connection point on the
+	// asset. Usually, the name is provided by the operating system of the asset or
+	// may be labeled on the asset itself.
+	Name *string `json:"name,omitempty" yaml:"name,omitempty" mapstructure:"name,omitempty"`
 
 	// A connection point might rely on another connection point to work.
 	// Examples: a TCP/IP connection can only work if there is some kind of connection
@@ -2296,6 +2487,66 @@ func (j *ManagementStateValues) UnmarshalJSON(b []byte) error {
 		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_ManagementStateValues, v)
 	}
 	*j = ManagementStateValues(v)
+	return nil
+}
+
+// Plant Labeling System very well-established in Germany which helps locating a
+// device in a plant based on references and coordinates in the plant. The acronym
+// originates from the German word "Ortskennzeichnung" (something like "location
+// coding system").
+type Okz struct {
+	// String that provides the location of the plant. This string is built-up
+	// concatenating different information items with separators. Some of these
+	// systems are standardized, some others are company-specific.
+	LocationIdentifier string `json:"location_identifier" yaml:"location_identifier" mapstructure:"location_identifier"`
+
+	// Type designator that provides support for polymorphism using location.
+	LocationType *OkzLocationType `json:"location_type,omitempty" yaml:"location_type,omitempty" mapstructure:"location_type,omitempty"`
+}
+
+type OkzLocationType string
+
+const OkzLocationTypeOkz OkzLocationType = "Okz"
+
+var enumValues_OkzLocationType = []interface{}{
+	"Okz",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *OkzLocationType) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_OkzLocationType {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_OkzLocationType, v)
+	}
+	*j = OkzLocationType(v)
+	return nil
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *Okz) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if _, ok := raw["location_identifier"]; raw != nil && !ok {
+		return fmt.Errorf("field location_identifier in Okz: required")
+	}
+	type Plain Okz
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = Okz(plain)
 	return nil
 }
 
@@ -2655,6 +2906,9 @@ type RunningSoftware struct {
 	// Metadata associated with Asset in User Interface
 	CustomUiProperties []CustomProperty `json:"custom_ui_properties,omitempty" yaml:"custom_ui_properties,omitempty" mapstructure:"custom_ui_properties,omitempty"`
 
+	// A textual description of the item's purpose and use.
+	Description *string `json:"description,omitempty" yaml:"description,omitempty" mapstructure:"description,omitempty"`
+
 	// Type designator that provides support for polymorphism using functional parts.
 	FunctionalObjectType *RunningSoftwareFunctionalObjectType `json:"functional_object_type,omitempty" yaml:"functional_object_type,omitempty" mapstructure:"functional_object_type,omitempty"`
 
@@ -2681,6 +2935,9 @@ type RunningSoftware struct {
 
 	// Timestamp of last asset modification
 	LastModifiedTimestamp *time.Time `json:"last_modified_timestamp,omitempty" yaml:"last_modified_timestamp,omitempty" mapstructure:"last_modified_timestamp,omitempty"`
+
+	// Possible ways to know where an asset is located.
+	Location []interface{} `json:"location,omitempty" yaml:"location,omitempty" mapstructure:"location,omitempty"`
 
 	// A manage state is an attribute of an asset that specifies how an asset is being
 	// regarded by an asset management system (is it being regarded or ignored). Some
@@ -2934,6 +3191,9 @@ type SoftwareArtifact struct {
 	// Metadata associated with Asset in User Interface
 	CustomUiProperties []CustomProperty `json:"custom_ui_properties,omitempty" yaml:"custom_ui_properties,omitempty" mapstructure:"custom_ui_properties,omitempty"`
 
+	// A textual description of the item's purpose and use.
+	Description *string `json:"description,omitempty" yaml:"description,omitempty" mapstructure:"description,omitempty"`
+
 	// Type designator that provides support for polymorphism using functional parts.
 	FunctionalObjectType *SoftwareArtifactFunctionalObjectType `json:"functional_object_type,omitempty" yaml:"functional_object_type,omitempty" mapstructure:"functional_object_type,omitempty"`
 
@@ -2968,6 +3228,9 @@ type SoftwareArtifact struct {
 
 	// Timestamp of last asset modification
 	LastModifiedTimestamp *time.Time `json:"last_modified_timestamp,omitempty" yaml:"last_modified_timestamp,omitempty" mapstructure:"last_modified_timestamp,omitempty"`
+
+	// Possible ways to know where an asset is located.
+	Location []interface{} `json:"location,omitempty" yaml:"location,omitempty" mapstructure:"location,omitempty"`
 
 	// A manage state is an attribute of an asset that specifies how an asset is being
 	// regarded by an asset management system (is it being regarded or ignored). Some
@@ -3099,6 +3362,9 @@ type SoftwareAsset struct {
 	// Metadata associated with Asset in User Interface
 	CustomUiProperties []CustomProperty `json:"custom_ui_properties,omitempty" yaml:"custom_ui_properties,omitempty" mapstructure:"custom_ui_properties,omitempty"`
 
+	// A textual description of the item's purpose and use.
+	Description *string `json:"description,omitempty" yaml:"description,omitempty" mapstructure:"description,omitempty"`
+
 	// Type designator that provides support for polymorphism using functional parts.
 	FunctionalObjectType *SoftwareAssetFunctionalObjectType `json:"functional_object_type,omitempty" yaml:"functional_object_type,omitempty" mapstructure:"functional_object_type,omitempty"`
 
@@ -3125,6 +3391,9 @@ type SoftwareAsset struct {
 
 	// Timestamp of last asset modification
 	LastModifiedTimestamp *time.Time `json:"last_modified_timestamp,omitempty" yaml:"last_modified_timestamp,omitempty" mapstructure:"last_modified_timestamp,omitempty"`
+
+	// Possible ways to know where an asset is located.
+	Location []interface{} `json:"location,omitempty" yaml:"location,omitempty" mapstructure:"location,omitempty"`
 
 	// A manage state is an attribute of an asset that specifies how an asset is being
 	// regarded by an asset management system (is it being regarded or ignored). Some
