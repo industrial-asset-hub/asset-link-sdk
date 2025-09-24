@@ -312,8 +312,8 @@ func TestConvertToDeviceIdentifiers_IgnoredIdentifier(t *testing.T) {
 		fieldValue interface{}
 		uri        string
 	}{
-		{device.ProductInstanceIdentifier.IdentifierUncertainty, "https://schema.industrial-assets.io/base/v0.10.0/Asset#asset_identifiers/identifier_uncertainty"},
-		{device.InstanceAnnotations, "https://schema.industrial-assets.io/base/v0.10.0/Asset#instance_annotations"},
+		{device.ProductInstanceIdentifier.IdentifierUncertainty, "https://schema.industrial-assets.io/base/v0.12.0/Asset#asset_identifiers/identifier_uncertainty"},
+		{device.InstanceAnnotations, "https://schema.industrial-assets.io/base/v0.12.0/Asset#instance_annotations"},
 	}
 
 	for _, testCase := range testCases {

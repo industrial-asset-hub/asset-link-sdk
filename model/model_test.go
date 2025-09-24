@@ -57,3 +57,24 @@ func TestAddManagementStateInvalidState(t *testing.T) {
 	// Should not update state
 	assert.Equal(t, prevState, deviceInfo.ManagementState)
 }
+func TestAddDescriptionValidDescription(t *testing.T) {
+	deviceInfo := NewDevice("testAsset", "test")
+	description := "This is a test device"
+	deviceInfo.AddDescription(description)
+
+	assert.NotNil(t, deviceInfo.Description)
+	assert.Equal(t, description, *deviceInfo.Description)
+}
+
+func TestAddDescriptionEmptyDescription(t *testing.T) {
+	deviceInfo := NewDevice("testAsset", "test")
+	// Set an initial description to check it doesn't get overwritten
+	initialDescription := "Initial description"
+	deviceInfo.Description = &initialDescription
+
+	deviceInfo.AddDescription("")
+
+	// Description should remain unchanged
+	assert.NotNil(t, deviceInfo.Description)
+	assert.Equal(t, initialDescription, *deviceInfo.Description)
+}

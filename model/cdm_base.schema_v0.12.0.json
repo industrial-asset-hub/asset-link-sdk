@@ -1,5 +1,27 @@
 {
     "$defs": {
+        "Akz": {
+            "additionalProperties": false,
+            "description": "Plant Labeling System very well-established in Germany which helps locating a device in a plant based on its function in the plant. The acronym originates from the German word \"Anlagekennzeichnung\" (something like \"plant coding system\").",
+            "properties": {
+                "location_type": {
+                    "description": "Type designator that provides support for polymorphism using location.",
+                    "enum": [
+                        "Akz"
+                    ],
+                    "type": "string"
+                },
+                "plant_designation": {
+                    "description": "String that provides the location of the device in the plant. This string is built-up concatenating different information items with separators. Some of these systems are standardized, some others are company-specific.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "plant_designation"
+            ],
+            "title": "Akz",
+            "type": "object"
+        },
         "ArtifactChecksum": {
             "additionalProperties": false,
             "description": "Artifact identifier based on the artifact checksum.\nSuch an identifier is good to confirm the identity of an artifact, but not so good to find that artifact.",
@@ -103,6 +125,10 @@
                     },
                     "type": "array"
                 },
+                "description": {
+                    "description": "A textual description of the item's purpose and use.",
+                    "type": "string"
+                },
                 "functional_object_type": {
                     "description": "Type designator that provides support for polymorphism using functional parts.",
                     "enum": [
@@ -157,6 +183,26 @@
                     "description": "Timestamp of last asset modification",
                     "format": "date-time",
                     "type": "string"
+                },
+                "location": {
+                    "description": "Possible ways to know where an asset is located.",
+                    "items": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/$defs/AssetLocation"
+                            },
+                            {
+                                "$ref": "#/$defs/GeoLocation"
+                            },
+                            {
+                                "$ref": "#/$defs/Okz"
+                            },
+                            {
+                                "$ref": "#/$defs/Akz"
+                            }
+                        ]
+                    },
+                    "type": "array"
                 },
                 "management_state": {
                     "$ref": "#/$defs/ManagementState",
@@ -330,6 +376,10 @@
                     },
                     "type": "array"
                 },
+                "description": {
+                    "description": "A textual description of the item's purpose and use.",
+                    "type": "string"
+                },
                 "functional_object_type": {
                     "description": "Type designator that provides support for polymorphism using functional parts.",
                     "enum": [
@@ -384,6 +434,26 @@
                     "description": "Timestamp of last asset modification",
                     "format": "date-time",
                     "type": "string"
+                },
+                "location": {
+                    "description": "Possible ways to know where an asset is located.",
+                    "items": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/$defs/AssetLocation"
+                            },
+                            {
+                                "$ref": "#/$defs/GeoLocation"
+                            },
+                            {
+                                "$ref": "#/$defs/Okz"
+                            },
+                            {
+                                "$ref": "#/$defs/Akz"
+                            }
+                        ]
+                    },
+                    "type": "array"
                 },
                 "management_state": {
                     "$ref": "#/$defs/ManagementState",
@@ -458,6 +528,21 @@
             "title": "AssetLink",
             "type": "object"
         },
+        "AssetLocation": {
+            "additionalProperties": false,
+            "description": "Attributes that help locate where an asset can be physically found.",
+            "properties": {
+                "location_type": {
+                    "description": "Type designator that provides support for polymorphism using location.",
+                    "enum": [
+                        "AssetLocation"
+                    ],
+                    "type": "string"
+                }
+            },
+            "title": "AssetLocation",
+            "type": "object"
+        },
         "AssetOperation": {
             "additionalProperties": false,
             "description": "Operations that can be performed on the asset",
@@ -515,6 +600,10 @@
                         "$ref": "#/$defs/InstanceAnnotation"
                     },
                     "type": "array"
+                },
+                "name": {
+                    "description": "Name of the connection point. The name is provided by the Asset Link during the discovery process. It can be used to identify the connection point on the asset. Usually, the name is provided by the operating system of the asset or may be labeled on the asset itself.",
+                    "type": "string"
                 },
                 "related_connection_points": {
                     "description": "A connection point might rely on another connection point to work.\nExamples: a TCP/IP connection can only work if there is some kind of connection point at physical level (e.g. Ethernet Port, Bluetooth Port), a container might be connected over a virtual ethernet to a software bridge, a software bridge might be directly connected to an ethernet port.\nThis attribute enables modeling these kind of dependencies in a limited way. Other modeling mechanisms might be needed to model complex networking set-ups.",
@@ -917,6 +1006,10 @@
                     },
                     "type": "array"
                 },
+                "description": {
+                    "description": "A textual description of the item's purpose and use.",
+                    "type": "string"
+                },
                 "functional_object_type": {
                     "description": "Type designator that provides support for polymorphism using functional parts.",
                     "enum": [
@@ -971,6 +1064,26 @@
                     "description": "Timestamp of last asset modification",
                     "format": "date-time",
                     "type": "string"
+                },
+                "location": {
+                    "description": "Possible ways to know where an asset is located.",
+                    "items": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/$defs/AssetLocation"
+                            },
+                            {
+                                "$ref": "#/$defs/GeoLocation"
+                            },
+                            {
+                                "$ref": "#/$defs/Okz"
+                            },
+                            {
+                                "$ref": "#/$defs/Akz"
+                            }
+                        ]
+                    },
+                    "type": "array"
                 },
                 "management_state": {
                     "$ref": "#/$defs/ManagementState",
@@ -1121,6 +1234,10 @@
                     },
                     "type": "array"
                 },
+                "description": {
+                    "description": "A textual description of the item's purpose and use.",
+                    "type": "string"
+                },
                 "functional_object_type": {
                     "description": "Type designator that provides support for polymorphism using functional parts.",
                     "enum": [
@@ -1175,6 +1292,26 @@
                     "description": "Timestamp of last asset modification",
                     "format": "date-time",
                     "type": "string"
+                },
+                "location": {
+                    "description": "Possible ways to know where an asset is located.",
+                    "items": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/$defs/AssetLocation"
+                            },
+                            {
+                                "$ref": "#/$defs/GeoLocation"
+                            },
+                            {
+                                "$ref": "#/$defs/Okz"
+                            },
+                            {
+                                "$ref": "#/$defs/Akz"
+                            }
+                        ]
+                    },
+                    "type": "array"
                 },
                 "management_state": {
                     "$ref": "#/$defs/ManagementState",
@@ -1269,6 +1406,10 @@
                 "mac_address": {
                     "description": "The MAC address of the port. It is expected to be fixed, but in some ethernet ports it can be changed.\nAn asset instance must provide for each ethernet port the default MAC address.",
                     "pattern": "^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Name of the connection point. The name is provided by the Asset Link during the discovery process. It can be used to identify the connection point on the asset. Usually, the name is provided by the operating system of the asset or may be labeled on the asset itself.",
                     "type": "string"
                 },
                 "related_connection_points": {
@@ -1402,6 +1543,10 @@
                     },
                     "type": "array"
                 },
+                "description": {
+                    "description": "A textual description of the item's purpose and use.",
+                    "type": "string"
+                },
                 "functional_object_type": {
                     "description": "Type designator that provides support for polymorphism using functional parts.",
                     "enum": [
@@ -1460,6 +1605,26 @@
                     "description": "Timestamp of last asset modification",
                     "format": "date-time",
                     "type": "string"
+                },
+                "location": {
+                    "description": "Possible ways to know where an asset is located.",
+                    "items": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/$defs/AssetLocation"
+                            },
+                            {
+                                "$ref": "#/$defs/GeoLocation"
+                            },
+                            {
+                                "$ref": "#/$defs/Okz"
+                            },
+                            {
+                                "$ref": "#/$defs/Akz"
+                            }
+                        ]
+                    },
+                    "type": "array"
                 },
                 "management_state": {
                     "$ref": "#/$defs/ManagementState",
@@ -1577,6 +1742,33 @@
                 }
             },
             "title": "GatewayIdentifier",
+            "type": "object"
+        },
+        "GeoLocation": {
+            "additionalProperties": false,
+            "description": "Geografic coordinates in which an asset can be found.",
+            "properties": {
+                "elevation": {
+                    "description": "The elevation of a location in meters (WGS 84).",
+                    "type": "number"
+                },
+                "latitude": {
+                    "description": "The latitude of a location. For example 37.42242 (WGS 84).",
+                    "type": "number"
+                },
+                "location_type": {
+                    "description": "Type designator that provides support for polymorphism using location.",
+                    "enum": [
+                        "GeoLocation"
+                    ],
+                    "type": "string"
+                },
+                "longitude": {
+                    "description": "The longitude of a location. For example -122.08585 (WGS 84).",
+                    "type": "number"
+                }
+            },
+            "title": "GeoLocation",
             "type": "object"
         },
         "IdLink": {
@@ -1700,6 +1892,10 @@
                     "pattern": "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
                     "type": "string"
                 },
+                "name": {
+                    "description": "Name of the connection point. The name is provided by the Asset Link during the discovery process. It can be used to identify the connection point on the asset. Usually, the name is provided by the operating system of the asset or may be labeled on the asset itself.",
+                    "type": "string"
+                },
                 "network_mask": {
                     "description": "The mask that segregates IPs v4 belonging to the same sub-network from the rest.",
                     "pattern": "^(255)\\.(0|128|192|224|240|248|252|254|255)\\.(0|128|192|224|240|248|252|254|255)\\.(0|128|192|224|240|248|252|254|255)$",
@@ -1783,6 +1979,10 @@
                 "ipv6_network_prefix": {
                     "description": "Prefix of the subnetwork in which the IP address is located.",
                     "pattern": "^[a-fA-F0-9]{1,4}:(?:[a-fA-F0-9]{0,4}:){1,7}/([0-9]{1,2}|1[01][0-9]|12[0-8])$",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Name of the connection point. The name is provided by the Asset Link during the discovery process. It can be used to identify the connection point on the asset. Usually, the name is provided by the operating system of the asset or may be labeled on the asset itself.",
                     "type": "string"
                 },
                 "related_connection_points": {
@@ -1886,6 +2086,28 @@
             ],
             "title": "ManagementStateValues",
             "type": "string"
+        },
+        "Okz": {
+            "additionalProperties": false,
+            "description": "Plant Labeling System very well-established in Germany which helps locating a device in a plant based on references and coordinates in the plant. The acronym originates from the German word \"Ortskennzeichnung\" (something like \"location coding system\").",
+            "properties": {
+                "location_identifier": {
+                    "description": "String that provides the location of the plant. This string is built-up concatenating different information items with separators. Some of these systems are standardized, some others are company-specific.",
+                    "type": "string"
+                },
+                "location_type": {
+                    "description": "Type designator that provides support for polymorphism using location.",
+                    "enum": [
+                        "Okz"
+                    ],
+                    "type": "string"
+                }
+            },
+            "required": [
+                "location_identifier"
+            ],
+            "title": "Okz",
+            "type": "object"
         },
         "Organization": {
             "additionalProperties": false,
@@ -2200,6 +2422,10 @@
                     },
                     "type": "array"
                 },
+                "description": {
+                    "description": "A textual description of the item's purpose and use.",
+                    "type": "string"
+                },
                 "functional_object_type": {
                     "description": "Type designator that provides support for polymorphism using functional parts.",
                     "enum": [
@@ -2254,6 +2480,26 @@
                     "description": "Timestamp of last asset modification",
                     "format": "date-time",
                     "type": "string"
+                },
+                "location": {
+                    "description": "Possible ways to know where an asset is located.",
+                    "items": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/$defs/AssetLocation"
+                            },
+                            {
+                                "$ref": "#/$defs/GeoLocation"
+                            },
+                            {
+                                "$ref": "#/$defs/Okz"
+                            },
+                            {
+                                "$ref": "#/$defs/Akz"
+                            }
+                        ]
+                    },
+                    "type": "array"
                 },
                 "management_state": {
                     "$ref": "#/$defs/ManagementState",
@@ -2473,6 +2719,10 @@
                     },
                     "type": "array"
                 },
+                "description": {
+                    "description": "A textual description of the item's purpose and use.",
+                    "type": "string"
+                },
                 "functional_object_type": {
                     "description": "Type designator that provides support for polymorphism using functional parts.",
                     "enum": [
@@ -2531,6 +2781,26 @@
                     "description": "Timestamp of last asset modification",
                     "format": "date-time",
                     "type": "string"
+                },
+                "location": {
+                    "description": "Possible ways to know where an asset is located.",
+                    "items": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/$defs/AssetLocation"
+                            },
+                            {
+                                "$ref": "#/$defs/GeoLocation"
+                            },
+                            {
+                                "$ref": "#/$defs/Okz"
+                            },
+                            {
+                                "$ref": "#/$defs/Akz"
+                            }
+                        ]
+                    },
+                    "type": "array"
                 },
                 "management_state": {
                     "$ref": "#/$defs/ManagementState",
@@ -2677,6 +2947,10 @@
                     },
                     "type": "array"
                 },
+                "description": {
+                    "description": "A textual description of the item's purpose and use.",
+                    "type": "string"
+                },
                 "functional_object_type": {
                     "description": "Type designator that provides support for polymorphism using functional parts.",
                     "enum": [
@@ -2731,6 +3005,26 @@
                     "description": "Timestamp of last asset modification",
                     "format": "date-time",
                     "type": "string"
+                },
+                "location": {
+                    "description": "Possible ways to know where an asset is located.",
+                    "items": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/$defs/AssetLocation"
+                            },
+                            {
+                                "$ref": "#/$defs/GeoLocation"
+                            },
+                            {
+                                "$ref": "#/$defs/Okz"
+                            },
+                            {
+                                "$ref": "#/$defs/Akz"
+                            }
+                        ]
+                    },
+                    "type": "array"
                 },
                 "management_state": {
                     "$ref": "#/$defs/ManagementState",
@@ -2892,11 +3186,11 @@
             "type": "string"
         }
     },
-    "$id": "https://common-device-management.code.siemens.io/documentation/asset-modeling/base-schema/v0.10.0/iah-base.jsonld",
+    "$id": "https://common-device-management.code.siemens.io/documentation/asset-modeling/base-schema/v0.12.0/iah-base.jsonld",
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "additionalProperties": true,
     "metamodel_version": "1.7.0",
     "title": "IAH-Base",
     "type": "object",
-    "version": "0.10.0"
+    "version": "0.12.0"
 }

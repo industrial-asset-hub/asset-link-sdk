@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	baseSchemaVersion   = "v0.10.0"
+	baseSchemaVersion   = "v0.12.0"
 	baseSchemaPrefix    = "https://schema.industrial-assets.io/base/" + baseSchemaVersion
 	baseSchemaInContext = "https://common-device-management.code.siemens.io/documentation/asset-modeling/base-schema/" + baseSchemaVersion + "/"
 )
@@ -76,4 +76,14 @@ func (d *DeviceInfo) AddManagementState(stateValue ManagementStateValues) {
 	}
 
 	d.ManagementState = mgmtState
+}
+
+func (d *DeviceInfo) AddDescription(description string) {
+
+	if !isNonEmptyValues(description) {
+		log.Warn().Msg("Description is empty")
+		return
+	}
+
+	d.Description = &description
 }
