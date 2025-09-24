@@ -26,6 +26,7 @@ const (
 	CDM_AGENT                   appTypes = 0
 	CDM_DEVICE_CLASS_DRIVER     appTypes = 1
 	APP_TYPE_CS_IAH_DISCOVER_V1          = "siemens.industrialassethub.discover.v1"
+	APP_TYPE_CS_DRVINFO_V1               = "siemens.connectivitysuite.drvinfo.v1"
 )
 
 func (apptypes appTypes) String() string {
@@ -171,7 +172,7 @@ func (r *GrpcServerRegistry) register() (uint32, error) {
 		return retryRegistrationInterval, err
 	}
 	register := pb.RegisterServiceRequest{Info: &pb.ServiceInfo{
-		AppTypes:         []string{APP_TYPE_CS_IAH_DISCOVER_V1},
+		AppTypes:         []string{APP_TYPE_CS_IAH_DISCOVER_V1, APP_TYPE_CS_DRVINFO_V1},
 		AppInstanceId:    r.appInstanceId,
 		DriverSchemaUris: []string{r.alId},
 		GrpcIpPortNumber: uint32(portNumber),
