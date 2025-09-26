@@ -85,7 +85,7 @@ func (d *DeviceInfo) AddSoftware(name string, version string, isFirmware bool) {
 		softwareArtifactId := uuid.New().String()
 
 		stateValue := ManagementStateValuesRegarded
-		stateTimestamp := d.getAssetCreationTimestamp()
+		stateTimestamp := getAssetCreationTimestamp(d.ManagementState.StateTimestamp)
 
 		softwareArtifact := SoftwareArtifact{
 			Id:                  softwareArtifactId,
