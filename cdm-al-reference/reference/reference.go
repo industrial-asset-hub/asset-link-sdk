@@ -50,7 +50,20 @@ func (m *ReferenceAssetLink) Discover(discoveryConfig config.DiscoveryConfig, de
 		return err
 	}
 
-	devicesFound := simdevices.ScanDevices(alInterface, ipRange)
+	devicesFound, scanErrors := simdevices.ScanDevices(alInterface, ipRange)
+
+	// Log scan errors (authentication errors)
+	for _, scanError := range scanErrors {
+		log.Error().Msgf("Scan Error [%d]: %s", scanError.ResultCode, scanError.Description)
+		err := devicePublisher.PublishError(&generated.DiscoverError{
+			ResultCode:  int32(scanError.ResultCode),
+			Description: scanError.Description,
+		})
+		if err != nil {
+			log.Error().Msgf("Error publishing scan error: %v", err)
+		}
+		return status.Errorf(codes.Code(scanError.ResultCode), scanError.Description)
+	}
 
 	for _, device := range devicesFound {
 		deviceInfo := model.NewDevice("EthernetDevice", device.GetDeviceName())
