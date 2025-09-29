@@ -1,0 +1,68 @@
+
+// ------------------------------------------------------------------
+// Connectivity Suite Import Converter Service
+// ------------------------------------------------------------------
+//
+// Naming convention according:
+// https://cloud.google.com/apis/design/naming_convention
+//
+// ------------------------------------------------------------------
+
+syntax = "proto3";
+
+package siemens.connectivitysuite.importconverter.v1;
+
+//===================================================================
+// Import Converter Interface Definitions
+//===================================================================
+
+service ImportConverterApi {
+
+    // Validate and convert input file based on Config-Schema-URI and Filetype (extension).
+    //
+    // Usage Notes:
+    //   - Clients can perform a "dry run" with size=0 to verify if the schema+filetype
+    //     combination is supported before attempting actual conversion.
+    //
+    // Error Handling Sequence:
+    //   1. Config-Schema-URI + File extension validation (highest priority)
+    //      - If unsupported - returns OUT_OF_RANGE
+    //   2. File size validation
+    //      - If size == 0 - returns INVALID_ARGUMENT
+    //   3. File conversion
+    //      - If conversion fails - returns INVALID_ARGUMENT
+    //
+    // Status Codes:
+    //   - OK: Conversion completed successfully
+    //   - OUT_OF_RANGE: config-schema-uri+file-extension combination not supported (takes precedence)
+    //   - INVALID_ARGUMENT: Empty file (size=0) or conversion failure
+    //
+    rpc ConvertImportFile( ConvertImportFileRequest ) returns ( ConvertImportFileResponse ) {};
+}
+
+message ConvertImportFileRequest {
+  // The config file as binary data as it has been read from disk
+  // or received from browser upload.
+  bytes import_file = 1;
+
+  // The filename of the input without the path.
+  // This might be needed by the server when
+  // it supports multiple formats to detect which format it is.
+  // Typically it needs at least needs the extension, but some extensions
+  // like ".tar.gz" have multiple parts, therefore we use the whole filename here.
+  // This is _not_ used to access the file on the filesystem!
+  string input_filename = 2;
+
+  // The config schema URI which shall be used as output format.
+  // This is needed by servers which support multiple schemas.
+  // The output might not fully comply with the schema, some mandatory
+  // fields might be missing when they are not contained in the import
+  // format (e.g. credentials or ip address of the connection).
+  string output_config_schema_uri = 3;
+}
+
+message ConvertImportFileResponse {
+  // The config data according to the JSON config schema specified
+  // by the schema uri.
+  string configuration_json = 1;
+}

@@ -5,18 +5,32 @@ syntax = "proto3";
 import "common_variant.proto";
 import "common_operators.proto";
 
-
 package siemens.common.filters.v1;
 
-
 message SupportedFilter {
+    // The name of the option
     string key = 1;
+    // The data type of the option
     siemens.common.types.v1.VariantType datatype = 2;
+    // Whether the option is mandatory; optional
+    bool mandatory = 3;
+    // The default value of the option; optional
+    siemens.common.types.v1.Variant defaultValue = 4;
+    // A description of the option (English and human readable); optional
+    string description = 5;
 }
 
 message SupportedOption {
+    // The name of the option
     string key = 1;
+    // The data type of the option
     siemens.common.types.v1.VariantType datatype = 2;
+    // Whether the option is mandatory; optional
+    bool mandatory = 3;
+    // The default value of the option; optional
+    siemens.common.types.v1.Variant defaultValue = 4;
+    // A description of the option (English and human readable); optional
+    string description = 5;
 }
 
 message ActiveFilter {

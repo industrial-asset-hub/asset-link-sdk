@@ -1,0 +1,156 @@
+// ------------------------------------------------------------------
+// Connectivity Suite Interface Definition
+// ------------------------------------------------------------------
+//
+// Naming convention according:
+// https://cloud.google.com/apis/design/naming_convention
+//
+// ------------------------------------------------------------------
+
+syntax = "proto3";
+
+import "conn_suite_code.proto";
+import "common_address.proto";
+
+package siemens.connectivitysuite.dynamicconfig.v1;
+
+
+// ==================================================================
+// Dynamic Configuration Interface Definitions
+//===================================================================
+
+// ===========================================
+// The Services Definition
+//
+service DynamicConfigApi
+{    
+    // Optional service method
+    // Possible return values
+    // - OK
+    // - FAILED_PRECONDITION - no configuration not changeable or config file not accessible
+    // - ALREADY_EXITS - A connection with the given name already exists
+    // - UNIMPLEMENTED - service method not available/supported
+    //
+    rpc AddConnection( AddConnectionRequest ) returns( AddConnectionResponse ) {}
+
+    // Optional service method
+    // Possible return values
+    // - OK
+    // - FAILED_PRECONDITION - no configuration for this connection available not changeable or config file not accessible
+    // - UNIMPLEMENTED - service method not available/supported
+    //
+    rpc DeleteConnection( DeleteConnectionRequest ) returns( DeleteConnectionResponse ) {}
+        
+    // Optional service method
+    // Possible return values
+    // - OK
+    // - FAILED_PRECONDITION - no configuration not changeable or config file not accessible
+    // - NOT_FOUND - A datapoint with the given name does not exists
+    // - UNIMPLEMENTED - service method not available/supported
+    //
+    rpc ModifyDatapoints( ModifyDatapointsRequest ) returns( ModifyDatapointsResponse ) {}
+    
+    // Optional service method
+    // Possible return values
+    // - OK
+    // - FAILED_PRECONDITION - no configuration not changeable or config file not accessible
+    // - UNIMPLEMENTED - service method not available/supported
+    //
+    rpc AddDatapoints( AddDatapointsRequest ) returns( AddDatapointsResponse ) {}
+
+    // Optional service method
+    // Possible return values
+    // - OK
+    // - FAILED_PRECONDITION - no configuration for this datapoint available not changeable or config file not accessible
+    // - UNIMPLEMENTED - service method not available/supported
+    //
+    rpc DeleteDatapoints( DeleteDatapointsRequest ) returns( DeleteDatapointsResponse ) {}
+}
+
+
+// Connection configuration
+
+message AddConnectionRequest {
+    // The Name of this connection
+    string connection_name = 1;
+
+    // The whole connection parameters, to establish the communciation with
+    // the device, including the schema and subdriver configuration
+    siemens.common.address.v1.ConnectionParameterSet connection_parameter_set = 2; 
+
+    // The owner of this connection
+    string owner = 3;
+}
+
+message AddConnectionResponse {
+    // void
+}
+
+message DeleteConnectionRequest {
+    string connection_name = 1;
+}
+
+message DeleteConnectionResponse {
+    // void
+}
+
+// Add new DataPoints to an already configured connection
+
+message AddDatapointsRequest {    
+    // the name of the connection where this datapoint should be added
+    // This connection must be created before
+    string connection_name = 1;
+
+    // The configurations for the datapoints which has to be added
+    repeated siemens.common.address.v1.DatapointConfiguration config = 2; 
+}
+
+message AddDatapointsResponse {
+    // Code for the reason to reject this datapoint
+    // The order of the result must be same as used in the request
+    // siemens.connectivitysuite.code.v1.Code result_code = 1;    
+    repeated ResultMessage result_message = 1;
+}
+
+// Change the configuration of already configured datapoints
+
+message ModifyDatapointsRequest {    
+    // the name of the connection where this datapoint belongs to
+    string connection_name = 1;
+    // The datapoint is identified by its name
+    // To delete an existing attribute of a datapoint set argument to null
+    repeated siemens.common.address.v1.DatapointConfiguration config = 2; 
+}
+
+message ModifyDatapointsResponse {
+    // The order of the result must be same as used in the request
+    // Result Code if the modification was succesful or not
+    // repeated siemens.connectivitysuite.code.v1.Code result_code = 1;
+    repeated ResultMessage result_message = 1;
+}
+
+// Delete a datapoint
+
+message DeleteDatapointsRequest {
+    // the name of the connection where this datapoint belongs to
+    string connection_name = 1;
+    // list of Datapoints names which has to be Deleted
+    repeated string datapoint_names = 2;
+    // The owner of this connection
+    string owner = 3;
+}
+
+message DeleteDatapointsResponse {
+    // The order of the result must be same as used in the request
+    // Result Code if the datapoint was successful deleted
+    // repeated siemens.connectivitysuite.code.v1.Code result_code = 1;
+    repeated ResultMessage result_message = 1;
+}
+
+// details for a datapoint configuration
+message ResultMessage {
+    // Developer-facing human-readable error message in English
+    string description = 1;
+    // Code for the reason to reject this datapoint
+    siemens.connectivitysuite.code.v1.Code result_code = 2;
+}

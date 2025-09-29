@@ -11,6 +11,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sync"
 
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/config"
 	generated "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
@@ -25,6 +26,13 @@ import (
 type DiscoverServerEntity struct {
 	generated.UnimplementedDeviceDiscoverApiServer
 	features.Discovery
+}
+
+type streamPublisher struct {
+	stream  generated.DeviceDiscoverApi_DiscoverDevicesServer
+	devices []*generated.DiscoveredDevice
+	errors  []*generated.DiscoverError
+	mu      sync.Mutex
 }
 
 func (d *DiscoverServerEntity) DiscoverDevices(req *generated.DiscoverRequest, stream generated.DeviceDiscoverApi_DiscoverDevicesServer) error {
@@ -44,7 +52,7 @@ func (d *DiscoverServerEntity) DiscoverDevices(req *generated.DiscoverRequest, s
 	// Observability
 	observability.GlobalEvents().StartedDiscoveryJob()
 
-	// Create a device publisher and pass the response stream
+	//Create a device publisher and pass the response stream
 	devicePublisher := &publish.DevicePublisherImplementation{
 		Stream: stream,
 	}
