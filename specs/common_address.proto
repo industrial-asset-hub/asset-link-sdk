@@ -5,8 +5,6 @@
 syntax = "proto3";
 package siemens.common.address.v1;
 
-option go_package = "siemens/common/address/v1";
-
 //===================================================================
 // Address Message Definitions
 //===================================================================

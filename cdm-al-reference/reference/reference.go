@@ -52,7 +52,6 @@ func (m *ReferenceAssetLink) Discover(discoveryConfig config.DiscoveryConfig, de
 
 	devicesFound, scanErrors := simdevices.ScanDevices(alInterface, ipRange)
 
-	// Log scan errors (authentication errors)
 	for _, scanError := range scanErrors {
 		log.Error().Msgf("Scan Error [%d]: %s", scanError.ResultCode, scanError.Description)
 		err := devicePublisher.PublishError(&generated.DiscoverError{
@@ -62,7 +61,13 @@ func (m *ReferenceAssetLink) Discover(discoveryConfig config.DiscoveryConfig, de
 		if err != nil {
 			log.Error().Msgf("Error publishing scan error: %v", err)
 		}
-		return status.Errorf(codes.Code(scanError.ResultCode), scanError.Description)
+	}
+
+	// Only return error if no devices were found AND there were scan errors
+	// Individual device scan errors are reported via PublishError but entire discovery will not fail
+	if len(devicesFound) == 0 && len(scanErrors) > 0 {
+		firstError := scanErrors[0]
+		return status.Errorf(codes.Code(firstError.ResultCode), "%s", firstError.Description)
 	}
 
 	for _, device := range devicesFound {
