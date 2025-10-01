@@ -84,7 +84,7 @@ func ScanDevices(ethInterface, ipRangeFilter string) ([]SimulatedDevice, []*gene
 
 // shouldSimulateAuthError simulates authentication errors for demonstration
 // In real implementation, this would be actual authentication logic
-func shouldSimulateAuthError(device *simulatedDeviceInfo) bool {
-	// Simulate auth error for devices with serial numbers ending in "01"
-	return len(device.SerialNumber) > 0 && device.SerialNumber[len(device.SerialNumber)-2:] == "01"
-}
+// func shouldSimulateAuthError(device *simulatedDeviceInfo) bool {
+// 	// Simulate auth error for devices with serial numbers ending in "01"
+// 	return len(device.SerialNumber) > 0 && device.SerialNumber[len(device.SerialNumber)-2:] == "01"
+// }

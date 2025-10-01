@@ -16,7 +16,6 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
-	v1 "siemens/common/address/v1"
 	sync "sync"
 )
 
@@ -33,9 +32,9 @@ type ExecuteCommandRequest struct {
 	unknownFields protoimpl.UnknownFields
 
 	// Connection configuration
-	Connection *v1.Destination `protobuf:"bytes,1,opt,name=connection,proto3" json:"connection,omitempty"`
+	Connection *Destination `protobuf:"bytes,1,opt,name=connection,proto3" json:"connection,omitempty"`
 	// Optional: Datapoint configuration (address and connector specific datatype)
-	DatapointParameterSet *v1.DatapointParameterSet `protobuf:"bytes,2,opt,name=datapoint_parameter_set,json=datapointParameterSet,proto3" json:"datapoint_parameter_set,omitempty"`
+	DatapointParameterSet *DatapointParameterSet `protobuf:"bytes,2,opt,name=datapoint_parameter_set,json=datapointParameterSet,proto3" json:"datapoint_parameter_set,omitempty"`
 	// The command which has to be executed
 	Command string `protobuf:"bytes,3,opt,name=command,proto3" json:"command,omitempty"`
 	// The raw-data for this command
@@ -72,14 +71,14 @@ func (*ExecuteCommandRequest) Descriptor() ([]byte, []int) {
 	return file_conn_suite_command_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *ExecuteCommandRequest) GetConnection() *v1.Destination {
+func (x *ExecuteCommandRequest) GetConnection() *Destination {
 	if x != nil {
 		return x.Connection
 	}
 	return nil
 }
 
-func (x *ExecuteCommandRequest) GetDatapointParameterSet() *v1.DatapointParameterSet {
+func (x *ExecuteCommandRequest) GetDatapointParameterSet() *DatapointParameterSet {
 	if x != nil {
 		return x.DatapointParameterSet
 	}
@@ -302,8 +301,8 @@ var file_conn_suite_command_proto_goTypes = []any{
 	(*ExecuteCommandResponse)(nil),       // 1: siemens.connectivitysuite.command.v1.ExecuteCommandResponse
 	(*GetSupportedCommandsRequest)(nil),  // 2: siemens.connectivitysuite.command.v1.GetSupportedCommandsRequest
 	(*GetSupportedCommandsResponse)(nil), // 3: siemens.connectivitysuite.command.v1.GetSupportedCommandsResponse
-	(*v1.Destination)(nil),               // 4: siemens.common.address.v1.Destination
-	(*v1.DatapointParameterSet)(nil),     // 5: siemens.common.address.v1.DatapointParameterSet
+	(*Destination)(nil),                  // 4: siemens.common.address.v1.Destination
+	(*DatapointParameterSet)(nil),        // 5: siemens.common.address.v1.DatapointParameterSet
 }
 var file_conn_suite_command_proto_depIdxs = []int32{
 	4, // 0: siemens.connectivitysuite.command.v1.ExecuteCommandRequest.connection:type_name -> siemens.common.address.v1.Destination
@@ -324,6 +323,7 @@ func file_conn_suite_command_proto_init() {
 	if File_conn_suite_command_proto != nil {
 		return
 	}
+	file_common_address_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
