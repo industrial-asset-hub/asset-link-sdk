@@ -10,25 +10,22 @@ package assetlink
 import (
 	generatedArefactUpdateServer "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/artefact-update"
 	generatedDiscoveryServer "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/metadata"
 )
 
-type alFeatureBuilderCustomServers struct {
-	alFeatureBuilder
-	generatedDiscoveryServer.DeviceDiscoverApiServer
-	generatedArefactUpdateServer.ArtefactUpdateApiServer
-}
+// TODO: That destroys the builder pattern. New AssetLink and registering features is the idea behind the pattern. Should be changed...
+// May, for transitino purposes that should be provided as fallback and marked
+/*
 
-func NewAssetLink(metadata metadata.Metadata) *alFeatureBuilderCustomServers {
-	return &alFeatureBuilderCustomServers{alFeatureBuilder: alFeatureBuilder{metadata: metadata}}
+func NewAssetLink(metadata metadata.Metadata) *alFeatureBuilder {
+	return &alFeatureBuilder{alFeatureBuilder: alFeatureBuilder{metadata: metadata}}
 }
 
 // Builder for custom implemented DeviceDiscoverApiServer
 func NewWithCustomDiscoveryServer(metadata metadata.Metadata,
 	server generatedDiscoveryServer.DeviceDiscoverApiServer,
-) *alFeatureBuilderCustomServers {
-	return &alFeatureBuilderCustomServers{
-		alFeatureBuilder:        alFeatureBuilder{metadata: metadata},
+) *alFeatureBuilder {
+	return &alFeatureBuilder{
+		metadata:                metadata,
 		DeviceDiscoverApiServer: server,
 	}
 }
@@ -36,26 +33,20 @@ func NewWithCustomDiscoveryServer(metadata metadata.Metadata,
 // Builder for custom implemented ArefactUpdateServer
 func NewWithCustomArtefactUpdateServer(metadata metadata.Metadata,
 	server generatedArefactUpdateServer.ArtefactUpdateApiServer,
-) *alFeatureBuilderCustomServers {
-	return &alFeatureBuilderCustomServers{
-		alFeatureBuilder:        alFeatureBuilder{metadata: metadata},
+) *alFeatureBuilder {
+	return &alFeatureBuilder{
+		metadata:                metadata,
 		ArtefactUpdateApiServer: server,
 	}
 }
+*/
 
-func (cb *alFeatureBuilderCustomServers) RegisterCustomArtefactUpdateServer(server generatedArefactUpdateServer.ArtefactUpdateApiServer) {
+func (cb *alFeatureBuilder) RegisterCustomArtefactUpdateServer(server generatedArefactUpdateServer.ArtefactUpdateApiServer) *alFeatureBuilder {
 	cb.ArtefactUpdateApiServer = server
+	return cb
 }
 
-func (cb *alFeatureBuilderCustomServers) RegisterCustomDiscoveryServer(server generatedDiscoveryServer.DeviceDiscoverApiServer) {
+func (cb *alFeatureBuilder) RegisterCustomDiscoveryServer(server generatedDiscoveryServer.DeviceDiscoverApiServer) *alFeatureBuilder {
 	cb.DeviceDiscoverApiServer = server
-}
-
-func (cb *alFeatureBuilderCustomServers) Build() *AssetLink {
-	return &AssetLink{
-		discoveryImpl:         cb.discovery,
-		metadata:              cb.metadata,
-		customDiscoveryServer: cb.DeviceDiscoverApiServer,
-		customUpdateServer:    cb.ArtefactUpdateApiServer,
-	}
+	return cb
 }

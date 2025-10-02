@@ -30,9 +30,13 @@ import (
 // Asset Link feature builder, according to the GoF build pattern
 // The pattern provides methods to register new features in an easy
 type alFeatureBuilder struct {
-	metadata  metadata.Metadata
+	metadata metadata.Metadata
+
 	discovery features.Discovery
-	update    features.Update
+	generatedDiscoveryServer.DeviceDiscoverApiServer
+
+	update features.Update
+	generatedArefactUpdateServer.ArtefactUpdateApiServer
 }
 
 // Methods to register new features
@@ -54,9 +58,12 @@ func New(metadata metadata.Metadata) *alFeatureBuilder {
 
 func (cb *alFeatureBuilder) Build() *AssetLink {
 	return &AssetLink{
-		discoveryImpl: cb.discovery,
-		updateImpl:    cb.update,
-		metadata:      cb.metadata,
+		discoveryImpl:         cb.discovery,
+		customDiscoveryServer: cb.DeviceDiscoverApiServer,
+
+		updateImpl:         cb.update,
+		customUpdateServer: cb.ArtefactUpdateApiServer,
+		metadata:           cb.metadata,
 	}
 }
 
