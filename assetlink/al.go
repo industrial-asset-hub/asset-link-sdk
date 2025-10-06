@@ -104,7 +104,7 @@ func (d *AssetLink) Start(grpcServerAddress, registrationAddress, grpcRegistryAd
 	d.grpcServer = grpc.NewServer()
 	// CS Suite Drv Info
 	log.Info().Msg("Registered Driver Info endpoint")
-	registryclient.AddCsInterface(registryclient.APP_TYPE_CS_DRVINFO_V1)
+	registryclient.AddCsInterface(registryclient.INTERFACE_DRVINFO_V1)
 
 	d.driverInfoServer = &driverinfo.DriverInfoServerEntity{
 		Metadata: d.metadata}
@@ -114,7 +114,7 @@ func (d *AssetLink) Start(grpcServerAddress, registrationAddress, grpcRegistryAd
 	// if a custom discovery server is provided, register it
 	case d.customDiscoveryServer != nil:
 		log.Info().Msg("Registered existing discovery server")
-		registryclient.AddCsInterface(registryclient.APP_TYPE_CS_IAH_DISCOVER_V1)
+		registryclient.AddCsInterface(registryclient.INTERFACE_IAH_DISCOVER_V1)
 
 		generatedDiscoveryServer.RegisterDeviceDiscoverApiServer(d.grpcServer, d.customDiscoveryServer)
 
@@ -122,7 +122,7 @@ func (d *AssetLink) Start(grpcServerAddress, registrationAddress, grpcRegistryAd
 	case d.discoveryImpl != nil:
 		log.Info().
 			Msg("Registered Discovery feature implementation")
-		registryclient.AddCsInterface(registryclient.APP_TYPE_CS_IAH_DISCOVER_V1)
+		registryclient.AddCsInterface(registryclient.INTERFACE_IAH_DISCOVER_V1)
 
 		discoveryServer := &devicediscovery.DiscoverServerEntity{
 			UnimplementedDeviceDiscoverApiServer: generatedDiscoveryServer.UnimplementedDeviceDiscoverApiServer{},

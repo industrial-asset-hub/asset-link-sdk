@@ -23,15 +23,19 @@ import (
 type appTypes int
 
 const (
-	CDM_AGENT                   appTypes = 0
-	CDM_DEVICE_CLASS_DRIVER     appTypes = 1
-	APP_TYPE_CS_IAH_DISCOVER_V1          = "siemens.industrialassethub.discover.v1"
-	APP_TYPE_CS_DRVINFO_V1               = "siemens.connectivitysuite.drvinfo.v1"
+	CDM_AGENT               appTypes = 0
+	CDM_DEVICE_CLASS_DRIVER appTypes = 1
 )
 
 func (apptypes appTypes) String() string {
 	return []string{"cdm-agent", "cdm-device-class-driver"}[apptypes]
 }
+
+// CS registry registered interfaces (former AppType) which are served by the AL
+const (
+	INTERFACE_DRVINFO_V1      = "siemens.connectivitysuite.drvinfo.v1"
+	INTERFACE_IAH_DISCOVER_V1 = "siemens.industrialassethub.discover.v1"
+)
 
 // Global list of available CS interfaces
 var availableCSInterfaces []string
