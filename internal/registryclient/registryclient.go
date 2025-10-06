@@ -33,6 +33,17 @@ func (apptypes appTypes) String() string {
 	return []string{"cdm-agent", "cdm-device-class-driver"}[apptypes]
 }
 
+// Global list of available CS interfaces
+var availableCSInterfaces []string
+
+func AddCsInterface(appType string) {
+	availableCSInterfaces = append(availableCSInterfaces, appType)
+}
+
+func getCsInterfaces() []string {
+	return availableCSInterfaces
+}
+
 type GrpcServerRegistry struct {
 	alId                      string
 	grpcServerRegistryAddress string
@@ -172,7 +183,8 @@ func (r *GrpcServerRegistry) register() (uint32, error) {
 		return retryRegistrationInterval, err
 	}
 	register := pb.RegisterServiceRequest{Info: &pb.ServiceInfo{
-		AppTypes:         []string{APP_TYPE_CS_IAH_DISCOVER_V1, APP_TYPE_CS_DRVINFO_V1},
+		AppTypes:         getCsInterfaces(),
+		Interfaces:       getCsInterfaces(),
 		AppInstanceId:    r.appInstanceId,
 		DriverSchemaUris: []string{r.alId},
 		GrpcIpPortNumber: uint32(portNumber),
