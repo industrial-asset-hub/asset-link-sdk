@@ -36,6 +36,7 @@ type alFeatureBuilder struct {
 	generatedDiscoveryServer.DeviceDiscoverApiServer
 
 	update features.Update
+	generatedArefactUpdateServer.ArtefactUpdateApiServer
 }
 
 // Methods to register new features
@@ -57,9 +58,12 @@ func New(metadata metadata.Metadata) *alFeatureBuilder {
 
 func (cb *alFeatureBuilder) Build() *AssetLink {
 	return &AssetLink{
-		discoveryImpl: cb.discovery,
-		updateImpl:    cb.update,
-		metadata:      cb.metadata,
+		discoveryImpl:         cb.discovery,
+		customDiscoveryServer: cb.DeviceDiscoverApiServer,
+
+		updateImpl:         cb.update,
+		customUpdateServer: cb.ArtefactUpdateApiServer,
+		metadata:           cb.metadata,
 	}
 }
 
