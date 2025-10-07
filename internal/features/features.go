@@ -8,6 +8,7 @@
 package features
 
 import (
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/artefact"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/config"
 	generated "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/publish"
@@ -25,4 +26,9 @@ type Discovery interface {
 // Interface Identifiers provides the methods used the identifiers feature
 type Identifiers interface {
 	GetIdentifiers(identifiersRequest config.IdentifiersRequest) ([]*generated.DeviceIdentifier, error)
+}
+
+type Update interface {
+	HandlePushArtefact(artefactReceiver *artefact.ArtefactReceiver) error
+	HandlePullArtefact(artefactIdentifier *artefact.ArtefactIdentifier, artefactTransmitter *artefact.ArtefactTransmitter) error
 }
