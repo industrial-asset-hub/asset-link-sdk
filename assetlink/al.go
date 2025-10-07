@@ -12,9 +12,11 @@ import (
 	"net"
 	"os"
 
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/internal/server/artefactupdate"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/internal/server/webserver"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/metadata"
 
+	generatedArtefactUpdateServer "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/artefact-update"
 	generatedDriverInfoServer "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/conn_suite_drv_info"
 	generatedDiscoveryServer "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/internal/features"
@@ -32,11 +34,15 @@ type alFeatureBuilder struct {
 
 	discovery   features.Discovery
 	identifiers features.Identifiers
+	update      features.Update
+
 	generatedDiscoveryServer.DeviceDiscoverApiServer
 	generatedDiscoveryServer.IdentifiersApiServer
+	generatedArtefactUpdateServer.ArtefactUpdateApiServer
 }
 
 // Methods to register new features
+
 func (cb *alFeatureBuilder) Discovery(f features.Discovery) *alFeatureBuilder {
 	cb.discovery = f
 	return cb
@@ -44,6 +50,11 @@ func (cb *alFeatureBuilder) Discovery(f features.Discovery) *alFeatureBuilder {
 
 func (cb *alFeatureBuilder) Identifiers(f features.Identifiers) *alFeatureBuilder {
 	cb.identifiers = f
+	return cb
+}
+
+func (cb *alFeatureBuilder) Update(f features.Update) *alFeatureBuilder {
+	cb.update = f
 	return cb
 }
 
@@ -56,7 +67,9 @@ func (cb *alFeatureBuilder) Build() *AssetLink {
 	return &AssetLink{
 		discoveryImpl:         cb.discovery,
 		identifiersImpl:       cb.identifiers,
+		updateImpl:            cb.update,
 		customDiscoveryServer: cb.DeviceDiscoverApiServer,
+		customUpdateServer:    cb.ArtefactUpdateApiServer,
 		metadata:              cb.metadata,
 	}
 }
@@ -66,7 +79,9 @@ type AssetLink struct {
 	metadata              metadata.Metadata
 	discoveryImpl         features.Discovery
 	identifiersImpl       features.Identifiers
+	updateImpl            features.Update
 	customDiscoveryServer generatedDiscoveryServer.DeviceDiscoverApiServer
+	customUpdateServer    generatedArtefactUpdateServer.ArtefactUpdateApiServer
 	grpcServer            *grpc.Server
 	registryClient        *registryclient.GrpcServerRegistry
 	driverInfoServer      *driverinfo.DriverInfoServerEntity
@@ -132,8 +147,7 @@ func (d *AssetLink) Start(grpcServerAddress, registrationAddress, grpcRegistryAd
 
 	// if a discovery implementation is provided, register it
 	case d.discoveryImpl != nil:
-		log.Info().
-			Msg("Registered Discovery feature implementation")
+		log.Info().Msg("Registered Discovery feature implementation")
 		registryclient.AddCsInterface(registryclient.INTERFACE_IAH_DISCOVER_V1)
 
 		discoveryServer := &devicediscovery.DiscoverServerEntity{
@@ -144,12 +158,11 @@ func (d *AssetLink) Start(grpcServerAddress, registrationAddress, grpcRegistryAd
 
 	// if no discovery implementation is provided, log it
 	default:
-		log.Info().
-			Msg("Discovery feature implementation not found")
+		log.Info().Msg("Discovery feature implementation not found")
 	}
+
 	if d.identifiersImpl != nil {
-		log.Info().
-			Msg("Registered Identifiers feature implementation")
+		log.Info().Msg("Registered Identifiers feature implementation")
 		registryclient.AddCsInterface(registryclient.INTERFACE_COMMON_IDENTIFIERS_V1)
 		identifiersServer := &devicediscovery.IdentifiersServerEntity{
 			UnimplementedIdentifiersApiServer: generatedDiscoveryServer.UnimplementedIdentifiersApiServer{},
@@ -157,6 +170,31 @@ func (d *AssetLink) Start(grpcServerAddress, registrationAddress, grpcRegistryAd
 		}
 		generatedDiscoveryServer.RegisterIdentifiersApiServer(d.grpcServer, identifiersServer)
 	}
+
+	switch {
+	// if a custom update server is provided, register it
+	case d.customUpdateServer != nil:
+		log.Info().Msg("Registered existing update server")
+		registryclient.AddCsInterface(registryclient.INTERFACE_FX_ARTEFACT_UPDATE_V1)
+
+		generatedArtefactUpdateServer.RegisterArtefactUpdateApiServer(d.grpcServer, d.customUpdateServer)
+
+	// if a update implementation is provided, register it
+	case d.updateImpl != nil:
+		log.Info().Msg("Registered update feature implementation")
+		registryclient.AddCsInterface(registryclient.INTERFACE_FX_ARTEFACT_UPDATE_V1)
+
+		updateServer := &artefactupdate.ArtefactUpdateServerEntity{
+			UnimplementedArtefactUpdateApiServer: generatedArtefactUpdateServer.UnimplementedArtefactUpdateApiServer{},
+			Update:                               d.updateImpl,
+		}
+		generatedArtefactUpdateServer.RegisterArtefactUpdateApiServer(d.grpcServer, updateServer)
+
+	// if no update implementation is provided, log it
+	default:
+		log.Info().Msg("Update feature implementation not found")
+	}
+
 	log.Info().
 		Str("address", grpcServerAddress).
 		Msg("Serving gPRC Server")

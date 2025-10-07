@@ -11,15 +11,15 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/cmd/artefact"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/cmd/assets"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/cmd/info"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/cmd/registry"
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/logging"
-
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/cmd/test"
 
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/cmd/info"
-
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/cmd/assets"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/logging"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/shared"
+
 	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
 )
@@ -65,6 +65,8 @@ func init() {
 	rootCmd.AddCommand(info.InfoCmd)
 	rootCmd.AddCommand(registry.ListCmd)
 	rootCmd.AddCommand(test.TestCmd)
+	rootCmd.AddCommand(artefact.ArtefactPullCommand)
+	rootCmd.AddCommand(artefact.ArtefactPushCommand)
 }
 
 func initHandlers() {
