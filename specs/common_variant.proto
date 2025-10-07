@@ -5,6 +5,7 @@
 
 syntax = "proto3";
 
+// The package name is used and extended by different proto-Files
 package siemens.common.types.v1;
 
 //===================================================================
@@ -20,6 +21,9 @@ enum VariantType {
   VT_STRING       = 5;
   VT_BYTES        = 6;
   VT_FILE         = 7;
+  VT_STRUCT       = 8;
+  VT_ARRAY        = 9;
+  VT_NULL         = 10;
 }
 
 message Variant {
@@ -39,6 +43,12 @@ message Variant {
       bytes raw_data = 6;
       // A file (in addition to raw_data there is a content type and a file name)
       VariantFile file = 7;
+      // Represents a structured value
+      VariantStruct struct_value = 8;
+      // Represents a repeated 'Variant' (array)
+      VariantArray array_value = 9;
+      // Represents a null value
+      NullValue null_value = 10;
   }
 }
 
@@ -52,4 +62,19 @@ message VariantFile {
 
   // optional: file name
   string file_name = 3;
+}
+
+message VariantStruct {
+  // Unordered map of dynamically typed values
+  map<string, Variant> fields = 1;
+}
+
+message VariantArray {
+  // Repeated field of dynamically typed values (array)
+  repeated Variant values = 1;
+}
+
+enum NullValue {
+  // Null value
+  NULL_VALUE = 0;
 }

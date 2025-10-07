@@ -57,6 +57,15 @@ func (m *ReferenceAssetLink) Discover(discoveryConfig config.DiscoveryConfig, de
 		device, err := simdevices.RetrieveDeviceDetails(address, "", "") // provide no credentials (username, password)
 		// device, err := simdevices.RetrieveDeviceDetails(address, "admin", "admin") // provide credentials (username, password)
 		if err != nil {
+			discoverError := &generated.DiscoverError{
+				ResultCode:  int32(codes.Unavailable),
+				Description: "Error retrieving device details",
+			}
+			pubErr := devicePublisher.PublishError(discoverError)
+			if pubErr != nil {
+				log.Error().Err(pubErr).Msg("Failed to publish device error")
+				return pubErr
+			}
 			log.Error().Err(err).Msg("Could not retrieve device details")
 			continue // try next device
 		}
