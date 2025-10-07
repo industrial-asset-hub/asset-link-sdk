@@ -102,7 +102,7 @@ func (m *ReferenceAssetLink) HandlePrepareUpdate(artefactMetaData artefact.Artef
 	newFirmwareVersion := device.GetInstalledFirmwareVersion()
 
 	finalMessage := fmt.Sprintf("New firmware installed (new version %s, old version %s)", newFirmwareVersion, oldFirmwareVersion)
-	_ = artefactReceiver.UpdateStatus(ga.ArtefactOperationPhase_AOP_ACTIVATION, ga.ArtefactOperationState_AOS_OK, finalMessage, 100)
+	_ = artefactReceiver.UpdateStatus(ga.ArtefactOperationPhase_AOP_INSTALLATION, ga.ArtefactOperationState_AOS_OK, finalMessage, 100)
 
 	return nil
 }
