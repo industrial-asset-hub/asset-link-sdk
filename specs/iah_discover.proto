@@ -5,6 +5,7 @@ syntax = "proto3";
 import "common_address.proto";
 import "common_filters.proto";
 import "common_identifiers.proto";
+import "common_code.proto";
 
 package siemens.industrialassethub.discover.v1;
 
@@ -34,6 +35,7 @@ message DiscoverRequest {
     repeated siemens.common.filters.v1.ActiveOption options = 2;
     /*
     optional: Specify the target where the discovery should be performed
+    A target can be a physical device, which is acting as a gateway or a underlying subdriver
     If it's not specified, the whole system is scanned
     */
     repeated siemens.common.address.v1.Destination target = 3;
@@ -42,6 +44,8 @@ message DiscoverRequest {
 message DiscoverResponse {
     // Holds information on one or more discovered devices
     repeated DiscoveredDevice devices = 1;
+    // Holds information on one or more discovered devices
+    repeated DiscoverError errors = 2;
 }
 
 message DiscoveredDevice {
@@ -56,4 +60,19 @@ message DiscoveredDevice {
     // 64 bit unsigned integer which represents the number
     // of 100 nano-second [0.1 microsec] intervals since January 1, 1601 (UTC).
     fixed64 timestamp = 3;
+}
+
+message DiscoverError {
+    // The error code, which should be an enum value of
+    // siemens.common.code.v1
+    int32 result_code = 1;
+    // Developer-facing human-readable message in English
+    string description = 2;
+    // optional: The target or device this message belongs to
+    // * A target can be a physical device, which is acting as a gateway or a underlying subdriver
+    // * A device is the discovered device
+    oneof source {
+        siemens.common.address.v1.Destination target = 3;
+        siemens.common.address.v1.Destination device = 4;
+    }
 }
