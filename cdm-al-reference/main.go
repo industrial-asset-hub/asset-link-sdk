@@ -72,6 +72,7 @@ func main() {
 	}).
 		Discovery(myAssetLinkImplementation).
 		Identifiers(myAssetLinkImplementation).
+		Update(myAssetLinkImplementation).
 		Build()
 
 	// Signal handler for a proper shutdown

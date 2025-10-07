@@ -75,6 +75,7 @@ func main() {
 	}).
 		Discovery(alImpl).
 		// Identifiers(alImpl). // uncomment this line if the Identifiers interface is implemented
+		Update(alImpl).
 		Build()
 
 	// Signal handler for a proper shutdown
