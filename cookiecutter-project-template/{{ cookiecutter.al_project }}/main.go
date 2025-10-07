@@ -74,6 +74,7 @@ func main() {
 		Vendor:  vendor,
 	}).
 		Discovery(alImpl).
+		Update(alImpl).
 		Build()
 
 	// Signal handler for a proper shutdown
