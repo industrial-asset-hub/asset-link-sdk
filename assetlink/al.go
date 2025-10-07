@@ -155,12 +155,16 @@ func (d *AssetLink) Start(grpcServerAddress, registrationAddress, grpcRegistryAd
 	// if a custom update server is provided, register it
 	case d.customUpdateServer != nil:
 		log.Info().Msg("Registered existing update server")
+		registryclient.AddCsInterface(registryclient.INTERFACE_FX_ARTEFACT_UPDATE_V1)
+
 		generatedArefactUpdateServer.RegisterArtefactUpdateApiServer(d.grpcServer, d.customUpdateServer)
 
 	// if a update implementation is provided, register it
 	case d.updateImpl != nil:
 		log.Info().
 			Msg("Registered update feature implementation")
+		registryclient.AddCsInterface(registryclient.INTERFACE_FX_ARTEFACT_UPDATE_V1)
+
 		updateServer := &artefactupdate.ArtefactUpdateServerEntity{
 			UnimplementedArtefactUpdateApiServer: generatedArefactUpdateServer.UnimplementedArtefactUpdateApiServer{},
 			Update:                               d.updateImpl,
