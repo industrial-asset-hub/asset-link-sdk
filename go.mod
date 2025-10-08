@@ -11,7 +11,7 @@ require (
 	github.com/rs/zerolog v1.34.0
 	github.com/spf13/cobra v1.10.1
 	github.com/stretchr/testify v1.11.1
-	golang.org/x/net v0.44.0
+	golang.org/x/net v0.45.0
 	golang.org/x/term v0.35.0
 	google.golang.org/grpc v1.76.0
 	google.golang.org/protobuf v1.36.10
