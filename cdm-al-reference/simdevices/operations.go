@@ -12,7 +12,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func ScanDevices(ethInterface, ipRangeFilter string) []SimulatedDevice {
+func ScanForDevices(ethInterface, ipRangeFilter string) []SimulatedDeviceAddress {
 	simLock.Lock()
 	defer simLock.Unlock()
 
@@ -38,21 +38,35 @@ func ScanDevices(ethInterface, ipRangeFilter string) []SimulatedDevice {
 		interfaceDevices = append(interfaceDevices, simulatedDevicesEth1...)
 	}
 
-	filteredDevices := []SimulatedDevice{}
+	filteredDeviceAddresses := []SimulatedDeviceAddress{}
 	// filter for IP Range (if required)
 	for _, device := range interfaceDevices {
-		device.DeviceState = StateReading
-		handleDeviceChanges(true)
-
-		time.Sleep(2 * time.Second) // simulate reading information from device
-
-		device.DeviceState = StateActive
-		handleDeviceChanges(true)
-
 		if ipRangeFilter == "" || device.hasIPInRange(ipRangeFilter) {
-			filteredDevices = append(filteredDevices, device)
+			deviceAddress := device.getDeviceAddress()
+			filteredDeviceAddresses = append(filteredDeviceAddresses, deviceAddress)
 		}
 	}
 
-	return filteredDevices
+	simulateCostlyOperation(1 * time.Second) // simulate some scan delay before returning
+	return filteredDeviceAddresses
+}
+
+func RetrieveDeviceDetails(deviceAddress SimulatedDeviceAddress, username, password string) (SimulatedDevice, error) {
+	simLock.Lock()
+	defer simLock.Unlock()
+
+	device, err := connectToDevice(deviceAddress, username, password)
+	if err != nil {
+		return nil, err
+	}
+
+	device.DeviceState = StateReading
+	handleDeviceChanges(true)
+
+	simulateCostlyOperation(2 * time.Second) // simulate reading information from device
+
+	device.DeviceState = StateActive
+	handleDeviceChanges(true)
+
+	return device, nil
 }

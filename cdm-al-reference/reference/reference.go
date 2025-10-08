@@ -50,9 +50,17 @@ func (m *ReferenceAssetLink) Discover(discoveryConfig config.DiscoveryConfig, de
 		return err
 	}
 
-	devicesFound := simdevices.ScanDevices(alInterface, ipRange)
+	devicesAddressesFound := simdevices.ScanForDevices(alInterface, ipRange)
 
-	for _, device := range devicesFound {
+	for _, address := range devicesAddressesFound {
+		// connect to device and retrieve its details
+		device, err := simdevices.RetrieveDeviceDetails(address, "", "") // provide no credentials (username, password)
+		// device, err := simdevices.RetrieveDeviceDetails(address, "admin", "admin") // provide credentials (username, password)
+		if err != nil {
+			log.Error().Err(err).Msg("Could not retrieve device details")
+			continue // try next device
+		}
+
 		deviceInfo := model.NewDevice("EthernetDevice", device.GetDeviceName())
 		deviceInfo.AddNameplate(device.GetManufacturer(), device.GetIDLink(), device.GetArticleNumber(),
 			device.GetProductDesignation(), device.GetHardwareVersion(), device.GetSerialNumber())
@@ -62,10 +70,11 @@ func (m *ReferenceAssetLink) Discover(discoveryConfig config.DiscoveryConfig, de
 
 		deviceInfo.AddSoftware("Firmware", device.GetFirmwareVersion(), true)
 		deviceInfo.AddCapabilities("firmware_update", device.IsUpdateSupported())
+		deviceInfo.AddDescription(device.GetProductDesignation())
 
 		discoveredDevice := deviceInfo.ConvertToDiscoveredDevice()
 
-		err := devicePublisher.PublishDevice(discoveredDevice)
+		err = devicePublisher.PublishDevice(discoveredDevice)
 		if err != nil {
 			// discovery request was likely cancelled -> terminate discovery and return error
 			log.Error().Msgf("Publishing Error: %v", err)
