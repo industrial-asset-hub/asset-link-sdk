@@ -8,10 +8,13 @@ package simdevices
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"net"
 	"strings"
 	"sync"
+	"testing"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
@@ -42,6 +45,16 @@ type SimulatedDevice interface {
 	GetIDLink() string
 }
 
+type SimulatedDeviceAddress struct {
+	AssetLinkNIC string
+	DeviceIP     string
+}
+
+type simulatedDeviceCredentials struct {
+	username string
+	password string
+}
+
 type simulatedDeviceInfo struct {
 	UniqueDeviceID     string               `json:"unique_device_id"` // for internal use only
 	DeviceName         string               `json:"device_name"`
@@ -59,6 +72,7 @@ type simulatedDeviceInfo struct {
 	IpNetmask          string               `json:"ip_netmask"`
 	IpRoute            string               `json:"ip_route"`
 	DeviceState        SimulatedDeviceState `json:"device_state"`
+	credentials        *simulatedDeviceCredentials
 }
 
 const (
@@ -75,7 +89,13 @@ var (
 	simLock sync.Mutex
 )
 
-func newSimulatedDevice(alNIC, serial, mac, ip, name string) *simulatedDeviceInfo {
+func assertLocked() {
+	if simLock.TryLock() {
+		panic("assertion failed: simLock mutex not locked")
+	}
+}
+
+func newSimulatedDevice(alNIC, serial, mac, ip, name string, credentials *simulatedDeviceCredentials) *simulatedDeviceInfo {
 	uid := uuid.New()
 	return &simulatedDeviceInfo{
 		UniqueDeviceID:     uid.String(),
@@ -94,15 +114,23 @@ func newSimulatedDevice(alNIC, serial, mac, ip, name string) *simulatedDeviceInf
 		IpRoute:            "",
 		SerialNumber:       serial,
 		DeviceState:        StateActive,
+		credentials:        credentials,
 	}
 }
 
 func StartSimulatedDevices(visuServerAddress string) {
-	simulatedDevicesEth0 = append(simulatedDevicesEth0, newSimulatedDevice(interfaceEth0, "SN123450000", "00:16:3e:00:00:00", "192.168.0.10", "Simulated Device A0"))
-	simulatedDevicesEth0 = append(simulatedDevicesEth0, newSimulatedDevice(interfaceEth0, "SN123450001", "00:16:3e:00:00:01", "192.168.0.11", "Simulated Device A1"))
+	credentials := &simulatedDeviceCredentials{
+		username: "admin",
+		password: "admin", // storing the password in plain text is obviously not secure, but this is just a simulation
+	}
 
-	simulatedDevicesEth1 = append(simulatedDevicesEth1, newSimulatedDevice(interfaceEth1, "SN123450100", "00:16:3e:00:01:00", "192.168.1.10", "Simulated Device B0"))
-	simulatedDevicesEth1 = append(simulatedDevicesEth1, newSimulatedDevice(interfaceEth1, "SN123450101", "00:16:3e:00:01:01", "192.168.1.11", "Simulated Device B1"))
+	simulatedDevicesEth0 = append(simulatedDevicesEth0, newSimulatedDevice(interfaceEth0, "SN123450000", "00:16:3e:00:00:00", "192.168.0.10", "Simulated Device A0", nil))
+	simulatedDevicesEth0 = append(simulatedDevicesEth0, newSimulatedDevice(interfaceEth0, "SN123450001", "00:16:3e:00:00:01", "192.168.0.11", "Simulated Device A1", nil))
+	simulatedDevicesEth0 = append(simulatedDevicesEth0, newSimulatedDevice(interfaceEth0, "SN123450002", "00:16:3e:00:00:02", "192.168.0.12", "Simulated Device A2", credentials))
+
+	simulatedDevicesEth1 = append(simulatedDevicesEth1, newSimulatedDevice(interfaceEth1, "SN123450100", "00:16:3e:00:01:00", "192.168.1.10", "Simulated Device B0", nil))
+	simulatedDevicesEth1 = append(simulatedDevicesEth1, newSimulatedDevice(interfaceEth1, "SN123450101", "00:16:3e:00:01:01", "192.168.1.11", "Simulated Device B1", nil))
+	simulatedDevicesEth1 = append(simulatedDevicesEth1, newSimulatedDevice(interfaceEth1, "SN123450102", "00:16:3e:00:01:02", "192.168.1.12", "Simulated Device B2", credentials))
 
 	visuActive = false
 	if visuServerAddress != "" {
@@ -202,11 +230,35 @@ func (d *simulatedDeviceInfo) GetIDLink() string {
 	return idLink
 }
 
+func (d *simulatedDeviceInfo) getDeviceAddress() SimulatedDeviceAddress {
+	deviceAddress := SimulatedDeviceAddress{
+		AssetLinkNIC: d.AssetLinkNIC,
+		DeviceIP:     d.IpDevice,
+	}
+	return deviceAddress
+}
+
 func (d *simulatedDeviceInfo) hasIPInRange(ipRange string) bool {
 	deviceIPs := []string{}
 	deviceIPs = append(deviceIPs, d.IpDevice) // there is currently only one IP address per device
 
 	return containsIpInRange(ipRange, deviceIPs)
+}
+
+func (d *simulatedDeviceInfo) checkCredentials(username, password string) bool {
+	if d.credentials == nil {
+		return true
+	}
+
+	if d.credentials.username == "" && d.credentials.password == "" {
+		return true
+	}
+
+	if d.credentials.username == username && d.credentials.password == password {
+		return true
+	}
+
+	return false
 }
 
 func containsIpInRange(ipRange string, actualIPs []string) bool {
@@ -256,4 +308,40 @@ func containsIpInRange(ipRange string, actualIPs []string) bool {
 	}
 
 	return false
+}
+
+func simulateCostlyOperation(duration time.Duration) {
+	if testing.Testing() {
+		return
+	}
+
+	time.Sleep(duration)
+}
+
+func connectToDevice(deviceAddress SimulatedDeviceAddress, username, password string) (*simulatedDeviceInfo, error) {
+	assertLocked()
+
+	var simulatedDevices []*simulatedDeviceInfo
+
+	switch deviceAddress.AssetLinkNIC {
+	case interfaceEth0:
+		simulatedDevices = simulatedDevicesEth0
+	case interfaceEth1:
+		simulatedDevices = simulatedDevicesEth1
+	default:
+		return nil, errors.New("invalid asset link interface")
+	}
+
+	simulateCostlyOperation(1 * time.Second) // simulate connecting to device
+
+	for _, device := range simulatedDevices {
+		if device.IpDevice == deviceAddress.DeviceIP {
+			if device.checkCredentials(username, password) {
+				return device, nil
+			}
+			return nil, fmt.Errorf("invalid credentials for device with IP %s on interface %s", deviceAddress.DeviceIP, deviceAddress.AssetLinkNIC)
+		}
+	}
+
+	return nil, errors.New("device not found")
 }
