@@ -74,6 +74,7 @@ func (m *AssetLinkImplementation) Discover(discoveryConfig config.DiscoveryConfi
 	deviceInfo.AddNameplate(vendorName, productUri, orderNumber, productName, hardwareVersion, serialNumber)
 	deviceInfo.AddSoftware("Firmware", firmwareVersion, true)
 	deviceInfo.AddCapabilities("firmware_update", false)
+	deviceInfo.AddDescription("Dummy Device")
 
 	nicID := deviceInfo.AddNic("eth0", "00:16:3e:01:02:03") // random mac address
 	deviceInfo.AddIPv4(nicID, "192.168.0.10", "255.255.255.0", "")
