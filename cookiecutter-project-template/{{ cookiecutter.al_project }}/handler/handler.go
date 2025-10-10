@@ -59,6 +59,20 @@ func (m *AssetLinkImplementation) Discover(discoveryConfig config.DiscoveryConfi
 	_ = optionSetting
 	_ = filterSetting
 
+	// Simulate a condition: if filterSetting == "error", publish an error, else publish a device
+	if filterSetting == "error" {
+		discoverError := &generated.DiscoverError{
+			ResultCode:  int32(codes.Unavailable),
+			Description: "Simulated error for filter 'error'",
+		}
+		err := devicePublisher.PublishError(discoverError)
+		if err != nil {
+			log.Error().Msgf("Publishing Error: %v", err)
+			return err
+		}
+		return nil
+	}
+
 	// Fillup the device information
 	assetName := "Dummy Device 1"
 	vendorName := "{{ cookiecutter.company }}"
