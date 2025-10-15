@@ -31,3 +31,17 @@ func (d *DevicePublisherImplementation) PublishDevices(devices []*generated.Disc
 	defer d.streamLock.Unlock()
 	return d.Stream.SendMsg(response)
 }
+
+func (d *DevicePublisherImplementation) PublishError(err *generated.DiscoverError) error {
+	errs := make([]*generated.DiscoverError, 0)
+	errs = append(errs, err)
+	return d.PublishErrors(errs)
+}
+
+func (d *DevicePublisherImplementation) PublishErrors(errs []*generated.DiscoverError) error {
+	response := new(generated.DiscoverResponse)
+	response.Errors = errs
+	d.streamLock.Lock()
+	defer d.streamLock.Unlock()
+	return d.Stream.SendMsg(response)
+}

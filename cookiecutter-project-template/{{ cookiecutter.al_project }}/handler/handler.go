@@ -59,6 +59,13 @@ func (m *AssetLinkImplementation) Discover(discoveryConfig config.DiscoveryConfi
 	_ = optionSetting
 	_ = filterSetting
 
+	// If there are any device-specific errors, they can be communicated via devicePublisher.PublishError(discoverError)
+	// discoverError can be created like this:
+	// discoverError := &generated.DiscoverError{
+	//			ResultCode:  int32(codes.Unavailable),
+	//			Description: "Error retrieving device details",
+	//		}
+
 	// Fillup the device information
 	assetName := "Dummy Device 1"
 	vendorName := "{{ cookiecutter.company }}"
