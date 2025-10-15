@@ -96,3 +96,15 @@ func TestConfig(t *testing.T) {
 		driver.GetSupportedOptions()
 	})
 }
+
+func TestGetIdentifiers(t *testing.T) {
+	t.Run("getIdentifiersSucceeds", func(t *testing.T) {
+		driver := &ReferenceAssetLink{}
+
+		parameters := `{"ip_address":"1.1.1.1"}`
+		identifiers, err := driver.GetIdentifiers(parameters, nil)
+		assert.NoError(t, err)
+		assert.NotEmpty(t, identifiers)
+		assert.Len(t, identifiers, 2)
+	})
+}

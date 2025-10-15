@@ -20,6 +20,7 @@ import (
 )
 
 // Implements the Discovery interface and feature
+// Implements the Identifiers interface and feature
 
 type ReferenceAssetLink struct {
 	discoveryLock sync.Mutex
@@ -110,4 +111,78 @@ func (m *ReferenceAssetLink) GetSupportedFilters() []*generated.SupportedFilter 
 		Datatype: generated.VariantType_VT_STRING,
 	})
 	return supportedFilters
+}
+
+func (m *ReferenceAssetLink) GetIdentifiers(parameterJson string, credentials []*generated.ConnectionCredential) ([]*generated.DeviceIdentifier, error) {
+	log.Info().Msg("Handle Get Identifiers Request")
+	identifiers := []*generated.DeviceIdentifier{{
+		Value: &generated.DeviceIdentifier_Children{
+			Children: &generated.DeviceIdentifierValueList{
+				Value: []*generated.DeviceIdentifier{
+					{
+						Value: &generated.DeviceIdentifier_Text{
+							Text: "element-1",
+						},
+						Classifiers: []*generated.SemanticClassifier{{
+							Type:  "URI",
+							Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#a%2Fdeeper%2Farray%5B0%5D%2Fid",
+						}},
+					},
+					{
+						Value: &generated.DeviceIdentifier_Text{
+							Text: "some-name-1",
+						},
+						Classifiers: []*generated.SemanticClassifier{{
+							Type:  "URI",
+							Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#a%2Fdeeper%2Farray%5B0%5D%2Fname",
+						}},
+					},
+					{
+						Value: &generated.DeviceIdentifier_Text{
+							Text: "element-2",
+						},
+						Classifiers: []*generated.SemanticClassifier{{
+							Type:  "URI",
+							Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#a%2Fdeeper%2Farray%5B1%5D%2Fid",
+						}},
+					},
+					{
+						Value: &generated.DeviceIdentifier_Text{
+							Text: "some-name-2",
+						},
+						Classifiers: []*generated.SemanticClassifier{{
+							Type:  "URI",
+							Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#a%2Fdeeper%2Farray%5B1%5D%2Fname",
+						}},
+					},
+				},
+			},
+		},
+		Classifiers: []*generated.SemanticClassifier{{
+			Type:  "URI",
+			Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#a%2Fdeeper%2Farray",
+		}},
+	}, {
+		Value: &generated.DeviceIdentifier_Children{
+			Children: &generated.DeviceIdentifierValueList{
+				Value: []*generated.DeviceIdentifier{
+					{
+						Value: &generated.DeviceIdentifier_Text{
+							Text: "another-child-value",
+						},
+						Classifiers: []*generated.SemanticClassifier{{
+							Type:  "URI",
+							Value: "https://schema.industrial-assets.io/profinet/1.0.0/ProfinetDevice#" + "parent-property/another-child-property",
+						}},
+					},
+				},
+			},
+		},
+		Classifiers: []*generated.SemanticClassifier{{
+			Type:  "URI",
+			Value: "https://schema.industrial-assets.io/profinet/1.0.0/ProfinetDevice#parent-property",
+		}},
+	},
+	}
+	return identifiers, nil
 }
