@@ -33,8 +33,9 @@ func (apptypes appTypes) String() string {
 
 // CS registry registered interfaces (former AppType) which are served by the AL
 const (
-	INTERFACE_DRVINFO_V1      = "siemens.connectivitysuite.drvinfo.v1"
-	INTERFACE_IAH_DISCOVER_V1 = "siemens.industrialassethub.discover.v1"
+	INTERFACE_DRVINFO_V1            = "siemens.connectivitysuite.drvinfo.v1"
+	INTERFACE_IAH_DISCOVER_V1       = "siemens.industrialassethub.discover.v1"
+	INTERFACE_COMMON_IDENTIFIERS_V1 = "siemens.common.identifiers.v1"
 )
 
 // Global list of available CS interfaces
