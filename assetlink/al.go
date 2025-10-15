@@ -121,11 +121,12 @@ func (d *AssetLink) Start(grpcServerAddress, registrationAddress, grpcRegistryAd
 		Metadata: d.metadata}
 	generatedDriverInfoServer.RegisterDriverInfoApiServer(d.grpcServer, d.driverInfoServer)
 
-	if d.customDiscoveryServer != nil {
+	switch {
+	case d.customDiscoveryServer != nil:
 		log.Info().Msg("Registered existing discovery server")
 		registryclient.AddCsInterface(registryclient.INTERFACE_IAH_DISCOVER_V1)
 		generatedDiscoveryServer.RegisterDeviceDiscoverApiServer(d.grpcServer, d.customDiscoveryServer)
-	} else if d.discoveryImpl != nil {
+	case d.discoveryImpl != nil:
 		log.Info().
 			Msg("Registered Discovery feature implementation")
 		registryclient.AddCsInterface(registryclient.INTERFACE_IAH_DISCOVER_V1)
@@ -134,7 +135,7 @@ func (d *AssetLink) Start(grpcServerAddress, registrationAddress, grpcRegistryAd
 			Discovery:                            d.discoveryImpl,
 		}
 		generatedDiscoveryServer.RegisterDeviceDiscoverApiServer(d.grpcServer, discoveryServer)
-	} else {
+	default:
 		log.Info().
 			Msg("Discovery feature implementation not found")
 	}

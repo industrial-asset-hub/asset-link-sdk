@@ -23,21 +23,21 @@ type IdentifiersServerEntity struct {
 func (i *IdentifiersServerEntity) GetIdentifiers(ctx context.Context, request *generated.GetIdentifiersRequest) (*generated.GetIdentifiersResponse, error) {
 	target := request.GetTarget()
 	log.Info().
-		Str("target", fmt.Sprintf("%s", target)).
+		Str("target", target.String()).
 		Msg("Get Identifiers request")
 
 	// Check if discovery feature implementation is available
 	if i.Identifiers == nil {
-		const errMsg string = "No Identifiers implementation found"
+		const errMsg string = "no identifiers implementation found"
 		log.Info().Msg(errMsg)
-		return &generated.GetIdentifiersResponse{}, fmt.Errorf(errMsg)
+		return &generated.GetIdentifiersResponse{}, fmt.Errorf("%s", errMsg)
 	}
 
 	parameterJson := target.GetConnectionParameterSet().GetParameterJson()
 	if parameterJson == "" {
-		errMsg := "No parameterJson found in connectionParameterSet"
+		errMsg := "no parameterJson found in connectionParameterSet"
 		log.Error().Msg(errMsg)
-		return &generated.GetIdentifiersResponse{}, fmt.Errorf(errMsg)
+		return &generated.GetIdentifiersResponse{}, fmt.Errorf("%s", errMsg)
 	}
 	credentials := target.GetConnectionParameterSet().GetCredentials()
 	identifiers, err := i.Identifiers.GetIdentifiers(parameterJson, credentials)
@@ -46,10 +46,10 @@ func (i *IdentifiersServerEntity) GetIdentifiers(ctx context.Context, request *g
 		log.Error().Err(err).Msg(errMsg)
 		return &generated.GetIdentifiersResponse{}, fmt.Errorf("%s: %w", errMsg, err)
 	}
-	if identifiers == nil || len(identifiers) == 0 {
-		errMsg := "No identifiers found"
+	if len(identifiers) == 0 {
+		errMsg := "no identifiers found"
 		log.Error().Msg(errMsg)
-		return &generated.GetIdentifiersResponse{}, fmt.Errorf(errMsg)
+		return &generated.GetIdentifiersResponse{}, fmt.Errorf("%s", errMsg)
 	}
 	return &generated.GetIdentifiersResponse{
 		Identifiers: identifiers,
