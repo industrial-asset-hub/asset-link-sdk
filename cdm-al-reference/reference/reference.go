@@ -67,10 +67,8 @@ func (m *ReferenceAssetLink) Discover(discoveryConfig config.DiscoveryConfig, de
 	// credentials username:admin password:admin can be provided in DeviceCredentials
 	for _, address := range devicesAddressesFound {
 		// connect to device and retrieve its details
-		deviceDetails, err := simdevices.RetrieveDeviceDetails(address, "", "")
+		device, err := simdevices.RetrieveDeviceDetails(address, "", "") // provide no credentials (username, password)
 		// device, err := simdevices.RetrieveDeviceDetails(address, "admin", "admin") // provide credentials (username, password)
-		deviceInfo := createDeviceInfo(deviceDetails)
-		discoveredDevice := deviceInfo.ConvertToDiscoveredDevice()
 		if err != nil {
 			discoverError := &generated.DiscoverError{
 				ResultCode:  int32(codes.Unavailable),
@@ -84,6 +82,8 @@ func (m *ReferenceAssetLink) Discover(discoveryConfig config.DiscoveryConfig, de
 			log.Error().Err(err).Msg("Could not retrieve device details")
 			continue // try next device
 		}
+		deviceInfo := createDeviceInfo(device)
+		discoveredDevice := deviceInfo.ConvertToDiscoveredDevice()
 		err = devicePublisher.PublishDevice(discoveredDevice)
 		if err != nil {
 			// discovery request was likely cancelled -> terminate discovery and return error
@@ -91,7 +91,6 @@ func (m *ReferenceAssetLink) Discover(discoveryConfig config.DiscoveryConfig, de
 			return err
 		}
 	}
-
 	return nil
 }
 
