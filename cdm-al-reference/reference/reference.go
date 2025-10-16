@@ -140,7 +140,6 @@ func (m *ReferenceAssetLink) GetIdentifiers(parameterJson string, credentials []
 		credMap := credential.GetCredentials()
 		err = json.Unmarshal([]byte(credMap), &deviceCredentials)
 		if err != nil {
-			//fmt.Println(credMap)
 			log.Error().Err(err).Msg("Could not parse credentials")
 			return nil, status.Errorf(codes.InvalidArgument, "Could not parse credentials: %v", err)
 		}
