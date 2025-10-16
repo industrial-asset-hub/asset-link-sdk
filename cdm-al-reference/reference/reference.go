@@ -7,6 +7,7 @@
 package reference
 
 import (
+	"encoding/json"
 	"sync"
 
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cdm-al-reference/simdevices"
@@ -24,6 +25,16 @@ import (
 
 type ReferenceAssetLink struct {
 	discoveryLock sync.Mutex
+}
+
+type DeviceCredentials struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+type DeviceConfigParam struct {
+	AssetLinkNIC string `json:"asset_link_nic"`
+	IPAddress    string `json:"ip_address"`
 }
 
 func (m *ReferenceAssetLink) Discover(discoveryConfig config.DiscoveryConfig, devicePublisher publish.DevicePublisher) error {
@@ -53,10 +64,13 @@ func (m *ReferenceAssetLink) Discover(discoveryConfig config.DiscoveryConfig, de
 
 	devicesAddressesFound := simdevices.ScanForDevices(alInterface, ipRange)
 
+	// credentials username:admin password:admin can be provided in DeviceCredentials
 	for _, address := range devicesAddressesFound {
 		// connect to device and retrieve its details
-		device, err := simdevices.RetrieveDeviceDetails(address, "", "") // provide no credentials (username, password)
+		deviceDetails, err := simdevices.RetrieveDeviceDetails(address, "", "")
 		// device, err := simdevices.RetrieveDeviceDetails(address, "admin", "admin") // provide credentials (username, password)
+		deviceInfo := createDeviceInfo(deviceDetails)
+		discoveredDevice := deviceInfo.ConvertToDiscoveredDevice()
 		if err != nil {
 			discoverError := &generated.DiscoverError{
 				ResultCode:  int32(codes.Unavailable),
@@ -70,20 +84,6 @@ func (m *ReferenceAssetLink) Discover(discoveryConfig config.DiscoveryConfig, de
 			log.Error().Err(err).Msg("Could not retrieve device details")
 			continue // try next device
 		}
-
-		deviceInfo := model.NewDevice("EthernetDevice", device.GetDeviceName())
-		deviceInfo.AddNameplate(device.GetManufacturer(), device.GetIDLink(), device.GetArticleNumber(),
-			device.GetProductDesignation(), device.GetHardwareVersion(), device.GetSerialNumber())
-
-		nicID := deviceInfo.AddNic(device.GetDeviceNIC(), device.GetMacAddress())
-		deviceInfo.AddIPv4(nicID, device.GetIpDevice(), device.GetIpNetmask(), device.GetIpRoute())
-
-		deviceInfo.AddSoftware("Firmware", device.GetFirmwareVersion(), true)
-		deviceInfo.AddCapabilities("firmware_update", device.IsUpdateSupported())
-		deviceInfo.AddDescription(device.GetProductDesignation())
-
-		discoveredDevice := deviceInfo.ConvertToDiscoveredDevice()
-
 		err = devicePublisher.PublishDevice(discoveredDevice)
 		if err != nil {
 			// discovery request was likely cancelled -> terminate discovery and return error
@@ -114,75 +114,73 @@ func (m *ReferenceAssetLink) GetSupportedFilters() []*generated.SupportedFilter 
 }
 
 func (m *ReferenceAssetLink) GetIdentifiers(parameterJson string, credentials []*generated.ConnectionCredential) ([]*generated.DeviceIdentifier, error) {
-	log.Info().Msg("Handle Get Identifiers Request")
-	identifiers := []*generated.DeviceIdentifier{{
-		Value: &generated.DeviceIdentifier_Children{
-			Children: &generated.DeviceIdentifierValueList{
-				Value: []*generated.DeviceIdentifier{
-					{
-						Value: &generated.DeviceIdentifier_Text{
-							Text: "element-1",
-						},
-						Classifiers: []*generated.SemanticClassifier{{
-							Type:  "URI",
-							Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#a%2Fdeeper%2Farray%5B0%5D%2Fid",
-						}},
-					},
-					{
-						Value: &generated.DeviceIdentifier_Text{
-							Text: "some-name-1",
-						},
-						Classifiers: []*generated.SemanticClassifier{{
-							Type:  "URI",
-							Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#a%2Fdeeper%2Farray%5B0%5D%2Fname",
-						}},
-					},
-					{
-						Value: &generated.DeviceIdentifier_Text{
-							Text: "element-2",
-						},
-						Classifiers: []*generated.SemanticClassifier{{
-							Type:  "URI",
-							Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#a%2Fdeeper%2Farray%5B1%5D%2Fid",
-						}},
-					},
-					{
-						Value: &generated.DeviceIdentifier_Text{
-							Text: "some-name-2",
-						},
-						Classifiers: []*generated.SemanticClassifier{{
-							Type:  "URI",
-							Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#a%2Fdeeper%2Farray%5B1%5D%2Fname",
-						}},
-					},
-				},
-			},
-		},
-		Classifiers: []*generated.SemanticClassifier{{
-			Type:  "URI",
-			Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#a%2Fdeeper%2Farray",
-		}},
-	}, {
-		Value: &generated.DeviceIdentifier_Children{
-			Children: &generated.DeviceIdentifierValueList{
-				Value: []*generated.DeviceIdentifier{
-					{
-						Value: &generated.DeviceIdentifier_Text{
-							Text: "another-child-value",
-						},
-						Classifiers: []*generated.SemanticClassifier{{
-							Type:  "URI",
-							Value: "https://schema.industrial-assets.io/profinet/1.0.0/ProfinetDevice#" + "parent-property/another-child-property",
-						}},
-					},
-				},
-			},
-		},
-		Classifiers: []*generated.SemanticClassifier{{
-			Type:  "URI",
-			Value: "https://schema.industrial-assets.io/profinet/1.0.0/ProfinetDevice#parent-property",
-		}},
-	},
+	log.Info().Msg("Handle GetIdentifiers Request")
+	var deviceConfigParam DeviceConfigParam
+	err := json.Unmarshal([]byte(parameterJson), &deviceConfigParam)
+	if err != nil {
+		log.Error().Err(err).Msg("Could not parse parameterJson")
+		return nil, status.Errorf(codes.InvalidArgument, "Could not parse parameterJson: %v", err)
 	}
-	return identifiers, nil
+	if deviceConfigParam.IPAddress == "" {
+		const errMsg string = "No IP address provided in parameterJson"
+		log.Error().Msg(errMsg)
+		return nil, status.Errorf(codes.InvalidArgument, errMsg)
+	}
+
+	assetLinkNic := "eth1" // default value
+	if deviceConfigParam.AssetLinkNIC != "" {
+		assetLinkNic = deviceConfigParam.AssetLinkNIC
+	}
+	simulatedDeviceAddress := simdevices.SimulatedDeviceAddress{
+		AssetLinkNIC: assetLinkNic,
+		DeviceIP:     deviceConfigParam.IPAddress,
+	}
+	var deviceCredentials DeviceCredentials
+	for _, credential := range credentials {
+		credMap := credential.GetCredentials()
+		err = json.Unmarshal([]byte(credMap), &deviceCredentials)
+		if err != nil {
+			//fmt.Println(credMap)
+			log.Error().Err(err).Msg("Could not parse credentials")
+			return nil, status.Errorf(codes.InvalidArgument, "Could not parse credentials: %v", err)
+		}
+		deviceDetails, err := simdevices.RetrieveDeviceDetails(simulatedDeviceAddress, deviceCredentials.Username, deviceCredentials.Password)
+		if err != nil {
+			log.Warn().Err(err).Msgf("Could not retrieve device details with provided credentials for device at IP address %s", deviceConfigParam.IPAddress)
+			continue // try next credentials
+		}
+		// if device can be reached with provided credentials, return its identifiers
+		// otherwise try next credentials
+		deviceInfo := createDeviceInfo(deviceDetails)
+		discoveredDevice := deviceInfo.ConvertToDiscoveredDevice()
+		if discoveredDevice != nil {
+			return discoveredDevice.GetIdentifiers(), nil
+		}
+	}
+	// if device can not be reached with any provided credentials, try without credentials
+	deviceDetails, err := simdevices.RetrieveDeviceDetails(simulatedDeviceAddress, "", "")
+	if err != nil {
+		log.Error().Err(err).Msgf("Could not retrieve device details for device at IP address %s", deviceConfigParam.IPAddress)
+		return nil, status.Errorf(codes.Unavailable, "Could not retrieve device details: %v", err)
+	}
+	deviceInfo := createDeviceInfo(deviceDetails)
+	discoveredDevice := deviceInfo.ConvertToDiscoveredDevice()
+	if discoveredDevice != nil {
+		return discoveredDevice.GetIdentifiers(), nil
+	}
+	return nil, status.Errorf(codes.NotFound, "Could not retrieve device details for device at IP address %s", deviceConfigParam.IPAddress)
+}
+
+func createDeviceInfo(device simdevices.SimulatedDevice) *model.DeviceInfo {
+	deviceInfo := model.NewDevice("EthernetDevice", device.GetDeviceName())
+	deviceInfo.AddNameplate(device.GetManufacturer(), device.GetIDLink(), device.GetArticleNumber(),
+		device.GetProductDesignation(), device.GetHardwareVersion(), device.GetSerialNumber())
+
+	nicID := deviceInfo.AddNic(device.GetDeviceNIC(), device.GetMacAddress())
+	deviceInfo.AddIPv4(nicID, device.GetIpDevice(), device.GetIpNetmask(), device.GetIpRoute())
+
+	deviceInfo.AddSoftware("Firmware", device.GetFirmwareVersion(), true)
+	deviceInfo.AddCapabilities("firmware_update", device.IsUpdateSupported())
+	deviceInfo.AddDescription(device.GetProductDesignation())
+	return deviceInfo
 }
