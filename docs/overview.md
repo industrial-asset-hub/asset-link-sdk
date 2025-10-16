@@ -6,7 +6,7 @@ nav_order: 2
 ### Overview
 
 The SDK is designed to create a new Asset Link, you need to implement the interfaces for the features that the particular Asset Link is intended to provide.
-Currently, two interfaces sre supported:
+Currently, two interfaces are supported:
 
 **Discovery Interface** (enables device discovery and consists of three functions):
 
