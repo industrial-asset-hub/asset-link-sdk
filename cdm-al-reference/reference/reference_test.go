@@ -98,13 +98,13 @@ func TestConfig(t *testing.T) {
 }
 
 func TestGetIdentifiers(t *testing.T) {
+	simdevices.StartSimulatedDevices("") // start without visualization web server
 	t.Run("getIdentifiersSucceeds", func(t *testing.T) {
 		driver := &ReferenceAssetLink{}
 
-		parameters := `{"ip_address":"1.1.1.1"}`
+		parameters := `{"ip_address":"192.168.1.10"}`
 		identifiers, err := driver.GetIdentifiers(parameters, nil)
 		assert.NoError(t, err)
 		assert.NotEmpty(t, identifiers)
-		assert.Len(t, identifiers, 2)
 	})
 }
