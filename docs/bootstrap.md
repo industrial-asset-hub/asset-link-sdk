@@ -53,7 +53,7 @@ discovery is started via the gRPC interface or the CLI.
 > Please ensure that the port is protected from external access.
 
 ## Handler Implementation and Interfaces
-To implement your own discovery logic, open the **handler/handler.go** file. This Go module contains the core implementations for Asset Link functionality, including device discovery and configuration handling. You can customize functions such as `Discover`, `GetSupportedOptions`, and `GetSupportedFilters` to fit your specific requirements for actual device discovery and to retrieve information about the discovery parameters that are supported by the specific Asset Link.
+To implement your own discovery and identifiers logic, open the **handler/handler.go** file. This Go module contains the core implementations for Asset Link functionality, including device discovery and configuration handling. You can customize functions such as `Discover`, `GetSupportedOptions`, `GetSupportedFilters` and `GetIdentifiers` to fit your specific requirements for actual device discovery and GetIdentifiers and to retrieve information about the discovery parameters, identifiers that are supported by the specific Asset Link.
 - [Discovery Interface](https://github.com/industrial-asset-hub/asset-link-sdk/tree/main/docs/overview.md)
 
 Or, for even faster results, use [GoReleaser](https://goreleaser.com/), which generates binaries for Linux/Windows and
