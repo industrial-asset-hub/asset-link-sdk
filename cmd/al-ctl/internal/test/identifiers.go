@@ -9,7 +9,6 @@ package test
 
 import (
 	"context"
-	"fmt"
 	"google.golang.org/protobuf/encoding/protojson"
 	"os"
 
@@ -66,13 +65,10 @@ func createIdentifiersRequestFromInputFile(filePath string) (*generated.GetIdent
 	if err != nil {
 		return &generated.GetIdentifiersRequest{}, nil
 	}
-
-	fmt.Println(string(data))
 	var getIdentifiersReq generated.GetIdentifiersRequest
 	err = protojson.Unmarshal(data, &getIdentifiersReq)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to unmarshal GetIdentifiersRequest from file")
 	}
-	fmt.Println(getIdentifiersReq)
 	return &getIdentifiersReq, err
 }
