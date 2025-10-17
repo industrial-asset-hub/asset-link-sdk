@@ -21,6 +21,7 @@ type IdentifiersServerEntity struct {
 }
 
 func (i *IdentifiersServerEntity) GetIdentifiers(ctx context.Context, request *generated.GetIdentifiersRequest) (*generated.GetIdentifiersResponse, error) {
+	fmt.Println(request)
 	target := request.GetTarget()
 	log.Info().
 		Str("target", target.String()).
@@ -32,7 +33,7 @@ func (i *IdentifiersServerEntity) GetIdentifiers(ctx context.Context, request *g
 		log.Info().Msg(errMsg)
 		return &generated.GetIdentifiersResponse{}, fmt.Errorf("%s", errMsg)
 	}
-
+	fmt.Println(target)
 	parameterJson := target.GetConnectionParameterSet().GetParameterJson()
 	if parameterJson == "" {
 		errMsg := "no parameterJson found in connectionParameterSet"

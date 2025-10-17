@@ -47,7 +47,7 @@ Examples of these commands are described below:
 # To run discovery on the Asset Link
 $ al-ctl assets discover -e localhost:8081 [-d <discovery-config>] [-o <output-file>]
 
-# Example: al-ctl assets discover -e localhost:8081 
+# Example: al-ctl assets discover -e localhost:8081
 ```
 
 ```bash
@@ -91,10 +91,10 @@ $ al-ctl test api -e localhost:8081 --service-name discovery [-d <discovery-conf
 
 ```bash
 # To test the get-identifiers grpc api
-$ al-ctl test api -e localhost:8081 --service-name identifiers -r <credential-file-path>
+$ al-ctl test api -e localhost:8081 --service-name identifiers -p <credential-file-path>
 # The Asset Link must be running on the provided address, for example here: localhost:8081 and the Asset Link must implement Get Identifiers API. Optionally provide the credential file path, default is empty.
 
-# Example: al-ctl test api -e localhost:8081 --service-name identifiers -r ./credential.json
+# Example: al-ctl test api -e localhost:8081 --service-name identifiers -p ./credential.json
 ```
 
 ```bash

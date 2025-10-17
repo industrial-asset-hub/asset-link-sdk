@@ -9,6 +9,8 @@ package test
 
 import (
 	"context"
+	"fmt"
+	"google.golang.org/protobuf/encoding/protojson"
 	"os"
 
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/shared"
@@ -18,7 +20,11 @@ import (
 
 func TestGetIdentifiers(testConfig TestConfig) bool {
 	log.Info().Msg("Running Test for GetIdentifiers")
-	identifiersReq := createIdentifiersRequestFromCredential(testConfig.Credential)
+	identifiersReq, err := createIdentifiersRequestFromInputFile(testConfig.Credential)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to create GetIdentifiersRequest from file")
+		return false
+	}
 	identifiers := GetIdentifiers(identifiersReq, shared.AssetLinkEndpoint)
 	if identifiers == nil {
 		log.Error().Msg("get-identifiers test failed")
@@ -55,23 +61,18 @@ func GetIdentifiers(identifiers *generated.GetIdentifiersRequest, endpoint strin
 	return resp
 }
 
-func createIdentifiersRequestFromCredential(filePath string) *generated.GetIdentifiersRequest {
+func createIdentifiersRequestFromInputFile(filePath string) (*generated.GetIdentifiersRequest, error) {
 	data, err := os.ReadFile(filePath)
 	if err != nil {
-		return &generated.GetIdentifiersRequest{}
+		return &generated.GetIdentifiersRequest{}, nil
 	}
 
-	identifiers := &generated.GetIdentifiersRequest{
-		Target: &generated.Destination{
-			Target: &generated.Destination_ConnectionParameterSet{
-				ConnectionParameterSet: &generated.ConnectionParameterSet{
-					Credentials: []*generated.ConnectionCredential{{
-						Credentials: string(data),
-					}},
-				},
-			},
-		},
+	fmt.Println(string(data))
+	var getIdentifiersReq generated.GetIdentifiersRequest
+	err = protojson.Unmarshal(data, &getIdentifiersReq)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to unmarshal GetIdentifiersRequest from file")
 	}
-
-	return identifiers
+	fmt.Println(getIdentifiersReq)
+	return &getIdentifiersReq, err
 }
