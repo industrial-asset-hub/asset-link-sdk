@@ -71,6 +71,7 @@ func main() {
 		Vendor:  "Siemens AG",
 	}).
 		Discovery(myAssetLinkImplementation).
+		Identifiers(myAssetLinkImplementation).
 		Build()
 
 	// Signal handler for a proper shutdown
