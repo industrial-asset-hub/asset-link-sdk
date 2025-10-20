@@ -191,11 +191,11 @@ test_discover(){
 
     testcase_ok "Discover" "Discover assets without config"
     test_ok alctl assets discover | alctl assets convert -o "$AUTOTEST_PATH/assets_without_config.json"
-    test_ok json_array_len "$AUTOTEST_PATH/assets_without_config.json" 4
+    test_ok json_array_len "$AUTOTEST_PATH/assets_without_config.json" 10 # 4 devices + 3 subdevices + 3 relationships = 10 (relationships are currently stored as assets)
 
     testcase_ok "Discover" "Discover assets with config"
     test_ok alctl assets discover -d "$DISCOVERY_CONFIG_FILE" | alctl assets convert -o "$AUTOTEST_PATH/assets_with_config.json"
-    test_ok json_array_len "$AUTOTEST_PATH/assets_with_config.json" 2
+    test_ok json_array_len "$AUTOTEST_PATH/assets_with_config.json" 2 # only 2 devices (no subdevices or relationships)
 
     DONE=true
 }

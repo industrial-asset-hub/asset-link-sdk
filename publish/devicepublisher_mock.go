@@ -44,6 +44,14 @@ func (d *DevicePublisherMock) PublishDevices(devices []*generated.DiscoveredDevi
 	return nil
 }
 
+func (d *DevicePublisherMock) PublishDeviceRelationship(realationship *generated.DiscoveredDevice) error {
+	return d.PublishDevice(realationship)
+}
+
+func (d *DevicePublisherMock) PublishDeviceRelationships(realationships []*generated.DiscoveredDevice) error {
+	return d.PublishDevices(realationships)
+}
+
 func (d *DevicePublisherMock) GetDevices() []*generated.DiscoveredDevice {
 	d.dataLock.Lock()
 	defer d.dataLock.Unlock()

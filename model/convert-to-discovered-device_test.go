@@ -23,7 +23,7 @@ func TestConvertToDiscoveredDevice(t *testing.T) {
 	device := generateDevice("Profinet", "Device")
 	discoveredDevice := device.ConvertToDiscoveredDevice()
 	discoveredDeviceType := fmt.Sprintf("%s/%s", baseSchemaPrefix, "Asset#@type")
-	assert.Equal(t, 23, len(discoveredDevice.Identifiers))
+	assert.Equal(t, 24, len(discoveredDevice.Identifiers))
 	assert.Equal(t, "URI", discoveredDevice.Identifiers[0].Classifiers[0].GetType())
 	assert.Equal(t, discoveredDeviceType, discoveredDevice.Identifiers[0].Classifiers[0].GetValue())
 }
@@ -32,7 +32,7 @@ func TestConvertFromDerivedSchemaToDiscoveredDevice(t *testing.T) {
 	schemaUri := "https://schema.industrial-assets.io/sat/v0.8.2"
 	device := generateDevice("SatController", "Device")
 	discoveredDevice := ConvertFromDerivedSchemaToDiscoveredDevice(device, schemaUri, "SatController")
-	assert.Equal(t, 23, len(discoveredDevice.Identifiers))
+	assert.Equal(t, 24, len(discoveredDevice.Identifiers))
 	assert.Equal(t, "URI", discoveredDevice.Identifiers[0].Classifiers[0].GetType())
 	assert.Equal(t, "https://schema.industrial-assets.io/sat/v0.8.2/SatController#@type", discoveredDevice.Identifiers[0].Classifiers[0].GetValue())
 }
@@ -52,7 +52,7 @@ func TestConvertDerivedSchemaToDiscoveredDevice(t *testing.T) {
 	*satDevice.PasswordProtected = true
 
 	discoveredDevice := ConvertFromDerivedSchemaToDiscoveredDevice(satDevice, "https://schema.industrial-assets.io/sat/v0.8.2", "SatController")
-	assert.Equal(t, 24, len(discoveredDevice.Identifiers))
+	assert.Equal(t, 25, len(discoveredDevice.Identifiers))
 	passwordProtectedFound := false
 	for _, identifier := range discoveredDevice.Identifiers {
 		if strings.Contains(identifier.Classifiers[0].GetValue(), "password_protected") {
