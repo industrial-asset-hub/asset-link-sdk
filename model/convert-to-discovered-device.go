@@ -29,12 +29,11 @@ func ConvertFromDerivedSchemaToDiscoveredDevice[T interface{}](d *T, schemaUri s
 }
 
 func (d *DeviceInfo) ConvertToDiscoveredDevice() *generated.DiscoveredDevice {
-	device := generated.DiscoveredDevice{
-		Identifiers:            convertDeviceInfoToDeviceIdentifiers(d, baseSchemaPrefix, "Asset"),
-		ConnectionParameterSet: nil,
-		Timestamp:              19347439483904,
-	}
-	return &device
+	return ConvertFromDerivedSchemaToDiscoveredDevice(d, "https://schema.industrial-assets.io/base/v0.12.0", "Asset")
+}
+
+func (r *DeviceRelationshipInfo) ConvertToDiscoveredDeviceRelationship() *generated.DiscoveredDevice {
+	return ConvertFromDerivedSchemaToDiscoveredDevice(r, "https://schema.industrial-assets.io/base/v0.12.0", "DeviceRelationship")
 }
 
 func convertDeviceInfoToDeviceIdentifiers[T interface{}](d *T, uri string, deviceClass string) []*generated.DeviceIdentifier {
