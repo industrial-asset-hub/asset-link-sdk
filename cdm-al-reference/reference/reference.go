@@ -67,6 +67,7 @@ func (m *ReferenceAssetLink) Discover(discoveryConfig config.DiscoveryConfig, de
 			continue // try next device
 		}
 
+		// handle root device
 		deviceInfo := model.NewDevice("EthernetDevice", device.GetDeviceName())
 		deviceInfo.AddNameplate(device.GetManufacturer(), device.GetIDLink(), device.GetArticleNumber(),
 			device.GetProductDesignation(), device.GetHardwareVersion(), device.GetSerialNumber())
@@ -85,6 +86,38 @@ func (m *ReferenceAssetLink) Discover(discoveryConfig config.DiscoveryConfig, de
 			// discovery request was likely cancelled -> terminate discovery and return error
 			log.Error().Msgf("Publishing Error: %v", err)
 			return err
+		}
+
+		// handle sub-devices (if any)
+		for _, subDevice := range device.GetSubDevices() {
+			subDeviceInfo := model.NewDevice("EthernetDevice", subDevice.GetDeviceName())
+			subDeviceInfo.AddNameplate(subDevice.GetManufacturer(), subDevice.GetIDLink(), subDevice.GetArticleNumber(),
+				subDevice.GetProductDesignation(), subDevice.GetHardwareVersion(), subDevice.GetSerialNumber())
+
+			subDeviceNicID := subDeviceInfo.AddNic(subDevice.GetDeviceNIC(), subDevice.GetMacAddress())
+			subDeviceInfo.AddIPv4(subDeviceNicID, subDevice.GetIpDevice(), subDevice.GetIpNetmask(), subDevice.GetIpRoute())
+
+			subDeviceInfo.AddSoftware("Firmware", subDevice.GetActiveFirmwareVersion(), true)
+			subDeviceInfo.AddCapabilities("firmware_update", subDevice.IsUpdateSupported())
+
+			discoveredSubDevice := subDeviceInfo.ConvertToDiscoveredDevice()
+
+			err = devicePublisher.PublishDevice(discoveredSubDevice)
+			if err != nil {
+				// discovery request was likely cancelled -> terminate discovery and return error
+				log.Error().Msgf("Publishing Error: %v", err)
+				return err
+			}
+
+			relationship := model.NewDeviceRelationship(deviceInfo, model.PredicateValuesRelatedTo, subDeviceInfo)
+			discoveredRelationship := relationship.ConvertToDiscoveredDeviceRelationship()
+
+			err = devicePublisher.PublishDeviceRelationship(discoveredRelationship)
+			if err != nil {
+				// discovery request was likely cancelled -> terminate discovery and return error
+				log.Error().Msgf("Publishing Error: %v", err)
+				return err
+			}
 		}
 	}
 
