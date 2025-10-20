@@ -14,6 +14,10 @@ import (
 type DevicePublisher interface {
 	PublishDevice(device *generated.DiscoveredDevice) error
 	PublishDevices(devices []*generated.DiscoveredDevice) error
+
 	PublishError(error *generated.DiscoverError) error
 	PublishErrors(errors []*generated.DiscoverError) error
+
+	PublishDeviceRelationship(realationship *generated.DiscoveredDevice) error
+	PublishDeviceRelationships(realationships []*generated.DiscoveredDevice) error
 }
