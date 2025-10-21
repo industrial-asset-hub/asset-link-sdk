@@ -45,7 +45,7 @@ func ScanForDevices(ethInterface, ipRangeFilter string) []SimulatedDeviceAddress
 	// filter for IP Range (if required)
 	for _, device := range interfaceDevices {
 		if ipRangeFilter == "" || device.hasIPInRange(ipRangeFilter) {
-			deviceAddress := device.getDeviceAddress()
+			deviceAddress := device.GetDeviceAddress()
 			filteredDeviceAddresses = append(filteredDeviceAddresses, deviceAddress)
 		}
 	}

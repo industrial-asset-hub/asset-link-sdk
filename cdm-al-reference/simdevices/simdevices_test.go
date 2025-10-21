@@ -50,6 +50,15 @@ func TestSimDevices(t *testing.T) {
 
 			subdevices := device.GetSubDevices()
 			if device.GetDeviceName() == "Simulated Device B1" {
+				for _, subdevice := range subdevices {
+					sdAddr := subdevice.GetDeviceAddress()
+					assert.GreaterOrEqual(t, sdAddr.SubDeviceID, 0)
+					sdViaAddr, err := ConnectToDevice(sdAddr, nil)
+					assert.NoError(t, err)
+					assert.NotNil(t, sdViaAddr)
+					assert.Equal(t, sdViaAddr.GetDeviceName(), subdevice.GetDeviceName())
+				}
+
 				assert.Len(t, subdevices, 3) // device B1 has 3 subdevices
 				foundSubdevices = true
 			} else {
@@ -82,6 +91,15 @@ func TestSimDevices(t *testing.T) {
 
 			subdevices := device.GetSubDevices()
 			if device.GetDeviceName() == "Simulated Device B1" {
+				for _, subdevice := range subdevices {
+					sdAddr := subdevice.GetDeviceAddress()
+					assert.GreaterOrEqual(t, sdAddr.SubDeviceID, 0)
+					sdViaAddr, err := ConnectToDevice(sdAddr, nil)
+					assert.NoError(t, err)
+					assert.NotNil(t, sdViaAddr)
+					assert.Equal(t, sdViaAddr.GetDeviceName(), subdevice.GetDeviceName())
+				}
+
 				assert.Len(t, subdevices, 3) // device B1 has 3 subdevices
 				foundSubdevices = true
 			} else {
@@ -189,6 +207,7 @@ func TestSimDevices(t *testing.T) {
 		deviceAddress := SimulatedDeviceAddress{
 			AssetLinkNIC: "eth0",
 			DeviceIP:     "192.168.0.10",
+			SubDeviceID:  -1,
 		}
 
 		device, err := ConnectToDevice(deviceAddress, nil) // do not use credentials

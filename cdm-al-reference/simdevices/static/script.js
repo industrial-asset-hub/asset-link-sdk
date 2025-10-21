@@ -83,6 +83,10 @@ function addDevice(device, type, openSet) {
             <dd>${device.ip_device !== undefined && device.ip_device !== '' ? escapeHTML(device.ip_device) : '-'}</dd>
             <dt>MAC Address:</dt>
             <dd>${device.mac_address !== undefined && device.mac_address !== '' ? escapeHTML(device.mac_address) : '-'}</dd>
+            <dt>Sub-devices:</dt>
+            <dd>${device.sub_devices !== undefined ? device.sub_devices.length : 0}</dd>
+            <dt>Sub-device ID:</dt>
+            <dd>${device.sub_device_id !== undefined && device.sub_device_id !== -1 ? device.sub_device_id : '-'}</dd>
         </dl>
     `;
     element.appendChild(content);

@@ -56,6 +56,9 @@ type SimulatedDevice interface {
 	GetIpRoute() string
 	GetIDLink() string
 
+	GetDeviceAddress() SimulatedDeviceAddress
+
+	GetSubDeviceID() int
 	GetSubDevices() []SimulatedDevice
 	GetParentDevice() SimulatedDevice
 
@@ -69,6 +72,7 @@ type SimulatedDevice interface {
 type SimulatedDeviceAddress struct {
 	AssetLinkNIC string `json:"al_nic"`
 	DeviceIP     string `json:"device_ip"`
+	SubDeviceID  int    `json:"sub_device_id"` // -1 for top-level devices
 }
 
 type SimulatedDeviceCredentials struct {
@@ -94,6 +98,7 @@ type simulatedDeviceInfo struct {
 	IpNetmask                string                      `json:"ip_netmask"`
 	IpRoute                  string                      `json:"ip_route"`
 	DeviceState              SimulatedDeviceState        `json:"device_state"`
+	SubDeviceID              int                         `json:"sub_device_id"` // -1 for top-level devices
 	SubDevices               []*simulatedDeviceInfo      `json:"sub_devices"`
 	ParentDevice             *simulatedDeviceInfo        `json:"-"` // parent device is not serialized
 	credentials              *SimulatedDeviceCredentials `json:"-"` // credentials are not serialized
@@ -152,6 +157,7 @@ func newSimulatedDevice(alNIC, serial, mac, ip, name string, credentials *Simula
 		SerialNumber:             serial,
 		DeviceState:              StateActive,
 		SubDevices:               []*simulatedDeviceInfo{},
+		SubDeviceID:              -1,
 		ParentDevice:             nil, // parent device is nil for top-level devices
 		credentials:              credentials,
 	}
@@ -178,6 +184,7 @@ func newSimulatedSubDevice(name, serial, mac, ip string) *simulatedDeviceInfo {
 		SerialNumber:             serial,
 		DeviceState:              StateActive,
 		SubDevices:               []*simulatedDeviceInfo{},
+		SubDeviceID:              -1,
 		ParentDevice:             nil, // parent device will be set when appending to a parent
 		credentials:              nil, // sub-devices do not have credentials
 	}
@@ -189,7 +196,8 @@ func (d *simulatedDeviceInfo) appendSimulatedSubDevice(subDevice *simulatedDevic
 		return
 	}
 
-	subDevice.ParentDevice = d // set the parent device for the sub-device
+	subDevice.SubDeviceID = len(d.SubDevices) // assign sub-device ID
+	subDevice.ParentDevice = d                // set the parent device for the sub-device
 	d.SubDevices = append(d.SubDevices, subDevice)
 }
 
@@ -341,6 +349,10 @@ func (d *simulatedDeviceInfo) GetIDLink() string {
 	return idLink
 }
 
+func (d *simulatedDeviceInfo) GetSubDeviceID() int {
+	return d.SubDeviceID
+}
+
 func (d *simulatedDeviceInfo) GetSubDevices() []SimulatedDevice {
 	simLock.Lock()
 	defer simLock.Unlock()
@@ -364,10 +376,22 @@ func (d *simulatedDeviceInfo) GetParentDevice() SimulatedDevice {
 	return d.ParentDevice
 }
 
-func (d *simulatedDeviceInfo) getDeviceAddress() SimulatedDeviceAddress {
+func (d *simulatedDeviceInfo) GetDeviceAddress() SimulatedDeviceAddress {
+	if d.ParentDevice != nil {
+		// handle sub-devices
+		deviceAddress := SimulatedDeviceAddress{
+			AssetLinkNIC: d.ParentDevice.AssetLinkNIC,
+			DeviceIP:     d.ParentDevice.IpDevice,
+			SubDeviceID:  d.SubDeviceID,
+		}
+		return deviceAddress
+	}
+
+	// handle top-level devices
 	deviceAddress := SimulatedDeviceAddress{
 		AssetLinkNIC: d.AssetLinkNIC,
 		DeviceIP:     d.IpDevice,
+		SubDeviceID:  -1,
 	}
 	return deviceAddress
 }
@@ -474,10 +498,19 @@ func connectToDevice(deviceAddress SimulatedDeviceAddress, credentials *Simulate
 
 	for _, device := range simulatedDevices {
 		if device.IpDevice == deviceAddress.DeviceIP {
-			if device.checkCredentials(credentials) {
-				return device, nil
+			if !device.checkCredentials(credentials) {
+				return nil, fmt.Errorf("invalid credentials for device with IP %s on interface %s", deviceAddress.DeviceIP, deviceAddress.AssetLinkNIC)
 			}
-			return nil, fmt.Errorf("invalid credentials for device with IP %s on interface %s", deviceAddress.DeviceIP, deviceAddress.AssetLinkNIC)
+
+			if deviceAddress.SubDeviceID < 0 {
+				return device, nil // return top-level device
+			}
+
+			if deviceAddress.SubDeviceID < len(device.SubDevices) {
+				return device.SubDevices[deviceAddress.SubDeviceID], nil // return sub-device
+			}
+
+			return nil, fmt.Errorf("sub-device not found")
 		}
 	}
 
