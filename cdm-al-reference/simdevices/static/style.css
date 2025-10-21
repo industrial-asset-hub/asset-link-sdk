@@ -209,7 +209,11 @@ body {
     background-color: #00334d;
 }
 
-.reading {
+.reading,
+.updating,
+.booting,
+.getting,
+.setting {
     background-color: #22304a;
     animation-name: pulsingDeviceState;
     animation-duration: 1.0s;

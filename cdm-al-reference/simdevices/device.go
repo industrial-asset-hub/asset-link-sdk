@@ -23,8 +23,19 @@ import (
 type SimulatedDeviceState string
 
 const (
-	StateActive  SimulatedDeviceState = "active"
-	StateReading SimulatedDeviceState = "reading"
+	// regular operation
+	StateActive SimulatedDeviceState = "active" // device state during regular operation
+
+	// device discovery
+	StateReading SimulatedDeviceState = "reading" // reading device information (e.g., during discovery)
+
+	// update management
+	StateUpdating SimulatedDeviceState = "updating" // installing update on a device
+	StateBooting  SimulatedDeviceState = "booting"  // rebooting device (e.g., to activate a prior update)
+
+	// artifact management
+	StateGetting SimulatedDeviceState = "getting" // getting artifact (e.g., configuration) from device
+	StateSetting SimulatedDeviceState = "setting" // setting artifact (e.g., configuration) on device
 )
 
 type SimulatedDevice interface {
@@ -34,7 +45,8 @@ type SimulatedDevice interface {
 	GetArticleNumber() string
 	GetSerialNumber() string
 	GetHardwareVersion() string
-	GetFirmwareVersion() string
+	GetActiveFirmwareVersion() string
+	GetInstalledFirmwareVersion() string
 	IsUpdateSupported() bool
 	GetAssetLinkNIC() string
 	GetDeviceNIC() string
@@ -43,40 +55,60 @@ type SimulatedDevice interface {
 	GetIpNetmask() string
 	GetIpRoute() string
 	GetIDLink() string
+
 	GetSubDevices() []SimulatedDevice
 	GetParentDevice() SimulatedDevice
+
+	UpdateFirmware(artefactFilename string) error
+	RebootDevice() error
+
+	GetConfig(configFilename string) error
+	SetConfig(configFilename string) error
 }
 
 type SimulatedDeviceAddress struct {
-	AssetLinkNIC string
-	DeviceIP     string
+	AssetLinkNIC string `json:"al_nic"`
+	DeviceIP     string `json:"device_ip"`
 }
 
-type simulatedDeviceCredentials struct {
-	username string
-	password string
+type SimulatedDeviceCredentials struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
 }
 
 type simulatedDeviceInfo struct {
-	UniqueDeviceID     string                      `json:"unique_device_id"` // for internal use only
-	DeviceName         string                      `json:"device_name"`
-	Manufacturer       string                      `json:"manufacturer"`
-	ProductDesignation string                      `json:"product_designation"`
-	ArticleNumber      string                      `json:"article_number"`
-	SerialNumber       string                      `json:"serial_number"`
-	HardwareVersion    string                      `json:"hardware_version"`
-	FirmwareVersion    string                      `json:"firmware_version"`
-	UpdateSupport      bool                        `json:"update_support"`
-	AssetLinkNIC       string                      `json:"al_nic"`
-	DeviceNIC          string                      `json:"device_nic"`
-	MacAddress         string                      `json:"mac_address"`
-	IpDevice           string                      `json:"ip_device"`
-	IpNetmask          string                      `json:"ip_netmask"`
-	IpRoute            string                      `json:"ip_route"`
-	DeviceState        SimulatedDeviceState        `json:"device_state"`
-	SubDevices         []*simulatedDeviceInfo      `json:"sub_devices"`
-	ParentDevice       *simulatedDeviceInfo        `json:"-"` // parent device is not serialized
-	credentials        *simulatedDeviceCredentials `json:"-"` // credentials are not serialized
+	UniqueDeviceID           string                      `json:"unique_device_id"` // for internal use only
+	DeviceName               string                      `json:"device_name"`
+	Manufacturer             string                      `json:"manufacturer"`
+	ProductDesignation       string                      `json:"product_designation"`
+	ArticleNumber            string                      `json:"article_number"`
+	SerialNumber             string                      `json:"serial_number"`
+	HardwareVersion          string                      `json:"hardware_version"`
+	ActiveFirmwareVersion    string                      `json:"active_firmware_version"`
+	InstalledFirmwareVersion string                      `json:"installed_firmware_version"`
+	UpdateSupport            bool                        `json:"update_support"`
+	AssetLinkNIC             string                      `json:"al_nic"`
+	DeviceNIC                string                      `json:"device_nic"`
+	MacAddress               string                      `json:"mac_address"`
+	IpDevice                 string                      `json:"ip_device"`
+	IpNetmask                string                      `json:"ip_netmask"`
+	IpRoute                  string                      `json:"ip_route"`
+	DeviceState              SimulatedDeviceState        `json:"device_state"`
+	SubDevices               []*simulatedDeviceInfo      `json:"sub_devices"`
+	ParentDevice             *simulatedDeviceInfo        `json:"-"` // parent device is not serialized
+	credentials              *SimulatedDeviceCredentials `json:"-"` // credentials are not serialized
+}
+
+type firmwareFile struct {
+	ArtefactType       string `json:"artefact_type"`
+	Manufacturer       string `json:"manufacturer"`
+	ProductDesignation string `json:"product_designation"`
+	FirmwareVersion    string `json:"firmware_version"`
+}
+
+type configFile struct {
+	ArtefactType string `json:"artefact_type"`
+	DeviceName   string `json:"device_name"`
 }
 
 const (
@@ -99,53 +131,55 @@ func assertLocked() {
 	}
 }
 
-func newSimulatedDevice(alNIC, serial, mac, ip, name string, credentials *simulatedDeviceCredentials) *simulatedDeviceInfo {
+func newSimulatedDevice(alNIC, serial, mac, ip, name string, credentials *SimulatedDeviceCredentials) *simulatedDeviceInfo {
 	uid := uuid.New()
 	return &simulatedDeviceInfo{
-		UniqueDeviceID:     uid.String(),
-		DeviceName:         name,
-		Manufacturer:       "Siemens AG",
-		ProductDesignation: "Simulated Device",
-		ArticleNumber:      "AN0123456789",
-		HardwareVersion:    "3",
-		FirmwareVersion:    "1.0.0",
-		UpdateSupport:      true,
-		AssetLinkNIC:       alNIC,
-		DeviceNIC:          "enp0",
-		MacAddress:         mac,
-		IpDevice:           ip,
-		IpNetmask:          "255.255.255.0",
-		IpRoute:            "",
-		SerialNumber:       serial,
-		DeviceState:        StateActive,
-		SubDevices:         []*simulatedDeviceInfo{},
-		ParentDevice:       nil, // parent device is nil for top-level devices
-		credentials:        credentials,
+		UniqueDeviceID:           uid.String(),
+		DeviceName:               name,
+		Manufacturer:             "Siemens AG",
+		ProductDesignation:       "Simulated Device",
+		ArticleNumber:            "AN0123456789",
+		HardwareVersion:          "3",
+		ActiveFirmwareVersion:    "1.0.0",
+		InstalledFirmwareVersion: "1.0.0",
+		UpdateSupport:            true,
+		AssetLinkNIC:             alNIC,
+		DeviceNIC:                "enp0",
+		MacAddress:               mac,
+		IpDevice:                 ip,
+		IpNetmask:                "255.255.255.0",
+		IpRoute:                  "",
+		SerialNumber:             serial,
+		DeviceState:              StateActive,
+		SubDevices:               []*simulatedDeviceInfo{},
+		ParentDevice:             nil, // parent device is nil for top-level devices
+		credentials:              credentials,
 	}
 }
 
 func newSimulatedSubDevice(name, serial, mac, ip string) *simulatedDeviceInfo {
 	uid := uuid.New()
 	return &simulatedDeviceInfo{
-		UniqueDeviceID:     uid.String(),
-		DeviceName:         name,
-		Manufacturer:       "Siemens AG",
-		ProductDesignation: "Simulated Sub Device",
-		ArticleNumber:      "AN9876543210",
-		HardwareVersion:    "5",
-		FirmwareVersion:    "1.2.3",
-		UpdateSupport:      false,
-		AssetLinkNIC:       "",
-		DeviceNIC:          "enp0",
-		MacAddress:         mac,
-		IpDevice:           ip,
-		IpNetmask:          "255.255.255.0",
-		IpRoute:            "",
-		SerialNumber:       serial,
-		DeviceState:        StateActive,
-		SubDevices:         []*simulatedDeviceInfo{},
-		ParentDevice:       nil, // parent device will be set when appending to a parent
-		credentials:        nil, // sub-devices do not have credentials
+		UniqueDeviceID:           uid.String(),
+		DeviceName:               name,
+		Manufacturer:             "Siemens AG",
+		ProductDesignation:       "Simulated Sub Device",
+		ArticleNumber:            "AN9876543210",
+		HardwareVersion:          "5",
+		ActiveFirmwareVersion:    "1.2.3",
+		InstalledFirmwareVersion: "1.2.3",
+		UpdateSupport:            false,
+		AssetLinkNIC:             "",
+		DeviceNIC:                "enp0",
+		MacAddress:               mac,
+		IpDevice:                 ip,
+		IpNetmask:                "255.255.255.0",
+		IpRoute:                  "",
+		SerialNumber:             serial,
+		DeviceState:              StateActive,
+		SubDevices:               []*simulatedDeviceInfo{},
+		ParentDevice:             nil, // parent device will be set when appending to a parent
+		credentials:              nil, // sub-devices do not have credentials
 	}
 }
 
@@ -160,10 +194,13 @@ func (d *simulatedDeviceInfo) appendSimulatedSubDevice(subDevice *simulatedDevic
 }
 
 func StartSimulatedDevices(visuServerAddress string) {
-	credentials := &simulatedDeviceCredentials{
-		username: "admin",
-		password: "admin", // storing the password in plain text is obviously not secure, but this is just a simulation
+	credentials := &SimulatedDeviceCredentials{
+		Username: "admin",
+		Password: "admin", // storing the password in plain text is obviously not secure, but this is just a simulation
 	}
+
+	simulatedDevicesEth0 = []*simulatedDeviceInfo{}
+	simulatedDevicesEth1 = []*simulatedDeviceInfo{}
 
 	// Eth 0 (device A0)
 	deviceA0 := newSimulatedDevice(interfaceEth0, "SN123450000", "00:16:3e:00:00:00", "192.168.0.10", "Simulated Device A0", nil)
@@ -196,14 +233,16 @@ func StartSimulatedDevices(visuServerAddress string) {
 	simulatedDevicesEth1 = append(simulatedDevicesEth1, deviceB2)
 
 	visuActive = false
-	if visuServerAddress != "" {
+	if visuServerAddress != "" && !testing.Testing() {
 		startDeviceVisualization(visuServerAddress)
 		visuActive = true
 	}
 }
 
 func getDeviceListCopy(lockTaken bool) []simulatedDeviceInfo { // for internal use only
-	if !lockTaken {
+	if lockTaken {
+		assertLocked()
+	} else {
 		simLock.Lock()
 		defer simLock.Unlock()
 	}
@@ -221,9 +260,11 @@ func getDeviceListCopy(lockTaken bool) []simulatedDeviceInfo { // for internal u
 	return deviceList
 }
 
-func handleDeviceChanges(lockTaken bool) {
+func handleDeviceChanges() {
+	assertLocked()
+
 	if visuActive {
-		deviceList := getDeviceListCopy(lockTaken)
+		deviceList := getDeviceListCopy(true)
 		broadcastDeviceUpdates(deviceList)
 	}
 }
@@ -252,11 +293,18 @@ func (d *simulatedDeviceInfo) GetHardwareVersion() string {
 	return d.HardwareVersion
 }
 
-func (d *simulatedDeviceInfo) GetFirmwareVersion() string {
+func (d *simulatedDeviceInfo) GetActiveFirmwareVersion() string {
 	simLock.Lock()
 	defer simLock.Unlock()
 
-	return d.FirmwareVersion
+	return d.ActiveFirmwareVersion
+}
+
+func (d *simulatedDeviceInfo) GetInstalledFirmwareVersion() string {
+	simLock.Lock()
+	defer simLock.Unlock()
+
+	return d.InstalledFirmwareVersion
 }
 
 func (d *simulatedDeviceInfo) IsUpdateSupported() bool {
@@ -300,12 +348,12 @@ func (d *simulatedDeviceInfo) GetSubDevices() []SimulatedDevice {
 	subDevices := make([]SimulatedDevice, len(d.SubDevices))
 	for i, subDevice := range d.SubDevices {
 		subDevice.DeviceState = StateReading
-		handleDeviceChanges(true)
+		handleDeviceChanges()
 
-		time.Sleep(2 * time.Second) // simulate reading information from device
+		simulateCostlyOperation(2 * time.Second) // simulate reading information from device
 
 		subDevice.DeviceState = StateActive
-		handleDeviceChanges(true)
+		handleDeviceChanges()
 
 		subDevices[i] = subDevice
 	}
@@ -331,16 +379,20 @@ func (d *simulatedDeviceInfo) hasIPInRange(ipRange string) bool {
 	return containsIpInRange(ipRange, deviceIPs)
 }
 
-func (d *simulatedDeviceInfo) checkCredentials(username, password string) bool {
+func (d *simulatedDeviceInfo) checkCredentials(credentials *SimulatedDeviceCredentials) bool {
 	if d.credentials == nil {
 		return true
 	}
 
-	if d.credentials.username == "" && d.credentials.password == "" {
+	if d.credentials.Username == "" && d.credentials.Password == "" {
 		return true
 	}
 
-	if d.credentials.username == username && d.credentials.password == password {
+	if credentials == nil {
+		return false
+	}
+
+	if d.credentials.Username == credentials.Username && d.credentials.Password == credentials.Password {
 		return true
 	}
 
@@ -404,7 +456,7 @@ func simulateCostlyOperation(duration time.Duration) {
 	time.Sleep(duration)
 }
 
-func connectToDevice(deviceAddress SimulatedDeviceAddress, username, password string) (*simulatedDeviceInfo, error) {
+func connectToDevice(deviceAddress SimulatedDeviceAddress, credentials *SimulatedDeviceCredentials) (*simulatedDeviceInfo, error) {
 	assertLocked()
 
 	var simulatedDevices []*simulatedDeviceInfo
@@ -422,7 +474,7 @@ func connectToDevice(deviceAddress SimulatedDeviceAddress, username, password st
 
 	for _, device := range simulatedDevices {
 		if device.IpDevice == deviceAddress.DeviceIP {
-			if device.checkCredentials(username, password) {
+			if device.checkCredentials(credentials) {
 				return device, nil
 			}
 			return nil, fmt.Errorf("invalid credentials for device with IP %s on interface %s", deviceAddress.DeviceIP, deviceAddress.AssetLinkNIC)
