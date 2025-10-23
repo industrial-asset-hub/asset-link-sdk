@@ -150,11 +150,26 @@ func (d *AssetLink) Start(grpcServerAddress, registrationAddress, grpcRegistryAd
 }
 
 func (d *AssetLink) Stop() {
+	d.stop(false)
+
+	os.Exit(0)
+}
+
+func (d *AssetLink) GracefulStop() {
+	d.stop(true)
+}
+
+func (d *AssetLink) stop(graceful bool) {
 	log.Info().Msg("Stop asset link")
 
 	d.registryClient.Stop()
-	d.grpcServer.Stop()
+
+	// GracefulStop waits for all the RPCs to finish, while Stop immediately closes all open connections.
+	if graceful {
+		d.grpcServer.GracefulStop()
+	} else {
+		d.grpcServer.Stop()
+	}
 
 	log.Info().Msg("Asset Link stopped.")
-	os.Exit(0)
 }
