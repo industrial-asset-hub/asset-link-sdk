@@ -38,6 +38,13 @@ const (
 	StateSetting SimulatedDeviceState = "setting" // setting artifact (e.g., configuration) on device
 )
 
+var (
+	ErrInvalidInterface  = errors.New("invalid interface")
+	ErrDeviceNotFound    = errors.New("device not found")
+	ErrSubDeviceNotFound = errors.New("sub-device not found")
+	ErrUnauthenticated   = errors.New("invalid credentials")
+)
+
 type SimulatedDevice interface {
 	GetDeviceName() string
 	GetManufacturer() string
@@ -491,7 +498,7 @@ func connectToDevice(deviceAddress SimulatedDeviceAddress, credentials *Simulate
 	case interfaceEth1:
 		simulatedDevices = simulatedDevicesEth1
 	default:
-		return nil, errors.New("invalid asset link interface")
+		return nil, ErrInvalidInterface
 	}
 
 	simulateCostlyOperation(1 * time.Second) // simulate connecting to device
@@ -499,7 +506,7 @@ func connectToDevice(deviceAddress SimulatedDeviceAddress, credentials *Simulate
 	for _, device := range simulatedDevices {
 		if device.IpDevice == deviceAddress.DeviceIP {
 			if !device.checkCredentials(credentials) {
-				return nil, fmt.Errorf("invalid credentials for device with IP %s on interface %s", deviceAddress.DeviceIP, deviceAddress.AssetLinkNIC)
+				return nil, ErrUnauthenticated
 			}
 
 			if deviceAddress.SubDeviceID < 0 {
@@ -510,9 +517,9 @@ func connectToDevice(deviceAddress SimulatedDeviceAddress, credentials *Simulate
 				return device.SubDevices[deviceAddress.SubDeviceID], nil // return sub-device
 			}
 
-			return nil, fmt.Errorf("sub-device not found")
+			return nil, ErrSubDeviceNotFound
 		}
 	}
 
-	return nil, errors.New("device not found")
+	return nil, ErrDeviceNotFound
 }
