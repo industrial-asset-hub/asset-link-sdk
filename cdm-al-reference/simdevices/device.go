@@ -10,6 +10,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	generated "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
 	"net"
 	"strings"
 	"sync"
@@ -339,9 +340,9 @@ func connectToDevice(deviceAddress SimulatedDeviceAddress, username, password st
 			if device.checkCredentials(username, password) {
 				return device, nil
 			}
-			return nil, fmt.Errorf("invalid credentials for device with IP %s on interface %s", deviceAddress.DeviceIP, deviceAddress.AssetLinkNIC)
+			return nil, errors.New(generated.Code_UNAUTHENTICATED.String())
 		}
 	}
 
-	return nil, errors.New("device not found")
+	return nil, errors.New(generated.Code_UNAVAILABLE.String())
 }

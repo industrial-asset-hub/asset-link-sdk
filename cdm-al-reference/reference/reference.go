@@ -68,8 +68,17 @@ func (m *ReferenceAssetLink) Discover(discoveryConfig config.DiscoveryConfig, de
 		device, err := simdevices.RetrieveDeviceDetails(address, "", "") // provide no credentials (username, password)
 		// device, err := simdevices.RetrieveDeviceDetails(address, "admin", "admin") // provide credentials (username, password)
 		if err != nil {
+			var resultCode codes.Code
+			switch err.Error() {
+			case generated.Code_UNAVAILABLE.String():
+				resultCode = codes.Code(generated.Code_UNAVAILABLE)
+			case generated.Code_UNAUTHENTICATED.String():
+				resultCode = codes.Code(generated.Code_UNAUTHENTICATED)
+			default:
+				resultCode = codes.Code(generated.Code_INTERNAL)
+			}
 			discoverError := &generated.DiscoverError{
-				ResultCode:  int32(codes.Unavailable),
+				ResultCode:  int32(resultCode),
 				Description: "Error retrieving device details",
 			}
 			pubErr := devicePublisher.PublishError(discoverError)
