@@ -20,8 +20,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// Implements the Discovery interface and feature
-// Implements the Identifiers interface and feature
+// Implements both the Discovery and the Identifiers interface/feature
 
 type ReferenceAssetLink struct {
 	discoveryLock sync.Mutex
@@ -64,7 +63,6 @@ func (m *ReferenceAssetLink) Discover(discoveryConfig config.DiscoveryConfig, de
 
 	devicesAddressesFound := simdevices.ScanForDevices(alInterface, ipRange)
 
-	// credentials username:admin password:admin can be provided in DeviceCredentials
 	for _, address := range devicesAddressesFound {
 		// connect to device and retrieve its details
 		device, err := simdevices.RetrieveDeviceDetails(address, "", "") // provide no credentials (username, password)
