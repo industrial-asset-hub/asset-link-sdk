@@ -86,7 +86,7 @@ function addDevice(device, type, openSet) {
             <dt>Sub-devices:</dt>
             <dd>${device.sub_devices !== undefined ? device.sub_devices.length : 0}</dd>
             <dt>Sub-device ID:</dt>
-            <dd>${device.sub_device_id !== undefined && device.sub_device_id !== -1 ? device.sub_device_id : '-'}</dd>
+            <dd>${device.sub_device_id !== undefined && device.sub_device_id !== -1 ? escapeHTML(device.sub_device_id) : '-'}</dd>
         </dl>
     `;
     element.appendChild(content);
