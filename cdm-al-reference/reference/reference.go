@@ -31,7 +31,7 @@ type DeviceCredentials struct {
 	Password string `json:"password"`
 }
 
-type DeviceConfigParam struct {
+type DeviceAddress struct {
 	AssetLinkNIC string `json:"asset_link_nic"`
 	IPAddress    string `json:"ip_address"`
 }
@@ -121,25 +121,15 @@ func (m *ReferenceAssetLink) GetSupportedFilters() []*generated.SupportedFilter 
 
 func (m *ReferenceAssetLink) GetIdentifiers(parameterJson string, credentials []*generated.ConnectionCredential) ([]*generated.DeviceIdentifier, error) {
 	log.Info().Msg("Handle GetIdentifiers Request")
-	var deviceConfigParam DeviceConfigParam
-	err := json.Unmarshal([]byte(parameterJson), &deviceConfigParam)
+	var deviceAddress DeviceAddress
+	err := json.Unmarshal([]byte(parameterJson), &deviceAddress)
 	if err != nil {
 		log.Error().Err(err).Msg("Could not parse parameterJson")
 		return nil, status.Errorf(codes.InvalidArgument, "Could not parse parameterJson: %v", err)
 	}
-	if deviceConfigParam.IPAddress == "" {
-		const errMsg string = "No IP address provided in parameterJson"
-		log.Error().Msg(errMsg)
-		return nil, status.Errorf(codes.InvalidArgument, errMsg)
-	}
-
-	assetLinkNic := "eth1" // default value
-	if deviceConfigParam.AssetLinkNIC != "" {
-		assetLinkNic = deviceConfigParam.AssetLinkNIC
-	}
 	simulatedDeviceAddress := simdevices.SimulatedDeviceAddress{
-		AssetLinkNIC: assetLinkNic,
-		DeviceIP:     deviceConfigParam.IPAddress,
+		AssetLinkNIC: deviceAddress.AssetLinkNIC,
+		DeviceIP:     deviceAddress.IPAddress,
 	}
 	var deviceCredentials DeviceCredentials
 	for _, credential := range credentials {
@@ -151,7 +141,8 @@ func (m *ReferenceAssetLink) GetIdentifiers(parameterJson string, credentials []
 		}
 		deviceDetails, err := simdevices.RetrieveDeviceDetails(simulatedDeviceAddress, deviceCredentials.Username, deviceCredentials.Password)
 		if err != nil {
-			log.Warn().Err(err).Msgf("Could not retrieve device details with provided credentials for device at IP address %s", deviceConfigParam.IPAddress)
+			log.Warn().Err(err).Msgf("Could not retrieve device details with provided credentials for device at IP address %s and NIC %s",
+				deviceAddress.IPAddress, deviceAddress.AssetLinkNIC)
 			continue // try next credentials
 		}
 		// if device can be reached with provided credentials, return its identifiers
@@ -165,7 +156,8 @@ func (m *ReferenceAssetLink) GetIdentifiers(parameterJson string, credentials []
 	// if device can not be reached with any provided credentials, try without credentials
 	deviceDetails, err := simdevices.RetrieveDeviceDetails(simulatedDeviceAddress, "", "")
 	if err != nil {
-		log.Error().Err(err).Msgf("Could not retrieve device details for device at IP address %s", deviceConfigParam.IPAddress)
+		log.Error().Err(err).Msgf("Could not retrieve device details for device at IP address %s and NIC %s", deviceAddress.IPAddress,
+			deviceAddress.AssetLinkNIC)
 		return nil, status.Errorf(codes.Unavailable, "Could not retrieve device details: %v", err)
 	}
 	deviceInfo := createDeviceInfo(deviceDetails)
@@ -173,7 +165,8 @@ func (m *ReferenceAssetLink) GetIdentifiers(parameterJson string, credentials []
 	if discoveredDevice != nil {
 		return discoveredDevice.GetIdentifiers(), nil
 	}
-	return nil, status.Errorf(codes.NotFound, "Could not retrieve device details for device at IP address %s", deviceConfigParam.IPAddress)
+	return nil, status.Errorf(codes.NotFound, "Could not retrieve device details for device at IP address %s and NIC %s", deviceAddress.IPAddress,
+		deviceAddress.AssetLinkNIC)
 }
 
 func createDeviceInfo(device simdevices.SimulatedDevice) *model.DeviceInfo {
