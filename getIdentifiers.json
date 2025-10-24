@@ -1,0 +1,14 @@
+{
+  "target": {
+    "connection_parameter_set": {
+      "parameter_json": "{\"ip_address\": \"192.168.1.10\"}",
+      "credentials": [
+        {
+          "schema_uri": "your-schema-uri",
+          "credentials": "{\"username\":\"admin\",\"password\":\"admin\"}"
+        }
+      ]
+    }
+  },
+  "identifiers": []
+}
