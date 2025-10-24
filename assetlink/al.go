@@ -12,15 +12,14 @@ import (
 	"net"
 	"os"
 
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/internal/server/webserver"
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/metadata"
-
 	generatedDriverInfoServer "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/conn_suite_drv_info"
 	generatedDiscoveryServer "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/internal/features"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/internal/registryclient"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/internal/server/devicediscovery"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/internal/server/driverinfo"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/internal/server/webserver"
+	"github.com/industrial-asset-hub/asset-link-sdk/v3/metadata"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
 )
@@ -30,13 +29,20 @@ import (
 type alFeatureBuilder struct {
 	metadata metadata.Metadata
 
-	discovery features.Discovery
+	discovery   features.Discovery
+	identifiers features.Identifiers
 	generatedDiscoveryServer.DeviceDiscoverApiServer
+	generatedDiscoveryServer.IdentifiersApiServer
 }
 
 // Methods to register new features
 func (cb *alFeatureBuilder) Discovery(f features.Discovery) *alFeatureBuilder {
 	cb.discovery = f
+	return cb
+}
+
+func (cb *alFeatureBuilder) Identifiers(f features.Identifiers) *alFeatureBuilder {
+	cb.identifiers = f
 	return cb
 }
 
@@ -48,6 +54,7 @@ func New(metadata metadata.Metadata) *alFeatureBuilder {
 func (cb *alFeatureBuilder) Build() *AssetLink {
 	return &AssetLink{
 		discoveryImpl:         cb.discovery,
+		identifiersImpl:       cb.identifiers,
 		customDiscoveryServer: cb.DeviceDiscoverApiServer,
 		metadata:              cb.metadata,
 	}
@@ -57,6 +64,7 @@ func (cb *alFeatureBuilder) Build() *AssetLink {
 type AssetLink struct {
 	metadata              metadata.Metadata
 	discoveryImpl         features.Discovery
+	identifiersImpl       features.Identifiers
 	customDiscoveryServer generatedDiscoveryServer.DeviceDiscoverApiServer
 	grpcServer            *grpc.Server
 	registryClient        *registryclient.GrpcServerRegistry
@@ -91,7 +99,6 @@ func (d *AssetLink) Start(grpcServerAddress, registrationAddress, grpcRegistryAd
 	if err != nil {
 		log.Fatal().Err(err).Msg("Could not bind server address")
 	}
-
 	// Register at the grpc server registry
 	// Split into host and port. The registered endpoint is assembled by an dedicated flag and the grpc server endpoint.
 	// Since, a grpc endpoint can also be ":8081" which listens on all ports, the endpoint needs to be explicitly set.
@@ -99,50 +106,50 @@ func (d *AssetLink) Start(grpcServerAddress, registrationAddress, grpcRegistryAd
 	if err != nil {
 		log.Fatal().Err(err).Msg("Could not determine port of gRPC server address")
 	}
-
 	d.registryClient = registryclient.New(grpcRegistryAddress, d.metadata.AlId, fmt.Sprintf("%s:%s", registrationAddress, portNumberString))
 	d.registryClient.Register()
-
 	// Start GRPC server
 	d.grpcServer = grpc.NewServer()
 	// CS Suite Drv Info
 	log.Info().Msg("Registered Driver Info endpoint")
 	registryclient.AddCsInterface(registryclient.INTERFACE_DRVINFO_V1)
-
 	d.driverInfoServer = &driverinfo.DriverInfoServerEntity{
 		Metadata: d.metadata}
 	generatedDriverInfoServer.RegisterDriverInfoApiServer(d.grpcServer, d.driverInfoServer)
-
 	switch {
 	// if a custom discovery server is provided, register it
 	case d.customDiscoveryServer != nil:
 		log.Info().Msg("Registered existing discovery server")
 		registryclient.AddCsInterface(registryclient.INTERFACE_IAH_DISCOVER_V1)
-
 		generatedDiscoveryServer.RegisterDeviceDiscoverApiServer(d.grpcServer, d.customDiscoveryServer)
-
-	// if a discovery implementation is provided, register it
+		// if a discovery implementation is provided, register it
 	case d.discoveryImpl != nil:
 		log.Info().
 			Msg("Registered Discovery feature implementation")
 		registryclient.AddCsInterface(registryclient.INTERFACE_IAH_DISCOVER_V1)
-
 		discoveryServer := &devicediscovery.DiscoverServerEntity{
 			UnimplementedDeviceDiscoverApiServer: generatedDiscoveryServer.UnimplementedDeviceDiscoverApiServer{},
 			Discovery:                            d.discoveryImpl,
 		}
 		generatedDiscoveryServer.RegisterDeviceDiscoverApiServer(d.grpcServer, discoveryServer)
-
-	// if no discovery implementation is provided, log it
+		// if no discovery implementation is provided, log it
 	default:
 		log.Info().
 			Msg("Discovery feature implementation not found")
 	}
-
+	if d.identifiersImpl != nil {
+		log.Info().
+			Msg("Registered Identifiers feature implementation")
+		registryclient.AddCsInterface(registryclient.INTERFACE_COMMON_IDENTIFIERS_V1)
+		identifiersServer := &devicediscovery.IdentifiersServerEntity{
+			UnimplementedIdentifiersApiServer: generatedDiscoveryServer.UnimplementedIdentifiersApiServer{},
+			Identifiers:                       d.identifiersImpl,
+		}
+		generatedDiscoveryServer.RegisterIdentifiersApiServer(d.grpcServer, identifiersServer)
+	}
 	log.Info().
 		Str("address", grpcServerAddress).
 		Msg("Serving gPRC Server")
-
 	if err := d.grpcServer.Serve(listener); err != nil {
 		log.Fatal().Err(err).Msg("Could not bind server address")
 	}

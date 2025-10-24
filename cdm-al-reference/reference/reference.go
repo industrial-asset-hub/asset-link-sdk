@@ -7,6 +7,7 @@
 package reference
 
 import (
+	"encoding/json"
 	"sync"
 
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cdm-al-reference/simdevices"
@@ -19,10 +20,20 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// Implements the Discovery interface and feature
+// Implements both the Discovery and the Identifiers interface/feature
 
 type ReferenceAssetLink struct {
 	discoveryLock sync.Mutex
+}
+
+type DeviceCredentials struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+type DeviceAddress struct {
+	AssetLinkNIC string `json:"asset_link_nic"`
+	IPAddress    string `json:"ip_address"`
 }
 
 func (m *ReferenceAssetLink) Discover(discoveryConfig config.DiscoveryConfig, devicePublisher publish.DevicePublisher) error {
@@ -57,8 +68,17 @@ func (m *ReferenceAssetLink) Discover(discoveryConfig config.DiscoveryConfig, de
 		device, err := simdevices.RetrieveDeviceDetails(address, "", "") // provide no credentials (username, password)
 		// device, err := simdevices.RetrieveDeviceDetails(address, "admin", "admin") // provide credentials (username, password)
 		if err != nil {
+			var resultCode codes.Code
+			switch err.Error() {
+			case generated.Code_UNAVAILABLE.String():
+				resultCode = codes.Code(generated.Code_UNAVAILABLE)
+			case generated.Code_UNAUTHENTICATED.String():
+				resultCode = codes.Code(generated.Code_UNAUTHENTICATED)
+			default:
+				resultCode = codes.Code(generated.Code_INTERNAL)
+			}
 			discoverError := &generated.DiscoverError{
-				ResultCode:  int32(codes.Unavailable),
+				ResultCode:  int32(resultCode),
 				Description: "Error retrieving device details",
 			}
 			pubErr := devicePublisher.PublishError(discoverError)
@@ -69,20 +89,8 @@ func (m *ReferenceAssetLink) Discover(discoveryConfig config.DiscoveryConfig, de
 			log.Error().Err(err).Msg("Could not retrieve device details")
 			continue // try next device
 		}
-
-		deviceInfo := model.NewDevice("EthernetDevice", device.GetDeviceName())
-		deviceInfo.AddNameplate(device.GetManufacturer(), device.GetIDLink(), device.GetArticleNumber(),
-			device.GetProductDesignation(), device.GetHardwareVersion(), device.GetSerialNumber())
-
-		nicID := deviceInfo.AddNic(device.GetDeviceNIC(), device.GetMacAddress())
-		deviceInfo.AddIPv4(nicID, device.GetIpDevice(), device.GetIpNetmask(), device.GetIpRoute())
-
-		deviceInfo.AddSoftware("Firmware", device.GetFirmwareVersion(), true)
-		deviceInfo.AddCapabilities("firmware_update", device.IsUpdateSupported())
-		deviceInfo.AddDescription(device.GetProductDesignation())
-
+		deviceInfo := createDeviceInfo(device)
 		discoveredDevice := deviceInfo.ConvertToDiscoveredDevice()
-
 		err = devicePublisher.PublishDevice(discoveredDevice)
 		if err != nil {
 			// discovery request was likely cancelled -> terminate discovery and return error
@@ -90,7 +98,6 @@ func (m *ReferenceAssetLink) Discover(discoveryConfig config.DiscoveryConfig, de
 			return err
 		}
 	}
-
 	return nil
 }
 
@@ -110,4 +117,68 @@ func (m *ReferenceAssetLink) GetSupportedFilters() []*generated.SupportedFilter 
 		Datatype: generated.VariantType_VT_STRING,
 	})
 	return supportedFilters
+}
+
+func (m *ReferenceAssetLink) GetIdentifiers(parameterJson string, credentials []*generated.ConnectionCredential) ([]*generated.DeviceIdentifier, error) {
+	log.Info().Msg("Handle GetIdentifiers Request")
+	var deviceAddress DeviceAddress
+	err := json.Unmarshal([]byte(parameterJson), &deviceAddress)
+	if err != nil {
+		log.Error().Err(err).Msg("Could not parse parameterJson")
+		return nil, status.Errorf(codes.InvalidArgument, "Could not parse parameterJson: %v", err)
+	}
+	simulatedDeviceAddress := simdevices.SimulatedDeviceAddress{
+		AssetLinkNIC: deviceAddress.AssetLinkNIC,
+		DeviceIP:     deviceAddress.IPAddress,
+	}
+	var deviceCredentials DeviceCredentials
+	for _, credential := range credentials {
+		credMap := credential.GetCredentials()
+		err = json.Unmarshal([]byte(credMap), &deviceCredentials)
+		if err != nil {
+			log.Error().Err(err).Msg("Could not parse credentials")
+			return nil, status.Errorf(codes.InvalidArgument, "Could not parse credentials: %v", err)
+		}
+		deviceDetails, err := simdevices.RetrieveDeviceDetails(simulatedDeviceAddress, deviceCredentials.Username, deviceCredentials.Password)
+		if err != nil {
+			log.Warn().Err(err).Msgf("Could not retrieve device details with provided credentials for device at IP address %s and NIC %s",
+				deviceAddress.IPAddress, deviceAddress.AssetLinkNIC)
+			continue // try next credentials
+		}
+		// if device can be reached with provided credentials, return its identifiers
+		// otherwise try next credentials
+		deviceInfo := createDeviceInfo(deviceDetails)
+		discoveredDevice := deviceInfo.ConvertToDiscoveredDevice()
+		if discoveredDevice != nil {
+			return discoveredDevice.GetIdentifiers(), nil
+		}
+	}
+	// if device can not be reached with any provided credentials, try without credentials
+	deviceDetails, err := simdevices.RetrieveDeviceDetails(simulatedDeviceAddress, "", "")
+	if err != nil {
+		log.Error().Err(err).Msgf("Could not retrieve device details for device at IP address %s and NIC %s", deviceAddress.IPAddress,
+			deviceAddress.AssetLinkNIC)
+		return nil, status.Errorf(codes.Unavailable, "Could not retrieve device details: %v", err)
+	}
+	deviceInfo := createDeviceInfo(deviceDetails)
+	discoveredDevice := deviceInfo.ConvertToDiscoveredDevice()
+	if discoveredDevice != nil {
+		return discoveredDevice.GetIdentifiers(), nil
+	}
+	return nil, status.Errorf(codes.NotFound, "Could not retrieve device details for device at IP address %s and NIC %s", deviceAddress.IPAddress,
+		deviceAddress.AssetLinkNIC)
+}
+
+func createDeviceInfo(device simdevices.SimulatedDevice) *model.DeviceInfo {
+	deviceInfo := model.NewDevice("EthernetDevice", device.GetDeviceName())
+	deviceInfo.AddNameplate(device.GetManufacturer(), device.GetIDLink(), device.GetArticleNumber(),
+		device.GetProductDesignation(), device.GetHardwareVersion(), device.GetSerialNumber())
+
+	nicID := deviceInfo.AddNic(device.GetDeviceNIC(), device.GetMacAddress())
+	deviceInfo.AddIPv4(nicID, device.GetIpDevice(), device.GetIpNetmask(), device.GetIpRoute())
+
+	deviceInfo.AddSoftware("Firmware", device.GetFirmwareVersion(), true)
+	deviceInfo.AddCapabilities("firmware_update", device.IsUpdateSupported())
+	deviceInfo.AddDescription(device.GetProductDesignation())
+	return deviceInfo
 }
