@@ -99,7 +99,6 @@ func (d *AssetLink) Start(grpcServerAddress, registrationAddress, grpcRegistryAd
 	if err != nil {
 		log.Fatal().Err(err).Msg("Could not bind server address")
 	}
-
 	// Register at the grpc server registry
 	// Split into host and port. The registered endpoint is assembled by an dedicated flag and the grpc server endpoint.
 	// Since, a grpc endpoint can also be ":8081" which listens on all ports, the endpoint needs to be explicitly set.
@@ -107,25 +106,23 @@ func (d *AssetLink) Start(grpcServerAddress, registrationAddress, grpcRegistryAd
 	if err != nil {
 		log.Fatal().Err(err).Msg("Could not determine port of gRPC server address")
 	}
-
 	d.registryClient = registryclient.New(grpcRegistryAddress, d.metadata.AlId, fmt.Sprintf("%s:%s", registrationAddress, portNumberString))
 	d.registryClient.Register()
-
 	// Start GRPC server
 	d.grpcServer = grpc.NewServer()
 	// CS Suite Drv Info
 	log.Info().Msg("Registered Driver Info endpoint")
 	registryclient.AddCsInterface(registryclient.INTERFACE_DRVINFO_V1)
-
 	d.driverInfoServer = &driverinfo.DriverInfoServerEntity{
 		Metadata: d.metadata}
 	generatedDriverInfoServer.RegisterDriverInfoApiServer(d.grpcServer, d.driverInfoServer)
-
 	switch {
+	// if a custom discovery server is provided, register it
 	case d.customDiscoveryServer != nil:
 		log.Info().Msg("Registered existing discovery server")
 		registryclient.AddCsInterface(registryclient.INTERFACE_IAH_DISCOVER_V1)
 		generatedDiscoveryServer.RegisterDeviceDiscoverApiServer(d.grpcServer, d.customDiscoveryServer)
+		// if a discovery implementation is provided, register it
 	case d.discoveryImpl != nil:
 		log.Info().
 			Msg("Registered Discovery feature implementation")
@@ -135,6 +132,7 @@ func (d *AssetLink) Start(grpcServerAddress, registrationAddress, grpcRegistryAd
 			Discovery:                            d.discoveryImpl,
 		}
 		generatedDiscoveryServer.RegisterDeviceDiscoverApiServer(d.grpcServer, discoveryServer)
+		// if no discovery implementation is provided, log it
 	default:
 		log.Info().
 			Msg("Discovery feature implementation not found")
@@ -149,11 +147,9 @@ func (d *AssetLink) Start(grpcServerAddress, registrationAddress, grpcRegistryAd
 		}
 		generatedDiscoveryServer.RegisterIdentifiersApiServer(d.grpcServer, identifiersServer)
 	}
-
 	log.Info().
 		Str("address", grpcServerAddress).
 		Msg("Serving gPRC Server")
-
 	if err := d.grpcServer.Serve(listener); err != nil {
 		log.Fatal().Err(err).Msg("Could not bind server address")
 	}
