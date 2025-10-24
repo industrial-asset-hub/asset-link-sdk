@@ -26,7 +26,7 @@ func (i *IdentifiersServerEntity) GetIdentifiers(ctx context.Context, request *g
 		Str("target", target.String()).
 		Msg("Get Identifiers request")
 
-	// Check if discovery feature implementation is available
+	// Check if identifiers feature implementation is available
 	if i.Identifiers == nil {
 		const errMsg string = "no identifiers implementation found"
 		log.Info().Msg(errMsg)
