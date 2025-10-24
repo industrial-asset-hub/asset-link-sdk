@@ -27,6 +27,7 @@ path = [
   "**/go.sum",
   "docs/images/bootstrap-steps.gif",
   "docs/images/favicon.ico",
+  "misc/*",
   "cdm-al-reference/simdevices/static/*",
   "cdm-al-reference/simdevices/static/images/*",
   "cookiecutter-project-template/{{ cookiecutter.al_project }}/.markdownlintrc",

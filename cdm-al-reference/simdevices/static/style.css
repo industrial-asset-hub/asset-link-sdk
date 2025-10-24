@@ -33,20 +33,32 @@ body {
     margin-bottom: 20px;
 }
 
-/* Collapsible Devices */
+/* Collapsible Devices and Sub-devices */
 
-.device {
+.device,
+.subdevice {
     border: 1px solid #22304a;
     padding: 0;
     overflow: hidden;
     transition: box-shadow 0.2s;
+}
+
+.device {
     margin: 15px;
     border-radius: 8px;
     background: rgb(35,35,60);
     box-shadow: 0 2px 8px rgba(0,0,0,0.18);
 }
 
-.device > .header {
+.subdevice {
+    margin: 15px 0 0 0;
+    border-radius: 6px;
+    background: #16213a;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+}
+
+.device > .header,
+.subdevice > .header {
     display: flex;
     align-items: center;
     justify-content: flex-start;
@@ -54,20 +66,40 @@ body {
     font-weight: bold;
     border-bottom: 1px solid #22304a;
     color: #fff;
+}
+
+.device > .header {
     background: #00243d;
     padding: 0 20px;
     min-height: 56px;
     font-size: 1.1em;
 }
 
-.device:not(.open) > .header {
+.subdevice > .header {
+    background: #001e33;
+    padding: 0 16px;
+    min-height: 44px;
+    font-size: 1em;
+}
+
+.device:not(.open) > .header,
+.subdevice:not(.open) > .header {
     border-bottom: none;
 }
 
-.device > .icon svg {
+.device > .icon svg,
+.subdevice > .icon svg{
     display: block;
+}
+
+.device > .icon svg {
     height: 36px;
     width: 36px;
+}
+
+.subdevice > .icon svg {
+    height: 28px;
+    width: 28px;
 }
 
 .header-left {
@@ -83,7 +115,8 @@ body {
     text-overflow: ellipsis;
 }
 
-.device > .header .toggle-btn {
+.device > .header .toggle-btn,
+.subdevice > .header .toggle-btn {
     background: none;
     border: none;
     font-size: 1.8em;
@@ -101,13 +134,23 @@ body {
     height: 1.5em;
 }
 
-.device > .content {
+.device > .content,
+.subdevice > .content {
     display: none;
+}
+
+.device > .content {
     padding: 15px 20px;
     background: #16213a;
 }
 
-.device.open > .content {
+.subdevice > .content {
+    padding: 10px 16px;
+    background: #23233c;
+}
+
+.device.open > .content,
+.subdevice.open > .content {
     display: block;
 }
 
@@ -116,13 +159,27 @@ body {
     box-shadow: 0 2px 12px rgba(0,153,153,0.18);
 }
 
+.subdevice > .header:hover {
+    background: #00334d;
+    box-shadow: 0 2px 10px rgba(0,153,153,0.12);
+}
+
 .device > .header .device-icon {
     margin-right: 16px;
+}
+
+.subdevice > .header .device-icon {
+    margin-right: 12px;
 }
 
 .device > .header .device-icon img {
     width: 32px;
     height: 32px;
+}
+
+.subdevice > .header .device-icon img {
+    width: 26px;
+    height: 26px;
 }
 
 /* State tag and device states */
@@ -152,7 +209,11 @@ body {
     background-color: #00334d;
 }
 
-.reading {
+.reading,
+.updating,
+.booting,
+.getting,
+.setting {
     background-color: #22304a;
     animation-name: pulsingDeviceState;
     animation-duration: 1.0s;

@@ -7,6 +7,7 @@
 package reference
 
 import (
+	"fmt"
 	"sync"
 
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cdm-al-reference/simdevices"
@@ -54,19 +55,15 @@ func (m *ReferenceAssetLink) Discover(discoveryConfig config.DiscoveryConfig, de
 
 	for _, address := range devicesAddressesFound {
 		// connect to device and retrieve its details
-		device, err := simdevices.RetrieveDeviceDetails(address, "", "") // provide no credentials (username, password)
-		// device, err := simdevices.RetrieveDeviceDetails(address, "admin", "admin") // provide credentials (username, password)
+		device, err := simdevices.RetrieveDeviceDetails(address, nil) // provide no credentials
 		if err != nil {
-			discoverError := &generated.DiscoverError{
-				ResultCode:  int32(codes.Unavailable),
-				Description: "Error retrieving device details",
-			}
+			log.Error().Err(err).Msg("Could not retrieve device details")
+			discoverError := createDiscoverError(err, address)
 			pubErr := devicePublisher.PublishError(discoverError)
 			if pubErr != nil {
 				log.Error().Err(pubErr).Msg("Failed to publish device error")
 				return pubErr
 			}
-			log.Error().Err(err).Msg("Could not retrieve device details")
 			continue // try next device
 		}
 
@@ -77,7 +74,7 @@ func (m *ReferenceAssetLink) Discover(discoveryConfig config.DiscoveryConfig, de
 		nicID := deviceInfo.AddNic(device.GetDeviceNIC(), device.GetMacAddress())
 		deviceInfo.AddIPv4(nicID, device.GetIpDevice(), device.GetIpNetmask(), device.GetIpRoute())
 
-		deviceInfo.AddSoftware("Firmware", device.GetFirmwareVersion(), true)
+		deviceInfo.AddSoftware("Firmware", device.GetActiveFirmwareVersion(), true)
 		deviceInfo.AddCapabilities("firmware_update", device.IsUpdateSupported())
 		deviceInfo.AddDescription(device.GetProductDesignation())
 
@@ -110,4 +107,27 @@ func (m *ReferenceAssetLink) GetSupportedFilters() []*generated.SupportedFilter 
 		Datatype: generated.VariantType_VT_STRING,
 	})
 	return supportedFilters
+}
+
+func createDiscoverError(sdError error, sdAddress simdevices.SimulatedDeviceAddress) *generated.DiscoverError {
+	var resultCode codes.Code
+	switch sdError {
+	case simdevices.ErrInvalidInterface:
+		resultCode = codes.InvalidArgument
+	case simdevices.ErrDeviceNotFound:
+		resultCode = codes.NotFound
+	case simdevices.ErrSubDeviceNotFound:
+		resultCode = codes.NotFound
+	case simdevices.ErrUnauthenticated:
+		resultCode = codes.Unauthenticated
+	default:
+		resultCode = codes.Unknown
+	}
+	_ = sdAddress //TODO: add device address to discoverError
+	description := fmt.Sprintf("Error retrieving device details (%s)", sdError.Error())
+	discoverError := &generated.DiscoverError{
+		ResultCode:  int32(resultCode),
+		Description: description,
+	}
+	return discoverError
 }

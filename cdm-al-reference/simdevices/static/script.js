@@ -32,9 +32,11 @@ function connectWebSocket() {
     };
 }
 
-function addDevice(device, openSet) {
+function addDevice(device, type, openSet) {
+    const isSub = type === 'subdevice';
+
     const element = document.createElement('div');
-    element.className = 'device';
+    element.className = isSub ? 'subdevice' : 'device';
     element.id = device.unique_device_id;
 
     // Header
@@ -43,12 +45,12 @@ function addDevice(device, openSet) {
     header.innerHTML = `
         <span class="header-left">
             <span class="device-icon" aria-hidden="true">
-                <img src="images/device.svg" alt="Device Icon" />
+                <img src="images/${isSub ? 'subdevice' : 'device'}.svg" alt="${isSub ? 'Subdevice' : 'Device'} Icon" />
             </span>
             <span>${escapeHTML(device.device_name)}</span>
         </span>
         <span class="state-tag ${escapeHTML(device.device_state.toLowerCase())}">${escapeHTML(device.device_state.toLowerCase())}</span>
-        <button class="toggle-btn" aria-label="Toggle device details">
+        <button class="toggle-btn" aria-label="Toggle ${isSub ? 'subdevice' : 'device'} details">
             <img class="plusminus-icon" src="images/plus.svg" width="24" height="24" alt="Expand" />
         </button>
     `;
@@ -69,22 +71,29 @@ function addDevice(device, openSet) {
             <dd>${escapeHTML(device.manufacturer)}</dd>
             <dt>Serial Number:</dt>
             <dd>${escapeHTML(device.serial_number)}</dd>
-            <dt>Firmware Version:</dt>
-            <dd>${escapeHTML(device.firmware_version)}</dd>
             <dt>Hardware Version:</dt>
             <dd>${escapeHTML(device.hardware_version)}</dd>
+            <dt>Active Firmware Version:</dt>
+            <dd>${escapeHTML(device.active_firmware_version)}</dd>
+            <dt>Installed Firmware Version:</dt>
+            <dd>${escapeHTML(device.installed_firmware_version)}</dd>
             <dt>Device State:</dt>
             <dd>${escapeHTML(device.device_state.toLowerCase())}</dd>
             <dt>IP Address:</dt>
             <dd>${device.ip_device !== undefined && device.ip_device !== '' ? escapeHTML(device.ip_device) : '-'}</dd>
             <dt>MAC Address:</dt>
             <dd>${device.mac_address !== undefined && device.mac_address !== '' ? escapeHTML(device.mac_address) : '-'}</dd>
+            <dt>Sub-devices:</dt>
+            <dd>${device.sub_devices !== undefined ? device.sub_devices.length : 0}</dd>
+            <dt>Sub-device ID:</dt>
+            <dd>${device.sub_device_id !== undefined && device.sub_device_id !== -1 ? device.sub_device_id : '-'}</dd>
         </dl>
     `;
     element.appendChild(content);
 
     // Collapse logic
     header.addEventListener('click', function(e) {
+        if (isSub) e.stopPropagation();
         const isOpen = element.classList.toggle('open');
         const btnImg = header.querySelector('.toggle-btn img');
         btnImg.src = isOpen ? 'images/minus.svg' : 'images/plus.svg';
@@ -99,21 +108,33 @@ function addDevice(device, openSet) {
         btnImg.alt = 'Collapse';
     }
 
-    return element;
+    return { element, content };
 }
 
 function updateDeviceList(devices) {
     const deviceList = document.getElementById('deviceList');
 
-    // Store open devices
+    // Store open devices and subdevices
     const openDevices = new Set();
+    const openSubDevices = new Set();
     document.querySelectorAll('.device.open').forEach(el => {
         openDevices.add(el.id);
+    });
+    document.querySelectorAll('.subdevice.open').forEach(el => {
+        openSubDevices.add(el.id);
     });
     deviceList.innerHTML = '';
 
     devices.forEach((device) => {
-        const deviceElement = addDevice(device, openDevices);
+        const { element: deviceElement, content: deviceContent } = addDevice(device, 'device', openDevices);
+
+        // Sub-devices (collapsible)
+        if (device.sub_devices && device.sub_devices.length > 0) {
+            device.sub_devices.forEach((subDevice) => {
+                const { element: subDeviceElement } = addDevice(subDevice, 'subdevice', openSubDevices);
+                deviceContent.appendChild(subDeviceElement);
+            });
+        }
         deviceList.appendChild(deviceElement);
     });
 }
