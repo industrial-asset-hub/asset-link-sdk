@@ -96,3 +96,28 @@ func TestConfig(t *testing.T) {
 		driver.GetSupportedOptions()
 	})
 }
+func TestGetIdentifiers(t *testing.T) {
+	simdevices.StartSimulatedDevices("") // start without visualization web server
+	t.Run("getIdentifiersSucceeds", func(t *testing.T) {
+		driver := &ReferenceAssetLink{}
+		credential := `{"username":"admin","password":"admin"}`
+		credentials := []*generated.ConnectionCredential{
+			{Credentials: credential},
+		}
+		parameters := `{"al_nic":"eth0","device_ip":"192.168.0.12","sub_device_id":-1}`
+		getIdentifiersReq := &generated.GetIdentifiersRequest{
+			Target: &generated.Destination{
+				Target: &generated.Destination_ConnectionParameterSet{
+					ConnectionParameterSet: &generated.ConnectionParameterSet{
+						Credentials:   credentials,
+						ParameterJson: parameters,
+					},
+				},
+			},
+		}
+		identifiersReq := config.NewIdentifiersRequestFromGetIdentifiersReq(getIdentifiersReq)
+		identifiers, err := driver.GetIdentifiers(identifiersReq)
+		assert.NoError(t, err)
+		assert.NotEmpty(t, identifiers)
+	})
+}
