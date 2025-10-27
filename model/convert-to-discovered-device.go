@@ -226,7 +226,7 @@ func convertStructTypeToDeviceIdentifiers(valueStruct reflect.Value, prefixUri s
 
 func isNonEmptyValues(values ...string) bool {
 	for _, value := range values {
-		if value != "" {
+		if strings.TrimSpace(value) != "" {
 			return true
 		}
 	}
