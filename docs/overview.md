@@ -26,7 +26,7 @@ On `AssetLink.Start()`, the Asset Link will start the grpc server, allowing devi
 
 Tooling:
 
-- [Go](https://go.dev/) Version >=1.24.6 is required
+- [Go](https://go.dev/) Version >=1.24.9 is required
 - [cookiecutter](https://github.com/cookiecutter/cookiecutter)
 - [GoReleaser](https://goreleaser.com/)
 
