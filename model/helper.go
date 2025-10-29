@@ -9,14 +9,14 @@ package model
 
 import "time"
 
-func (d *DeviceInfo) addIdentifier(mac string) {
+func (d *DeviceInfo) addIdentifier(macAddress string) {
 
-	if isNonEmptyValues(mac) {
+	if isNonEmptyValues(macAddress) {
 		identifierUncertainty := 1
 		identifier := MacIdentifier{
 			IdentifierType:        nil,
 			IdentifierUncertainty: &identifierUncertainty,
-			MacAddress:            &mac,
+			MacAddress:            &macAddress,
 		}
 		d.MacIdentifiers = append(d.MacIdentifiers, identifier)
 	}

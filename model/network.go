@@ -20,9 +20,9 @@ func (d *DeviceInfo) AddNic(name string, macAddress string) (nicId string) {
 	if isNonEmptyValues(macAddress) {
 		nicId = uuid.New().String()
 
-		t := EthernetPortConnectionPointTypeEthernetPort
+		connectionPointType := EthernetPortConnectionPointTypeEthernetPort
 		nic := EthernetPort{
-			ConnectionPointType:     &t,
+			ConnectionPointType:     &connectionPointType,
 			Id:                      nicId,
 			MacAddress:              &macAddress,
 			RelatedConnectionPoints: nil,
@@ -50,27 +50,27 @@ func (d *DeviceInfo) AddNic(name string, macAddress string) (nicId string) {
 // The given network mask should consist of 4 octets (aaa.bbb.ccc.ddd)
 //
 // No validation of is currently done
-func (d *DeviceInfo) AddIPv4(nicId string, address string, networkMask string, router string) (id string) {
+func (d *DeviceInfo) AddIPv4(nicId string, ipv4Address string, networkMask string, routerAddress string) (id string) {
 
-	if isNonEmptyValues(address, networkMask, router) {
+	if isNonEmptyValues(ipv4Address, networkMask, routerAddress) {
 		id = uuid.New().String()
 
-		t := Ipv4ConnectivityConnectionPointTypeIpv4Connectivity
+		connectionPointType := Ipv4ConnectivityConnectionPointTypeIpv4Connectivity
 		customRelName := "Relies on"
 		relationship := RelatedConnectionPoint{
 			ConnectionPoint:    &nicId,
 			CustomRelationship: &customRelName,
 		}
 		ipv4 := Ipv4Connectivity{
-			ConnectionPointType:     &t,
+			ConnectionPointType:     &connectionPointType,
 			Id:                      id,
 			InstanceAnnotations:     nil,
-			Ipv4Address:             &address,
+			Ipv4Address:             &ipv4Address,
 			RelatedConnectionPoints: []RelatedConnectionPoint{relationship},
 		}
-		if isNonEmptyValues(networkMask, router) {
+		if isNonEmptyValues(networkMask, routerAddress) {
 			ipv4.NetworkMask = &networkMask
-			ipv4.RouterIpv4Address = &router
+			ipv4.RouterIpv4Address = &routerAddress
 		}
 		d.ConnectionPoints = append(d.ConnectionPoints, ipv4)
 
@@ -82,27 +82,27 @@ func (d *DeviceInfo) AddIPv4(nicId string, address string, networkMask string, r
 // AddIPv6 Add an IPv6 address to a network card
 //
 // No validation of is currently done
-func (d *DeviceInfo) AddIPv6(nicId string, address string, networkMask string, router string) (id string) {
+func (d *DeviceInfo) AddIPv6(nicId string, ipv6Address string, networkPrefix string, routerAddress string) (id string) {
 
-	if isNonEmptyValues(address) {
+	if isNonEmptyValues(ipv6Address) {
 		id = uuid.New().String()
 
-		t := Ipv6ConnectivityConnectionPointTypeIpv6Connectivity
+		connectionPointType := Ipv6ConnectivityConnectionPointTypeIpv6Connectivity
 		customRelName := "Relies on"
 		relationship := RelatedConnectionPoint{
 			ConnectionPoint:    &nicId,
 			CustomRelationship: &customRelName,
 		}
 		ipv6 := Ipv6Connectivity{
-			ConnectionPointType:     &t,
+			ConnectionPointType:     &connectionPointType,
 			Id:                      id,
 			InstanceAnnotations:     nil,
-			Ipv6Address:             &address,
+			Ipv6Address:             &ipv6Address,
 			RelatedConnectionPoints: []RelatedConnectionPoint{relationship},
 		}
-		if isNonEmptyValues(networkMask, router) {
-			ipv6.Ipv6NetworkPrefix = &networkMask
-			ipv6.RouterIpv6Address = &router
+		if isNonEmptyValues(networkPrefix, routerAddress) {
+			ipv6.Ipv6NetworkPrefix = &networkPrefix
+			ipv6.RouterIpv6Address = &routerAddress
 		}
 		d.ConnectionPoints = append(d.ConnectionPoints, ipv6)
 
