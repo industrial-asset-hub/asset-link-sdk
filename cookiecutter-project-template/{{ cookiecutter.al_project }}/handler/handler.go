@@ -117,3 +117,10 @@ func (m *AssetLinkImplementation) GetSupportedFilters() []*generated.SupportedFi
 	})
 	return supportedFilters
 }
+
+func (m *AssetLinkImplementation) GetIdentifiers(identifiersRequest config.IdentifiersRequest) ([]*generated.DeviceIdentifier, error) {
+	log.Info().Msg("Handle Get Identifiers Request")
+	// Add your custom logic here to retrieve identifiers based on the provided parameters and credentials
+	identifiers := []*generated.DeviceIdentifier{}
+	return identifiers, nil
+}

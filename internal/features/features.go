@@ -21,3 +21,8 @@ type Discovery interface {
 	GetSupportedFilters() []*generated.SupportedFilter
 	GetSupportedOptions() []*generated.SupportedOption
 }
+
+// Interface Identifiers provides the methods used the identifiers feature
+type Identifiers interface {
+	GetIdentifiers(identifiersRequest config.IdentifiersRequest) ([]*generated.DeviceIdentifier, error)
+}

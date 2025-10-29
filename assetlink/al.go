@@ -30,13 +30,20 @@ import (
 type alFeatureBuilder struct {
 	metadata metadata.Metadata
 
-	discovery features.Discovery
+	discovery   features.Discovery
+	identifiers features.Identifiers
 	generatedDiscoveryServer.DeviceDiscoverApiServer
+	generatedDiscoveryServer.IdentifiersApiServer
 }
 
 // Methods to register new features
 func (cb *alFeatureBuilder) Discovery(f features.Discovery) *alFeatureBuilder {
 	cb.discovery = f
+	return cb
+}
+
+func (cb *alFeatureBuilder) Identifiers(f features.Identifiers) *alFeatureBuilder {
+	cb.identifiers = f
 	return cb
 }
 
@@ -48,6 +55,7 @@ func New(metadata metadata.Metadata) *alFeatureBuilder {
 func (cb *alFeatureBuilder) Build() *AssetLink {
 	return &AssetLink{
 		discoveryImpl:         cb.discovery,
+		identifiersImpl:       cb.identifiers,
 		customDiscoveryServer: cb.DeviceDiscoverApiServer,
 		metadata:              cb.metadata,
 	}
@@ -57,6 +65,7 @@ func (cb *alFeatureBuilder) Build() *AssetLink {
 type AssetLink struct {
 	metadata              metadata.Metadata
 	discoveryImpl         features.Discovery
+	identifiersImpl       features.Identifiers
 	customDiscoveryServer generatedDiscoveryServer.DeviceDiscoverApiServer
 	grpcServer            *grpc.Server
 	registryClient        *registryclient.GrpcServerRegistry
@@ -138,7 +147,16 @@ func (d *AssetLink) Start(grpcServerAddress, registrationAddress, grpcRegistryAd
 		log.Info().
 			Msg("Discovery feature implementation not found")
 	}
-
+	if d.identifiersImpl != nil {
+		log.Info().
+			Msg("Registered Identifiers feature implementation")
+		registryclient.AddCsInterface(registryclient.INTERFACE_COMMON_IDENTIFIERS_V1)
+		identifiersServer := &devicediscovery.IdentifiersServerEntity{
+			UnimplementedIdentifiersApiServer: generatedDiscoveryServer.UnimplementedIdentifiersApiServer{},
+			Identifiers:                       d.identifiersImpl,
+		}
+		generatedDiscoveryServer.RegisterIdentifiersApiServer(d.grpcServer, identifiersServer)
+	}
 	log.Info().
 		Str("address", grpcServerAddress).
 		Msg("Serving gPRC Server")

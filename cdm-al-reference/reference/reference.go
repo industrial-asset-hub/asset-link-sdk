@@ -7,6 +7,7 @@
 package reference
 
 import (
+	"encoding/json"
 	"fmt"
 	"sync"
 
@@ -20,7 +21,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// Implements the Discovery interface and feature
+// Implements both the Discovery and the Identifiers interface/feature
 
 type ReferenceAssetLink struct {
 	discoveryLock sync.Mutex
@@ -66,18 +67,7 @@ func (m *ReferenceAssetLink) Discover(discoveryConfig config.DiscoveryConfig, de
 			}
 			continue // try next device
 		}
-
-		deviceInfo := model.NewDevice("EthernetDevice", device.GetDeviceName())
-		deviceInfo.AddNameplate(device.GetManufacturer(), device.GetIDLink(), device.GetArticleNumber(),
-			device.GetProductDesignation(), device.GetHardwareVersion(), device.GetSerialNumber())
-
-		nicID := deviceInfo.AddNic(device.GetDeviceNIC(), device.GetMacAddress())
-		deviceInfo.AddIPv4(nicID, device.GetIpDevice(), device.GetIpNetmask(), device.GetIpRoute())
-
-		deviceInfo.AddSoftware("Firmware", device.GetActiveFirmwareVersion(), true)
-		deviceInfo.AddCapabilities("firmware_update", device.IsUpdateSupported())
-		deviceInfo.AddDescription(device.GetProductDesignation())
-
+		deviceInfo := createDeviceInfo(device)
 		discoveredDevice := deviceInfo.ConvertToDiscoveredDevice()
 
 		err = devicePublisher.PublishDevice(discoveredDevice)
@@ -109,6 +99,54 @@ func (m *ReferenceAssetLink) GetSupportedFilters() []*generated.SupportedFilter 
 	return supportedFilters
 }
 
+func (m *ReferenceAssetLink) GetIdentifiers(identifiersRequest config.IdentifiersRequest) ([]*generated.DeviceIdentifier, error) {
+	log.Info().Msg("Handle GetIdentifiers Request")
+	parameterJson := identifiersRequest.GetParameterJson()
+	var deviceAddress simdevices.SimulatedDeviceAddress
+	err := json.Unmarshal([]byte(parameterJson), &deviceAddress)
+	if err != nil {
+		log.Error().Err(err).Msg("Could not parse parameterJson")
+		return nil, status.Errorf(codes.InvalidArgument, "Could not parse parameterJson: %v", err)
+	}
+	var deviceCredentials simdevices.SimulatedDeviceCredentials
+	credentials := identifiersRequest.GetCredentials()
+	for _, credential := range credentials {
+		credMap := credential.GetCredentials()
+		err = json.Unmarshal([]byte(credMap), &deviceCredentials)
+		if err != nil {
+			log.Error().Err(err).Msg("Could not parse credentials")
+			return nil, status.Errorf(codes.InvalidArgument, "Could not parse credentials: %v", err)
+		}
+		deviceDetails, err := simdevices.RetrieveDeviceDetails(deviceAddress, &deviceCredentials)
+		if err != nil {
+			log.Warn().Err(err).Msgf("Could not retrieve device details with provided credentials for device at IP address %s and NIC %s",
+				deviceAddress.DeviceIP, deviceAddress.AssetLinkNIC)
+			continue // try next credentials
+		}
+		// if device can be reached with provided credentials, return its identifiers
+		// otherwise try next credentials
+		deviceInfo := createDeviceInfo(deviceDetails)
+		discoveredDevice := deviceInfo.ConvertToDiscoveredDevice()
+		if discoveredDevice != nil {
+			return discoveredDevice.GetIdentifiers(), nil
+		}
+	}
+	// if device can not be reached with any provided credentials, try without credentials
+	deviceDetails, err := simdevices.RetrieveDeviceDetails(deviceAddress, nil)
+	if err != nil {
+		log.Error().Err(err).Msgf("Could not retrieve device details for device at IP address %s and NIC %s", deviceAddress.DeviceIP,
+			deviceAddress.AssetLinkNIC)
+		return nil, status.Errorf(codes.Unavailable, "Could not retrieve device details: %v", err)
+	}
+	deviceInfo := createDeviceInfo(deviceDetails)
+	discoveredDevice := deviceInfo.ConvertToDiscoveredDevice()
+	if discoveredDevice != nil {
+		return discoveredDevice.GetIdentifiers(), nil
+	}
+	return nil, status.Errorf(codes.NotFound, "Could not retrieve device details for device at IP address %s and NIC %s", deviceAddress.DeviceIP,
+		deviceAddress.AssetLinkNIC)
+}
+
 func createDiscoverError(sdError error, sdAddress simdevices.SimulatedDeviceAddress) *generated.DiscoverError {
 	var resultCode codes.Code
 	switch sdError {
@@ -123,11 +161,30 @@ func createDiscoverError(sdError error, sdAddress simdevices.SimulatedDeviceAddr
 	default:
 		resultCode = codes.Unknown
 	}
-	_ = sdAddress //TODO: add device address to discoverError
+	sdAddressBytes, _ := json.Marshal(sdAddress)
 	description := fmt.Sprintf("Error retrieving device details (%s)", sdError.Error())
 	discoverError := &generated.DiscoverError{
 		ResultCode:  int32(resultCode),
 		Description: description,
+		Source: &generated.DiscoverError_Device{
+			Device: &generated.Destination{Target: &generated.Destination_ConnectionParameterSet{ConnectionParameterSet: &generated.ConnectionParameterSet{
+				ParameterJson: string(sdAddressBytes),
+			}}},
+		},
 	}
 	return discoverError
+}
+
+func createDeviceInfo(device simdevices.SimulatedDevice) *model.DeviceInfo {
+	deviceInfo := model.NewDevice("EthernetDevice", device.GetDeviceName())
+	deviceInfo.AddNameplate(device.GetManufacturer(), device.GetIDLink(), device.GetArticleNumber(),
+		device.GetProductDesignation(), device.GetHardwareVersion(), device.GetSerialNumber())
+
+	nicID := deviceInfo.AddNic(device.GetDeviceNIC(), device.GetMacAddress())
+	deviceInfo.AddIPv4(nicID, device.GetIpDevice(), device.GetIpNetmask(), device.GetIpRoute())
+
+	deviceInfo.AddSoftware("Firmware", device.GetActiveFirmwareVersion(), true)
+	deviceInfo.AddCapabilities("firmware_update", device.IsUpdateSupported())
+	deviceInfo.AddDescription(device.GetProductDesignation())
+	return deviceInfo
 }
