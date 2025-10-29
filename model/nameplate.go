@@ -64,9 +64,9 @@ func (d *DeviceInfo) AddNameplate(manufacturerName string,
 		d.ProductInstanceIdentifier = &pi
 
 		// Duplicate IDLink field to explict field
-		t := IdLinkAssetIdentifierTypeIdLink
+		assetIdentifierType := IdLinkAssetIdentifierTypeIdLink
 		idLink := IdLink{
-			AssetIdentifierType:   &t,
+			AssetIdentifierType:   &assetIdentifierType,
 			IdLink:                &uriOfTheProduct,
 			IdentifierType:        nil,
 			IdentifierUncertainty: nil,
