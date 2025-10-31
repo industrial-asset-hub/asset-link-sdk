@@ -20,4 +20,5 @@ var AssetsCmd = &cobra.Command{
 func init() {
 	AssetsCmd.AddCommand(DiscoverCmd)
 	AssetsCmd.AddCommand(ConvertCmd)
+	AssetsCmd.AddCommand(IdentifierCmd)
 }

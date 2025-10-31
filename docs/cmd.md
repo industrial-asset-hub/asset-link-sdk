@@ -39,6 +39,7 @@ Below are the detailed description of some important commands:
 $ al-ctl assets --help
 $ al-ctl assets discover --help
 $ al-ctl assets convert --help
+$ al-ctl assets identifier --help
 ```
 
 Examples of these commands are described below:
@@ -55,6 +56,13 @@ $ al-ctl assets discover -e localhost:8081 [-d <discovery-config>] [-o <output-f
 $ al-ctl assets convert -e localhost:8081 -i <input-file> -o <output-file>
 
 # Example: al-ctl assets convert -e localhost:8081 -i asset.json -o converted-asset.json
+```
+
+```bash
+# To run get identifiers on the Asset Link
+$ al-ctl assets identifier -e localhost:8081 -p <credential-file-path> -o <output-file>
+
+# Example: al-ctl assets identifier -e localhost:8081 -p ./credential.json -o test-asset.json
 ```
 
 ## Command: 'test'
@@ -94,7 +102,7 @@ $ al-ctl test api -e localhost:8081 --service-name discovery [-d <discovery-conf
 $ al-ctl test api -e localhost:8081 --service-name identifiers -p <credential-file-path>
 # The Asset Link must be running on the provided address, for example here: localhost:8081 and the Asset Link must implement Get Identifiers API. Optionally provide the credential file path, default is empty.
 
-# Example: al-ctl test api -e localhost:8081 --service-name identifiers -r ./credential.json
+# Example: al-ctl test api -e localhost:8081 --service-name identifiers -p ./credential.json
 ```
 
 ```bash
@@ -104,7 +112,7 @@ $ al-ctl test api -e localhost:8081 --service-name identifiers -p <credential-fi
 
 # SPECIAL NOTE: Depending on the asset link implementation of Get Identifiers, the asset returned may be incomplete. Hence, the validation may fail.
 
-# Example: al-ctl test api -e localhost:8081 --service-name identifiers -r ./credential.json -v --base-schema-path ./iah_base-v0.12.0.yaml --target-class Asset
+# Example: al-ctl test api -e localhost:8081 --service-name identifiers -p ./credential.json -v --base-schema-path ./iah_base-v0.12.0.yaml --target-class Asset
 ```
 
 ```bash
