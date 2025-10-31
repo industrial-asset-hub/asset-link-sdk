@@ -77,9 +77,9 @@ type SimulatedDevice interface {
 }
 
 type SimulatedDeviceAddress struct {
-	AssetLinkNIC string `json:"al_nic"`
-	DeviceIP     string `json:"device_ip"`
-	SubDeviceID  int    `json:"sub_device_id"` // -1 for top-level devices
+	AssetLinkNIC string `json:"alNic"`
+	DeviceIP     string `json:"ipAddress"`
+	SubDeviceID  int    `json:"subDeviceID"` // -1 for top-level devices
 }
 
 type SimulatedDeviceCredentials struct {

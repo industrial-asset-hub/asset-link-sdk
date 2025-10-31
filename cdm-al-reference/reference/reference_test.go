@@ -104,7 +104,7 @@ func TestGetIdentifiers(t *testing.T) {
 		credentials := []*generated.ConnectionCredential{
 			{Credentials: credential},
 		}
-		parameters := `{"al_nic":"eth0","device_ip":"192.168.0.12","sub_device_id":-1}`
+		parameters := `{"alNic":"eth0","ipAddress":"192.168.0.12","subDeviceID":-1}`
 		getIdentifiersReq := &generated.GetIdentifiersRequest{
 			Target: &generated.Destination{
 				Target: &generated.Destination_ConnectionParameterSet{
