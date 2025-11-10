@@ -45,7 +45,7 @@ jobs:
       - name: Prepare Environment
         uses: ./.github/actions/prepare
       - name: Lint
-        uses: golangci/golangci-lint-action@v8
+        uses: golangci/golangci-lint-action@v9
         with:
           version: ${{ env.GO_LINT_VERSION }}
 
@@ -127,7 +127,7 @@ jobs:
           cd $TEST_PROJECT/$TEST_PROJECT_NAME/
           go test -v ./...
       - name: Lint Asset Link
-        uses: golangci/golangci-lint-action@v8
+        uses: golangci/golangci-lint-action@v9
         with:
           version: ${{ env.GO_LINT_VERSION }}
           working-directory: ${{ env.TEST_PROJECT }}/${{ env.TEST_PROJECT_NAME }}/
