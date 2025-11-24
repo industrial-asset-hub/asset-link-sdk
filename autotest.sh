@@ -214,10 +214,94 @@ test_identifiers(){
     DONE=true
 }
 
+test_update(){
+    header "Running autotest (update)"
+    prepare
+
+    prepare_invalid_address_file
+
+    testcase_error "Update" "Prepare with invalid firmware file"
+    test_error alctl update prepare -d "$DEVICE_ADDRESS_FILE" -c -j "000" -t firmware -a "$AUTOTEST_PATH/non_existing_file.fwu"
+
+    testcase_error "Update" "Activate with invalid firmware file"
+    test_error alctl update activate -d "$DEVICE_ADDRESS_FILE" -c -j "000" -t firmware -a "$AUTOTEST_PATH/non_existing_file.fwu"
+
+    testcase_error "Update" "Prepare with invalid artefact type"
+    test_error alctl update prepare -d "$DEVICE_ADDRESS_FILE" -c -j "000" -t invalid_type -a "$AUTOTEST_PATH/non_existing_file.fwu"
+
+    testcase_error "Update" "Activate with invalid artefact type"
+    test_error alctl update activate -d "$DEVICE_ADDRESS_FILE" -c -j "000" -t invalid_type -a "$AUTOTEST_PATH/non_existing_file.fwu"
+
+    testcase_error "Update" "Cancel with invalid artefact type"
+    test_error alctl update cancel -d "$DEVICE_ADDRESS_FILE" -c -j "000" -t invalid_type
+
+    testcase_error "Update" "Prepare with invalid device address"
+    test_error alctl update prepare -d "$INVALID_DEVICE_ADDRESS_FILE" -c -j "000" -t firmware -a "$FIRMWARE_FILE_V2"
+
+    testcase_error "Update" "Activate with invalid device address"
+    test_error alctl update activate -d "$INVALID_DEVICE_ADDRESS_FILE" -c -j "000" -t firmware -a "$FIRMWARE_FILE_V2"
+
+    testcase_error "Update" "Cancel with invalid address file"
+    test_error alctl update cancel -d "$AUTOTEST_PATH/non_existing_file.fwu" -c -j "000" -t firmware
+
+    testcase_error "Update" "Prepare with firmware version already installed"
+    test_error alctl update prepare -d "$DEVICE_ADDRESS_FILE" -c -j "000" -t firmware -a "$FIRMWARE_FILE_V1"
+
+    local JOB_ID_1="001"
+    testcase_ok "Update" "Prepare update job $JOB_ID_1 (for subsequent activation)"
+    test_ok alctl update prepare -d "$DEVICE_ADDRESS_FILE" -c -j "$JOB_ID_1" -t firmware -a "$FIRMWARE_FILE_V2"
+    testcase_ok "Update" "Activate update job $JOB_ID_1"
+    test_ok alctl update activate -d "$DEVICE_ADDRESS_FILE" -c -j "$JOB_ID_1" -t firmware -a "$FIRMWARE_FILE_V2"
+
+    local JOB_ID_2="002"
+    testcase_ok "Update" "Prepare update job $JOB_ID_2 (for subsequent cancellation)"
+    test_ok alctl update prepare -d "$DEVICE_ADDRESS_FILE" -c -j "$JOB_ID_2" -t firmware -a "$FIRMWARE_FILE_V3"
+    testcase_ok "Update" "Cancel update job $JOB_ID_2"
+    test_ok alctl update cancel -d "$DEVICE_ADDRESS_FILE" -c -j "$JOB_ID_2" -t firmware
+
+    DONE=true
+}
+
+test_artefacts(){
+    header "Running autotest (artefacts)"
+    prepare
+
+    prepare_invalid_address_file
+
+    testcase_error "Artefacts" "Pull with invalid artefact type"
+    test_error alctl artefacts pull -d "$DEVICE_ADDRESS_FILE" -c -t invalid_type -a "$AUTOTEST_PATH/config_invalid.json"
+
+    testcase_error "Artefacts" "Push with invalid artefact type"
+    test_error alctl artefacts push -d "$DEVICE_ADDRESS_FILE" -c -t invalid_type -a "$CONFIG_FILE_1"
+
+    testcase_error "Artefacts" "Push with invalid artefact file"
+    test_error alctl artefacts push -d "$DEVICE_ADDRESS_FILE" -c -t configuration -a "$AUTOTEST_PATH/non_existing_file.json"
+
+    testcase_error "Artefacts" "Pull with invalid device address"
+    test_error alctl artefacts pull  -d "$INVALID_DEVICE_ADDRESS_FILE" -c -t configuration -a "$AUTOTEST_PATH/config_invalid.json"
+
+    testcase_error "Artefacts" "Push with invalid device address"
+    test_error alctl artefacts push  -d "$INVALID_DEVICE_ADDRESS_FILE" -c -t configuration -a "$CONFIG_FILE_1"
+
+    testcase_ok "Artefacts" "Pull artefact configuration (old)"
+    test_ok alctl artefacts pull  -d "$DEVICE_ADDRESS_FILE" -c -t configuration -a "$AUTOTEST_PATH/config_old.json"
+
+    testcase_ok "Artefacts" "Push artefact configuration (new)"
+    test_ok alctl artefacts push  -d "$DEVICE_ADDRESS_FILE" -c -t configuration -a "$CONFIG_FILE_1"
+
+    testcase_ok "Artefacts" "Pull artefact configuration (new)"
+    test_ok alctl artefacts pull  -d "$DEVICE_ADDRESS_FILE" -c -t configuration -a "$AUTOTEST_PATH/config_new.json"
+
+    testcase_ok "Artefacts" "Compare current config and pushed config"
+    test_ok json_compare "$CONFIG_FILE_1" "$AUTOTEST_PATH/config_new.json"
+
+    DONE=true
+}
+
 print_usage(){
     echo "Usage: $0 <FEATURE>"
     echo ""
-    echo "Available Features: discover, identifiers"
+    echo "Available Features: discover, identifiers, update, artefacts"
 }
 
 if [[ $# -ne 1 ]]; then
@@ -231,6 +315,10 @@ if [[ "$1" == "discover" ]]; then
     test_discover
 elif [[ "$1" == "identifiers" ]]; then
     test_identifiers
+elif [[ "$1" == "update" ]]; then
+    test_update
+elif [[ "$1" == "artefacts" ]]; then
+    test_artefacts
 else
     error "Unknown feature: $1"
     echo ""
