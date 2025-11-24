@@ -69,6 +69,7 @@ jobs:
         uses: golang/govulncheck-action@v1
         with:
           go-package: ./...
+          repo-checkout: false
 
   build-sdk:
     runs-on: ubuntu-latest
