@@ -10,6 +10,7 @@ package artefacts
 import (
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/al"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/shared"
+	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 )
 
@@ -25,7 +26,10 @@ var ArtefactPullCommand = &cobra.Command{
 	Short: "Pull artefact from device",
 	Long:  `Pulls an artefact of a specific type from the specified device`,
 	Run: func(cmd *cobra.Command, args []string) {
-		al.PullArtefact(shared.AssetLinkEndpoint, pullJobId, pullArtefactFile, pullArtefactType, pullDeviceIdentifierFile, pullConvertDeviceIdentifier)
+		err := al.PullArtefact(shared.AssetLinkEndpoint, pullJobId, pullArtefactFile, pullArtefactType, pullDeviceIdentifierFile, pullConvertDeviceIdentifier)
+		if err != nil {
+			log.Fatal().Err(err).Msg("Failed to pull artefact")
+		}
 	},
 }
 

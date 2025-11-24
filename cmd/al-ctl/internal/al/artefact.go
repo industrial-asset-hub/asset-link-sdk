@@ -54,18 +54,18 @@ func artefactReadDeviceIdentifier(deviceIdentifierFile string, convertDeviceIden
 	return deviceIdentifierBlob, nil
 }
 
-func PushArtefact(endpoint string, jobId string, artefactFile string, artefactType string, deviceIdentifierFile string, convertDeviceIdentifier bool) {
+func PushArtefact(endpoint string, jobId string, artefactFile string, artefactType string, deviceIdentifierFile string, convertDeviceIdentifier bool) error {
 	log.Info().Str("Endpoint", endpoint).Str("Job Identifier", jobId).Str("Artefact File", artefactFile).Str("Artefact Type", artefactType).
 		Str("Device Identifier File", deviceIdentifierFile).Bool("Convert Device Identifier", convertDeviceIdentifier).Msg("Pushing Artefact")
 
 	deviceIdentifier, err := artefactReadDeviceIdentifier(deviceIdentifierFile, convertDeviceIdentifier)
 	if err != nil {
-		log.Fatal().Err(err).Msg("Failed to push artefact")
+		return err
 	}
 
 	artefactMetaData, err := client.ArtefactCreateMetadata(jobId, deviceIdentifier, artefactType)
 	if err != nil {
-		log.Fatal().Err(err).Msg("Failed to push artefact")
+		return err
 	}
 
 	conn := shared.GrpcConnection(endpoint)
@@ -75,31 +75,31 @@ func PushArtefact(endpoint string, jobId string, artefactFile string, artefactTy
 	ctx := context.Background()
 	stream, err := apiClient.PushArtefact(ctx)
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to push artefact")
-		return
+		return err
 	}
 
 	handler := NewStatusUpdateHandler(jobId)
 	artefactTransmitter := client.NewArtefactTransmitter(stream, artefactFile, artefactMetaData, handler)
 	err = artefactTransmitter.HandleInteraction()
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to push artefact")
-		return
+		return err
 	}
+
+	return nil
 }
 
-func PullArtefact(endpoint string, jobId string, artefactFile string, artefactType string, deviceIdentifierFile string, convertDeviceIdentifier bool) {
+func PullArtefact(endpoint string, jobId string, artefactFile string, artefactType string, deviceIdentifierFile string, convertDeviceIdentifier bool) error {
 	log.Info().Str("Endpoint", endpoint).Str("Job Identifier", jobId).Str("Artefact File", artefactFile).Str("Artefact Type", artefactType).
 		Str("Device Identifier File", deviceIdentifierFile).Bool("Convert Device Identifier", convertDeviceIdentifier).Msg("Pulling Artefact")
 
 	deviceIdentifier, err := artefactReadDeviceIdentifier(deviceIdentifierFile, convertDeviceIdentifier)
 	if err != nil {
-		log.Fatal().Err(err).Msg("Failed to pull artefact")
+		return err
 	}
 
 	artefactMetaData, err := client.ArtefactCreateMetadata(jobId, deviceIdentifier, artefactType)
 	if err != nil {
-		log.Fatal().Err(err).Msg("Failed to pull artefact")
+		return err
 	}
 
 	conn := shared.GrpcConnection(endpoint)
@@ -109,31 +109,31 @@ func PullArtefact(endpoint string, jobId string, artefactFile string, artefactTy
 	ctx := context.Background()
 	stream, err := apiClient.PullArtefact(ctx, artefactMetaData)
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to pull artefact")
-		return
+		return err
 	}
 
 	handler := NewStatusUpdateHandler(jobId)
 	artefactReceiver := client.NewArtefactReceiver(stream, artefactFile, artefactMetaData, handler)
 	err = artefactReceiver.HandleInteraction()
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to pull artefact")
-		return
+		return err
 	}
+
+	return nil
 }
 
-func PrepareUpdate(endpoint string, jobId string, artefactFile string, artefactType string, deviceIdentifierFile string, convertDeviceIdentifier bool) {
+func PrepareUpdate(endpoint string, jobId string, artefactFile string, artefactType string, deviceIdentifierFile string, convertDeviceIdentifier bool) error {
 	log.Info().Str("Endpoint", endpoint).Str("Job Identifier", jobId).Str("Artefact File", artefactFile).Str("Artefact Type", artefactType).
 		Str("Device Identifier File", deviceIdentifierFile).Bool("Convert Device Identifier", convertDeviceIdentifier).Msg("Preparing Update")
 
 	deviceIdentifier, err := artefactReadDeviceIdentifier(deviceIdentifierFile, convertDeviceIdentifier)
 	if err != nil {
-		log.Fatal().Err(err).Msg("Failed to prepare update")
+		return err
 	}
 
 	artefactMetaData, err := client.ArtefactCreateMetadata(jobId, deviceIdentifier, artefactType)
 	if err != nil {
-		log.Fatal().Err(err).Msg("Failed to prepare update")
+		return err
 	}
 
 	conn := shared.GrpcConnection(endpoint)
@@ -143,31 +143,31 @@ func PrepareUpdate(endpoint string, jobId string, artefactFile string, artefactT
 	ctx := context.Background()
 	stream, err := apiClient.PrepareUpdate(ctx)
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to prepare update")
-		return
+		return err
 	}
 
 	handler := NewStatusUpdateHandler(jobId)
 	artefactTransmitter := client.NewArtefactTransmitter(stream, artefactFile, artefactMetaData, handler)
 	err = artefactTransmitter.HandleInteraction()
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to prepare update")
-		return
+		return err
 	}
+
+	return nil
 }
 
-func ActivateUpdate(endpoint string, jobId string, artefactFile string, artefactType string, deviceIdentifierFile string, convertDeviceIdentifier bool) {
+func ActivateUpdate(endpoint string, jobId string, artefactFile string, artefactType string, deviceIdentifierFile string, convertDeviceIdentifier bool) error {
 	log.Info().Str("Endpoint", endpoint).Str("Job Identifier", jobId).Str("Artefact File", artefactFile).Str("Artefact Type", artefactType).
 		Str("Device Identifier File", deviceIdentifierFile).Bool("Convert Device Identifier", convertDeviceIdentifier).Msg("Activating Update")
 
 	deviceIdentifier, err := artefactReadDeviceIdentifier(deviceIdentifierFile, convertDeviceIdentifier)
 	if err != nil {
-		log.Fatal().Err(err).Msg("Failed to activate update")
+		return err
 	}
 
 	artefactMetaData, err := client.ArtefactCreateMetadata(jobId, deviceIdentifier, artefactType)
 	if err != nil {
-		log.Fatal().Err(err).Msg("Failed to activate update")
+		return err
 	}
 
 	conn := shared.GrpcConnection(endpoint)
@@ -177,31 +177,31 @@ func ActivateUpdate(endpoint string, jobId string, artefactFile string, artefact
 	ctx := context.Background()
 	stream, err := apiClient.ActivateUpdate(ctx)
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to activate update")
-		return
+		return err
 	}
 
 	handler := NewStatusUpdateHandler(jobId)
 	artefactTransmitter := client.NewArtefactTransmitter(stream, artefactFile, artefactMetaData, handler)
 	err = artefactTransmitter.HandleInteraction()
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to activate update")
-		return
+		return err
 	}
+
+	return nil
 }
 
-func CancelUpdate(endpoint string, jobId string, artefactType string, deviceIdentifierFile string, convertDeviceIdentifier bool) {
+func CancelUpdate(endpoint string, jobId string, artefactType string, deviceIdentifierFile string, convertDeviceIdentifier bool) error {
 	log.Info().Str("Endpoint", endpoint).Str("Job Identifier", jobId).Str("Artefact Type", artefactType).
 		Str("Device Identifier File", deviceIdentifierFile).Bool("Convert Device Identifier", convertDeviceIdentifier).Msg("Cancelling Update")
 
 	deviceIdentifier, err := artefactReadDeviceIdentifier(deviceIdentifierFile, convertDeviceIdentifier)
 	if err != nil {
-		log.Fatal().Err(err).Msg("Failed to cancel update")
+		return err
 	}
 
 	artefactMetaData, err := client.ArtefactCreateMetadata(jobId, deviceIdentifier, artefactType)
 	if err != nil {
-		log.Fatal().Err(err).Msg("Failed to cancel update")
+		return err
 	}
 
 	conn := shared.GrpcConnection(endpoint)
@@ -211,15 +211,15 @@ func CancelUpdate(endpoint string, jobId string, artefactType string, deviceIden
 	ctx := context.Background()
 	stream, err := apiClient.CancelUpdate(ctx, artefactMetaData)
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to cancel update")
-		return
+		return err
 	}
 
 	handler := NewStatusUpdateHandler(jobId)
 	statusReceiver := client.NewStatusReceiver(stream, handler)
 	err = statusReceiver.HandleInteraction()
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to cancel update")
-		return
+		return err
 	}
+
+	return nil
 }
