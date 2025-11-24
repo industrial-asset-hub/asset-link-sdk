@@ -10,6 +10,7 @@ package artefacts
 import (
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/al"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/shared"
+	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 )
 
@@ -25,7 +26,10 @@ var ArtefactPushCommand = &cobra.Command{
 	Short: "Push artefact to device",
 	Long:  `Pushes an artefact of a specific type to the specified device`,
 	Run: func(cmd *cobra.Command, args []string) {
-		al.PushArtefact(shared.AssetLinkEndpoint, pushJobId, pushArtefactFile, pushArtefactType, pushDeviceIdentifierFile, pushConvertDeviceIdentifier)
+		err := al.PushArtefact(shared.AssetLinkEndpoint, pushJobId, pushArtefactFile, pushArtefactType, pushDeviceIdentifierFile, pushConvertDeviceIdentifier)
+		if err != nil {
+			log.Fatal().Err(err).Msg("Failed to push artefact")
+		}
 	},
 }
 
