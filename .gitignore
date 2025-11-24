@@ -9,5 +9,7 @@ cookiecutter-project-template/{{ cookiecutter.al_project }}/go.mod
 cookiecutter-project-template/{{ cookiecutter.al_project }}/vendor/
 cookiecutter-project-template/{{ cookiecutter.al_project }}/cdm-dcd-sdk/
 cookiecutter-test/
-
+.autotest
+asset_link.log
 .idea/*
+

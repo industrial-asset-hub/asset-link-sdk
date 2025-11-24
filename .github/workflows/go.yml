@@ -49,6 +49,21 @@ jobs:
         with:
           version: ${{ env.GO_LINT_VERSION }}
 
+  autotest:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        feature: ["discover", "identifiers"]
+    steps:
+      - uses: actions/checkout@v6
+      - name: Prepare Environment
+        uses: ./.github/actions/prepare
+      - name: Install jq
+        run: sudo apt-get install -y jq
+      - name: Run E2E Tests (${{ matrix.feature }})
+        run:  ./autotest.sh ${{ matrix.feature }}
+
   test:
     runs-on: ubuntu-latest
     steps:
@@ -59,7 +74,6 @@ jobs:
         run: |
           mkdir coverage
           go test ./... -coverprofile=coverage/coverage.out -covermode=atomic -v
-
 
   check:
     runs-on: ubuntu-latest
@@ -156,7 +170,16 @@ jobs:
 
   release-sdk:
     runs-on: ubuntu-latest
-    needs: [reuse, generate, lint, test, check, build-sdk, build-asset-link, generate-sbom]
+    needs:
+      - reuse
+      - generate
+      - lint
+      - test
+      - check
+      - build-sdk
+      - build-asset-link
+      - generate-sbom
+      - autotest
     if: github.event_name != 'pull_request' && github.ref_type == 'tag'
     steps:
       - uses: actions/checkout@v6
@@ -181,7 +204,16 @@ jobs:
 
   release-sdk-dry-run:
     runs-on: ubuntu-latest
-    needs: [reuse, generate, lint, test, check, build-sdk, build-asset-link, generate-sbom]
+    needs:
+      - reuse
+      - generate
+      - lint
+      - test
+      - check
+      - build-sdk
+      - build-asset-link
+      - generate-sbom
+      - autotest
     if: github.event_name == 'pull_request' || github.ref_type != 'tag'
     steps:
       - uses: actions/checkout@v6
