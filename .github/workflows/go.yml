@@ -75,6 +75,17 @@ jobs:
           mkdir coverage
           go test ./... -coverprofile=coverage/coverage.out -covermode=atomic -v
 
+  shellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Prepare Environment
+        uses: ./.github/actions/prepare
+      - name: Install ShellCheck
+        run: sudo apt-get install -y shellcheck
+      - name: Run ShellCheck
+        run: shellcheck autotest.sh
+
   check:
     runs-on: ubuntu-latest
     steps:
@@ -176,6 +187,7 @@ jobs:
       - lint
       - test
       - check
+      - shellcheck
       - build-sdk
       - build-asset-link
       - generate-sbom
@@ -210,6 +222,7 @@ jobs:
       - lint
       - test
       - check
+      - shellcheck
       - build-sdk
       - build-asset-link
       - generate-sbom
