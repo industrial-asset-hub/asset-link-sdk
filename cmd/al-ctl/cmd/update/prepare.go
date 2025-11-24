@@ -10,6 +10,7 @@ package update
 import (
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/al"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/shared"
+	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 )
 
@@ -25,7 +26,10 @@ var UpdatePrepareCommand = &cobra.Command{
 	Short: "Prepare update on device",
 	Long:  `Prepares a firmware/software update on the specified device`,
 	Run: func(cmd *cobra.Command, args []string) {
-		al.PrepareUpdate(shared.AssetLinkEndpoint, prepareJobId, prepareArtefactFile, prepareArtefactType, prepareDeviceIdentifierFile, prepareConvertDeviceIdentifier)
+		err := al.PrepareUpdate(shared.AssetLinkEndpoint, prepareJobId, prepareArtefactFile, prepareArtefactType, prepareDeviceIdentifierFile, prepareConvertDeviceIdentifier)
+		if err != nil {
+			log.Fatal().Err(err).Msg("Failed to prepare update")
+		}
 	},
 }
 
