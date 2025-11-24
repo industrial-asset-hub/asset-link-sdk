@@ -8,6 +8,8 @@
 package update
 
 import (
+	"github.com/rs/zerolog/log"
+
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/al"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/shared"
 	"github.com/spf13/cobra"
@@ -24,7 +26,10 @@ var UpdateCancelCommand = &cobra.Command{
 	Short: "Cancel update on device",
 	Long:  `Cancels a firmware/software update on the specified device (after the repare step)`,
 	Run: func(cmd *cobra.Command, args []string) {
-		al.CancelUpdate(shared.AssetLinkEndpoint, cancelJobId, cancelArtefactType, cancelDeviceIdentifierFile, cancelConvertDeviceIdentifier)
+		err := al.CancelUpdate(shared.AssetLinkEndpoint, cancelJobId, cancelArtefactType, cancelDeviceIdentifierFile, cancelConvertDeviceIdentifier)
+		if err != nil {
+			log.Fatal().Err(err).Msg("Failed to cancel update")
+		}
 	},
 }
 
