@@ -19,7 +19,7 @@ import (
 )
 
 func GetIdentifiers(endpoint string, requestFilePath string) (*generated.GetIdentifiersResponse, error) {
-	log.Info().Msg("Running Test for GetIdentifiers")
+	log.Info().Msg("Running GetIdentifiers")
 	identifiersReq, err := createIdentifiersRequestFromInputFile(requestFilePath)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to create GetIdentifiersRequest from file")
@@ -27,10 +27,10 @@ func GetIdentifiers(endpoint string, requestFilePath string) (*generated.GetIden
 	}
 	identifiers := GetIdentifiersRequest(identifiersReq, shared.AssetLinkEndpoint)
 	if identifiers == nil {
-		log.Error().Msg("get-identifiers test failed")
+		log.Error().Msg("Failed to get identifiers")
 		return nil, err
 	}
-	log.Info().Msgf("Identifiers: %v\n", identifiers)
+	log.Debug().Msgf("Identifiers: %v\n", identifiers)
 
 	return identifiers, nil
 }
