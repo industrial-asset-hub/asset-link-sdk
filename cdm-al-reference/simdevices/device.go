@@ -11,6 +11,7 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"os"
 	"strings"
 	"sync"
 	"testing"
@@ -481,6 +482,11 @@ func containsIpInRange(ipRange string, actualIPs []string) bool {
 
 func simulateCostlyOperation(duration time.Duration) {
 	if testing.Testing() {
+		return
+	}
+
+	ciValue, ciExists := os.LookupEnv("CI")
+	if ciExists && ciValue == "true" {
 		return
 	}
 

@@ -9,6 +9,7 @@ package assets
 
 import (
 	"encoding/json"
+
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/dataio"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/fileformat"
 	generated "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
@@ -48,6 +49,13 @@ var ConvertCmd = &cobra.Command{
 			for _, device := range protoMsg.Devices {
 				device := model.ConvertFromDiscoveredDevice(device, "URI")
 				convertedDevices = append(convertedDevices, device)
+			}
+
+			for _, respError := range protoMsg.Errors {
+				log.Warn().Int32("Result Code", respError.ResultCode).
+					Str("Description", respError.Description).
+					Interface("Source", respError.Source).
+					Msg("Dropped discovery error")
 			}
 		}
 

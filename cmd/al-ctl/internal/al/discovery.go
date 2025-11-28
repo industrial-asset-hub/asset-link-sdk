@@ -61,6 +61,7 @@ func Discover(endpoint string, discoveryFile string) ([]*generated.DiscoverRespo
 
 	discoveryResponses := make([]*generated.DiscoverResponse, 0)
 	deviceCount := 0
+	errorCount := 0
 	for {
 		resp, err := stream.Recv()
 
@@ -75,12 +76,25 @@ func Discover(endpoint string, discoveryFile string) ([]*generated.DiscoverRespo
 
 		log.Trace().Interface("response", resp).Msg("")
 
-		deviceCount += len(resp.Devices)
-		log.Debug().Int("Number of assets", len(resp.Devices)).Msg("Received response")
 		discoveryResponses = append(discoveryResponses, resp)
+
+		errorCount += len(resp.Errors)
+		deviceCount += len(resp.Devices)
+
+		log.Debug().Int("Assets", len(resp.Devices)).
+			Int("Discovery errors", len(resp.Errors)).
+			Msg("Received response")
+
+		for _, respError := range resp.Errors {
+			log.Warn().Int32("Result Code", respError.ResultCode).
+				Str("Description", respError.Description).
+				Interface("Source", respError.Source).
+				Msg("Received discovery error")
+		}
 	}
-	log.Info().Int("Discovery responses received", len(discoveryResponses)).
-		Int("Included assets", deviceCount).
+	log.Info().Int("Discovery responses", len(discoveryResponses)).
+		Int("Assets", deviceCount).
+		Int("Discovery errors", errorCount).
 		Msg("Received all responses")
 	return discoveryResponses, nil
 }
