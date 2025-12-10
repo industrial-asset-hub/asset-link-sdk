@@ -48,7 +48,7 @@ Examples of these commands are described below:
 # To run discovery on the Asset Link
 $ al-ctl assets discover -e localhost:8081 [-d <discovery-config>] [-o <output-file>]
 
-# Example: al-ctl assets discover -e localhost:8081 
+# Example: al-ctl assets discover -e localhost:8081 -d ./misc/discovery.json
 ```
 
 ```bash
@@ -62,7 +62,7 @@ $ al-ctl assets convert -e localhost:8081 -i <input-file> -o <output-file>
 # To run get identifiers on the Asset Link
 $ al-ctl assets identifier -e localhost:8081 -p <identifiers-request-file-path> -o <output-file>
 
-# Example: al-ctl assets identifier -e localhost:8081 -p ./identifier_request.json -o test-asset.json
+# Example: al-ctl assets identifier -e localhost:8081 -p ./misc/identifier_request.json -o test-asset.json
 ```
 
 ## Command: 'test'
@@ -102,7 +102,7 @@ $ al-ctl test api -e localhost:8081 --service-name discovery [-d <discovery-conf
 $ al-ctl test api -e localhost:8081 --service-name identifiers -p <identifiers-request-file-path>
 # The Asset Link must be running on the provided address, for example here: localhost:8081 and the Asset Link must implement Get Identifiers API. Also provide the identifier request file path, default is empty.
 
-# Example: al-ctl test api -e localhost:8081 --service-name identifiers -p ./identifier_request.json
+# Example: al-ctl test api -e localhost:8081 --service-name identifiers -p ./misc/identifier_request.json
 ```
 
 ```bash
@@ -112,7 +112,7 @@ $ al-ctl test api -e localhost:8081 --service-name identifiers -p <identifiers-r
 
 # SPECIAL NOTE: Depending on the asset link implementation of Get Identifiers, the asset returned may be incomplete. Hence, the validation may fail.
 
-# Example: al-ctl test api -e localhost:8081 --service-name identifiers -p ./identifier_request.json -v --base-schema-path ./iah_base-v0.12.0.yaml --target-class Asset
+# Example: al-ctl test api -e localhost:8081 --service-name identifiers -p ./misc/identifier_request.json -v --base-schema-path ./iah_base-v0.12.0.yaml --target-class Asset
 ```
 
 ```bash
@@ -143,5 +143,5 @@ Note: LinkML is used to validate assets against the schema.
 # asset-link-endpoint is a required field in order to run this test
 $ al-ctl test registration -e <asset-link-endpoint> -r <grpc-endpoint> -f <registry-file-path>
 
-#Example: al-ctl test registration -r grpc-server-registry:50051 -f ./registry.json
+#Example: al-ctl test registration -r grpc-server-registry:50051 -f ./misc/registry.json
 ```
