@@ -174,7 +174,7 @@ jobs:
       - name: Generate SBOM
         run: cyclonedx-gomod mod -licenses -type library -test -json -output assetlinksdk.cyclonedx.sbom.json
       - name: Upload SBOM
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: assetlinksdk.cyclonedx.sbom.json
           path: assetlinksdk.cyclonedx.sbom.json
