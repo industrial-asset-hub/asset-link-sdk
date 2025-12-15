@@ -9,6 +9,13 @@ This package provides an easy-to-use software development kit (SDK) for a device
 
 It contains everything you need to set up your own Asset Link.
 
+## Context
+
+Asset Links are device class drivers used to interact with Operational Technology (OT) assets using different protocols supported by the assets. They act as protocol adapters that enable standardized communication between the [Asset Gateway](https://github.com/industrial-asset-hub/asset-gateway) and diverse OT equipment, regardless of the underlying communication protocol (e.g., OPC UA, Modbus, PROFINET, or proprietary protocols). 
+Each Asset Link is deployed as a gRPC server that registers with the gateway, exposing capabilities such as asset discovery and asset management operations. This modular architecture allows Device Builders to extend gateway functionality by creating custom Asset Links tailored to specific asset types or protocols without modifying the core gateway implementation.
+
+![](docs/images/context-diagram.drawio.png)
+
 ## Documentation
 
 The following documentation is available in [docs/](docs/):

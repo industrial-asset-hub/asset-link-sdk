@@ -22,7 +22,8 @@ $ cookiecutter https://github.com/industrial-asset-hub/asset-link-sdk.git
 [7/8] company_url (https://www.device-builder.local): https://www.device-builder.local
 [8/8] year (2024): 2024
 ```
-- [Bootstrapping Steps](https://github.com/industrial-asset-hub/asset-link-sdk/tree/main/docs/images/bootstrap-steps.gif)
+
+![](images/bootstrap-steps.gif)
 
 **Note: As a recommendation, the Asset Link naming should include the identifier “Asset Link”. This ensures a consistent and recognisable naming convention for created Asset Link. For example: Custom Asset Link, Default Asset Link.**
 
