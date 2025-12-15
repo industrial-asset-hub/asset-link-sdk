@@ -33,11 +33,18 @@ runs:
     - name: Set Environment Variables
       shell: bash
       run: |
-          echo "OS_NAME=${{'{{'}} runner.os {{'}}'}}" >> $GITHUB_ENV
+          # change the version as needed (potentially requires adjustments to the al-ctl calls in the tests script)
+          export ALCTLVERSION=v3.4.3
+          export OS_NAME=${{'{{'}} runner.os {{'}}'}}
           if [ "${{'{{'}} runner.arch {{'}}'}}" == "X64" ]; then
-            echo "ARCH_NAME=x86_64" >> $GITHUB_ENV
+            export ARCH_NAME=x86_64
           elif [ "${{'{{'}} runner.arch {{'}}'}}" == "ARM64" ]; then
-            echo "ARCH_NAME=arm64" >> $GITHUB_ENV
+            export ARCH_NAME=arm64
           else
-            echo "ARCH_NAME=${{'{{'}} runner.arch {{'}}'}}" >> $GITHUB_ENV
+            export ARCH_NAME=${{'{{'}} runner.arch {{'}}'}}
           fi
+          echo "Downloading al-ctl for OS: $OS_NAME, ARCH: $ARCH_NAME, VERSION: $ALCTLVERSION"
+          curl -L -o al-ctl_${OS_NAME}_${ARCH_NAME}.tar.gz https://github.com/industrial-asset-hub/asset-link-sdk/releases/download/${ALCTLVERSION}/al-ctl_${OS_NAME}_${ARCH_NAME}.tar.gz
+          tar -xf al-ctl_${OS_NAME}_${ARCH_NAME}.tar.gz
+          chmod +x al-ctl
+
