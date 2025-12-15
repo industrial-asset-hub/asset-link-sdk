@@ -91,9 +91,9 @@ jobs:
           username: ${{'{{'}} github.actor {{'}}'}}
           password: ${{'{{'}} secrets.GITHUB_TOKEN {{'}}'}}
       - name: Pull gRPC Server Registry Image
-        run: docker pull ghcr.io/industrial-asset-hub/iah/grpc-server-registry:0.1.6
+        run: docker pull ghcr.io/industrial-asset-hub/iah/grpc-server-registry:0.1.14
       - name: Run grpc server registry
-        run: docker run -d --name grpc-server-registry -p 50051:50051 ghcr.io/industrial-asset-hub/iah/grpc-server-registry:0.1.6
+        run: docker run -d --name grpc-server-registry -p 50051:50051 ghcr.io/industrial-asset-hub/iah/grpc-server-registry:0.1.14
       - name: Wait for registry
         run: |
           echo "Waiting for gRPC registry to start..."
