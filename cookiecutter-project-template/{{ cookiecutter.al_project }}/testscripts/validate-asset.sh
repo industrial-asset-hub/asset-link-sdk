@@ -6,15 +6,10 @@
 
 nohup go run -tags webserver main.go &
 bash ./testscripts/wait_till_al_is_started.sh
+bash ./testscripts/get_command_line_tool.sh
 
 ASSET_ENDPOINT_PORT=${ASSET_ENDPOINT_PORT:-localhost:8081}
 
-echo "OS_NAME: ${OS_NAME}"
-echo "ARCH_NAME: ${ARCH_NAME}"
-
-curl -L -o al-ctl_${OS_NAME}_${ARCH_NAME}.tar.gz https://github.com/industrial-asset-hub/asset-link-sdk/releases/download/v3.4.3/al-ctl_${OS_NAME}_${ARCH_NAME}.tar.gz
-tar -xf al-ctl_${OS_NAME}_${ARCH_NAME}.tar.gz
-chmod +x al-ctl
 
 # Download the base schema for validation
 curl -o iah_base.yaml https://raw.githubusercontent.com/industrial-asset-hub/asset-link-sdk/main/model/iah_base_v0.12.0.yaml
