@@ -55,7 +55,7 @@ jobs:
       - name: Prepare Environment
         uses: ./.github/actions/prepare
       - name: Run Test Discovery
-        run: bash ./testscripts/discovery.sh
+        run: bash ./test-asset-link.sh discovery
 
   test-api:
     runs-on: ubuntu-latest
@@ -64,7 +64,7 @@ jobs:
       - name: Prepare Environment
         uses: ./.github/actions/prepare
       - name: Run Test Api
-        run: bash ./testscripts/test-api.sh
+        run: bash ./test-asset-link.sh discovery-api
 
   validate-asset:
     runs-on: ubuntu-latest
@@ -76,7 +76,7 @@ jobs:
         run: |
             pip install --upgrade argcomplete
             pip install linkml-validator
-            bash ./testscripts/validate-asset.sh
+            bash ./test-asset-link.sh validate-asset
 
   test-registration:
     runs-on: ubuntu-latest
@@ -100,7 +100,7 @@ jobs:
           timeout 30s bash -c 'until nc -z localhost 50051; do sleep 10; done'
           echo "gRPC registry is up and running."
       - name: Run Test Registration
-        run: bash ./testscripts/registration.sh
+        run: bash ./test-asset-link.sh registration
 
   release:
     runs-on: ubuntu-latest
