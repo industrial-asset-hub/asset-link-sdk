@@ -55,7 +55,7 @@ jobs:
       - name: Prepare Environment
         uses: ./.github/actions/prepare
       - name: Run Test Discovery
-        run: bash ./test-asset-link.sh discovery
+        run: bash ./test-asset-link.sh discover
 
   test-api:
     runs-on: ubuntu-latest
