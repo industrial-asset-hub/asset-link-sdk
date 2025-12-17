@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# SPDX-FileCopyrightText: 2025 Siemens AG
+# SPDX-FileCopyrightText: {{cookiecutter.year}} {{cookiecutter.company}}
 #
 # SPDX-License-Identifier: MIT
 
@@ -110,6 +110,7 @@ prepare(){
     testcase_ok "Setup" "Preparing test environment"
     trap cleanup EXIT
     # check if al-ctl is available
+    # For running locally, make sure to download al-ctl from the releases page for required version
     if ! command -v ./al-ctl &> /dev/null; then
         fatal "al-ctl could not be found, please build it first"
     fi
