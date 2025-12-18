@@ -15,23 +15,8 @@ Each Asset Link is deployed as a gRPC server that registers with the gateway, ex
 The SDK is designed to create a new Asset Link, you need to implement the interfaces for the features that the particular Asset Link is intended to provide.
 Currently, two interfaces are supported:
 
-**Discovery Interface** (enables device discovery and consists of three functions):
-
-1. `Discover`: This interface handles device discovery requests. It ensures only one discovery job runs at a time, retrieves option and filter settings from the provided configuration, performs device discovery logic, and publishes discovered devices using the provided data publisher.
-
-2. `GetSupportedOptions`: This interface returns a list of supported discovery options, describing which configuration options can be used during device discovery.
-**Example:** `interface to scan`, `timeout`
-
-3. `GetSupportedFilters`: This interface returns a list of supported discovery filters, describing which filter criteria can be applied to limit or customize the discovery process.
-**Example:** `IP`, `MAC`, `device type`
-
-Once the interfaces are implemented, the specific Asset Link uses the `assetLinkBuilder` to construct an `AssetLink` with
-the implemented features.
-On `AssetLink.Start()`, the Asset Link will start the grpc server, allowing device management to interact with it.
-
-**Identifiers Interface** (enables getting identifiers of a device and consists of one function):
-
-1. `GetIdentifiers`: This interface retrieves identifiers for a specific device based on paramater_json using credentials, performs logic to obtain the identifiers, and returns them in a structured format.
+**Discovery Interface** (enables device discovery and consists of three functions: Discover, GetSupportedOptions, GetSupportedFilters)
+**Identifiers Interface** (enables getting identifiers of a device and consists of one function: GetIdentifiers)
 
 ### Pre-requisites
 

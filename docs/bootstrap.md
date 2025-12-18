@@ -54,10 +54,34 @@ discovery is started via the gRPC interface or the CLI.
 > Please ensure that the port is protected from external access.
 
 ## Handler Implementation and Interfaces
-To implement your own discovery logic, open the **handler/handler.go** file. This Go module contains the core implementations for Asset Link functionality, including device discovery and configuration handling. You can customize functions such as `Discover`, `GetIdentifiers`, `GetSupportedOptions` and `GetSupportedFilters` to fit your specific requirements for actual device discovery and to retrieve information about the discovery parameters that are supported by the specific Asset Link.
-- [Discovery Interface](https://github.com/industrial-asset-hub/asset-link-sdk/tree/main/docs/overview.md)
+To implement your own discovery logic, open the **handler/handler.go** file. This Go module contains the core implementations for Asset Link functionality, including device discovery and configuration handling.
 
-Or, for even faster results, use [GoReleaser](https://goreleaser.com/), which generates binaries for Linux/Windows and
+Below are the supported interfaces and their details.
+
+**Discovery Interface** (enables device discovery and consists of three functions):
+
+1. `Discover`: This interface handles device discovery requests. It ensures only one discovery job runs at a time, retrieves option and filter settings from the provided configuration, performs device discovery logic, and publishes discovered devices using the provided data publisher.
+
+2. `GetSupportedOptions`: This interface returns a list of supported discovery options, describing which configuration options can be used during device discovery.
+**Example:** `interface to scan`, `timeout`
+
+3. `GetSupportedFilters`: This interface returns a list of supported discovery filters, describing which filter criteria can be applied to limit or customize the discovery process.
+**Example:** `IP`, `MAC`, `device type`
+
+Once the interfaces are implemented, the specific Asset Link uses the `assetLinkBuilder` to construct an `AssetLink` with
+the implemented features.
+On `AssetLink.Start()`, the Asset Link will start the grpc server, allowing device management to interact with it.
+
+**Identifiers Interface** (enables getting identifiers of a device and consists of one function):
+
+1. `GetIdentifiers`: This interface retrieves identifiers for a specific device based on paramater_json using credentials, performs logic to obtain the identifiers, and returns them in a structured format.
+
+You can customize functions such as `Discover`, `GetIdentifiers`, `GetSupportedOptions` and `GetSupportedFilters` to fit your specific requirements for actual device discovery and to retrieve information about the discovery parameters that are supported by the specific Asset Link. 
+
+## Distribution and Deployment
+
+Once you have implemented your handler logic, you can package and distribute it using GoReleaser.
+For even faster results, use [GoReleaser](https://goreleaser.com/), which generates binaries for Linux/Windows and
 various architectures, as well as a Debian package.
 This package contains the binary, including a systemd service, that starts the driver immediately after the name.
 The name of the systemd service is the same as that of the Asset Link.
