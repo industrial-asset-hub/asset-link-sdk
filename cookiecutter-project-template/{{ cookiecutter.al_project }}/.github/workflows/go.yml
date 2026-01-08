@@ -55,7 +55,7 @@ jobs:
       - name: Prepare Environment
         uses: ./.github/actions/prepare
       - name: Run Test Discovery
-        run: bash ./testscripts/discovery.sh
+        run: bash ./test-asset-link.sh discover
 
   test-api:
     runs-on: ubuntu-latest
@@ -64,7 +64,7 @@ jobs:
       - name: Prepare Environment
         uses: ./.github/actions/prepare
       - name: Run Test Api
-        run: bash ./testscripts/test-api.sh
+        run: bash ./test-asset-link.sh discovery-api
 
   validate-asset:
     runs-on: ubuntu-latest
@@ -76,7 +76,7 @@ jobs:
         run: |
             pip install --upgrade argcomplete
             pip install linkml-validator
-            bash ./testscripts/validate-asset.sh
+            bash ./test-asset-link.sh validate-asset
 
   test-registration:
     runs-on: ubuntu-latest
@@ -91,16 +91,16 @@ jobs:
           username: ${{'{{'}} github.actor {{'}}'}}
           password: ${{'{{'}} secrets.GITHUB_TOKEN {{'}}'}}
       - name: Pull gRPC Server Registry Image
-        run: docker pull ghcr.io/industrial-asset-hub/iah/grpc-server-registry:0.1.6
+        run: docker pull ghcr.io/industrial-asset-hub/iah/grpc-server-registry:0.1.14
       - name: Run grpc server registry
-        run: docker run -d --name grpc-server-registry -p 50051:50051 ghcr.io/industrial-asset-hub/iah/grpc-server-registry:0.1.6
+        run: docker run -d --name grpc-server-registry -p 50051:50051 ghcr.io/industrial-asset-hub/iah/grpc-server-registry:0.1.14
       - name: Wait for registry
         run: |
           echo "Waiting for gRPC registry to start..."
           timeout 30s bash -c 'until nc -z localhost 50051; do sleep 10; done'
           echo "gRPC registry is up and running."
       - name: Run Test Registration
-        run: bash ./testscripts/registration.sh
+        run: bash ./test-asset-link.sh registration
 
   release:
     runs-on: ubuntu-latest
