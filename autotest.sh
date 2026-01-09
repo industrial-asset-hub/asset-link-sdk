@@ -28,7 +28,7 @@ readonly SCRIPT_PATH=$(dirname "$SCRIPT_FILENAME")
 readonly CI=${CI:-false} # not yet used in this script directly
 
 # retrieve/determine asset link and al-ctl paths
-readonly PROJECT_PATH=${PROJECT_PATH:-"$SCRIPT_PATH/"}
+readonly PROJECT_PATH=${PROJECT_PATH:-"$SCRIPT_PATH"}
 readonly ASSET_LINK_SRC="$PROJECT_PATH/cdm-al-reference/main.go"
 readonly ALCTL_SRC="$PROJECT_PATH/cmd/al-ctl/al-ctl.go"
 readonly AUTOTEST_PATH=${AUTOTEST_PATH:-"$SCRIPT_PATH/.autotest"}
@@ -71,7 +71,7 @@ success(){
     echof "$OUTPUT_GREEN" "$1"
 }
 
-header() {
+header(){
     echof "$OUTPUT_BOLD$OUTPUT_GREEN" "$1"
 }
 
