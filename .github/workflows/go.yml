@@ -15,7 +15,7 @@ permissions:
 env:
   GOPRIVATE: github.com/industrial-asset-hub
   GO_MINIMAL_VERSION: 1.24.9
-  GO_LINT_VERSION: v2.1
+  GO_LINT_VERSION: v2.8
   TEST_PROJECT: cookiecutter-test
   TEST_PROJECT_NAME: test-asset-link
   TEMPLATE_PATH: "cookiecutter-project-template/{{ cookiecutter.al_project }}"

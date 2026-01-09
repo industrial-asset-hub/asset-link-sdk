@@ -13,7 +13,7 @@ permissions:
   packages: write
 
 env:
-  GO_LINT_VERSION: v2.1
+  GO_LINT_VERSION: v2.8
   REGISTRY_IMAGE_URL: ghcr.io/industrial-asset-hub/iah/grpc-server-registry:0.1.14
 
 jobs:
