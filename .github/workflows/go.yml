@@ -19,6 +19,7 @@ env:
   TEST_PROJECT: cookiecutter-test
   TEST_PROJECT_NAME: test-asset-link
   TEMPLATE_PATH: "cookiecutter-project-template/{{ cookiecutter.al_project }}"
+  REGISTRY_IMAGE_URL: ghcr.io/industrial-asset-hub/iah/grpc-server-registry:0.1.14
 
 jobs:
   reuse:
@@ -162,7 +163,33 @@ jobs:
         with:
           version: ${{ env.GO_LINT_VERSION }}
           working-directory: ${{ env.TEST_PROJECT }}/${{ env.TEST_PROJECT_NAME }}/
-      - name: Test Goreleaser Config (dry-run)
+      - name: Build al-ctl Tool and Install LinkML
+        run: |
+          go build -o $TEST_PROJECT/$TEST_PROJECT_NAME/al-ctl ./cmd/al-ctl/al-ctl.go
+          pip install --upgrade argcomplete
+          pip install linkml-validator
+      - name: Login to Docker Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Pull gRPC Server Registry Image
+        run: docker pull ${{ env.REGISTRY_IMAGE_URL }}
+      - name: Run gRPC Server Registry
+        run: docker run -d --name grpc-server-registry -p 50051:50051 ${{ env.REGISTRY_IMAGE_URL }}
+      - name: Wait for gRPC Server Registry to Start
+        run: timeout 30s bash -c 'until nc -z localhost 50051; do sleep 10; done'
+      - name: Run Asset Link Test (discover)
+        run: $TEST_PROJECT/$TEST_PROJECT_NAME/test-asset-link.sh discover
+      - name: Run Asset Link Test (registration)
+        run: $TEST_PROJECT/$TEST_PROJECT_NAME/test-asset-link.sh registration
+      - name: Run Asset Link Test (validate-asset) -> allowed to fail
+        continue-on-error: true
+        run: $TEST_PROJECT/$TEST_PROJECT_NAME/test-asset-link.sh validate-asset
+      - name: Run Asset Link Test (discovery-api)
+        run: $TEST_PROJECT/$TEST_PROJECT_NAME/test-asset-link.sh discovery-api
+      - name: Test GoReleaser Config (dry-run)
         uses: goreleaser/goreleaser-action@v6
         with:
           distribution: goreleaser

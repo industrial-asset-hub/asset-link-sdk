@@ -96,13 +96,10 @@ jobs:
           password: ${{'{{'}} secrets.GITHUB_TOKEN {{'}}'}}
       - name: Pull gRPC Server Registry Image
         run: docker pull ${{'{{'}} env.REGISTRY_IMAGE_URL {{'}}'}}
-      - name: Run grpc server registry
+      - name: Run gRPC Server Registry
         run: docker run -d --name grpc-server-registry -p 50051:50051 ${{'{{'}} env.REGISTRY_IMAGE_URL {{'}}'}}
-      - name: Wait for registry
-        run: |
-          echo "Waiting for gRPC registry to start..."
-          timeout 30s bash -c 'until nc -z localhost 50051; do sleep 10; done'
-          echo "gRPC registry is up and running."
+      - name: Wait for gRPC Server Registry to Start
+        run: timeout 30s bash -c 'until nc -z localhost 50051; do sleep 10; done'
       - name: Run Test Registration
         run: bash ./test-asset-link.sh registration
 
