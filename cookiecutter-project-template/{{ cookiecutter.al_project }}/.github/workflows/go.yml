@@ -12,22 +12,26 @@ permissions:
   contents: write
   packages: write
 
+env:
+  GO_LINT_VERSION: v2.8
+  REGISTRY_IMAGE_URL: ghcr.io/industrial-asset-hub/iah/grpc-server-registry:0.1.14
+
 jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Prepare Environment
         uses: ./.github/actions/prepare
       - name: Run golangci-lint
-        uses: golangci/golangci-lint-action@v8
+        uses: golangci/golangci-lint-action@v9
         with:
-          version: v2.1
+          version: ${{'{{'}} env.GO_LINT_VERSION {{'}}'}}
 
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Prepare Environment
         uses: ./.github/actions/prepare
       - name: Build
@@ -42,7 +46,7 @@ jobs:
   unit-test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Prepare Environment
         uses: ./.github/actions/prepare
       - name: Run Unit Test
@@ -51,7 +55,7 @@ jobs:
   test-discovery:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Prepare Environment
         uses: ./.github/actions/prepare
       - name: Run Test Discovery
@@ -60,7 +64,7 @@ jobs:
   test-api:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Prepare Environment
         uses: ./.github/actions/prepare
       - name: Run Test Api
@@ -69,7 +73,7 @@ jobs:
   validate-asset:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Prepare Environment
         uses: ./.github/actions/prepare
       - name: Run Validate Asset
@@ -81,7 +85,7 @@ jobs:
   test-registration:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Prepare Environment
         uses: ./.github/actions/prepare
       - name: Login to Docker Registry
@@ -91,14 +95,11 @@ jobs:
           username: ${{'{{'}} github.actor {{'}}'}}
           password: ${{'{{'}} secrets.GITHUB_TOKEN {{'}}'}}
       - name: Pull gRPC Server Registry Image
-        run: docker pull ghcr.io/industrial-asset-hub/iah/grpc-server-registry:0.1.14
-      - name: Run grpc server registry
-        run: docker run -d --name grpc-server-registry -p 50051:50051 ghcr.io/industrial-asset-hub/iah/grpc-server-registry:0.1.14
-      - name: Wait for registry
-        run: |
-          echo "Waiting for gRPC registry to start..."
-          timeout 30s bash -c 'until nc -z localhost 50051; do sleep 10; done'
-          echo "gRPC registry is up and running."
+        run: docker pull ${{'{{'}} env.REGISTRY_IMAGE_URL {{'}}'}}
+      - name: Run gRPC Server Registry
+        run: docker run -d --name grpc-server-registry -p 50051:50051 ${{'{{'}} env.REGISTRY_IMAGE_URL {{'}}'}}
+      - name: Wait for gRPC Server Registry to Start
+        run: timeout 30s bash -c 'until nc -z localhost 50051; do sleep 10; done'
       - name: Run Test Registration
         run: bash ./test-asset-link.sh registration
 
@@ -107,7 +108,7 @@ jobs:
     needs: [lint, build, unit-test, test-discovery, test-api, test-registration]
     if: github.event_name != 'pull_request' && github.ref_type == 'tag'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Prepare Environment
         uses: ./.github/actions/prepare
       - name: Set up QEMU
@@ -132,7 +133,7 @@ jobs:
     needs: [lint, build, unit-test, test-discovery, test-api, test-registration]
     if: github.event_name == 'pull_request' || github.ref_type != 'tag'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Prepare Environment
         uses: ./.github/actions/prepare
       - name: Set up QEMU

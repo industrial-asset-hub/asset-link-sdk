@@ -17,7 +17,7 @@ import (
 )
 
 func TestDiscoverDevices(testConfig TestConfig) bool {
-	fmt.Println("Running Test for StartDiscovery")
+	fmt.Println("Running Test for Discover")
 	data, err := al.Discover(shared.AssetLinkEndpoint, testConfig.DiscoveryFile)
 	if err != nil {
 		log.Err(err).Msg("discovery test failed")
@@ -28,7 +28,7 @@ func TestDiscoverDevices(testConfig TestConfig) bool {
 }
 
 func TestCancelDiscovery(testConfig TestConfig) bool {
-	fmt.Println("Running Test for CancelDiscovery")
+	fmt.Println("Running Test for CancelDiscover")
 
 	if shared.TimeoutSeconds == 0 {
 		log.Fatal().Msg("CancelDiscovery can only be used with a specified timeout")

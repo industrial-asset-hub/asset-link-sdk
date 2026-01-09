@@ -19,7 +19,7 @@ runs:
     - name: Set up Go
       uses: actions/setup-go@v4
       with:
-        go-version: stable
+        go-version: ${{'{{'}} inputs.go-version {{'}}'}}
     - name: Install Dependencies
       shell: bash
       run: |
@@ -30,7 +30,7 @@ runs:
         go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.35.1
         go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.5.1
         go install github.com/atombender/go-jsonschema@v0.16.0
-    - name: Set Environment Variables
+    - name: Set Environment Variables and Download al-ctl
       shell: bash
       run: |
           # change the version as needed (potentially requires adjustments to the al-ctl calls in the tests script)
@@ -47,4 +47,3 @@ runs:
           curl -L -o al-ctl_${OS_NAME}_${ARCH_NAME}.tar.gz https://github.com/industrial-asset-hub/asset-link-sdk/releases/download/${ALCTLVERSION}/al-ctl_${OS_NAME}_${ARCH_NAME}.tar.gz
           tar -xf al-ctl_${OS_NAME}_${ARCH_NAME}.tar.gz
           chmod +x al-ctl
-
