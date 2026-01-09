@@ -18,6 +18,7 @@ env:
   GO_LINT_VERSION: v2.1
   TEST_PROJECT: cookiecutter-test
   TEST_PROJECT_NAME: test-asset-link
+  TEMPLATE_PATH: "cookiecutter-project-template/{{ cookiecutter.al_project }}"
 
 jobs:
   reuse:
@@ -84,7 +85,11 @@ jobs:
       - name: Install ShellCheck
         run: sudo apt-get install -y shellcheck
       - name: Run ShellCheck
-        run: shellcheck autotest.sh
+        run: |
+          shellcheck \
+            "autotest.sh" \
+            "$TEMPLATE_PATH/start-asset-link.sh" \
+            "$TEMPLATE_PATH/test-asset-link.sh"
 
   check:
     runs-on: ubuntu-latest
