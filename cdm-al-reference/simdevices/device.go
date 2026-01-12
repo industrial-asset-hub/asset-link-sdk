@@ -46,7 +46,7 @@ var (
 	ErrUnauthenticated   = errors.New("invalid credentials")
 )
 
-type SimulatedDevice interface {
+type SimulatedDeviceInfo interface {
 	GetDeviceName() string
 	GetManufacturer() string
 	GetProductDesignation() string
@@ -67,8 +67,13 @@ type SimulatedDevice interface {
 	GetDeviceAddress() SimulatedDeviceAddress
 
 	GetSubDeviceID() int
-	GetSubDevices() []SimulatedDevice
-	GetParentDevice() SimulatedDevice
+
+	GetSubDevices() []SimulatedDeviceInfo
+	GetParentDevice() SimulatedDeviceInfo
+}
+
+type SimulatedDevice interface {
+	SimulatedDeviceInfo
 
 	UpdateFirmware(artefactFilename string) error
 	RebootDevice() error
@@ -109,7 +114,8 @@ type simulatedDeviceInfo struct {
 	SubDeviceID              int                         `json:"sub_device_id"` // -1 for top-level devices
 	SubDevices               []*simulatedDeviceInfo      `json:"sub_devices"`
 	ParentDevice             *simulatedDeviceInfo        `json:"-"` // parent device is not serialized
-	credentials              *SimulatedDeviceCredentials `json:"-"` // credentials are not serialized
+	adminCredentials         *SimulatedDeviceCredentials `json:"-"` // credentials are not serialized
+	readCredentials          *SimulatedDeviceCredentials `json:"-"` // credentials are not serialized
 }
 
 type firmwareFile struct {
@@ -144,7 +150,11 @@ func assertLocked() {
 	}
 }
 
-func newSimulatedDevice(alNIC, serial, mac, ip, name string, credentials *SimulatedDeviceCredentials) *simulatedDeviceInfo {
+func newSimulatedDevice(alNIC, serial, mac, ip, name string, adminCredentials *SimulatedDeviceCredentials, readCredentials *SimulatedDeviceCredentials) *simulatedDeviceInfo {
+	if readCredentials != nil && adminCredentials == nil {
+		log.Fatal().Msg("adminCredentials need to be provided if there are readCredentials")
+	}
+
 	uid := uuid.New()
 	return &simulatedDeviceInfo{
 		UniqueDeviceID:           uid.String(),
@@ -167,7 +177,8 @@ func newSimulatedDevice(alNIC, serial, mac, ip, name string, credentials *Simula
 		SubDevices:               []*simulatedDeviceInfo{},
 		SubDeviceID:              -1,
 		ParentDevice:             nil, // parent device is nil for top-level devices
-		credentials:              credentials,
+		adminCredentials:         adminCredentials,
+		readCredentials:          readCredentials,
 	}
 }
 
@@ -194,7 +205,8 @@ func newSimulatedSubDevice(name, serial, mac, ip string) *simulatedDeviceInfo {
 		SubDevices:               []*simulatedDeviceInfo{},
 		SubDeviceID:              -1,
 		ParentDevice:             nil, // parent device will be set when appending to a parent
-		credentials:              nil, // sub-devices do not have credentials
+		adminCredentials:         nil, // sub-devices do not have credentials
+		readCredentials:          nil, // sub-devices do not have credentials
 	}
 }
 
@@ -210,42 +222,47 @@ func (d *simulatedDeviceInfo) appendSimulatedSubDevice(subDevice *simulatedDevic
 }
 
 func StartSimulatedDevices(visuServerAddress string) {
-	credentials := &SimulatedDeviceCredentials{
+	readCredentials := &SimulatedDeviceCredentials{
+		Username: "user",
+		Password: "user_password", // storing the password in plain text is obviously not secure, but this is just a simulation
+	}
+
+	adminCredentials := &SimulatedDeviceCredentials{
 		Username: "admin",
-		Password: "admin", // storing the password in plain text is obviously not secure, but this is just a simulation
+		Password: "admin_password", // storing the password in plain text is obviously not secure, but this is just a simulation
 	}
 
 	simulatedDevicesEth0 = []*simulatedDeviceInfo{}
 	simulatedDevicesEth1 = []*simulatedDeviceInfo{}
 
 	// Eth 0 (device A0)
-	deviceA0 := newSimulatedDevice(interfaceEth0, "SN123450000", "00:16:3e:00:00:00", "192.168.0.10", "Simulated Device A0", nil)
+	deviceA0 := newSimulatedDevice(interfaceEth0, "SN123450000", "00:16:3e:00:00:00", "192.168.0.10", "Simulated Device A0", nil, nil)
 	simulatedDevicesEth0 = append(simulatedDevicesEth0, deviceA0)
 
 	// Eth 0 (device A1)
-	deviceA1 := newSimulatedDevice(interfaceEth0, "SN123450001", "00:16:3e:00:00:01", "192.168.0.11", "Simulated Device A1", nil)
+	deviceA1 := newSimulatedDevice(interfaceEth0, "SN123450001", "00:16:3e:00:01:00", "192.168.0.11", "Simulated Device A1", adminCredentials, nil)
 	simulatedDevicesEth0 = append(simulatedDevicesEth0, deviceA1)
 
 	// Eth 0 (device A2)
-	deviceA2 := newSimulatedDevice(interfaceEth0, "SN123450002", "00:16:3e:00:00:02", "192.168.0.12", "Simulated Device A2", credentials)
+	deviceA2 := newSimulatedDevice(interfaceEth0, "SN123450002", "00:16:3e:00:02:00", "192.168.0.12", "Simulated Device A2", adminCredentials, readCredentials)
 	simulatedDevicesEth0 = append(simulatedDevicesEth0, deviceA2)
 
 	// Eth 1 (device B0)
-	deviceB0 := newSimulatedDevice(interfaceEth1, "SN123450100", "00:16:3e:00:01:00", "192.168.1.10", "Simulated Device B0", nil)
+	deviceB0 := newSimulatedDevice(interfaceEth1, "SN123450100", "00:16:3e:01:00:00", "192.168.1.10", "Simulated Device B0", nil, nil)
+	subDeviceB00 := newSimulatedSubDevice("Simulated Sub Device B0-0", "SN123450101-0", "00:16:3e:01:00:10", "192.168.1.100")
+	deviceB0.appendSimulatedSubDevice(subDeviceB00)
+	subDeviceB01 := newSimulatedSubDevice("Simulated Sub Device B0-1", "SN123450101-1", "00:16:3e:01:00:11", "192.168.1.101")
+	deviceB0.appendSimulatedSubDevice(subDeviceB01)
+	subDeviceB02 := newSimulatedSubDevice("Simulated Sub Device B0-2", "SN123450101-2", "00:16:3e:01:00:12", "192.168.1.102")
+	deviceB0.appendSimulatedSubDevice(subDeviceB02)
 	simulatedDevicesEth1 = append(simulatedDevicesEth1, deviceB0)
 
 	// Eth 1 (device B1 and subdevices)
-	deviceB1 := newSimulatedDevice(interfaceEth1, "SN123450101", "00:16:3e:00:01:01", "192.168.1.11", "Simulated Device B1", nil)
-	subDeviceB10 := newSimulatedSubDevice("Simulated Sub Device B1-0", "SN123450101-0", "00:16:3e:00:01:10", "192.168.1.12")
-	deviceB1.appendSimulatedSubDevice(subDeviceB10)
-	subDeviceB11 := newSimulatedSubDevice("Simulated Sub Device B1-1", "SN123450101-1", "00:16:3e:00:01:11", "192.168.1.13")
-	deviceB1.appendSimulatedSubDevice(subDeviceB11)
-	subDeviceB12 := newSimulatedSubDevice("Simulated Sub Device B1-2", "SN123450101-2", "00:16:3e:00:01:12", "192.168.1.14")
-	deviceB1.appendSimulatedSubDevice(subDeviceB12)
+	deviceB1 := newSimulatedDevice(interfaceEth1, "SN123450101", "00:16:3e:01:01:00", "192.168.1.11", "Simulated Device B1", adminCredentials, nil)
 	simulatedDevicesEth1 = append(simulatedDevicesEth1, deviceB1)
 
 	// Eth 1 (device B2)
-	deviceB2 := newSimulatedDevice(interfaceEth1, "SN123450102", "00:16:3e:00:01:02", "192.168.1.12", "Simulated Device B2", credentials)
+	deviceB2 := newSimulatedDevice(interfaceEth1, "SN123450102", "00:16:3e:01:02:00", "192.168.1.12", "Simulated Device B2", adminCredentials, readCredentials)
 	simulatedDevicesEth1 = append(simulatedDevicesEth1, deviceB2)
 
 	visuActive = false
@@ -361,11 +378,11 @@ func (d *simulatedDeviceInfo) GetSubDeviceID() int {
 	return d.SubDeviceID
 }
 
-func (d *simulatedDeviceInfo) GetSubDevices() []SimulatedDevice {
+func (d *simulatedDeviceInfo) GetSubDevices() []SimulatedDeviceInfo {
 	simLock.Lock()
 	defer simLock.Unlock()
 
-	subDevices := make([]SimulatedDevice, len(d.SubDevices))
+	subDevices := make([]SimulatedDeviceInfo, len(d.SubDevices))
 	for i, subDevice := range d.SubDevices {
 		subDevice.DeviceState = StateReading
 		handleDeviceChanges()
@@ -380,7 +397,7 @@ func (d *simulatedDeviceInfo) GetSubDevices() []SimulatedDevice {
 	return subDevices
 }
 
-func (d *simulatedDeviceInfo) GetParentDevice() SimulatedDevice {
+func (d *simulatedDeviceInfo) GetParentDevice() SimulatedDeviceInfo {
 	return d.ParentDevice
 }
 
@@ -411,24 +428,34 @@ func (d *simulatedDeviceInfo) hasIPInRange(ipRange string) bool {
 	return containsIpInRange(ipRange, deviceIPs)
 }
 
-func (d *simulatedDeviceInfo) checkCredentials(credentials *SimulatedDeviceCredentials) bool {
-	if d.credentials == nil {
+func compareCredentials(expectedCredentials *SimulatedDeviceCredentials, providedCredentials *SimulatedDeviceCredentials) bool {
+	if expectedCredentials == nil {
 		return true
 	}
 
-	if d.credentials.Username == "" && d.credentials.Password == "" {
+	if expectedCredentials.Username == "" && expectedCredentials.Password == "" {
 		return true
 	}
 
-	if credentials == nil {
+	if providedCredentials == nil {
 		return false
 	}
 
-	if d.credentials.Username == credentials.Username && d.credentials.Password == credentials.Password {
+	if expectedCredentials.Username == providedCredentials.Username && expectedCredentials.Password == providedCredentials.Password {
 		return true
 	}
 
 	return false
+}
+
+func (d *simulatedDeviceInfo) checkCredentials(credentials *SimulatedDeviceCredentials, readOnly bool) bool {
+	if readOnly {
+		if compareCredentials(d.readCredentials, credentials) {
+			return true
+		}
+	}
+
+	return compareCredentials(d.adminCredentials, credentials)
 }
 
 func containsIpInRange(ipRange string, actualIPs []string) bool {
@@ -493,7 +520,7 @@ func simulateCostlyOperation(duration time.Duration) {
 	time.Sleep(duration)
 }
 
-func connectToDevice(deviceAddress SimulatedDeviceAddress, credentials *SimulatedDeviceCredentials) (*simulatedDeviceInfo, error) {
+func connectToDevice(deviceAddress SimulatedDeviceAddress, credentials *SimulatedDeviceCredentials, readOnly bool) (*simulatedDeviceInfo, error) {
 	assertLocked()
 
 	var simulatedDevices []*simulatedDeviceInfo
@@ -511,7 +538,7 @@ func connectToDevice(deviceAddress SimulatedDeviceAddress, credentials *Simulate
 
 	for _, device := range simulatedDevices {
 		if device.IpDevice == deviceAddress.DeviceIP {
-			if !device.checkCredentials(credentials) {
+			if !device.checkCredentials(credentials, readOnly) {
 				return nil, ErrUnauthenticated
 			}
 

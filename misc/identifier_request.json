@@ -5,7 +5,7 @@
       "credentials": [
         {
           "schema_uri": "your-schema-uri",
-          "credentials": "{\"username\":\"admin\",\"password\":\"admin\"}"
+          "credentials": "{\"username\":\"user\",\"password\":\"user_password\"}"
         }
       ]
     }

@@ -175,7 +175,7 @@ func createDiscoverError(sdError error, sdAddress simdevices.SimulatedDeviceAddr
 	return discoverError
 }
 
-func createDeviceInfo(device simdevices.SimulatedDevice) *model.DeviceInfo {
+func createDeviceInfo(device simdevices.SimulatedDeviceInfo) *model.DeviceInfo {
 	deviceInfo := model.NewDevice("EthernetDevice", device.GetDeviceName())
 	deviceInfo.AddNameplate(device.GetManufacturer(), device.GetIDLink(), device.GetArticleNumber(),
 		device.GetProductDesignation(), device.GetHardwareVersion(), device.GetSerialNumber())
