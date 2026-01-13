@@ -74,6 +74,7 @@ func main() {
 		Vendor:  vendor,
 	}).
 		Discovery(alImpl).
+		// Identifiers(alImpl). // uncomment this line if the Identifiers interface is implemented
 		Build()
 
 	// Signal handler for a proper shutdown
