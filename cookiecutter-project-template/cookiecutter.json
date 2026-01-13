@@ -6,6 +6,6 @@
   "author_email": "david@david-builder.local",
   "company": "Machine Builder AG",
   "company_url": "https://www.device-builder.local",
-  "year": "2024",
+  "year": "2026",
   "_copy_without_render": ["*vendor", "cdm-al-sdk"]
 }
