@@ -50,6 +50,22 @@ $ al-ctl assets discover -e localhost:8081 [-d <discovery-config>] [-o <output-f
 
 # Example: al-ctl assets discover -e localhost:8081 -d ./misc/discovery.json
 ```
+### Defining Filters and Options in Discovery Configuration:
+
+- The `<discovery-config>` file follows the structure shown below:
+  ```
+  {
+      "filters": [],
+      "options": []
+  }
+  ```
+- An example of such a discovery configuration is the [Example discovery-config](misc/discovery.json) file used by the reference asset link.
+   - Note: The example provided may not be valid for all asset‑links. Supported filters and options vary depending on the capabilities of each asset‑link.
+- To identify the filters and options supported by a specific asset‑link, use the following command:
+  ```bash
+  $ al-ctl info -e localhost:8081
+  ```
+- After determining the supported filters and options for the target asset‑link, populate the filters and options sections accordingly.
 
 ```bash
 # To convert discovered asset payload to actual assets
@@ -82,6 +98,7 @@ Examples of these commands are described below:
 $ al-ctl test api -e localhost:8081 --service-name discovery [-d <discovery-config>]
 # The Asset Link must be running on the provided address, for example here: localhost:8081
 ```
+For more information about `<discovery-config>`, see the [Defining Filters and Options in Discovery Configuration](#defining-filters-and-options-in-discovery-configuration) section.
 
 ```bash
 # To also validate the discovered assets against the schema use -v flag
