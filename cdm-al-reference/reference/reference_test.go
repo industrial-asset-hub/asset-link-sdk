@@ -100,7 +100,7 @@ func TestGetIdentifiers(t *testing.T) {
 	simdevices.StartSimulatedDevices("") // start without visualization web server
 	t.Run("getIdentifiersSucceeds", func(t *testing.T) {
 		driver := &ReferenceAssetLink{}
-		credential := `{"username":"admin","password":"admin"}`
+		credential := `{"username":"user","password":"user_password"}`
 		credentials := []*generated.ConnectionCredential{
 			{Credentials: credential},
 		}

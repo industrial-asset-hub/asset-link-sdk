@@ -32,8 +32,8 @@ func TestSimDevices(t *testing.T) {
 		assert.Len(t, deviceAddresses, 6)
 
 		credentials := SimulatedDeviceCredentials{
-			Username: "admin",
-			Password: "admin",
+			Username: "user",
+			Password: "user_password",
 		}
 
 		foundSubdevices := false
@@ -49,17 +49,17 @@ func TestSimDevices(t *testing.T) {
 			}
 
 			subdevices := device.GetSubDevices()
-			if device.GetDeviceName() == "Simulated Device B1" {
+			if device.GetDeviceName() == "Simulated Device B0" {
 				for _, subdevice := range subdevices {
 					sdAddr := subdevice.GetDeviceAddress()
 					assert.GreaterOrEqual(t, sdAddr.SubDeviceID, 0)
-					sdViaAddr, err := ConnectToDevice(sdAddr, nil)
+					sdViaAddr, err := RetrieveDeviceDetails(sdAddr, nil)
 					assert.NoError(t, err)
 					assert.NotNil(t, sdViaAddr)
 					assert.Equal(t, sdViaAddr.GetDeviceName(), subdevice.GetDeviceName())
 				}
 
-				assert.Len(t, subdevices, 3) // device B1 has 3 subdevices
+				assert.Len(t, subdevices, 3) // device B0 has 3 subdevices
 				foundSubdevices = true
 			} else {
 				assert.Empty(t, subdevices)
@@ -90,17 +90,17 @@ func TestSimDevices(t *testing.T) {
 			}
 
 			subdevices := device.GetSubDevices()
-			if device.GetDeviceName() == "Simulated Device B1" {
+			if device.GetDeviceName() == "Simulated Device B0" {
 				for _, subdevice := range subdevices {
 					sdAddr := subdevice.GetDeviceAddress()
 					assert.GreaterOrEqual(t, sdAddr.SubDeviceID, 0)
-					sdViaAddr, err := ConnectToDevice(sdAddr, nil)
+					sdViaAddr, err := RetrieveDeviceDetails(sdAddr, nil)
 					assert.NoError(t, err)
 					assert.NotNil(t, sdViaAddr)
 					assert.Equal(t, sdViaAddr.GetDeviceName(), subdevice.GetDeviceName())
 				}
 
-				assert.Len(t, subdevices, 3) // device B1 has 3 subdevices
+				assert.Len(t, subdevices, 3) // device B0 has 3 subdevices
 				foundSubdevices = true
 			} else {
 				assert.Empty(t, subdevices)
@@ -120,7 +120,7 @@ func TestSimDevices(t *testing.T) {
 
 		credentials := SimulatedDeviceCredentials{
 			Username: "admin",
-			Password: "admin",
+			Password: "admin_password",
 		}
 
 		failed := 0
@@ -197,8 +197,8 @@ func TestSimDevices(t *testing.T) {
 			successful++
 		}
 
-		assert.Equal(t, 4, successful)
-		assert.Equal(t, 2, failed)
+		assert.Equal(t, 2, successful)
+		assert.Equal(t, 4, failed)
 	})
 
 	t.Run("deviceConfig", func(t *testing.T) {

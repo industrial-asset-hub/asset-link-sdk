@@ -54,12 +54,12 @@ func ScanForDevices(ethInterface, ipRangeFilter string) []SimulatedDeviceAddress
 	return filteredDeviceAddresses
 }
 
-// Similar to ConnectToDevice but also simulates additional reading of device details (incl. delay and state changes in frontend)
-func RetrieveDeviceDetails(deviceAddress SimulatedDeviceAddress, credentials *SimulatedDeviceCredentials) (SimulatedDevice, error) {
+// Similar to ConnectToDevice but only requires read permissions and also simulates additional reading of device details (incl. delay and state changes in frontend)
+func RetrieveDeviceDetails(deviceAddress SimulatedDeviceAddress, credentials *SimulatedDeviceCredentials) (SimulatedDeviceInfo, error) {
 	simLock.Lock()
 	defer simLock.Unlock()
 
-	device, err := connectToDevice(deviceAddress, credentials)
+	device, err := connectToDevice(deviceAddress, credentials, true)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +79,7 @@ func ConnectToDevice(deviceAddress SimulatedDeviceAddress, credentials *Simulate
 	simLock.Lock()
 	defer simLock.Unlock()
 
-	device, err := connectToDevice(deviceAddress, credentials)
+	device, err := connectToDevice(deviceAddress, credentials, false)
 	if err != nil {
 		return nil, err
 	}

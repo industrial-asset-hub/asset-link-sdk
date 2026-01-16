@@ -118,6 +118,9 @@ func (m *AssetLinkImplementation) GetSupportedFilters() []*generated.SupportedFi
 	return supportedFilters
 }
 
+// if the GetIdentifiers() interface is implemented by your asset link,
+// uncomment the Identifiers line in main.go to register the interface/feature and
+// add "siemens.common.identifiers.v1" to the app_types in the registry.json file
 func (m *AssetLinkImplementation) GetIdentifiers(identifiersRequest config.IdentifiersRequest) ([]*generated.DeviceIdentifier, error) {
 	log.Info().Msg("Handle Get Identifiers Request")
 	// Add your custom logic here to retrieve identifiers based on the provided parameters and credentials
