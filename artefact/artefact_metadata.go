@@ -16,19 +16,25 @@ type ArtefactMetaData interface {
 	GetJobId() string
 	GetDeviceIdentifierBlob() []byte
 	GetArtefactType() generated.ArtefactType
+	GetDeviceCredentials() *generated.DeviceCredentials
+	GetArtefactCredentials() *generated.ArtefactCredentials
 }
 
 type ArtefactMetaDataImpl struct {
 	jobId                string
 	deviceIdentifierBlob []byte
 	artefactType         generated.ArtefactType
+	deviceCredentials    *generated.DeviceCredentials
+	artefactCredentials  *generated.ArtefactCredentials
 }
 
-func NewArtefactMetaData(jobId string, deviceIdentifierBlob []byte, artefactType generated.ArtefactType) *ArtefactMetaDataImpl {
+func NewArtefactMetaData(jobId string, deviceIdentifierBlob []byte, artefactType generated.ArtefactType, deviceCredentials *generated.DeviceCredentials, artefactCredentials *generated.ArtefactCredentials) *ArtefactMetaDataImpl {
 	artefactIdentifier := &ArtefactMetaDataImpl{
 		jobId:                jobId,
 		deviceIdentifierBlob: deviceIdentifierBlob,
 		artefactType:         artefactType,
+		deviceCredentials:    deviceCredentials,
+		artefactCredentials:  artefactCredentials,
 	}
 	return artefactIdentifier
 }
@@ -47,7 +53,10 @@ func NewArtefactMetaDataFromInternal(internalMetaData *generated.ArtefactMetaDat
 		jobId:                internalMetaData.JobIdentifier.JobId,
 		deviceIdentifierBlob: deviceIdentifierBlob,
 		artefactType:         internalMetaData.ArtefactIdentifier.Type,
+		deviceCredentials:    internalMetaData.DeviceCredentials,
+		artefactCredentials:  internalMetaData.ArtefactCredentials,
 	}
+
 	return artefactIdentifier, nil
 }
 
@@ -61,4 +70,12 @@ func (am *ArtefactMetaDataImpl) GetDeviceIdentifierBlob() []byte {
 
 func (am *ArtefactMetaDataImpl) GetArtefactType() generated.ArtefactType {
 	return am.artefactType
+}
+
+func (am *ArtefactMetaDataImpl) GetDeviceCredentials() *generated.DeviceCredentials {
+	return am.deviceCredentials
+}
+
+func (am *ArtefactMetaDataImpl) GetArtefactCredentials() *generated.ArtefactCredentials {
+	return am.artefactCredentials
 }
