@@ -43,6 +43,8 @@ readonly ASSET_LINK_LOG_FILE=${ASSET_LINK_LOG_FILE:-"$SCRIPT_PATH/asset_link.log
 readonly DISCOVERY_CONFIG_FILE=${DISCOVERY_CONFIG_FILE:-"$PROJECT_PATH/misc/discovery.json"}
 readonly IDENTIFIERS_REQUEST_FILE=${IDENTIFIERS_REQUEST_FILE:-"$PROJECT_PATH/misc/identifier_request.json"}
 readonly DEVICE_ADDRESS_FILE=${DEVICE_ADDRESS_FILE:-"$PROJECT_PATH/misc/device_address.json"}
+readonly DEVICE_ADDRESS_FILE_CRED=${DEVICE_ADDRESS_FILE_CRED:-"$PROJECT_PATH/misc/device_address_cred.json"}
+readonly DEVICE_CREDENTIALS_FILE=${DEVICE_CREDENTIALS_FILE:-"$PROJECT_PATH/misc/device_credentials_admin.json"}
 readonly FIRMWARE_FILE_V1=${FIRMWARE_FILE_V1:-"$PROJECT_PATH/misc/simulated_device_firmware_1.0.0.fwu"}
 readonly FIRMWARE_FILE_V2=${FIRMWARE_FILE_V2:-"$PROJECT_PATH/misc/simulated_device_firmware_2.0.0.fwu"}
 readonly FIRMWARE_FILE_V3=${FIRMWARE_FILE_V3:-"$PROJECT_PATH/misc/simulated_device_firmware_3.0.0.fwu"}
@@ -247,6 +249,9 @@ test_update(){
     testcase_error "Update" "Prepare with firmware version already installed"
     test_error alctl update prepare -d "$DEVICE_ADDRESS_FILE" -c -j "000" -t firmware -a "$FIRMWARE_FILE_V1"
 
+    testcase_error "Update" "Prepare with missing device credentials"
+    test_error alctl update prepare -d "$DEVICE_ADDRESS_FILE_CRED" -c -j "000" -t firmware -a "$FIRMWARE_FILE_V2"
+
     local JOB_ID_1="001"
     testcase_ok "Update" "Prepare update job $JOB_ID_1 (for subsequent activation)"
     test_ok alctl update prepare -d "$DEVICE_ADDRESS_FILE" -c -j "$JOB_ID_1" -t firmware -a "$FIRMWARE_FILE_V2"
@@ -258,6 +263,12 @@ test_update(){
     test_ok alctl update prepare -d "$DEVICE_ADDRESS_FILE" -c -j "$JOB_ID_2" -t firmware -a "$FIRMWARE_FILE_V3"
     testcase_ok "Update" "Cancel update job $JOB_ID_2"
     test_ok alctl update cancel -d "$DEVICE_ADDRESS_FILE" -c -j "$JOB_ID_2" -t firmware
+
+    local JOB_ID_3="003"
+    testcase_ok "Update" "Prepare update job $JOB_ID_3 with device credentials (for subsequent activation with device credentials)"
+    test_ok alctl update prepare -d "$DEVICE_ADDRESS_FILE_CRED" -c -l "$DEVICE_CREDENTIALS_FILE" -j "$JOB_ID_3" -t firmware -a "$FIRMWARE_FILE_V2"
+    testcase_ok "Update" "Activate update job $JOB_ID_3 with device credentials"
+    test_ok alctl update activate -d "$DEVICE_ADDRESS_FILE_CRED" -c -l "$DEVICE_CREDENTIALS_FILE" -j "$JOB_ID_3" -t firmware -a "$FIRMWARE_FILE_V2"
 
     DONE=true
 }
