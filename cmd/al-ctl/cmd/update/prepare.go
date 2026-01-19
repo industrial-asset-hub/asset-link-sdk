@@ -14,11 +14,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var prepareJobId string = ""
-var prepareArtefactFile string = ""
-var prepareArtefactType string = ""
-var prepareDeviceIdentifierFile string = ""
-var prepareConvertDeviceIdentifier bool = false
+var prepareParams al.UpdateParams
 
 // UpdatePrepareCommand represents the artefact prepare command
 var UpdatePrepareCommand = &cobra.Command{
@@ -26,7 +22,7 @@ var UpdatePrepareCommand = &cobra.Command{
 	Short: "Prepare update on device",
 	Long:  `Prepares a firmware/software update on the specified device`,
 	Run: func(cmd *cobra.Command, args []string) {
-		err := al.PrepareUpdate(shared.AssetLinkEndpoint, prepareJobId, prepareArtefactFile, prepareArtefactType, prepareDeviceIdentifierFile, prepareConvertDeviceIdentifier)
+		err := al.PrepareUpdate(shared.AssetLinkEndpoint, prepareParams)
 		if err != nil {
 			log.Fatal().Err(err).Msg("Failed to prepare update")
 		}
@@ -34,9 +30,11 @@ var UpdatePrepareCommand = &cobra.Command{
 }
 
 func init() {
-	UpdatePrepareCommand.Flags().StringVarP(&prepareJobId, "job-id", "j", "", shared.JobIdDesc)
-	UpdatePrepareCommand.Flags().StringVarP(&prepareArtefactFile, "artefact-file", "a", "", "source filename of artefact")
-	UpdatePrepareCommand.Flags().StringVarP(&prepareArtefactType, "artefact-type", "t", "", "provided artefact type (\"backup\", \"configuration\", or \"firmware\")")
-	UpdatePrepareCommand.Flags().StringVarP(&prepareDeviceIdentifierFile, "device-identifier-file", "d", "", shared.DeviceIdentifierFileDesc)
-	UpdatePrepareCommand.Flags().BoolVarP(&prepareConvertDeviceIdentifier, "convert-device-identifier", "c", false, shared.ConvertDeviceIdentifierDesc)
+	UpdatePrepareCommand.Flags().StringVarP(&prepareParams.JobId, "job-id", "j", "", shared.JobIdDesc)
+	UpdatePrepareCommand.Flags().StringVarP(&prepareParams.ArtefactFile, "artefact-file", "a", "", "source filename of artefact")
+	UpdatePrepareCommand.Flags().StringVarP(&prepareParams.ArtefactType, "artefact-type", "t", "", "provided artefact type (\"backup\", \"configuration\", or \"firmware\")")
+	UpdatePrepareCommand.Flags().StringVarP(&prepareParams.DeviceIdentifierFile, "device-identifier-file", "d", "", shared.DeviceIdentifierFileDesc)
+	UpdatePrepareCommand.Flags().BoolVarP(&prepareParams.ConvertDeviceIdentifier, "convert-device-identifier", "c", false, shared.ConvertDeviceIdentifierDesc)
+	UpdatePrepareCommand.Flags().StringVarP(&prepareParams.DeviceCredentialsFile, "device-credentials-file", "l", "", shared.DeviceCredentialsFileDesc)
+	UpdatePrepareCommand.Flags().StringVarP(&prepareParams.ArtefactCredentialsFile, "artefact-credentials-file", "", "", shared.ArtefactCredentialsFileDesc)
 }

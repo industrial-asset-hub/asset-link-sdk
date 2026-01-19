@@ -6,7 +6,7 @@
  */
 package reference
 
-//TODO: make sure that an activation actually activtates the expected version and that no other preparation has taken place in the mean time
+//TODO: make sure that an activation actually activates the expected version and that no other preparation has taken place in the mean time
 //TODO: support explicit cancellation of an update after preparation
 
 import (
@@ -42,7 +42,8 @@ func (m *ReferenceAssetLink) HandlePrepareUpdate(artefactMetaData artefact.Artef
 	jobId := artefactMetaData.GetJobId()
 	artefactType := artefactMetaData.GetArtefactType()
 	deviceIdentifierBlob := artefactMetaData.GetDeviceIdentifierBlob()
-	log.Info().Str("JobId", jobId).Str("DeviceIdentifierBlob", string(deviceIdentifierBlob)).Str("ArtefactType", artefactType.String()).Msg("ArtefactMetaData")
+	deviceCredentials := artefactMetaData.GetDeviceCredentials()
+	log.Info().Str("JobId", jobId).Str("DeviceIdentifierBlob", string(deviceIdentifierBlob)).Str("ArtefactType", artefactType.String()).Interface("DeviceCredentials", deviceCredentials).Msg("ArtefactMetaData")
 
 	// Perform checks
 	_ = artefactReceiver.UpdateStatus(ga.ArtefactOperationPhase_AOP_PREPARE, ga.ArtefactOperationState_AOS_OK, "Performing checks", 0)
@@ -83,7 +84,15 @@ func (m *ReferenceAssetLink) HandlePrepareUpdate(artefactMetaData artefact.Artef
 
 	_ = artefactReceiver.UpdateStatus(ga.ArtefactOperationPhase_AOP_INSTALLATION, ga.ArtefactOperationState_AOS_OK, "Connecting to device", 0)
 
-	device, err := simdevices.ConnectToDevice(deviceAddress, nil)
+	var dc *simdevices.SimulatedDeviceCredentials = nil
+	if deviceCredentials != nil {
+		dc = &simdevices.SimulatedDeviceCredentials{
+			Username: deviceCredentials.Username,
+			Password: deviceCredentials.Password,
+		}
+	}
+
+	device, err := simdevices.ConnectToDevice(deviceAddress, dc)
 	if err != nil {
 		log.Err(err).Msg("Failed to connect to device")
 		return err
@@ -123,7 +132,8 @@ func (m *ReferenceAssetLink) HandleActivateUpdate(artefactMetaData artefact.Arte
 	jobId := artefactMetaData.GetJobId()
 	artefactType := artefactMetaData.GetArtefactType()
 	deviceIdentifierBlob := artefactMetaData.GetDeviceIdentifierBlob()
-	log.Info().Str("JobId", jobId).Str("DeviceIdentifierBlob", string(deviceIdentifierBlob)).Str("ArtefactType", artefactType.String()).Msg("ArtefactMetaData")
+	deviceCredentials := artefactMetaData.GetDeviceCredentials()
+	log.Info().Str("JobId", jobId).Str("DeviceIdentifierBlob", string(deviceIdentifierBlob)).Str("ArtefactType", artefactType.String()).Interface("DeviceCredentials", deviceCredentials).Msg("ArtefactMetaData")
 
 	// Connect to device and activate new firmware
 	var deviceAddress simdevices.SimulatedDeviceAddress
@@ -135,7 +145,15 @@ func (m *ReferenceAssetLink) HandleActivateUpdate(artefactMetaData artefact.Arte
 
 	_ = artefactReceiver.UpdateStatus(ga.ArtefactOperationPhase_AOP_ACTIVATION, ga.ArtefactOperationState_AOS_OK, "Connecting to device", 0)
 
-	device, err := simdevices.ConnectToDevice(deviceAddress, nil)
+	var dc *simdevices.SimulatedDeviceCredentials = nil
+	if deviceCredentials != nil {
+		dc = &simdevices.SimulatedDeviceCredentials{
+			Username: deviceCredentials.Username,
+			Password: deviceCredentials.Password,
+		}
+	}
+
+	device, err := simdevices.ConnectToDevice(deviceAddress, dc)
 	if err != nil {
 		log.Err(err).Msg("Failed to connect to device")
 		return err
