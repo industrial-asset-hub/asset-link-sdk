@@ -39,7 +39,7 @@ func ArtefactCreateArtefactIdentifier(artefactType string) (*generated.ArtefactI
 	return &artefactIdentifier, nil
 }
 
-func ArtefactCreateMetadata(jobId string, deviceIdentifierBlob []byte, artefactType string) (*generated.ArtefactMetaData, error) {
+func ArtefactCreateMetadata(jobId string, deviceIdentifierBlob []byte, artefactType string, deviceCredentials *generated.DeviceCredentials, artefactCredentials *generated.ArtefactCredentials) (*generated.ArtefactMetaData, error) {
 	jobIdentifier := generated.JobIdentifier{JobId: jobId}
 
 	artefactIdentifier, err := ArtefactCreateArtefactIdentifier(artefactType)
@@ -52,9 +52,9 @@ func ArtefactCreateMetadata(jobId string, deviceIdentifierBlob []byte, artefactT
 	artefactMetaData := &generated.ArtefactMetaData{
 		JobIdentifier:       &jobIdentifier,
 		DeviceIdentifier:    &deviceIdentifier,
-		DeviceCredentials:   &generated.DeviceCredentials{},
+		DeviceCredentials:   deviceCredentials,
 		ArtefactIdentifier:  artefactIdentifier,
-		ArtefactCredentials: &generated.ArtefactCredentials{},
+		ArtefactCredentials: artefactCredentials,
 	}
 
 	return artefactMetaData, nil

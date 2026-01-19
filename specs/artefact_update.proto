@@ -54,6 +54,8 @@ message ArtefactIdentifier { ArtefactType type = 1; }
 message ArtefactCredentials {
   string credential_type = 1;
   bytes credentials = 2;
+  string username = 3;
+  string password = 4;
 }
 
 message DeviceIdentifier { bytes blob = 1; }
@@ -61,6 +63,8 @@ message DeviceIdentifier { bytes blob = 1; }
 message DeviceCredentials {
   string credential_type = 1;
   bytes credentials = 2;
+  string username = 3;
+  string password = 4;
 }
 
 enum ArtefactOperationState {

@@ -14,11 +14,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var pushJobId string = ""
-var pushArtefactFile string = ""
-var pushArtefactType string = ""
-var pushDeviceIdentifierFile string = ""
-var pushConvertDeviceIdentifier bool = false
+var pushParams al.ArtefactParams
 
 // artefactPushCommand represents the artefact push command
 var ArtefactPushCommand = &cobra.Command{
@@ -26,7 +22,7 @@ var ArtefactPushCommand = &cobra.Command{
 	Short: "Push artefact to device",
 	Long:  `Pushes an artefact of a specific type to the specified device`,
 	Run: func(cmd *cobra.Command, args []string) {
-		err := al.PushArtefact(shared.AssetLinkEndpoint, pushJobId, pushArtefactFile, pushArtefactType, pushDeviceIdentifierFile, pushConvertDeviceIdentifier)
+		err := al.PushArtefact(shared.AssetLinkEndpoint, pushParams)
 		if err != nil {
 			log.Fatal().Err(err).Msg("Failed to push artefact")
 		}
@@ -34,9 +30,11 @@ var ArtefactPushCommand = &cobra.Command{
 }
 
 func init() {
-	ArtefactPushCommand.Flags().StringVarP(&pushJobId, "job-id", "j", "", shared.JobIdDesc)
-	ArtefactPushCommand.Flags().StringVarP(&pushArtefactFile, "artefact-file", "a", "", "source filename of artefact")
-	ArtefactPushCommand.Flags().StringVarP(&pushArtefactType, "artefact-type", "t", "", "provided artefact type (\"configuration\", \"backup\", or \"log\")")
-	ArtefactPushCommand.Flags().StringVarP(&pushDeviceIdentifierFile, "device-identifier-file", "d", "", shared.DeviceIdentifierFileDesc)
-	ArtefactPushCommand.Flags().BoolVarP(&pushConvertDeviceIdentifier, "convert-device-identifier", "c", false, shared.ConvertDeviceIdentifierDesc)
+	ArtefactPushCommand.Flags().StringVarP(&pushParams.JobId, "job-id", "j", "", shared.JobIdDesc)
+	ArtefactPushCommand.Flags().StringVarP(&pushParams.ArtefactFile, "artefact-file", "a", "", "source filename of artefact")
+	ArtefactPushCommand.Flags().StringVarP(&pushParams.ArtefactType, "artefact-type", "t", "", "provided artefact type (\"configuration\", \"backup\", or \"log\")")
+	ArtefactPushCommand.Flags().StringVarP(&pushParams.DeviceIdentifierFile, "device-identifier-file", "d", "", shared.DeviceIdentifierFileDesc)
+	ArtefactPushCommand.Flags().BoolVarP(&pushParams.ConvertDeviceIdentifier, "convert-device-identifier", "c", false, shared.ConvertDeviceIdentifierDesc)
+	ArtefactPushCommand.Flags().StringVarP(&pushParams.DeviceCredentialsFile, "device-credentials-file", "l", "", shared.DeviceCredentialsFileDesc)
+	ArtefactPushCommand.Flags().StringVarP(&pushParams.ArtefactCredentialsFile, "artefact-credentials-file", "", "", shared.ArtefactCredentialsFileDesc)
 }

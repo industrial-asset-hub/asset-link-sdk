@@ -38,7 +38,8 @@ func (m *ReferenceAssetLink) HandlePushArtefact(artefactMetaData artefact.Artefa
 	jobId := artefactMetaData.GetJobId()
 	artefactType := artefactMetaData.GetArtefactType()
 	deviceIdentifierBlob := artefactMetaData.GetDeviceIdentifierBlob()
-	log.Info().Str("JobId", jobId).Str("DeviceIdentifierBlob", string(deviceIdentifierBlob)).Str("ArtefactType", artefactType.String()).Msg("ArtefactMetaData")
+	deviceCredentials := artefactMetaData.GetDeviceCredentials()
+	log.Info().Str("JobId", jobId).Str("DeviceIdentifierBlob", string(deviceIdentifierBlob)).Str("ArtefactType", artefactType.String()).Interface("DeviceCredentials", deviceCredentials).Msg("ArtefactMetaData")
 
 	// Perform checks
 	_ = artefactReceiver.UpdateStatus(ga.ArtefactOperationPhase_AOP_PREPARE, ga.ArtefactOperationState_AOS_OK, "Performing checks", 0)
@@ -79,7 +80,15 @@ func (m *ReferenceAssetLink) HandlePushArtefact(artefactMetaData artefact.Artefa
 
 	_ = artefactReceiver.UpdateStatus(ga.ArtefactOperationPhase_AOP_INSTALLATION, ga.ArtefactOperationState_AOS_OK, "Connecting to device", 0)
 
-	device, err := simdevices.ConnectToDevice(deviceAddress, nil)
+	var dc *simdevices.SimulatedDeviceCredentials = nil
+	if deviceCredentials != nil {
+		dc = &simdevices.SimulatedDeviceCredentials{
+			Username: deviceCredentials.Username,
+			Password: deviceCredentials.Password,
+		}
+	}
+
+	device, err := simdevices.ConnectToDevice(deviceAddress, dc)
 	if err != nil {
 		log.Err(err).Msg("Failed to connect to device")
 		return err
@@ -114,7 +123,8 @@ func (m *ReferenceAssetLink) HandlePullArtefact(artefactMetaData artefact.Artefa
 	jobId := artefactMetaData.GetJobId()
 	artefactType := artefactMetaData.GetArtefactType()
 	deviceIdentifierBlob := artefactMetaData.GetDeviceIdentifierBlob()
-	log.Info().Str("JobId", jobId).Str("DeviceIdentifierBlob", string(deviceIdentifierBlob)).Str("ArtefactType", artefactType.String()).Msg("ArtefactMetaData")
+	deviceCredentials := artefactMetaData.GetDeviceCredentials()
+	log.Info().Str("JobId", jobId).Str("DeviceIdentifierBlob", string(deviceIdentifierBlob)).Str("ArtefactType", artefactType.String()).Interface("DeviceCredentials", deviceCredentials).Msg("ArtefactMetaData")
 
 	// Perform checks
 	_ = artefactTransmitter.UpdateStatus(ga.ArtefactOperationPhase_AOP_PREPARE, ga.ArtefactOperationState_AOS_OK, "Performing checks", 0)
@@ -135,7 +145,15 @@ func (m *ReferenceAssetLink) HandlePullArtefact(artefactMetaData artefact.Artefa
 	// Connect to device and retrieve current configuration from device
 	_ = artefactTransmitter.UpdateStatus(ga.ArtefactOperationPhase_AOP_ARCHIVE, ga.ArtefactOperationState_AOS_OK, "Connecting to device", 0)
 
-	device, err := simdevices.ConnectToDevice(deviceAddress, nil)
+	var dc *simdevices.SimulatedDeviceCredentials = nil
+	if deviceCredentials != nil {
+		dc = &simdevices.SimulatedDeviceCredentials{
+			Username: deviceCredentials.Username,
+			Password: deviceCredentials.Password,
+		}
+	}
+
+	device, err := simdevices.ConnectToDevice(deviceAddress, dc)
 	if err != nil {
 		log.Err(err).Msg("Failed to connect to device")
 		return err

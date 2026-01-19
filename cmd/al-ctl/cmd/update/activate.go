@@ -14,11 +14,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var activateJobId string = ""
-var activateArtefactFile string = ""
-var activateArtefactType string = ""
-var activateDeviceIdentifierFile string = ""
-var activateConvertDeviceIdentifier bool = false
+var activateParams al.UpdateParams
 
 // UpdateActivateCommand represents the artefact prepare command
 var UpdateActivateCommand = &cobra.Command{
@@ -26,7 +22,7 @@ var UpdateActivateCommand = &cobra.Command{
 	Short: "Activate update on device",
 	Long:  `Activates a firmware/software update on the specified device`,
 	Run: func(cmd *cobra.Command, args []string) {
-		err := al.ActivateUpdate(shared.AssetLinkEndpoint, activateJobId, activateArtefactFile, activateArtefactType, activateDeviceIdentifierFile, activateConvertDeviceIdentifier)
+		err := al.ActivateUpdate(shared.AssetLinkEndpoint, activateParams)
 		if err != nil {
 			log.Fatal().Err(err).Msg("Failed to activate update")
 		}
@@ -34,9 +30,11 @@ var UpdateActivateCommand = &cobra.Command{
 }
 
 func init() {
-	UpdateActivateCommand.Flags().StringVarP(&activateJobId, "job-id", "j", "", shared.JobIdDesc)
-	UpdateActivateCommand.Flags().StringVarP(&activateArtefactFile, "artefact-file", "a", "", "source filename of artefact")
-	UpdateActivateCommand.Flags().StringVarP(&activateArtefactType, "artefact-type", "t", "", "provided artefact type (\"software\" or \"firmware\")")
-	UpdateActivateCommand.Flags().StringVarP(&activateDeviceIdentifierFile, "device-identifier-file", "d", "", shared.DeviceIdentifierFileDesc)
-	UpdateActivateCommand.Flags().BoolVarP(&activateConvertDeviceIdentifier, "convert-device-identifier", "c", false, shared.ConvertDeviceIdentifierDesc)
+	UpdateActivateCommand.Flags().StringVarP(&activateParams.JobId, "job-id", "j", "", shared.JobIdDesc)
+	UpdateActivateCommand.Flags().StringVarP(&activateParams.ArtefactFile, "artefact-file", "a", "", "source filename of artefact")
+	UpdateActivateCommand.Flags().StringVarP(&activateParams.ArtefactType, "artefact-type", "t", "", "provided artefact type (\"software\" or \"firmware\")")
+	UpdateActivateCommand.Flags().StringVarP(&activateParams.DeviceIdentifierFile, "device-identifier-file", "d", "", shared.DeviceIdentifierFileDesc)
+	UpdateActivateCommand.Flags().BoolVarP(&activateParams.ConvertDeviceIdentifier, "convert-device-identifier", "c", false, shared.ConvertDeviceIdentifierDesc)
+	UpdateActivateCommand.Flags().StringVarP(&activateParams.DeviceCredentialsFile, "device-credentials-file", "l", "", shared.DeviceCredentialsFileDesc)
+	UpdateActivateCommand.Flags().StringVarP(&activateParams.ArtefactCredentialsFile, "artefact-credentials-file", "", "", shared.ArtefactCredentialsFileDesc)
 }
