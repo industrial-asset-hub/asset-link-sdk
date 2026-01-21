@@ -94,7 +94,7 @@ $ al-ctl test api -l -e localhost:8081 --service-name discovery -v --base-schema
 ```bash
 # To also validate the cancellation of the discovery use -c flag
 $ al-ctl test api -e localhost:8081 --service-name discovery [-d <discovery-config>] -c -n <timeout>
-# Timeout is the delay until the discovery is cancelled automatically
+# Timeout is the delay until the discovery is cancelled automatically. Timeout value can be given as a float value.
 ```
 
 ```bash

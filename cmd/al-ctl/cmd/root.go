@@ -60,7 +60,7 @@ func init() {
 			zerolog.ErrorLevel.String(),
 			zerolog.FatalLevel.String(),
 			zerolog.PanicLevel.String()))
-	rootCmd.PersistentFlags().UintVarP(&shared.TimeoutSeconds, "timeout", "n", 0, "timeout in seconds (default none)")
+	rootCmd.PersistentFlags().Float64VarP(&shared.TimeoutSeconds, "timeout", "n", 0, "timeout in seconds (default none), accepts float values (e.g., 0.5, 1.5)")
 	rootCmd.AddCommand(assets.AssetsCmd)
 	rootCmd.AddCommand(info.InfoCmd)
 	rootCmd.AddCommand(registry.ListCmd)

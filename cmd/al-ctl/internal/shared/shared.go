@@ -11,7 +11,7 @@ var (
 	RegistryEndpoint  string
 	AssetLinkEndpoint string
 
-	TimeoutSeconds uint
+	TimeoutSeconds float64
 )
 
 const (
