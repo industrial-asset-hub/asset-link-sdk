@@ -48,7 +48,8 @@ func Discover(endpoint string, discoveryFile string) ([]*generated.DiscoverRespo
 		var cancel context.CancelFunc
 		ctx, cancel = context.WithCancel(ctx)
 		go func() {
-			time.Sleep(time.Duration(shared.TimeoutSeconds) * time.Second)
+			duration := time.Duration(shared.TimeoutSeconds * float64(time.Second))
+			time.Sleep(duration)
 			cancel()
 		}()
 	}
