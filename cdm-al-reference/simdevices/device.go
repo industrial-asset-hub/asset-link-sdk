@@ -247,17 +247,17 @@ func StartSimulatedDevices(visuServerAddress string) {
 	deviceA2 := newSimulatedDevice(interfaceEth0, "SN123450002", "00:16:3e:00:02:00", "192.168.0.12", "Simulated Device A2", adminCredentials, readCredentials)
 	simulatedDevicesEth0 = append(simulatedDevicesEth0, deviceA2)
 
-	// Eth 1 (device B0)
+	// Eth 1 (device B0 and subdevices)
 	deviceB0 := newSimulatedDevice(interfaceEth1, "SN123450100", "00:16:3e:01:00:00", "192.168.1.10", "Simulated Device B0", nil, nil)
-	subDeviceB00 := newSimulatedSubDevice("Simulated Sub Device B0-0", "SN123450101-0", "00:16:3e:01:00:10", "192.168.1.100")
+	subDeviceB00 := newSimulatedSubDevice("Simulated Sub Device B0-0", "SN123450100-0", "00:16:3e:01:00:10", "192.168.1.100")
 	deviceB0.appendSimulatedSubDevice(subDeviceB00)
-	subDeviceB01 := newSimulatedSubDevice("Simulated Sub Device B0-1", "SN123450101-1", "00:16:3e:01:00:11", "192.168.1.101")
+	subDeviceB01 := newSimulatedSubDevice("Simulated Sub Device B0-1", "SN123450100-1", "00:16:3e:01:00:11", "192.168.1.101")
 	deviceB0.appendSimulatedSubDevice(subDeviceB01)
-	subDeviceB02 := newSimulatedSubDevice("Simulated Sub Device B0-2", "SN123450101-2", "00:16:3e:01:00:12", "192.168.1.102")
+	subDeviceB02 := newSimulatedSubDevice("Simulated Sub Device B0-2", "SN123450100-2", "00:16:3e:01:00:12", "192.168.1.102")
 	deviceB0.appendSimulatedSubDevice(subDeviceB02)
 	simulatedDevicesEth1 = append(simulatedDevicesEth1, deviceB0)
 
-	// Eth 1 (device B1 and subdevices)
+	// Eth 1 (device B1)
 	deviceB1 := newSimulatedDevice(interfaceEth1, "SN123450101", "00:16:3e:01:01:00", "192.168.1.11", "Simulated Device B1", adminCredentials, nil)
 	simulatedDevicesEth1 = append(simulatedDevicesEth1, deviceB1)
 
