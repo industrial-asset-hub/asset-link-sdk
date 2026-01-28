@@ -31,7 +31,7 @@ func SetupLogging() {
 	}
 	switch format {
 	case "json":
-		logger = zerolog.New(out).With().Caller().Logger()
+		logger = zerolog.New(out)
 	case "pretty":
 		logger = zerolog.New(zerolog.ConsoleWriter{
 			Out:        out,
