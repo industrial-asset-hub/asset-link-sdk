@@ -22,7 +22,7 @@ Currently, two interfaces are supported:
 
 Tooling:
 
-- [Go](https://go.dev/) Version >=1.24.9 is required
+- [Go](https://go.dev/) Version >=1.24.13 is required
 - [cookiecutter](https://github.com/cookiecutter/cookiecutter)
 - [GoReleaser](https://goreleaser.com/)
 
