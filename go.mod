@@ -1,6 +1,6 @@
 module github.com/industrial-asset-hub/asset-link-sdk/v3
 
-go 1.24.9
+go 1.24.13
 
 require (
 	github.com/Masterminds/semver/v3 v3.4.0
