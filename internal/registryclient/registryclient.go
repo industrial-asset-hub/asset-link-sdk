@@ -73,6 +73,13 @@ func New(registryAddress string, alId string, grpcAddress string) *GrpcServerReg
 }
 
 func (r *GrpcServerRegistry) connect() error {
+	if r.connection != nil {
+		connectionCloseErr := r.connection.Close()
+		if connectionCloseErr != nil {
+			log.Error().Err(connectionCloseErr).Msg("Could not close connection to grpc registry")
+			return connectionCloseErr
+		}
+	}
 	connection, err := grpc.Dial(r.grpcServerRegistryAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	r.connection = connection
 	if err != nil {
