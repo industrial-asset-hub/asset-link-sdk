@@ -8,7 +8,8 @@
 services:
   reference-asset-link:
     restart: always
-    image: 'ghcr.io/industrial-asset-hub/asset-link-sdk/reference-asset-link:latest'
+    # image: 'ghcr.io/industrial-asset-hub/asset-link-sdk/reference-asset-link:latest'
+    image: 'ghcr.io/industrial-asset-hub/asset-link-sdk/fx/reference-asset-link:latest'
     networks:
       - 01-cdm
     command:

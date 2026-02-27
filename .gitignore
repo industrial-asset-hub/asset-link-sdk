@@ -2,6 +2,9 @@
 #
 # SPDX-License-Identifier: MIT
 dist/
+cdm-al-reference/cdm-al-reference
+cdm-al-reference/cdm-al-reference-linux-amd64
+cdm-al-reference/cdm-al-reference-linux-arm64
 result.json
 test_result.json
 # Automatically generated and updated inside CI/CD pipeline
