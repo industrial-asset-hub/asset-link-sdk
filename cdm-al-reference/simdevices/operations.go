@@ -67,7 +67,7 @@ func RetrieveDeviceDetails(deviceAddress SimulatedDeviceAddress, credentials *Si
 	device.DeviceState = StateReading
 	handleDeviceChanges()
 
-	simulateCostlyOperation(2 * time.Second) // simulate reading information from device
+	simulateCostlyOperation(1 * time.Second) // simulate reading information from device
 
 	device.DeviceState = StateActive
 	handleDeviceChanges()
