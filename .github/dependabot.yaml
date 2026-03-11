@@ -9,6 +9,10 @@ updates:
     schedule:
       interval: daily
   - package-ecosystem: github-actions
-    directory: /
+    directories:
+      - "/" # regular config: checks /.github/workflows/
+      - "/.github/actions/prepare/"
+      - "/cookiecutter-project-template/{{ cookiecutter.al_project }}/.github/workflows/"
+      - "/cookiecutter-project-template/{{ cookiecutter.al_project }}/.github/actions/prepare/"
     schedule:
       interval: daily
