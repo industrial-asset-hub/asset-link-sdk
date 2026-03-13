@@ -69,6 +69,7 @@ func (m *ReferenceAssetLink) Discover(discoveryConfig config.DiscoveryConfig, de
 			continue // try next device
 		}
 
+		// handle root device
 		deviceInfo := createDeviceInfo(device)
 		discoveredDevice := deviceInfo.ConvertToDiscoveredDevice()
 		err = devicePublisher.PublishDevice(discoveredDevice)
@@ -76,6 +77,28 @@ func (m *ReferenceAssetLink) Discover(discoveryConfig config.DiscoveryConfig, de
 			// discovery request was likely cancelled -> terminate discovery and return error
 			log.Error().Msgf("Publishing Error: %v", err)
 			return err
+		}
+
+		// handle sub-devices (if any)
+		for _, subDevice := range device.GetSubDevices() {
+			subDeviceInfo := createDeviceInfo(subDevice)
+			discoveredSubDevice := subDeviceInfo.ConvertToDiscoveredDevice()
+			err = devicePublisher.PublishDevice(discoveredSubDevice)
+			if err != nil {
+				// discovery request was likely cancelled -> terminate discovery and return error
+				log.Error().Msgf("Publishing Error: %v", err)
+				return err
+			}
+
+			relationship := model.NewDeviceRelationship(deviceInfo, model.PredicateValuesRelatedTo, subDeviceInfo)
+			discoveredRelationship := relationship.ConvertToDiscoveredDeviceRelationship()
+
+			err = devicePublisher.PublishDeviceRelationship(discoveredRelationship)
+			if err != nil {
+				// discovery request was likely cancelled -> terminate discovery and return error
+				log.Error().Msgf("Publishing Error: %v", err)
+				return err
+			}
 		}
 	}
 
