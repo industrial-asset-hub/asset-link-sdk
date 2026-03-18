@@ -25,6 +25,7 @@ The following documentation is available in [docs/](docs/):
 - [Command line tool](docs/cmd.md)
 - [Observability Webserver](docs/observability.md)
 - [Working with the Asset Model](docs/model.md)
+- [Troubleshooting](docs/troubleshooting.md)
 
 Documentation is also available to browse online at <https://industrial-asset-hub.github.io/asset-link-sdk/>.
 
