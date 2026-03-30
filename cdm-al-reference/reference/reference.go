@@ -8,6 +8,7 @@ package reference
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"sync"
 
@@ -67,7 +68,11 @@ func (m *ReferenceAssetLink) Discover(discoveryConfig config.DiscoveryConfig, de
 			}
 			continue // try next device
 		}
-		deviceInfo := createDeviceInfo(device)
+		deviceInfo, err := createDeviceInfo(device)
+		if err != nil {
+			log.Error().Err(err).Msg("Could not create device info")
+			continue
+		}
 		discoveredDevice := deviceInfo.ConvertToDiscoveredDevice()
 
 		err = devicePublisher.PublishDevice(discoveredDevice)
@@ -125,7 +130,11 @@ func (m *ReferenceAssetLink) GetIdentifiers(identifiersRequest config.Identifier
 		}
 		// if device can be reached with provided credentials, return its identifiers
 		// otherwise try next credentials
-		deviceInfo := createDeviceInfo(deviceDetails)
+		deviceInfo, err := createDeviceInfo(deviceDetails)
+		if err != nil {
+			log.Error().Err(err).Msg("Could not create device info")
+			return nil, status.Errorf(codes.Internal, "Could not create device info: %v", err)
+		}
 		discoveredDevice := deviceInfo.ConvertToDiscoveredDevice()
 		if discoveredDevice != nil {
 			return discoveredDevice.GetIdentifiers(), nil
@@ -138,7 +147,11 @@ func (m *ReferenceAssetLink) GetIdentifiers(identifiersRequest config.Identifier
 			deviceAddress.AssetLinkNIC)
 		return nil, status.Errorf(codes.Unavailable, "Could not retrieve device details: %v", err)
 	}
-	deviceInfo := createDeviceInfo(deviceDetails)
+	deviceInfo, err := createDeviceInfo(deviceDetails)
+	if err != nil {
+		log.Error().Err(err).Msg("Could not create device info")
+		return nil, status.Errorf(codes.Internal, "Could not create device info: %v", err)
+	}
 	discoveredDevice := deviceInfo.ConvertToDiscoveredDevice()
 	if discoveredDevice != nil {
 		return discoveredDevice.GetIdentifiers(), nil
@@ -175,16 +188,69 @@ func createDiscoverError(sdError error, sdAddress simdevices.SimulatedDeviceAddr
 	return discoverError
 }
 
-func createDeviceInfo(device simdevices.SimulatedDeviceInfo) *model.DeviceInfo {
-	deviceInfo := model.NewDevice("EthernetDevice", device.GetDeviceName())
-	deviceInfo.AddNameplate(device.GetManufacturer(), device.GetIDLink(), device.GetArticleNumber(),
+func createDeviceInfo(device simdevices.SimulatedDeviceInfo) (*model.DeviceInfo, error) {
+	deviceInfo, err := model.NewDevice("EthernetDevice", device.GetDeviceName())
+	if err != nil {
+		if errors.Is(err, model.ErrEmpty) {
+			log.Warn().Err(err).Msg("one or more required fields for creating device info are empty, cannot create device info for discovered device")
+			return deviceInfo, nil
+		}
+		log.Warn().Err(err).Msg("Could not create device info")
+		return deviceInfo, nil
+	}
+	err = deviceInfo.AddNameplate(device.GetManufacturer(), device.GetIDLink(), device.GetArticleNumber(),
 		device.GetProductDesignation(), device.GetHardwareVersion(), device.GetSerialNumber())
+	if err != nil {
+		if errors.Is(err, model.ErrEmpty) {
+			log.Warn().Err(err).Msg("One or more nameplate fields are empty, cannot add nameplate information to device info")
+			return deviceInfo, nil
+		}
+	}
 
-	nicID := deviceInfo.AddNic(device.GetDeviceNIC(), device.GetMacAddress())
-	deviceInfo.AddIPv4(nicID, device.GetIpDevice(), device.GetIpNetmask(), device.GetIpRoute())
+	nicID, err := deviceInfo.AddNic(device.GetDeviceNIC(), device.GetMacAddress())
+	if err != nil {
+		if errors.Is(err, model.ErrEmpty) {
+			log.Warn().Err(err).Msg("MAC address is empty, cannot add NIC to device info")
+			return deviceInfo, nil
+		} else if errors.Is(err, model.ErrValidation) {
+			log.Warn().Err(err).Msg("MAC address format is invalid, cannot add NIC to device info")
+			return deviceInfo, nil // return device info without NIC -ask?
+		}
+		log.Warn().Err(err).Msg("Could not add NIC to device info")
+		return deviceInfo, nil
+	}
+	_, err = deviceInfo.AddIPv4(nicID, device.GetIpDevice(), device.GetIpNetmask(), device.GetIpRoute())
+	if err != nil {
+		if errors.Is(err, model.ErrEmpty) {
+			log.Warn().Err(err).Msg("IP address or network mask is empty, cannot add IPv4 connectivity to device info")
+			return deviceInfo, nil // return device info without IPv4 connectivity
+		} else if errors.Is(err, model.ErrValidation) {
+			log.Warn().Err(err).Msg("IP address or network mask format is invalid, cannot add IPv4 connectivity to device info")
+			return deviceInfo, nil // return device info without IPv4 connectivity
+		}
+		log.Warn().Err(err).Msg("Could not add IPv4 connectivity to device info")
+		return deviceInfo, nil
+	}
 
-	deviceInfo.AddSoftware("Firmware", device.GetActiveFirmwareVersion(), true)
-	deviceInfo.AddCapabilities("firmware_update", device.IsUpdateSupported())
-	deviceInfo.AddDescription(device.GetProductDesignation())
-	return deviceInfo
+	err = deviceInfo.AddSoftware("Firmware", device.GetActiveFirmwareVersion(), true)
+	if err != nil {
+		if errors.Is(err, model.ErrEmpty) {
+			log.Warn().Err(err).Msg("Firmware version is empty, cannot add firmware information to device info")
+			return deviceInfo, nil
+		}
+	}
+	err = deviceInfo.AddCapabilities("firmware_update", device.IsUpdateSupported())
+	if err != nil {
+		if errors.Is(err, model.ErrEmpty) {
+			log.Warn().Err(err).Msg("Capability name is empty, cannot add capability information to device info")
+			return deviceInfo, nil
+		}
+	}
+	err = deviceInfo.AddDescription(device.GetProductDesignation())
+	if err != nil {
+		if errors.Is(err, model.ErrEmpty) {
+			log.Warn().Err(err).Msg("Description is empty, cannot add description to device info")
+		}
+	}
+	return deviceInfo, nil
 }
