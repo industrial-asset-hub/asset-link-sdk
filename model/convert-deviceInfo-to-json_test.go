@@ -17,7 +17,7 @@ func TestConvertToJson(t *testing.T) {
 		t.Fatalf("NewDevice failed: %v", err)
 	}
 
-	err = device.AddNameplate("Dummy Manufacturer", "http://example.com/idlink", "12345",
+	err = device.AddNameplate("Dummy Manufacturer", testIDLink, "12345",
 		"Dummy Product", "v1.0", "SN123456")
 	if err != nil {
 		t.Fatalf("AddNameplate failed: %v", err)

@@ -8,9 +8,7 @@
 package model
 
 import (
-	"fmt"
 	"strconv"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -65,7 +63,7 @@ func getTestDevice() *DeviceInfo {
 		panic(err)
 	}
 
-	uriOfTheProduct := fmt.Sprintf("https://%s/%s-%s", strings.ReplaceAll(manufacturer, " ", "_"), strings.ReplaceAll(product, " ", "_"), serialNumber)
+	uriOfTheProduct := testIDLink
 	err = deviceInfo.AddNameplate(manufacturer, uriOfTheProduct, "MyOrderNumber", product, "1.0.0", serialNumber)
 	if err != nil {
 		panic(err)

@@ -52,14 +52,7 @@ func (d *GatewayInfo) AddProductInstanceIdentifier(productId, productVersion, pr
 	if !isNonEmptyValues(productId, productVersion, productName, manufacturerName, serialNumber) {
 		err := &EmptyError{
 			Field:   "ProductInstanceIdentifier",
-			Message: "One or more required fields for ProductInstanceIdentifier are empty",
-			Value: map[string]string{
-				"productId":        productId,
-				"productVersion":   productVersion,
-				"productName":      productName,
-				"manufacturerName": manufacturerName,
-				"serialNumber":     serialNumber,
-			},
+			Message: "All fields for ProductInstanceIdentifier are empty",
 		}
 		return err
 	}

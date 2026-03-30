@@ -246,6 +246,11 @@ func createDeviceInfo(device simdevices.SimulatedDeviceInfo) (*model.DeviceInfo,
 			return deviceInfo, nil
 		}
 	}
-	deviceInfo.AddDescription(device.GetProductDesignation())
+	err = deviceInfo.AddDescription(device.GetProductDesignation())
+	if err != nil {
+		if errors.Is(err, model.ErrEmpty) {
+			log.Warn().Err(err).Msg("Description is empty, cannot add description to device info")
+		}
+	}
 	return deviceInfo, nil
 }

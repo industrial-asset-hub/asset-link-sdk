@@ -20,11 +20,10 @@ var (
 
 // ValidationError represents a validation failure with optional details.
 type ValidationError struct {
-	Field   string      // The name of the field that failed validation
-	Message string      // Human-readable error message
-	Value   interface{} // The value that failed validation
-	//Pattern string      // The regex or rule that was violated (optional)
-	Details interface{} // Additional context (optional)
+	Field   string
+	Message string
+	Value   interface{}
+	Details interface{}
 }
 
 func (e *ValidationError) Error() string {

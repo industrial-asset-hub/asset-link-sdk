@@ -15,6 +15,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+const testIDLink = "https://i.siemens.com/1P6ES7131-6BF00-0CA0+SC-P4TM3526"
+
 func TestNameplate(t *testing.T) {
 	t.Run("AddNameplate", func(t *testing.T) {
 		m, err := NewDevice("asset", "device")
@@ -22,7 +24,7 @@ func TestNameplate(t *testing.T) {
 
 		err = m.AddNameplate(
 			"ManufacturerCompany",
-			"GuidOfTheProduct",
+			testIDLink,
 			"MyOrderNumber",
 			"ProductFamily",
 			"0.1.2",
@@ -31,7 +33,7 @@ func TestNameplate(t *testing.T) {
 
 		// ManufacturerProductDesignation
 		assert.Equal(t, "ManufacturerCompany", *m.ProductInstanceIdentifier.ManufacturerProduct.Manufacturer.Name)
-		assert.Equal(t, "GuidOfTheProduct", m.ProductInstanceIdentifier.ManufacturerProduct.Id)
+		assert.Equal(t, testIDLink, m.ProductInstanceIdentifier.ManufacturerProduct.Id)
 		assert.Equal(t, "ProductFamily", *m.ProductInstanceIdentifier.ManufacturerProduct.Name)
 		assert.Equal(t, "0.1.2", *m.ProductInstanceIdentifier.ManufacturerProduct.ProductVersion)
 		assert.Equal(t, "MyOrderNumber", *m.ProductInstanceIdentifier.ManufacturerProduct.ProductId)
@@ -45,9 +47,31 @@ func TestNameplate(t *testing.T) {
 		found := 0
 		for _, v := range idLinks {
 			found++
-			assert.Equal(t, *v.IdLink, "GuidOfTheProduct")
+			assert.Equal(t, testIDLink, *v.IdLink)
+			assert.Equal(t, IdLinkAssetIdentifierTypeIdLink, *v.AssetIdentifierType)
 		}
 		assert.Equal(t, 1, found)
+	})
+
+	t.Run("AddNameplate_InvalidURI_DoesNotAppendIdLink", func(t *testing.T) {
+		m, err := NewDevice("asset", "device")
+		assert.NoError(t, err)
+
+		err = m.AddNameplate(
+			"ManufacturerCompany",
+			"https://example.com/not-a-siemens-id-link",
+			"MyOrderNumber",
+			"ProductFamily",
+			"0.1.2",
+			"s-n-1.2.3")
+		assert.Error(t, err)
+
+		var validationErr *ValidationError
+		assert.ErrorAs(t, err, &validationErr)
+		assert.Equal(t, "URIOfTheProduct", validationErr.Field)
+		assert.Equal(t, "Idlink must be a valid URI", validationErr.Message)
+		assert.Empty(t, m.getIdLink())
+		assert.Len(t, m.AssetIdentifiers, 0)
 	})
 }
 

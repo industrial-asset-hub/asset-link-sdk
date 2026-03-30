@@ -31,28 +31,12 @@ func (d *DeviceInfo) AddNameplate(manufacturerName string,
 	hardwareVersion string,
 	serialNumber string,
 ) error {
-	if err := ValidateField(manufacturerName, "ManufacturerName", "Manufacturer name is empty",
-		"", ""); err != nil {
-		return err
-	}
-	if err := ValidateField(uriOfTheProduct, "URIOfTheProduct", "URI of the product is empty",
-		"", ""); err != nil {
-		return err
-	}
-	if err := ValidateField(productArticleNumberOfManufacturer, "ProductArticleNumberOfManufacturer",
-		"Product article number of manufacturer is empty", "", ""); err != nil {
-		return err
-	}
-	if err := ValidateField(manufacturerProductDesignation, "ManufacturerProductDesignation",
-		"Manufacturer product designation is empty", "", ""); err != nil {
-		return err
-	}
-	if err := ValidateField(hardwareVersion, "HardwareVersion", "Hardware version is empty",
-		"", ""); err != nil {
-		return err
-	}
-	if err := ValidateField(serialNumber, "SerialNumber", "Serial number is empty", "",
-		""); err != nil {
+	if !isNonEmptyValues(manufacturerName, uriOfTheProduct, productArticleNumberOfManufacturer,
+		manufacturerProductDesignation, hardwareVersion, serialNumber) {
+		err := &EmptyError{
+			Field:   "ProductInstanceIdentifier",
+			Message: "All fields for ProductInstanceIdentifier are empty",
+		}
 		return err
 	}
 
@@ -86,17 +70,19 @@ func (d *DeviceInfo) AddNameplate(manufacturerName string,
 
 	d.ProductInstanceIdentifier = &pi
 
-	if isNonEmptyValues(uriOfTheProduct) {
-		// Duplicate IDLink field to explict field
-		assetIdentifierType := IdLinkAssetIdentifierTypeIdLink
-		idLink := IdLink{
-			AssetIdentifierType:   &assetIdentifierType,
-			IdLink:                &uriOfTheProduct,
-			IdentifierType:        nil,
-			IdentifierUncertainty: nil,
-		}
-		d.AssetIdentifiers = append(d.AssetIdentifiers, idLink)
+	if err := ValidateField(uriOfTheProduct, "URIOfTheProduct", "URI of the product is empty",
+		IdLinkPattern, "Idlink must be a valid URI"); err != nil {
+		return err
 	}
+	// Duplicate IDLink field to explict field
+	assetIdentifierType := IdLinkAssetIdentifierTypeIdLink
+	idLink := IdLink{
+		AssetIdentifierType:   &assetIdentifierType,
+		IdLink:                &uriOfTheProduct,
+		IdentifierType:        nil,
+		IdentifierUncertainty: nil,
+	}
+	d.AssetIdentifiers = append(d.AssetIdentifiers, idLink)
 	return nil
 }
 

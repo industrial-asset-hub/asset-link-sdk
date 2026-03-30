@@ -9,8 +9,6 @@ package model
 
 import (
 	"time"
-
-	"github.com/rs/zerolog/log"
 )
 
 const (
@@ -136,12 +134,16 @@ func managementStatePtr(stateValue ManagementStateValues, timestamp time.Time) (
 	return &mgmtState, nil
 }
 
-func (d *DeviceInfo) AddDescription(description string) {
+func (d *DeviceInfo) AddDescription(description string) error {
 
 	if !isNonEmptyValues(description) {
-		log.Warn().Msg("Description is empty")
-		return
+		err := &EmptyError{
+			Field:   "Description",
+			Message: "Description is empty",
+		}
+		return err
 	}
 
 	d.Description = &description
+	return nil
 }

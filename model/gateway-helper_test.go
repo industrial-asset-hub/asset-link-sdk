@@ -19,10 +19,11 @@ func TestGatewayConvenience(t *testing.T) {
 		g := &GatewayInfo{}
 		beforeTime := time.Now().UTC()
 
-		g.AddTrustEstablishmentState(TrustEstablishedStateValuesTrusted)
+		err := g.AddTrustEstablishmentState(TrustEstablishedStateValuesTrusted)
 
 		afterTime := time.Now().UTC()
 
+		assert.NoError(t, err)
 		assert.NotNil(t, g.TrustEstablishedState)
 		assert.Equal(t, TrustEstablishedStateValuesTrusted, *g.TrustEstablishedState.StateValue)
 		assert.NotNil(t, g.TrustEstablishedState.StateTimestamp)
@@ -33,8 +34,9 @@ func TestGatewayConvenience(t *testing.T) {
 	t.Run("AddTrustEstablishmentState - Valid Pending State", func(t *testing.T) {
 		g := &GatewayInfo{}
 
-		g.AddTrustEstablishmentState(TrustEstablishedStateValuesPending)
+		err := g.AddTrustEstablishmentState(TrustEstablishedStateValuesPending)
 
+		assert.NoError(t, err)
 		assert.NotNil(t, g.TrustEstablishedState)
 		assert.Equal(t, TrustEstablishedStateValuesPending, *g.TrustEstablishedState.StateValue)
 		assert.NotNil(t, g.TrustEstablishedState.StateTimestamp)
@@ -43,8 +45,9 @@ func TestGatewayConvenience(t *testing.T) {
 	t.Run("AddTrustEstablishmentState - Valid Failed State", func(t *testing.T) {
 		g := &GatewayInfo{}
 
-		g.AddTrustEstablishmentState(TrustEstablishedStateValuesFailed)
+		err := g.AddTrustEstablishmentState(TrustEstablishedStateValuesFailed)
 
+		assert.NoError(t, err)
 		assert.NotNil(t, g.TrustEstablishedState)
 		assert.Equal(t, TrustEstablishedStateValuesFailed, *g.TrustEstablishedState.StateValue)
 		assert.NotNil(t, g.TrustEstablishedState.StateTimestamp)
@@ -53,16 +56,18 @@ func TestGatewayConvenience(t *testing.T) {
 	t.Run("AddTrustEstablishmentState - Empty State Value", func(t *testing.T) {
 		g := &GatewayInfo{}
 
-		g.AddTrustEstablishmentState(TrustEstablishedStateValues(""))
+		err := g.AddTrustEstablishmentState(TrustEstablishedStateValues(""))
 
+		assert.Error(t, err)
 		assert.Nil(t, g.TrustEstablishedState)
 	})
 
 	t.Run("AddTrustEstablishmentState - Invalid State Value", func(t *testing.T) {
 		g := &GatewayInfo{}
 
-		g.AddTrustEstablishmentState(TrustEstablishedStateValues("invalid"))
+		err := g.AddTrustEstablishmentState(TrustEstablishedStateValues("invalid"))
 
+		assert.Error(t, err)
 		assert.Nil(t, g.TrustEstablishedState)
 	})
 
@@ -74,8 +79,9 @@ func TestGatewayConvenience(t *testing.T) {
 		manufacturerName := "Test Manufacturer"
 		serialNumber := "SN123456"
 
-		g.AddProductInstanceIdentifier(productId, productVersion, productName, manufacturerName, serialNumber)
+		err := g.AddProductInstanceIdentifier(productId, productVersion, productName, manufacturerName, serialNumber)
 
+		assert.NoError(t, err)
 		assert.NotNil(t, g.ProductInstanceIdentifier)
 		assert.Equal(t, serialNumber, *g.ProductInstanceIdentifier.SerialNumber)
 		assert.NotNil(t, g.ProductInstanceIdentifier.ManufacturerProduct)
@@ -89,8 +95,9 @@ func TestGatewayConvenience(t *testing.T) {
 	t.Run("AddProductInstanceIdentifier - Empty Parameters", func(t *testing.T) {
 		g := &GatewayInfo{}
 
-		g.AddProductInstanceIdentifier("", "", "", "", "")
+		err := g.AddProductInstanceIdentifier("", "", "", "", "")
 
+		assert.Error(t, err)
 		assert.Nil(t, g.ProductInstanceIdentifier)
 	})
 
@@ -98,10 +105,11 @@ func TestGatewayConvenience(t *testing.T) {
 		g := &GatewayInfo{}
 		beforeTime := time.Now().UTC()
 
-		g.AddReachabilityState(ReachabilityStateValuesReached)
+		err := g.AddReachabilityState(ReachabilityStateValuesReached)
 
 		afterTime := time.Now().UTC()
 
+		assert.NoError(t, err)
 		assert.NotNil(t, g.ReachabilityState)
 		assert.Equal(t, ReachabilityStateValuesReached, *g.ReachabilityState.StateValue)
 		assert.NotNil(t, g.ReachabilityState.StateTimestamp)
@@ -112,8 +120,9 @@ func TestGatewayConvenience(t *testing.T) {
 	t.Run("AddReachabilityState - Valid Failed State", func(t *testing.T) {
 		g := &GatewayInfo{}
 
-		g.AddReachabilityState(ReachabilityStateValuesFailed)
+		err := g.AddReachabilityState(ReachabilityStateValuesFailed)
 
+		assert.NoError(t, err)
 		assert.NotNil(t, g.ReachabilityState)
 		assert.Equal(t, ReachabilityStateValuesFailed, *g.ReachabilityState.StateValue)
 		assert.NotNil(t, g.ReachabilityState.StateTimestamp)
@@ -122,8 +131,9 @@ func TestGatewayConvenience(t *testing.T) {
 	t.Run("AddReachabilityState - Valid Unknown State", func(t *testing.T) {
 		g := &GatewayInfo{}
 
-		g.AddReachabilityState(ReachabilityStateValuesUnknown)
+		err := g.AddReachabilityState(ReachabilityStateValuesUnknown)
 
+		assert.NoError(t, err)
 		assert.NotNil(t, g.ReachabilityState)
 		assert.Equal(t, ReachabilityStateValuesUnknown, *g.ReachabilityState.StateValue)
 		assert.NotNil(t, g.ReachabilityState.StateTimestamp)
@@ -132,29 +142,33 @@ func TestGatewayConvenience(t *testing.T) {
 	t.Run("AddReachabilityState - Empty State Value", func(t *testing.T) {
 		g := &GatewayInfo{}
 
-		g.AddReachabilityState(ReachabilityStateValues(""))
+		err := g.AddReachabilityState(ReachabilityStateValues(""))
 
+		assert.Error(t, err)
 		assert.Nil(t, g.ReachabilityState)
 	})
 
 	t.Run("AddReachabilityState - Invalid State Value", func(t *testing.T) {
 		g := &GatewayInfo{}
 
-		g.AddReachabilityState(ReachabilityStateValues("invalid"))
+		err := g.AddReachabilityState(ReachabilityStateValues("invalid"))
 
+		assert.Error(t, err)
 		assert.Nil(t, g.ReachabilityState)
 	})
 
 	t.Run("AddTrustEstablishmentState - Override Previous State", func(t *testing.T) {
 		g := &GatewayInfo{}
 
-		g.AddTrustEstablishmentState(TrustEstablishedStateValuesTrusted)
+		err := g.AddTrustEstablishmentState(TrustEstablishedStateValuesTrusted)
+		assert.NoError(t, err)
 		firstTimestamp := *g.TrustEstablishedState.StateTimestamp
 
 		time.Sleep(1 * time.Millisecond) // Ensure different timestamps
 
-		g.AddTrustEstablishmentState(TrustEstablishedStateValuesFailed)
+		err = g.AddTrustEstablishmentState(TrustEstablishedStateValuesFailed)
 
+		assert.NoError(t, err)
 		assert.NotNil(t, g.TrustEstablishedState)
 		assert.Equal(t, TrustEstablishedStateValuesFailed, *g.TrustEstablishedState.StateValue)
 		assert.True(t, g.TrustEstablishedState.StateTimestamp.After(firstTimestamp))
@@ -163,13 +177,15 @@ func TestGatewayConvenience(t *testing.T) {
 	t.Run("AddReachabilityState - Override Previous State", func(t *testing.T) {
 		g := &GatewayInfo{}
 
-		g.AddReachabilityState(ReachabilityStateValuesReached)
+		err := g.AddReachabilityState(ReachabilityStateValuesReached)
+		assert.NoError(t, err)
 		firstTimestamp := *g.ReachabilityState.StateTimestamp
 
 		time.Sleep(1 * time.Millisecond) // Ensure different timestamps
 
-		g.AddReachabilityState(ReachabilityStateValuesFailed)
+		err = g.AddReachabilityState(ReachabilityStateValuesFailed)
 
+		assert.NoError(t, err)
 		assert.NotNil(t, g.ReachabilityState)
 		assert.Equal(t, ReachabilityStateValuesFailed, *g.ReachabilityState.StateValue)
 		assert.True(t, g.ReachabilityState.StateTimestamp.After(firstTimestamp))
@@ -178,8 +194,9 @@ func TestGatewayConvenience(t *testing.T) {
 	t.Run("AddRunningSoftwareType - Valid CdmGateway Type", func(t *testing.T) {
 		g := &GatewayInfo{}
 
-		g.AddRunningSoftwareType(RunningSoftwareValuesCdmGateway)
+		err := g.AddRunningSoftwareType(RunningSoftwareValuesCdmGateway)
 
+		assert.NoError(t, err)
 		assert.NotNil(t, g.RunningSoftwareType)
 		assert.Equal(t, RunningSoftwareValuesCdmGateway, *g.RunningSoftwareType)
 	})
@@ -187,8 +204,9 @@ func TestGatewayConvenience(t *testing.T) {
 	t.Run("AddRunningSoftwareType - Valid IahGateway Type", func(t *testing.T) {
 		g := &GatewayInfo{}
 
-		g.AddRunningSoftwareType(RunningSoftwareValuesIahGateway)
+		err := g.AddRunningSoftwareType(RunningSoftwareValuesIahGateway)
 
+		assert.NoError(t, err)
 		assert.NotNil(t, g.RunningSoftwareType)
 		assert.Equal(t, RunningSoftwareValuesIahGateway, *g.RunningSoftwareType)
 	})
@@ -196,8 +214,9 @@ func TestGatewayConvenience(t *testing.T) {
 	t.Run("AddRunningSoftwareType - Valid Other Type", func(t *testing.T) {
 		g := &GatewayInfo{}
 
-		g.AddRunningSoftwareType(RunningSoftwareValuesOther)
+		err := g.AddRunningSoftwareType(RunningSoftwareValuesOther)
 
+		assert.NoError(t, err)
 		assert.NotNil(t, g.RunningSoftwareType)
 		assert.Equal(t, RunningSoftwareValuesOther, *g.RunningSoftwareType)
 	})
@@ -205,27 +224,31 @@ func TestGatewayConvenience(t *testing.T) {
 	t.Run("AddRunningSoftwareType - Empty Software Type", func(t *testing.T) {
 		g := &GatewayInfo{}
 
-		g.AddRunningSoftwareType(RunningSoftwareValues(""))
+		err := g.AddRunningSoftwareType(RunningSoftwareValues(""))
 
+		assert.Error(t, err)
 		assert.Nil(t, g.RunningSoftwareType)
 	})
 
 	t.Run("AddRunningSoftwareType - Invalid Software Type", func(t *testing.T) {
 		g := &GatewayInfo{}
 
-		g.AddRunningSoftwareType(RunningSoftwareValues("invalid_type"))
+		err := g.AddRunningSoftwareType(RunningSoftwareValues("invalid_type"))
 
+		assert.Error(t, err)
 		assert.Nil(t, g.RunningSoftwareType)
 	})
 
 	t.Run("AddRunningSoftwareType - Override Previous Type", func(t *testing.T) {
 		g := &GatewayInfo{}
 
-		g.AddRunningSoftwareType(RunningSoftwareValuesCdmGateway)
+		err := g.AddRunningSoftwareType(RunningSoftwareValuesCdmGateway)
+		assert.NoError(t, err)
 		assert.NotNil(t, g.RunningSoftwareType)
 		assert.Equal(t, RunningSoftwareValuesCdmGateway, *g.RunningSoftwareType)
 
-		g.AddRunningSoftwareType(RunningSoftwareValuesOther)
+		err = g.AddRunningSoftwareType(RunningSoftwareValuesOther)
+		assert.NoError(t, err)
 		assert.NotNil(t, g.RunningSoftwareType)
 		assert.Equal(t, RunningSoftwareValuesOther, *g.RunningSoftwareType)
 	})

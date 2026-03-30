@@ -102,8 +102,8 @@ func TestAddDescriptionValidDescription(t *testing.T) {
 	deviceInfo, err := NewDevice("testAsset", "test")
 	assert.NoError(t, err)
 	description := "This is a test device"
-	deviceInfo.AddDescription(description)
-
+	err = deviceInfo.AddDescription(description)
+	assert.NoError(t, err)
 	assert.NotNil(t, deviceInfo.Description)
 	assert.Equal(t, description, *deviceInfo.Description)
 }
@@ -115,7 +115,8 @@ func TestAddDescriptionEmptyDescription(t *testing.T) {
 	initialDescription := "Initial description"
 	deviceInfo.Description = &initialDescription
 
-	deviceInfo.AddDescription("")
+	err = deviceInfo.AddDescription("")
+	assert.Error(t, err)
 
 	// Description should remain unchanged
 	assert.NotNil(t, deviceInfo.Description)
