@@ -22,26 +22,33 @@ const (
 )
 
 // NewDevice Generates a new asset skeleton
-func NewDevice(typeOfAsset string, assetName string) *DeviceInfo {
+func NewDevice(typeOfAsset string, assetName string) (*DeviceInfo, error) {
 
 	d := DeviceInfo{}
 	if !isNonEmptyValues(typeOfAsset) {
-		log.Warn().Msg("Asset type is empty")
-		return &d
+		err := &EmptyError{
+			Field:   "Type",
+			Message: "Asset type is required and cannot be empty",
+			Value:   typeOfAsset,
+		}
+		return &d, err
 	}
 
 	d.Type = typeOfAsset
 	d.Name = &assetName
 	d.Context = getAssetContext()
 
-	d.AddManagementState(ManagementStateValuesUnknown)
+	err := d.AddManagementState(ManagementStateValuesUnknown)
+	if err != nil {
+		return nil, err
+	}
 	d.addReachabilityState()
 
-	return &d
+	return &d, nil
 }
 
 // NewGateway Generates a new gateway skeleton
-func NewGateway(gatewayName string) *GatewayInfo {
+func NewGateway(gatewayName string) (*GatewayInfo, error) {
 
 	d := GatewayInfo{}
 
@@ -49,9 +56,12 @@ func NewGateway(gatewayName string) *GatewayInfo {
 	d.Name = &gatewayName
 	d.Context = getAssetContext()
 
-	d.addManagementState(ManagementStateValuesRegarded)
+	err := d.addManagementState(ManagementStateValuesRegarded)
+	if err != nil {
+		return nil, err
+	}
 
-	return &d
+	return &d, nil
 }
 
 type DeviceInfo struct {
@@ -81,32 +91,41 @@ type AssetContext struct {
 }
 
 // Add Management state to the asset
-func (d *DeviceInfo) AddManagementState(stateValue ManagementStateValues) {
-	mgmtState := managementStatePtr(stateValue, getAssetCreationTimestamp(d.ManagementState.StateTimestamp))
+func (d *DeviceInfo) AddManagementState(stateValue ManagementStateValues) error {
+	mgmtState, err := managementStatePtr(stateValue, getAssetCreationTimestamp(d.ManagementState.StateTimestamp))
 	if mgmtState == nil {
-		return
+		return err
+	}
+	d.ManagementState = *mgmtState
+	return nil
+}
+
+func (d *GatewayInfo) addManagementState(stateValue ManagementStateValues) error {
+	mgmtState, err := managementStatePtr(stateValue, getAssetCreationTimestamp(d.ManagementState.StateTimestamp))
+	if mgmtState == nil {
+		return err
 	}
 
 	d.ManagementState = *mgmtState
+	return nil
 }
 
-func (d *GatewayInfo) addManagementState(stateValue ManagementStateValues) {
-	mgmtState := managementStatePtr(stateValue, getAssetCreationTimestamp(d.ManagementState.StateTimestamp))
-	if mgmtState == nil {
-		return
-	}
-
-	d.ManagementState = *mgmtState
-}
-
-func managementStatePtr(stateValue ManagementStateValues, timestamp time.Time) *ManagementState {
+func managementStatePtr(stateValue ManagementStateValues, timestamp time.Time) (*ManagementState, error) {
 	if !isNonEmptyValues(string(stateValue)) {
-		log.Warn().Msg("Management state value is empty")
-		return nil
+		err := &EmptyError{
+			Field:   "ManagementState",
+			Message: "Management state value is empty",
+			Value:   stateValue,
+		}
+		return nil, err
 	}
 	if stateValue != ManagementStateValuesIgnored && stateValue != ManagementStateValuesRegarded && stateValue != ManagementStateValuesUnknown {
-		log.Warn().Msgf("Management state value %s is not valid", stateValue)
-		return nil
+		err := &PermissibleValuesError{
+			Field:   "ManagementState",
+			Value:   stateValue,
+			Allowed: []interface{}{ManagementStateValuesIgnored, ManagementStateValuesRegarded, ManagementStateValuesUnknown},
+		}
+		return nil, err
 	}
 
 	mgmtState := ManagementState{
@@ -114,7 +133,7 @@ func managementStatePtr(stateValue ManagementStateValues, timestamp time.Time) *
 		StateValue:     &stateValue,
 	}
 
-	return &mgmtState
+	return &mgmtState, nil
 }
 
 func (d *DeviceInfo) AddDescription(description string) {

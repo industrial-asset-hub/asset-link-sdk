@@ -60,13 +60,22 @@ func getTestDevice() *DeviceInfo {
 	manufacturer := "Siemens AG"
 	product := "TestDevice"
 	serialNumber := "123456"
-	deviceInfo := NewDevice("Asset", "TestDevice")
+	deviceInfo, err := NewDevice("Asset", "TestDevice")
+	if err != nil {
+		panic(err)
+	}
 
 	uriOfTheProduct := fmt.Sprintf("https://%s/%s-%s", strings.ReplaceAll(manufacturer, " ", "_"), strings.ReplaceAll(product, " ", "_"), serialNumber)
-	deviceInfo.AddNameplate(manufacturer, uriOfTheProduct, "MyOrderNumber", product, "1.0.0", serialNumber)
-	deviceInfo.AddSoftware("Firmware", "1.2.5", true)
+	err = deviceInfo.AddNameplate(manufacturer, uriOfTheProduct, "MyOrderNumber", product, "1.0.0", serialNumber)
+	if err != nil {
+		panic(err)
+	}
+	err = deviceInfo.AddSoftware("Firmware", "1.2.5", true)
+	if err != nil {
+		panic(err)
+	}
 	macAddress := "00:00:00:00:00:00"
 	deviceNIC := "enp0"
-	_ = deviceInfo.AddNic(deviceNIC, macAddress)
+	_, _ = deviceInfo.AddNic(deviceNIC, macAddress)
 	return deviceInfo
 }

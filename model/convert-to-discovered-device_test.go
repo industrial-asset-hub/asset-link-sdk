@@ -64,7 +64,10 @@ func TestConvertDerivedSchemaToDiscoveredDevice(t *testing.T) {
 }
 
 func generateDevice(typeOfAsset string, assetName string) *DeviceInfo {
-	device := NewDevice(typeOfAsset, assetName)
+	device, err := NewDevice(typeOfAsset, assetName)
+	if err != nil {
+		panic(err)
+	}
 	timestamp := getAssetCreationTimestamp(device.ManagementState.StateTimestamp)
 	Name := "Device"
 	device.Name = &Name
@@ -189,7 +192,10 @@ func checkForIdentifierUncertainty(t *testing.T, identifiers []*iah_discovery.De
 }
 
 func TestConvertNumberTypeToDiscoveredDevice(t *testing.T) {
-	device := NewDevice("Profinet", "Device")
+	device, err := NewDevice("Profinet", "Device")
+	if err != nil {
+		panic(err)
+	}
 	device.addIdentifier("ffeffawfafwfw")
 
 	discoveredDevice := device.ConvertToDiscoveredDevice()

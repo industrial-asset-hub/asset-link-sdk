@@ -30,39 +30,61 @@ func (d *DeviceInfo) AddNameplate(manufacturerName string,
 	manufacturerProductDesignation string,
 	hardwareVersion string,
 	serialNumber string,
-) {
-	if isNonEmptyValues(manufacturerName, uriOfTheProduct, productArticleNumberOfManufacturer, manufacturerProductDesignation, hardwareVersion, serialNumber) {
-
-		// We hash the manufacturer to get a unique identifier
-		h := sha1.New()
-		h.Write([]byte(manufacturerName))
-		manufacturerId := hex.EncodeToString(h.Sum(nil))
-
-		organisation := Organization{
-			Address:        nil,
-			AlternateNames: nil,
-			ContactPoint:   nil,
-			Id:             manufacturerId,
-			Name:           &manufacturerName,
-		}
-
-		mp := Product{
-			Id:             uriOfTheProduct,
-			Manufacturer:   &organisation,
-			Name:           &manufacturerProductDesignation,
-			ProductId:      &productArticleNumberOfManufacturer,
-			ProductVersion: &hardwareVersion,
-		}
-
-		pi := ProductSerialIdentifier{
-			IdentifierType:        nil,
-			IdentifierUncertainty: nil,
-			ManufacturerProduct:   &mp,
-			SerialNumber:          &serialNumber,
-		}
-
-		d.ProductInstanceIdentifier = &pi
+) error {
+	if err := ValidateField(manufacturerName, "ManufacturerName", "Manufacturer name is empty",
+		"", ""); err != nil {
+		return err
 	}
+	if err := ValidateField(uriOfTheProduct, "URIOfTheProduct", "URI of the product is empty",
+		"", ""); err != nil {
+		return err
+	}
+	if err := ValidateField(productArticleNumberOfManufacturer, "ProductArticleNumberOfManufacturer",
+		"Product article number of manufacturer is empty", "", ""); err != nil {
+		return err
+	}
+	if err := ValidateField(manufacturerProductDesignation, "ManufacturerProductDesignation",
+		"Manufacturer product designation is empty", "", ""); err != nil {
+		return err
+	}
+	if err := ValidateField(hardwareVersion, "HardwareVersion", "Hardware version is empty",
+		"", ""); err != nil {
+		return err
+	}
+	if err := ValidateField(serialNumber, "SerialNumber", "Serial number is empty", "",
+		""); err != nil {
+		return err
+	}
+
+	// We hash the manufacturer to get a unique identifier
+	h := sha1.New()
+	h.Write([]byte(manufacturerName))
+	manufacturerId := hex.EncodeToString(h.Sum(nil))
+
+	organisation := Organization{
+		Address:        nil,
+		AlternateNames: nil,
+		ContactPoint:   nil,
+		Id:             manufacturerId,
+		Name:           &manufacturerName,
+	}
+
+	mp := Product{
+		Id:             uriOfTheProduct,
+		Manufacturer:   &organisation,
+		Name:           &manufacturerProductDesignation,
+		ProductId:      &productArticleNumberOfManufacturer,
+		ProductVersion: &hardwareVersion,
+	}
+
+	pi := ProductSerialIdentifier{
+		IdentifierType:        nil,
+		IdentifierUncertainty: nil,
+		ManufacturerProduct:   &mp,
+		SerialNumber:          &serialNumber,
+	}
+
+	d.ProductInstanceIdentifier = &pi
 
 	if isNonEmptyValues(uriOfTheProduct) {
 		// Duplicate IDLink field to explict field
@@ -75,41 +97,48 @@ func (d *DeviceInfo) AddNameplate(manufacturerName string,
 		}
 		d.AssetIdentifiers = append(d.AssetIdentifiers, idLink)
 	}
+	return nil
 }
 
 // AddSoftware Add software information to an asset
-func (d *DeviceInfo) AddSoftware(name string, version string, isFirmware bool) {
-	if isNonEmptyValues(name, version) {
-		softwareIdentifier := SoftwareIdentifier{}
-		softwareIdentifier.Name = &name
-		softwareIdentifier.Version = &version
-
-		softwareArtifactId := uuid.New().String()
-
-		stateValue := ManagementStateValuesRegarded
-		stateTimestamp := getAssetCreationTimestamp(d.ManagementState.StateTimestamp)
-
-		softwareArtifact := SoftwareArtifact{
-			Id:                  softwareArtifactId,
-			AssetOperations:     nil,
-			ChecksumIdentifier:  nil,
-			ConnectionPoints:    nil,
-			CustomUiProperties:  nil,
-			FunctionalParts:     nil,
-			InstanceAnnotations: nil,
-			ManagementState: ManagementState{
-				StateTimestamp: &stateTimestamp,
-				StateValue:     &stateValue,
-			},
-			Name:                      nil,
-			OtherStates:               nil,
-			ProductInstanceIdentifier: nil,
-			ReachabilityState:         nil,
-			SoftwareComponents:        nil,
-			SoftwareIdentifier:        &softwareIdentifier,
-			IsFirmware:                &isFirmware,
-		}
-
-		d.SoftwareComponents = append(d.SoftwareComponents, softwareArtifact)
+func (d *DeviceInfo) AddSoftware(name string, version string, isFirmware bool) error {
+	if err := ValidateField(name, "SoftwareName", "Software name is empty", "", ""); err != nil {
+		return err
 	}
+	if err := ValidateField(version, "SoftwareVersion", "Software version is empty", "", ""); err != nil {
+		return err
+	}
+
+	softwareIdentifier := SoftwareIdentifier{}
+	softwareIdentifier.Name = &name
+	softwareIdentifier.Version = &version
+
+	softwareArtifactId := uuid.New().String()
+
+	stateValue := ManagementStateValuesRegarded
+	stateTimestamp := getAssetCreationTimestamp(d.ManagementState.StateTimestamp)
+
+	softwareArtifact := SoftwareArtifact{
+		Id:                  softwareArtifactId,
+		AssetOperations:     nil,
+		ChecksumIdentifier:  nil,
+		ConnectionPoints:    nil,
+		CustomUiProperties:  nil,
+		FunctionalParts:     nil,
+		InstanceAnnotations: nil,
+		ManagementState: ManagementState{
+			StateTimestamp: &stateTimestamp,
+			StateValue:     &stateValue,
+		},
+		Name:                      nil,
+		OtherStates:               nil,
+		ProductInstanceIdentifier: nil,
+		ReachabilityState:         nil,
+		SoftwareComponents:        nil,
+		SoftwareIdentifier:        &softwareIdentifier,
+		IsFirmware:                &isFirmware,
+	}
+
+	d.SoftwareComponents = append(d.SoftwareComponents, softwareArtifact)
+	return nil
 }

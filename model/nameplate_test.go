@@ -17,15 +17,17 @@ import (
 
 func TestNameplate(t *testing.T) {
 	t.Run("AddNameplate", func(t *testing.T) {
-		m := NewDevice("asset", "device")
+		m, err := NewDevice("asset", "device")
+		assert.NoError(t, err)
 
-		m.AddNameplate(
+		err = m.AddNameplate(
 			"ManufacturerCompany",
 			"GuidOfTheProduct",
 			"MyOrderNumber",
 			"ProductFamily",
 			"0.1.2",
 			"s-n-1.2.3")
+		assert.NoError(t, err)
 
 		// ManufacturerProductDesignation
 		assert.Equal(t, "ManufacturerCompany", *m.ProductInstanceIdentifier.ManufacturerProduct.Manufacturer.Name)
@@ -51,7 +53,8 @@ func TestNameplate(t *testing.T) {
 
 func TestSoftwareNameplate(t *testing.T) {
 	t.Run("AddFirmwareAndOtherSoftware", func(t *testing.T) {
-		m := NewDevice("", "")
+		m, err := NewDevice("asset", "device")
+		assert.NoError(t, err)
 
 		firmwareName := "Firmware"
 		firmwareVersion := "1.2.3"
@@ -62,9 +65,12 @@ func TestSoftwareNameplate(t *testing.T) {
 		sw2Name := "SoftwareName2"
 		sw2Version := "2.0.0"
 
-		m.AddSoftware(firmwareName, firmwareVersion, true)
-		m.AddSoftware(sw1Name, sw1Version, false)
-		m.AddSoftware(sw2Name, sw2Version, false)
+		err = m.AddSoftware(firmwareName, firmwareVersion, true)
+		assert.NoError(t, err)
+		err = m.AddSoftware(sw1Name, sw1Version, false)
+		assert.NoError(t, err)
+		err = m.AddSoftware(sw2Name, sw2Version, false)
+		assert.NoError(t, err)
 
 		softwareArtifacts := m.getSoftwareArtifacts()
 
@@ -101,6 +107,15 @@ func TestSoftwareNameplate(t *testing.T) {
 		assert.True(t, fwFound)
 		assert.True(t, sw1Found)
 		assert.True(t, sw2Found)
+	})
+
+	t.Run("AddSoftware_EmptyNameOrVersion", func(t *testing.T) {
+		m, err := NewDevice("asset", "device")
+		assert.NoError(t, err)
+		err = m.AddSoftware("", "1.0.0", false)
+		assert.Error(t, err)
+		err = m.AddSoftware("SoftwareName", "", false)
+		assert.Error(t, err)
 	})
 }
 

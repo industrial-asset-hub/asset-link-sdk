@@ -16,10 +16,13 @@ import (
 
 func TestCapabilities(t *testing.T) {
 	t.Run("AddCapabilties", func(t *testing.T) {
-		m := NewDevice("asset", "device")
+		m, err := NewDevice("asset", "device")
+		assert.NoError(t, err)
 
-		m.AddCapabilities("Capabilties-1", true)
-		m.AddCapabilities("Capabilties-2", false)
+		err = m.AddCapabilities("Capabilties-1", true)
+		assert.NoError(t, err)
+		err = m.AddCapabilities("Capabilties-2", false)
+		assert.NoError(t, err)
 		capabilities := m.AssetOperations
 		if len(capabilities) != 2 {
 			fmt.Printf("Expected 2 added capabilities, got %d\n", len(capabilities))
@@ -38,5 +41,19 @@ func TestCapabilities(t *testing.T) {
 		}
 
 		assert.Equal(t, 2, found)
+	})
+
+	t.Run("AddCapabilities_ValidName", func(t *testing.T) {
+		m, err := NewDevice("asset", "device")
+		assert.NoError(t, err)
+		err = m.AddCapabilities("firmware_update", true)
+		assert.NoError(t, err)
+	})
+
+	t.Run("AddCapabilities_EmptyName", func(t *testing.T) {
+		m, err := NewDevice("asset", "device")
+		assert.NoError(t, err)
+		err = m.AddCapabilities("", true)
+		assert.Error(t, err)
 	})
 }
