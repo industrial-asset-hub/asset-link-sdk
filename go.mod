@@ -4,7 +4,7 @@ go 1.25.7
 
 require (
 	github.com/Masterminds/semver/v3 v3.4.0
-	github.com/gin-contrib/logger v1.2.6
+	github.com/gin-contrib/logger v1.2.7
 	github.com/gin-gonic/gin v1.12.0
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/websocket v1.5.3
