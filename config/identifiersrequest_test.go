@@ -8,9 +8,10 @@
 package config
 
 import (
-	generated "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	generated "github.com/industrial-asset-hub/asset-link-sdk/v4/generated/iah-discovery"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestNewIdentifiersRequestFromGetIdentifiersReq(t *testing.T) {

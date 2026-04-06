@@ -15,7 +15,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	iah_discovery "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
+	iah_discovery "github.com/industrial-asset-hub/asset-link-sdk/v4/generated/iah-discovery"
 	"github.com/stretchr/testify/assert"
 )
 

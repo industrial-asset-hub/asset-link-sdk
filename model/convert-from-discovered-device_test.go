@@ -11,7 +11,7 @@ import (
 	"os"
 	"testing"
 
-	generated "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
+	generated "github.com/industrial-asset-hub/asset-link-sdk/v4/generated/iah-discovery"
 	"google.golang.org/protobuf/encoding/protojson"
 
 	"github.com/stretchr/testify/assert"

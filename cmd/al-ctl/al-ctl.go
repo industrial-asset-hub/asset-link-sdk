@@ -8,7 +8,7 @@
 package main
 
 import (
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/cmd"
+	"github.com/industrial-asset-hub/asset-link-sdk/v4/cmd/al-ctl/cmd"
 )
 
 func main() {
