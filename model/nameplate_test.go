@@ -15,21 +15,25 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+const testIDLink = "https://i.siemens.com/1P6ES7131-6BF00-0CA0+SC-P4TM3526"
+
 func TestNameplate(t *testing.T) {
 	t.Run("AddNameplate", func(t *testing.T) {
-		m := NewDevice("asset", "device")
+		m, err := NewDevice("asset", "device")
+		assert.NoError(t, err)
 
-		m.AddNameplate(
+		err = m.AddNameplate(
 			"ManufacturerCompany",
-			"GuidOfTheProduct",
+			testIDLink,
 			"MyOrderNumber",
 			"ProductFamily",
 			"0.1.2",
 			"s-n-1.2.3")
+		assert.NoError(t, err)
 
 		// ManufacturerProductDesignation
 		assert.Equal(t, "ManufacturerCompany", *m.ProductInstanceIdentifier.ManufacturerProduct.Manufacturer.Name)
-		assert.Equal(t, "GuidOfTheProduct", m.ProductInstanceIdentifier.ManufacturerProduct.Id)
+		assert.Equal(t, testIDLink, m.ProductInstanceIdentifier.ManufacturerProduct.Id)
 		assert.Equal(t, "ProductFamily", *m.ProductInstanceIdentifier.ManufacturerProduct.Name)
 		assert.Equal(t, "0.1.2", *m.ProductInstanceIdentifier.ManufacturerProduct.ProductVersion)
 		assert.Equal(t, "MyOrderNumber", *m.ProductInstanceIdentifier.ManufacturerProduct.ProductId)
@@ -43,7 +47,8 @@ func TestNameplate(t *testing.T) {
 		found := 0
 		for _, v := range idLinks {
 			found++
-			assert.Equal(t, *v.IdLink, "GuidOfTheProduct")
+			assert.Equal(t, testIDLink, *v.IdLink)
+			assert.Equal(t, IdLinkAssetIdentifierTypeIdLink, *v.AssetIdentifierType)
 		}
 		assert.Equal(t, 1, found)
 	})
@@ -51,7 +56,8 @@ func TestNameplate(t *testing.T) {
 
 func TestSoftwareNameplate(t *testing.T) {
 	t.Run("AddFirmwareAndOtherSoftware", func(t *testing.T) {
-		m := NewDevice("", "")
+		m, err := NewDevice("asset", "device")
+		assert.NoError(t, err)
 
 		firmwareName := "Firmware"
 		firmwareVersion := "1.2.3"
@@ -62,9 +68,12 @@ func TestSoftwareNameplate(t *testing.T) {
 		sw2Name := "SoftwareName2"
 		sw2Version := "2.0.0"
 
-		m.AddSoftware(firmwareName, firmwareVersion, true)
-		m.AddSoftware(sw1Name, sw1Version, false)
-		m.AddSoftware(sw2Name, sw2Version, false)
+		err = m.AddSoftware(firmwareName, firmwareVersion, true)
+		assert.NoError(t, err)
+		err = m.AddSoftware(sw1Name, sw1Version, false)
+		assert.NoError(t, err)
+		err = m.AddSoftware(sw2Name, sw2Version, false)
+		assert.NoError(t, err)
 
 		softwareArtifacts := m.getSoftwareArtifacts()
 
@@ -101,6 +110,15 @@ func TestSoftwareNameplate(t *testing.T) {
 		assert.True(t, fwFound)
 		assert.True(t, sw1Found)
 		assert.True(t, sw2Found)
+	})
+
+	t.Run("AddSoftware_EmptyNameOrVersion", func(t *testing.T) {
+		m, err := NewDevice("asset", "device")
+		assert.NoError(t, err)
+		err = m.AddSoftware("", "1.0.0", false)
+		assert.Error(t, err)
+		err = m.AddSoftware("SoftwareName", "", false)
+		assert.Error(t, err)
 	})
 }
 

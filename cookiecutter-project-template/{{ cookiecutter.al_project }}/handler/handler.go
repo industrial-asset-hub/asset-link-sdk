@@ -8,6 +8,7 @@
 package handler
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 	"sync"
@@ -77,20 +78,81 @@ func (m *AssetLinkImplementation) Discover(discoveryConfig config.DiscoveryConfi
 
 	productUri := fmt.Sprintf("urn:%s/%s/%s", strings.ReplaceAll(vendorName, " ", "_"), strings.ReplaceAll(productName, " ", "_"), serialNumber)
 
-	deviceInfo := model.NewDevice("EthernetDevice", assetName)
-	deviceInfo.AddNameplate(vendorName, productUri, orderNumber, productName, hardwareVersion, serialNumber)
-	deviceInfo.AddSoftware("Firmware", firmwareVersion, true)
-	deviceInfo.AddCapabilities("firmware_update", false)
-	deviceInfo.AddDescription("Dummy Device")
+	deviceInfo, err := model.NewDevice("EthernetDevice", assetName)
+	if err != nil {
+		if errors.Is(err, model.ErrEmpty) {
+			log.Warn().Err(err).Msg("one or more required fields for creating device info are empty, cannot create device info for discovered device")
+			return nil
+		}
+		log.Warn().Err(err).Msg("Could not create device info")
+		return nil
+	}
+	if err = deviceInfo.AddNameplate(vendorName, productUri, orderNumber, productName, hardwareVersion, serialNumber); err != nil {
+		if errors.Is(err, model.ErrEmpty) {
+			log.Warn().Err(err).Msg("One or more nameplate fields are empty, cannot add nameplate information to device info")
+			return nil
+		}
+		log.Warn().Err(err).Msg("Could not add nameplate information to device info")
+		return nil
+	}
+	if err = deviceInfo.AddSoftware("Firmware", firmwareVersion, true); err != nil {
+		if errors.Is(err, model.ErrEmpty) {
+			log.Warn().Err(err).Msg("Firmware version is empty, cannot add firmware information to device info")
+			return nil
+		}
+	}
+	if err = deviceInfo.AddCapabilities("firmware_update", false); err != nil {
+		if errors.Is(err, model.ErrEmpty) {
+			log.Warn().Err(err).Msg("Capability name is empty, cannot add capability information to device info")
+			return nil
+		}
+	}
+	if err = deviceInfo.AddDescription("Dummy Device"); err != nil {
+		if errors.Is(err, model.ErrEmpty) {
+			log.Warn().Err(err).Msg("Description is empty, cannot add description to device info")
+			return nil
+		}
+	}
 
-	nicID := deviceInfo.AddNic("eth0", "00:16:3e:01:02:03") // random mac address
-	deviceInfo.AddIPv4(nicID, "192.168.0.10", "255.255.255.0", "")
-	deviceInfo.AddIPv4(nicID, "10.0.0.153", "255.255.255.0", "")
+	nicID, err := deviceInfo.AddNic("eth0", "00:16:3e:01:02:03") // random mac address
+	if err != nil {
+		if errors.Is(err, model.ErrEmpty) {
+			log.Warn().Err(err).Msg("MAC address is empty, cannot add NIC to device info")
+			return nil
+		} else if errors.Is(err, model.ErrValidation) {
+			log.Warn().Err(err).Msg("MAC address format is invalid, cannot add NIC to device info")
+			return nil // return device info without NIC -ask?
+		}
+		log.Warn().Err(err).Msg("Could not add NIC to device info")
+		return nil
+	}
+	if _, err = deviceInfo.AddIPv4(nicID, "192.168.0.10", "255.255.255.0", "192.168.0.1"); err != nil {
+		if errors.Is(err, model.ErrEmpty) {
+			log.Warn().Err(err).Msg("IP address or network mask is empty, cannot add IPv4 connectivity to device info")
+			return nil // return device info without IPv4 connectivity
+		} else if errors.Is(err, model.ErrValidation) {
+			log.Warn().Err(err).Msg("IP address or network mask format is invalid, cannot add IPv4 connectivity to device info")
+			return nil // return device info without IPv4 connectivity
+		}
+		log.Warn().Err(err).Msg("Could not add IPv4 connectivity to device info")
+		return nil
+	}
+	if _, err = deviceInfo.AddIPv4(nicID, "10.0.0.153", "255.255.255.0", "10.0.0.1"); err != nil {
+		if errors.Is(err, model.ErrEmpty) {
+			log.Warn().Err(err).Msg("IP address or network mask is empty, cannot add IPv4 connectivity to device info")
+			return nil // return device info without IPv4 connectivity
+		} else if errors.Is(err, model.ErrValidation) {
+			log.Warn().Err(err).Msg("IP address or network mask format is invalid, cannot add IPv4 connectivity to device info")
+			return nil // return device info without IPv4 connectivity
+		}
+		log.Warn().Err(err).Msg("Could not add IPv4 connectivity to device info")
+		return nil
+	}
 
 	// Convert and publish device
 	discoveredDevice := deviceInfo.ConvertToDiscoveredDevice()
 
-	err := devicePublisher.PublishDevice(discoveredDevice)
+	err = devicePublisher.PublishDevice(discoveredDevice)
 	if err != nil {
 		// discovery request was likely cancelled -> terminate discovery and return error
 		log.Error().Msgf("Publishing Error: %v", err)

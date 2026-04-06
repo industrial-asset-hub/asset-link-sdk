@@ -12,14 +12,32 @@ import (
 )
 
 func TestConvertToJson(t *testing.T) {
-	device := NewDevice("DummyDevice", "Dummy Asset")
+	device, err := NewDevice("DummyDevice", "Dummy Asset")
+	if err != nil {
+		t.Fatalf("NewDevice failed: %v", err)
+	}
 
-	device.AddNameplate("Dummy Manufacturer", "http://example.com/idlink", "12345",
+	err = device.AddNameplate("Dummy Manufacturer", testIDLink, "12345",
 		"Dummy Product", "v1.0", "SN123456")
-	nicID := device.AddNic("eth0", "00:1A:2B:3C:4D:5E")
-	device.AddIPv4(nicID, "192.168.1.100", "255.255.255.0", "192.168.1.1")
-	device.AddSoftware("DummySoftware", "1.0.0", true)
-	device.AddCapabilities("firmware_update", true)
+	if err != nil {
+		t.Fatalf("AddNameplate failed: %v", err)
+	}
+	nicID, err := device.AddNic("eth0", "00:1A:2B:3C:4D:5E")
+	if err != nil {
+		t.Fatalf("AddNic failed: %v", err)
+	}
+	_, err = device.AddIPv4(nicID, "192.168.1.100", "255.255.255.0", "192.168.1.1")
+	if err != nil {
+		t.Fatalf("AddIPv4 failed: %v", err)
+	}
+	err = device.AddSoftware("DummySoftware", "1.0.0", true)
+	if err != nil {
+		t.Fatalf("AddSoftware failed: %v", err)
+	}
+	err = device.AddCapabilities("firmware_update", true)
+	if err != nil {
+		t.Fatalf("AddCapabilities failed: %v", err)
+	}
 	firmwareVersionKey := "firmware_version"
 	firmwareVersionValue := "1.0.0"
 

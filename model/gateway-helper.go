@@ -9,22 +9,30 @@ package model
 
 import (
 	"time"
-
-	"github.com/rs/zerolog/log"
 )
 
 // Add TrustEstablishmentState to the gateway. Allowed values are
 // TrustEstablishedStateValuesTrusted ("trusted")
 // TrustEstablishedStateValuesPending ("pending")
 // TrustEstablishedStateValuesFailed ("failed")
-func (d *GatewayInfo) AddTrustEstablishmentState(stateValue TrustEstablishedStateValues) {
+func (d *GatewayInfo) AddTrustEstablishmentState(stateValue TrustEstablishedStateValues) error {
+
 	if !isNonEmptyValues(string(stateValue)) {
-		log.Warn().Msg("Trust establishment state value is empty")
-		return
+		err := &EmptyError{
+			Field:   "TrustEstablishmentState",
+			Message: "Trust establishment state value is empty",
+			Value:   stateValue,
+		}
+		return err
 	}
+
 	if stateValue != TrustEstablishedStateValuesTrusted && stateValue != TrustEstablishedStateValuesPending && stateValue != TrustEstablishedStateValuesFailed {
-		log.Warn().Msgf("Trust establishment state value %s is not valid", stateValue)
-		return
+		err := &PermissibleValuesError{
+			Field:   "TrustEstablishmentState",
+			Value:   stateValue,
+			Allowed: []interface{}{TrustEstablishedStateValuesTrusted, TrustEstablishedStateValuesPending, TrustEstablishedStateValuesFailed},
+		}
+		return err
 	}
 
 	currentTime := time.Now().UTC()
@@ -34,15 +42,19 @@ func (d *GatewayInfo) AddTrustEstablishmentState(stateValue TrustEstablishedStat
 	}
 
 	d.TrustEstablishedState = &trustEstState
+	return nil
 }
 
 // Add ProductInstanceIdentifier to the gateway
 func (d *GatewayInfo) AddProductInstanceIdentifier(productId, productVersion, productName,
-	manufacturerName, serialNumber string) {
+	manufacturerName, serialNumber string) error {
 
 	if !isNonEmptyValues(productId, productVersion, productName, manufacturerName, serialNumber) {
-		log.Warn().Msg("One or more ProductInstanceIdentifier values are empty")
-		return
+		err := &EmptyError{
+			Field:   "ProductInstanceIdentifier",
+			Message: "All fields for ProductInstanceIdentifier are empty",
+		}
+		return err
 	}
 
 	d.ProductInstanceIdentifier = &ProductSerialIdentifier{
@@ -56,20 +68,29 @@ func (d *GatewayInfo) AddProductInstanceIdentifier(productId, productVersion, pr
 			ProductVersion: &productVersion,
 		},
 	}
+	return nil
 }
 
 // Add Reachability state to the gateway. Allowed values are
 // ReachabilityStateValuesReached ("reached")
 // ReachabilityStateValuesFailed ("failed")
 // ReachabilityStateValuesUnknown ("unknown")
-func (d *GatewayInfo) AddReachabilityState(stateValue ReachabilityStateValues) {
+func (d *GatewayInfo) AddReachabilityState(stateValue ReachabilityStateValues) error {
 	if !isNonEmptyValues(string(stateValue)) {
-		log.Warn().Msg("Reachability state value is empty")
-		return
+		err := &EmptyError{
+			Field:   "ReachabilityState",
+			Message: "Reachability state value is empty",
+			Value:   stateValue,
+		}
+		return err
 	}
 	if stateValue != ReachabilityStateValuesReached && stateValue != ReachabilityStateValuesFailed && stateValue != ReachabilityStateValuesUnknown {
-		log.Warn().Msgf("Reachability state value %s is not valid", stateValue)
-		return
+		err := &PermissibleValuesError{
+			Field:   "ReachabilityState",
+			Value:   stateValue,
+			Allowed: []interface{}{ReachabilityStateValuesReached, ReachabilityStateValuesFailed, ReachabilityStateValuesUnknown},
+		}
+		return err
 	}
 
 	timestamp := time.Now().UTC()
@@ -77,21 +98,31 @@ func (d *GatewayInfo) AddReachabilityState(stateValue ReachabilityStateValues) {
 		StateTimestamp: &timestamp,
 		StateValue:     &stateValue,
 	}
+	return nil
 }
 
 // Add RunningSoftwareType to the gateway. Allowed values are
 // RunningSoftwareValuesCdmGateway ("cdm_gateway")
 // RunningSoftwareValuesIahGateway ("iah_gateway")
 // RunningSoftwareValuesOther ("other")
-func (d *GatewayInfo) AddRunningSoftwareType(softwareType RunningSoftwareValues) {
+func (d *GatewayInfo) AddRunningSoftwareType(softwareType RunningSoftwareValues) error {
 	if !isNonEmptyValues(string(softwareType)) {
-		log.Warn().Msg("Running software type is empty")
-		return
+		err := &EmptyError{
+			Field:   "RunningSoftwareType",
+			Message: "Running software type value is empty",
+			Value:   softwareType,
+		}
+		return err
 	}
 	if softwareType != RunningSoftwareValuesCdmGateway && softwareType != RunningSoftwareValuesIahGateway && softwareType != RunningSoftwareValuesOther {
-		log.Warn().Msgf("Running software type %s is not valid", softwareType)
-		return
+		err := &PermissibleValuesError{
+			Field:   "RunningSoftwareType",
+			Value:   softwareType,
+			Allowed: []interface{}{RunningSoftwareValuesCdmGateway, RunningSoftwareValuesIahGateway, RunningSoftwareValuesOther},
+		}
+		return err
 	}
 
 	d.RunningSoftwareType = &softwareType
+	return nil
 }
