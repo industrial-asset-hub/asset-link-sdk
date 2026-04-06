@@ -14,9 +14,9 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/assetlink"
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/logging"
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/metadata"
+	"github.com/industrial-asset-hub/asset-link-sdk/v4/assetlink"
+	"github.com/industrial-asset-hub/asset-link-sdk/v4/logging"
+	"github.com/industrial-asset-hub/asset-link-sdk/v4/metadata"
 	"{{cookiecutter.al_project}}/handler"
 
 	"github.com/rs/zerolog"

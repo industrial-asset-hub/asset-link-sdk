@@ -8,8 +8,8 @@
 package assetlink
 
 import (
-	generatedDiscoveryServer "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/metadata"
+	generatedDiscoveryServer "github.com/industrial-asset-hub/asset-link-sdk/v4/generated/iah-discovery"
+	"github.com/industrial-asset-hub/asset-link-sdk/v4/metadata"
 	"github.com/rs/zerolog/log"
 )
 

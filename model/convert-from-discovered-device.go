@@ -10,13 +10,14 @@ package model
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/rs/zerolog/log"
 	"net/url"
 	"strconv"
 	"strings"
 	"time"
 
-	generated "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
+	"github.com/rs/zerolog/log"
+
+	generated "github.com/industrial-asset-hub/asset-link-sdk/v4/generated/iah-discovery"
 )
 
 const (

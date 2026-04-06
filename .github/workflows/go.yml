@@ -138,8 +138,8 @@ jobs:
       - name: Adjust Dependencies
         run: |
           cd $TEST_PROJECT/$TEST_PROJECT_NAME/
-          go get github.com/${GITHUB_REPOSITORY}/v3
-          go mod edit -replace=github.com/${GITHUB_REPOSITORY}/v3=${GITHUB_WORKSPACE}
+          go get github.com/${GITHUB_REPOSITORY}/v4
+          go mod edit -replace=github.com/${GITHUB_REPOSITORY}/v4=${GITHUB_WORKSPACE}
           go mod edit -go=$GO_MINIMAL_VERSION
           go mod edit -toolchain=none
           go mod tidy

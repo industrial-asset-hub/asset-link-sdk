@@ -10,10 +10,10 @@ package reference
 import (
 	"testing"
 
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/cdm-al-reference/simdevices"
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/config"
-	generated "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/publish"
+	"github.com/industrial-asset-hub/asset-link-sdk/v4/cdm-al-reference/simdevices"
+	"github.com/industrial-asset-hub/asset-link-sdk/v4/config"
+	generated "github.com/industrial-asset-hub/asset-link-sdk/v4/generated/iah-discovery"
+	"github.com/industrial-asset-hub/asset-link-sdk/v4/publish"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

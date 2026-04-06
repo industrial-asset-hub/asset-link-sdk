@@ -8,9 +8,9 @@
 package features
 
 import (
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/config"
-	generated "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/publish"
+	"github.com/industrial-asset-hub/asset-link-sdk/v4/config"
+	generated "github.com/industrial-asset-hub/asset-link-sdk/v4/generated/iah-discovery"
+	"github.com/industrial-asset-hub/asset-link-sdk/v4/publish"
 )
 
 // This packages provides the interfaces which are needed for a custom asset link
