@@ -1,6 +1,6 @@
 ---
 title: "Working with the Asset Model"
-nav_order: 5
+nav_order: 6
 ---
 
 ### Working with the Asset Model

@@ -20,3 +20,4 @@ include:
   - cmd.md
   - observability.md
   - model.md
+  - firmware-update.md

@@ -12,3 +12,4 @@ nav_order: 1
 - [Command line tool](cmd.md)
 - [Observability Webserver](observability.md)
 - [Working with the Asset Model](model.md)
+- [Firmware Updates](firmware-update.md)
