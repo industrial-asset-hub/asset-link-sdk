@@ -8,8 +8,6 @@
 package model
 
 import (
-	"fmt"
-	"reflect"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -31,24 +29,42 @@ func TestNameplate(t *testing.T) {
 			"s-n-1.2.3")
 		assert.NoError(t, err)
 
-		// ManufacturerProductDesignation
-		assert.Equal(t, "ManufacturerCompany", *m.ProductInstanceIdentifier.ManufacturerProduct.Manufacturer.Name)
-		assert.Equal(t, testIDLink, m.ProductInstanceIdentifier.ManufacturerProduct.Id)
-		assert.Equal(t, "ProductFamily", *m.ProductInstanceIdentifier.ManufacturerProduct.Name)
-		assert.Equal(t, "0.1.2", *m.ProductInstanceIdentifier.ManufacturerProduct.ProductVersion)
-		assert.Equal(t, "MyOrderNumber", *m.ProductInstanceIdentifier.ManufacturerProduct.ProductId)
-		assert.Equal(t, "s-n-1.2.3", *m.ProductInstanceIdentifier.SerialNumber)
+		productInfo, ok := m.ProductInstanceInformation.(*ProductInstanceInformation)
+		if assert.True(t, ok) {
+			manufacturerProduct, ok := productInfo.ManufacturerProduct.(*Product)
+			if assert.True(t, ok) {
+				manufacturer, ok := manufacturerProduct.Manufacturer.(*Organization)
+				if assert.True(t, ok) {
+					if assert.NotNil(t, manufacturer.Name) {
+						assert.Equal(t, "ManufacturerCompany", *manufacturer.Name)
+					}
+				}
+
+				if assert.NotNil(t, manufacturerProduct.ProductLink) {
+					assert.Equal(t, testIDLink, *manufacturerProduct.ProductLink)
+				}
+				if assert.NotNil(t, manufacturerProduct.ProductVersion) {
+					assert.Equal(t, "0.1.2", *manufacturerProduct.ProductVersion)
+				}
+				if assert.NotNil(t, manufacturerProduct.ProductId) {
+					assert.Equal(t, "MyOrderNumber", *manufacturerProduct.ProductId)
+				}
+			}
+
+			if assert.NotNil(t, productInfo.SerialNumber) {
+				assert.Equal(t, "s-n-1.2.3", *productInfo.SerialNumber)
+			}
+		}
 
 		idLinks := m.getIdLink()
-		if len(idLinks) != 1 {
-			fmt.Printf("Expected 1 id link, got %d\n", len(idLinks))
-			t.Fail()
+		if !assert.Len(t, idLinks, 1) {
+			return
 		}
 		found := 0
 		for _, v := range idLinks {
 			found++
-			assert.Equal(t, testIDLink, *v.IdLink)
-			assert.Equal(t, IdLinkAssetIdentifierTypeIdLink, *v.AssetIdentifierType)
+			assert.Equal(t, testIDLink, v.IdLink)
+			assert.Equal(t, IdLinkIdentifierAssetIdentifierTypeIdLinkIdentifier, v.AssetIdentifierType)
 		}
 		assert.Equal(t, 1, found)
 	})
@@ -77,34 +93,38 @@ func TestSoftwareNameplate(t *testing.T) {
 
 		softwareArtifacts := m.getSoftwareArtifacts()
 
-		if len(softwareArtifacts) != 3 {
-			fmt.Printf("Expected 3 software entries, got %d\n", len(softwareArtifacts))
-			t.Fail()
+		if !assert.Len(t, softwareArtifacts, 3) {
+			return
 		}
 
 		fwFound := false
 		sw1Found := false
 		sw2Found := false
 		for _, v := range softwareArtifacts {
-			switch *v.SoftwareIdentifier.Name {
-			case firmwareName:
-				assert.Equal(t, firmwareVersion, *v.SoftwareIdentifier.Version)
-				assert.True(t, *v.IsFirmware)
-				fwFound = true
-			case sw1Name:
-				assert.Equal(t, sw1Version, *v.SoftwareIdentifier.Version)
-				assert.False(t, *v.IsFirmware)
-				sw1Found = true
-			case sw2Name:
-				assert.Equal(t, sw2Version, *v.SoftwareIdentifier.Version)
-				assert.False(t, *v.IsFirmware)
-				sw2Found = true
+			if assert.Len(t, v.AssetIdentifiers, 1) {
+				softwareIdentifier, ok := v.AssetIdentifiers[0].(SoftwareIdentifier)
+				if !assert.True(t, ok) {
+					continue
+				}
+
+				switch softwareIdentifier.Name {
+				case firmwareName:
+					assert.Equal(t, firmwareVersion, softwareIdentifier.Version)
+					assert.True(t, *v.IsFirmware)
+					fwFound = true
+				case sw1Name:
+					assert.Equal(t, sw1Version, softwareIdentifier.Version)
+					assert.False(t, *v.IsFirmware)
+					sw1Found = true
+				case sw2Name:
+					assert.Equal(t, sw2Version, softwareIdentifier.Version)
+					assert.False(t, *v.IsFirmware)
+					sw2Found = true
+				}
 			}
 
-			assert.NotEmpty(t, v.Id)
-			stateValue := ManagementStateValuesRegarded
-			assert.Equal(t, &stateValue, v.ManagementState.StateValue)
-			assert.NotEmpty(t, v.ManagementState.StateTimestamp)
+			assert.Equal(t, FunctionalObjectSchemaUrl, v.FunctionalObjectSchemaUrl)
+			assert.NotNil(t, v.IsFirmware)
 		}
 
 		assert.True(t, fwFound)
@@ -125,19 +145,21 @@ func TestSoftwareNameplate(t *testing.T) {
 func (d *DeviceInfo) getSoftwareArtifacts() []SoftwareArtifact {
 	r := []SoftwareArtifact{}
 	for _, v := range d.SoftwareComponents {
-		if reflect.TypeOf(v) == reflect.TypeOf(SoftwareArtifact{}) {
-			r = append(r, v.(SoftwareArtifact))
+		artifact, ok := v.(SoftwareArtifact)
+		if ok {
+			r = append(r, artifact)
 		}
 	}
 	return r
 }
 
 // Extract IdLink Addresses from model
-func (d *DeviceInfo) getIdLink() []IdLink {
-	r := []IdLink{}
+func (d *DeviceInfo) getIdLink() []IdLinkIdentifier {
+	r := []IdLinkIdentifier{}
 	for _, v := range d.AssetIdentifiers {
-		if reflect.TypeOf(v) == reflect.TypeOf(IdLink{}) {
-			r = append(r, v.(IdLink))
+		identifier, ok := v.(IdLinkIdentifier)
+		if ok {
+			r = append(r, identifier)
 		}
 	}
 	return r

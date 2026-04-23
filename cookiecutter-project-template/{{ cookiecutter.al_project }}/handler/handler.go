@@ -78,7 +78,7 @@ func (m *AssetLinkImplementation) Discover(discoveryConfig config.DiscoveryConfi
 
 	productUri := fmt.Sprintf("urn:%s/%s/%s", strings.ReplaceAll(vendorName, " ", "_"), strings.ReplaceAll(productName, " ", "_"), serialNumber)
 
-	deviceInfo, err := model.NewDevice("EthernetDevice", assetName)
+	deviceInfo, err := model.NewDevice("Asset", assetName)
 	if err != nil {
 		if errors.Is(err, model.ErrEmpty) {
 			log.Warn().Err(err).Msg("one or more required fields for creating device info are empty, cannot create device info for discovered device")

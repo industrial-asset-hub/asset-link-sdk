@@ -7,48 +7,28 @@
 
 package model
 
-import "time"
-
-func (d *DeviceInfo) addIdentifier(macAddress string) {
+func (d *DeviceInfo) addMacIdentifier(macAddress string) {
 
 	if isNonEmptyValues(macAddress) {
 		identifierUncertainty := 1
 		identifier := MacIdentifier{
+			AssetIdentifierType:   MacIdentifierAssetIdentifierTypeMacIdentifier,
 			IdentifierType:        nil,
 			IdentifierUncertainty: &identifierUncertainty,
-			MacAddress:            &macAddress,
+			MacAddress:            macAddress,
 		}
-		d.MacIdentifiers = append(d.MacIdentifiers, identifier)
+		d.AssetIdentifiers = append(d.AssetIdentifiers, identifier)
 	}
 }
 
-// Add reachability state to the asset
-func (d *DeviceInfo) addReachabilityState() {
-	timestamp := getAssetCreationTimestamp(d.ManagementState.StateTimestamp)
-	state := ReachabilityStateValuesReached
-
-	reachabilityState := ReachabilityState{
-		StateTimestamp: &timestamp,
-		StateValue:     &state,
-	}
-
-	d.ReachabilityState = &reachabilityState
-}
-
-func getAssetCreationTimestamp(timestamp *time.Time) time.Time {
-	if timestamp != nil {
-		return *timestamp
-	}
-	return time.Now().UTC()
-}
-
-func getAssetContext() *AssetContext {
-	return &AssetContext{
-		Lis:       "http://rds.posccaesar.org/ontology/lis14/rdl/",
-		Base:      baseSchemaInContext,
-		Skos:      "http://www.w3.org/2004/02/skos/core#",
-		Vocab:     baseSchemaInContext,
-		Linkml:    "https://w3id.org/linkml/",
-		SchemaOrg: "https://schema.org/",
+func (d *DeviceInfo) addIdLinkIdentifier(uriOfTheProduct string) {
+	if isNonEmptyValues(uriOfTheProduct) {
+		idLinkIdentifier := IdLinkIdentifier{
+			AssetIdentifierType:   IdLinkIdentifierAssetIdentifierTypeIdLinkIdentifier,
+			IdLink:                uriOfTheProduct,
+			IdentifierType:        nil,
+			IdentifierUncertainty: nil,
+		}
+		d.AssetIdentifiers = append(d.AssetIdentifiers, idLinkIdentifier)
 	}
 }

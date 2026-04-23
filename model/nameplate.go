@@ -9,9 +9,6 @@ package model
 
 import (
 	"crypto/sha1"
-	"encoding/hex"
-
-	"github.com/google/uuid"
 )
 
 // AddNameplate Add a digital nameplate to an asset.
@@ -34,8 +31,8 @@ func (d *DeviceInfo) AddNameplate(manufacturerName string,
 	if !isNonEmptyValues(manufacturerName, uriOfTheProduct, productArticleNumberOfManufacturer,
 		manufacturerProductDesignation, hardwareVersion, serialNumber) {
 		err := &EmptyError{
-			Field:   "ProductInstanceIdentifier",
-			Message: "All fields for ProductInstanceIdentifier are empty",
+			Field:   "ProductInstanceInformation",
+			Message: "All fields for ProductInstanceInformation are empty",
 		}
 		return err
 	}
@@ -43,44 +40,23 @@ func (d *DeviceInfo) AddNameplate(manufacturerName string,
 	// We hash the manufacturer to get a unique identifier
 	h := sha1.New()
 	h.Write([]byte(manufacturerName))
-	manufacturerId := hex.EncodeToString(h.Sum(nil))
 
 	organisation := Organization{
-		Address:        nil,
-		AlternateNames: nil,
-		ContactPoint:   nil,
-		Id:             manufacturerId,
-		Name:           &manufacturerName,
+		Name: &manufacturerName,
 	}
-
 	mp := Product{
-		Id:             uriOfTheProduct,
+		ProductLink:    &uriOfTheProduct,
 		Manufacturer:   &organisation,
-		Name:           &manufacturerProductDesignation,
 		ProductId:      &productArticleNumberOfManufacturer,
 		ProductVersion: &hardwareVersion,
 	}
 
-	pi := ProductSerialIdentifier{
-		IdentifierType:        nil,
-		IdentifierUncertainty: nil,
-		ManufacturerProduct:   &mp,
-		SerialNumber:          &serialNumber,
+	d.ProductInstanceInformation = &ProductInstanceInformation{
+		ManufacturerProduct: &mp,
+		SerialNumber:        &serialNumber,
 	}
 
-	d.ProductInstanceIdentifier = &pi
-
-	if isNonEmptyValues(uriOfTheProduct) {
-		// Duplicate IDLink field to explict field
-		assetIdentifierType := IdLinkAssetIdentifierTypeIdLink
-		idLink := IdLink{
-			AssetIdentifierType:   &assetIdentifierType,
-			IdLink:                &uriOfTheProduct,
-			IdentifierType:        nil,
-			IdentifierUncertainty: nil,
-		}
-		d.AssetIdentifiers = append(d.AssetIdentifiers, idLink)
-	}
+	d.addIdLinkIdentifier(uriOfTheProduct)
 	return nil
 }
 
@@ -93,35 +69,23 @@ func (d *DeviceInfo) AddSoftware(name string, version string, isFirmware bool) e
 		return err
 	}
 
-	softwareIdentifier := SoftwareIdentifier{}
-	softwareIdentifier.Name = &name
-	softwareIdentifier.Version = &version
-
-	softwareArtifactId := uuid.New().String()
-
-	stateValue := ManagementStateValuesRegarded
-	stateTimestamp := getAssetCreationTimestamp(d.ManagementState.StateTimestamp)
-
 	softwareArtifact := SoftwareArtifact{
-		Id:                  softwareArtifactId,
-		AssetOperations:     nil,
-		ChecksumIdentifier:  nil,
-		ConnectionPoints:    nil,
-		CustomUiProperties:  nil,
-		FunctionalParts:     nil,
-		InstanceAnnotations: nil,
-		ManagementState: ManagementState{
-			StateTimestamp: &stateTimestamp,
-			StateValue:     &stateValue,
-		},
-		Name:                      nil,
-		OtherStates:               nil,
-		ProductInstanceIdentifier: nil,
-		ReachabilityState:         nil,
-		SoftwareComponents:        nil,
-		SoftwareIdentifier:        &softwareIdentifier,
-		IsFirmware:                &isFirmware,
+		AssetOperations:            nil,
+		ConnectionPoints:           nil,
+		FunctionalObjectType:       SoftwareArtifactFunctionalObjectTypeSoftwareArtifact,
+		InstanceAnnotations:        nil,
+		Name:                       nil,
+		ProductInstanceInformation: nil,
+		SoftwareComponents:         nil,
+		IsFirmware:                 &isFirmware,
+		FunctionalObjectSchemaUrl:  FunctionalObjectSchemaUrl,
 	}
+
+	softwareIdentifier := SoftwareIdentifier{}
+	softwareIdentifier.AssetIdentifierType = SoftwareIdentifierAssetIdentifierTypeSoftwareIdentifier
+	softwareIdentifier.Name = name
+	softwareIdentifier.Version = version
+	softwareArtifact.AssetIdentifiers = append(softwareArtifact.AssetIdentifiers, softwareIdentifier)
 
 	d.SoftwareComponents = append(d.SoftwareComponents, softwareArtifact)
 	return nil

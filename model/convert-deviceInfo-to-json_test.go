@@ -12,7 +12,7 @@ import (
 )
 
 func TestConvertToJson(t *testing.T) {
-	device, err := NewDevice("DummyDevice", "Dummy Asset")
+	device, err := NewDevice("Device", "Dummy Asset")
 	if err != nil {
 		t.Fatalf("NewDevice failed: %v", err)
 	}
@@ -51,7 +51,7 @@ func TestConvertToJson(t *testing.T) {
 		t.Fatalf("ConvertToJson failed: %v", err)
 	}
 
-	expectedLength := 12
+	expectedLength := 9
 	if len(jsonMap) != expectedLength {
 		t.Fatalf("ConvertToJson should return %d keys, got: %d", expectedLength, len(jsonMap))
 	}

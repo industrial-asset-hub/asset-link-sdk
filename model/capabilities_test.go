@@ -30,13 +30,13 @@ func TestCapabilities(t *testing.T) {
 		}
 		found := 0
 		for _, v := range capabilities {
-			if *v.OperationName == "Capabilties-1" {
+			if v.OperationName == "Capabilties-1" {
 				found++
-				assert.True(t, *v.ActivationFlag)
+				assert.True(t, v.ActivationFlag)
 			}
-			if *v.OperationName == "Capabilties-2" {
+			if v.OperationName == "Capabilties-2" {
 				found++
-				assert.False(t, *v.ActivationFlag)
+				assert.False(t, v.ActivationFlag)
 			}
 		}
 

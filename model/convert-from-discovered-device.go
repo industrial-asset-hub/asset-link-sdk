@@ -8,13 +8,12 @@
 package model
 
 import (
-	"encoding/json"
 	"fmt"
-	"github.com/rs/zerolog/log"
 	"net/url"
 	"strconv"
 	"strings"
-	"time"
+
+	"github.com/rs/zerolog/log"
 
 	generated "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
 )
@@ -100,14 +99,6 @@ func transformKeys(keys []string, text any, transformedDevice map[string]interfa
 	transformedDevice[keys[0]] = property
 }
 
-func convertTimestampToRFC339(timestamp int64) string {
-	timestamp /= 1e7
-	timestamp -= 11644473600
-	t := time.Unix(timestamp, 0)
-	formattedTime := t.Format(time.RFC3339)
-	return formattedTime
-}
-
 func retrieveAssetTypeFromDiscoveredDevice(device *generated.DiscoveredDevice) string {
 	// assumption: all classifiers within a devices identifier are for the same asset type/asset class
 	// for current URI-type implementations of this schema conversion the format is as follows:
@@ -145,25 +136,14 @@ func retrieveAssetTypeFromDiscoveredDevice(device *generated.DiscoveredDevice) s
 
 func ConvertFromDiscoveredDevice(device *generated.DiscoveredDevice, expectedType string) map[string]interface{} {
 	DeviceInIahSchema := make(map[string]interface{})
-	timestamp := device.Timestamp
-	formattedTimestamp := convertTimestampToRFC339(int64(timestamp))
-	DeviceInIahSchema["management_state"] = map[string]interface{}{
-		"state_value":     "unknown",
-		"state_timestamp": formattedTimestamp,
-	}
 	mapPropertiesIntoDevice(device.Identifiers, DeviceInIahSchema, parentKeyIndex, expectedType, prefix)
-	if _, ok := DeviceInIahSchema["@context"]; !ok {
-		log.Warn().Msg("No @context found in the device schema")
-		assetContextMap, err := ConvertAssetContextToMap(*getAssetContext())
-		if err != nil {
-			log.Err(err).Msg("Error marshalling asset context")
-			return nil
-		}
-		DeviceInIahSchema["@context"] = assetContextMap
+	if _, ok := DeviceInIahSchema["functional_object_type"]; !ok {
+		log.Debug().Msg("No functional_object_type found in the device schema")
+		DeviceInIahSchema["functional_object_type"] = retrieveAssetTypeFromDiscoveredDevice(device)
 	}
-	if _, ok := DeviceInIahSchema["@type"]; !ok {
-		log.Warn().Msg("No @type found in the device schema")
-		DeviceInIahSchema["@type"] = retrieveAssetTypeFromDiscoveredDevice(device)
+	if _, ok := DeviceInIahSchema["functional_object_schema_url"]; !ok {
+		log.Debug().Msg("No functional_object_schema_url found in the device schema")
+		DeviceInIahSchema["functional_object_schema_url"] = FunctionalObjectSchemaUrl
 	}
 	return DeviceInIahSchema
 }
@@ -321,17 +301,4 @@ func getArrayIndexFromClassifier(classifierValue string) int {
 		return arrayIndex
 	}
 	return -1
-}
-
-func ConvertAssetContextToMap(context AssetContext) (map[string]interface{}, error) {
-	bytes, err := json.Marshal(context)
-	if err != nil {
-		return nil, err
-	}
-	var result map[string]interface{}
-	err = json.Unmarshal(bytes, &result)
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
 }
