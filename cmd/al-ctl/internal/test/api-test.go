@@ -11,7 +11,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/google/uuid"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/al"
 	iah_discovery "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
 	"github.com/industrial-asset-hub/asset-link-sdk/v3/model"
@@ -111,7 +110,7 @@ func createAssetFilesFromDiscoveryResponse(data interface{}) (numberOfAssetsToVa
 			transformedDevice := model.ConvertFromDiscoveredDevice(discoveredDevice, "URI")
 
 			// Add a unique id to the transformed device
-			transformedDevice["id"] = uuid.New().String()
+			// transformedDevice["id"] = uuid.New().String()
 
 			if transformedDevice["meta"] != nil {
 				// Remove meta field if it exists before validation

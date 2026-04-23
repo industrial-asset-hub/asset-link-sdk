@@ -21,37 +21,47 @@ func TestBackAndForthConversion(t *testing.T) {
 
 	assert.IsType(t, map[string]interface{}{}, transformedDevice)
 
-	assert.Equal(t, "Asset", transformedDevice["@type"])
+	assert.Equal(t, "Asset", transformedDevice["functional_object_type"])
+	assert.Equal(t, FunctionalObjectSchemaUrl, transformedDevice["functional_object_schema_url"])
 	assert.Equal(t, "TestDevice", transformedDevice["name"])
 	connectionPoint := transformedDevice["connection_points"].([]map[string]interface{})[0]
-	macIdentifier := transformedDevice["mac_identifiers"].([]map[string]interface{})[0]
+	assetIdentifiers := transformedDevice["asset_identifiers"].([]map[string]interface{})
+	macIdentifier := findMapWithKey(assetIdentifiers, "mac_address")
+	if !assert.NotNil(t, macIdentifier) {
+		return
+	}
 	softwareComponent := transformedDevice["software_components"].([]map[string]interface{})[0]
-	assert.Equal(t, "Siemens AG", transformedDevice["product_instance_identifier"].(map[string]interface{})["manufacturer_product"].(map[string]interface{})["manufacturer"].(map[string]interface{})["name"])
-	assert.Equal(t, "TestDevice", transformedDevice["product_instance_identifier"].(map[string]interface{})["manufacturer_product"].(map[string]interface{})["name"])
-	assert.Equal(t, "MyOrderNumber", transformedDevice["product_instance_identifier"].(map[string]interface{})["manufacturer_product"].(map[string]interface{})["product_id"])
-	assert.Equal(t, "1.0.0", transformedDevice["product_instance_identifier"].(map[string]interface{})["manufacturer_product"].(map[string]interface{})["product_version"])
+	productInstanceInformation := transformedDevice["product_instance_information"].(map[string]interface{})
+	manufacturerProduct := productInstanceInformation["manufacturer_product"].(map[string]interface{})
+	manufacturer := manufacturerProduct["manufacturer"].(map[string]interface{})
+	assert.Equal(t, "Siemens AG", manufacturer["name"])
+	assert.Equal(t, testIDLink, manufacturerProduct["product_link"])
+	assert.Equal(t, "MyOrderNumber", manufacturerProduct["product_id"])
+	assert.Equal(t, "1.0.0", manufacturerProduct["product_version"])
 
-	swName := softwareComponent["software_identifier"].(map[string]interface{})["name"]
-	swVersion := softwareComponent["software_identifier"].(map[string]interface{})["version"]
-	isFirmwareBool, isFirmwareErr := strconv.ParseBool(softwareComponent["is_firmware"].(string))
+	softwareArtifact := softwareComponent["artifact"].(map[string]interface{})
+	softwareIdentifier := softwareArtifact["asset_identifiers"].([]map[string]interface{})[0]
+	swName := softwareIdentifier["name"]
+	swVersion := softwareIdentifier["version"]
+	isFirmwareBool, isFirmwareErr := strconv.ParseBool(softwareArtifact["is_firmware"].(string))
 	assert.Equal(t, "Firmware", swName)
 	assert.Equal(t, "1.2.5", swVersion)
 	assert.Nil(t, isFirmwareErr)
 	assert.True(t, isFirmwareBool)
 
 	assert.Equal(t, "EthernetPort", connectionPoint["connection_point_type"])
-	assert.Equal(t, "enp0", connectionPoint["instance_annotations"].([]map[string]interface{})[0]["value"])
+	assert.Equal(t, "enp0", connectionPoint["name"])
 	assert.Equal(t, "00:00:00:00:00:00", macIdentifier["mac_address"])
-	assert.Equal(t, "123456", transformedDevice["product_instance_identifier"].(map[string]interface{})["serial_number"])
+	assert.Equal(t, "123456", productInstanceInformation["serial_number"])
+}
 
-	assert.Equal(t, "http://rds.posccaesar.org/ontology/lis14/rdl/", transformedDevice["@context"].(map[string]interface{})["lis"])
-	assert.Equal(t, "https://common-device-management.code.siemens.io/documentation/asset-modeling/base-schema/v0.12.0/",
-		transformedDevice["@context"].(map[string]interface{})["@vocab"])
-	assert.Equal(t, "https://common-device-management.code.siemens.io/documentation/asset-modeling/base-schema/v0.12.0/",
-		transformedDevice["@context"].(map[string]interface{})["base"])
-	assert.Equal(t, "https://w3id.org/linkml/", transformedDevice["@context"].(map[string]interface{})["linkml"])
-	assert.Equal(t, "http://www.w3.org/2004/02/skos/core#", transformedDevice["@context"].(map[string]interface{})["skos"])
-	assert.Equal(t, "https://schema.org/", transformedDevice["@context"].(map[string]interface{})["schemaorg"])
+func findMapWithKey(values []map[string]interface{}, key string) map[string]interface{} {
+	for _, value := range values {
+		if _, ok := value[key]; ok {
+			return value
+		}
+	}
+	return nil
 }
 
 func getTestDevice() *DeviceInfo {
@@ -68,7 +78,7 @@ func getTestDevice() *DeviceInfo {
 	if err != nil {
 		panic(err)
 	}
-	err = deviceInfo.AddSoftware("Firmware", "1.2.5", true)
+	err = deviceInfo.AddSoftwareArtifactComponent("Firmware", "1.2.5", true)
 	if err != nil {
 		panic(err)
 	}

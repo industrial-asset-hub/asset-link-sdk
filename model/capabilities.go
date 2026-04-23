@@ -15,8 +15,8 @@ func (d *DeviceInfo) AddCapabilities(name string, enabled bool) error {
 		return err
 	}
 	operation := AssetOperation{}
-	operation.OperationName = &name
-	operation.ActivationFlag = &enabled
+	operation.OperationName = name
+	operation.ActivationFlag = enabled
 	d.AssetOperations = append(d.AssetOperations, operation)
 	return nil
 }

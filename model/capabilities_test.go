@@ -16,7 +16,7 @@ import (
 
 func TestCapabilities(t *testing.T) {
 	t.Run("AddCapabilties", func(t *testing.T) {
-		m, err := NewDevice("asset", "device")
+		m, err := NewDevice("Asset", "device")
 		assert.NoError(t, err)
 
 		err = m.AddCapabilities("Capabilties-1", true)
@@ -30,13 +30,13 @@ func TestCapabilities(t *testing.T) {
 		}
 		found := 0
 		for _, v := range capabilities {
-			if *v.OperationName == "Capabilties-1" {
+			if v.OperationName == "Capabilties-1" {
 				found++
-				assert.True(t, *v.ActivationFlag)
+				assert.True(t, v.ActivationFlag)
 			}
-			if *v.OperationName == "Capabilties-2" {
+			if v.OperationName == "Capabilties-2" {
 				found++
-				assert.False(t, *v.ActivationFlag)
+				assert.False(t, v.ActivationFlag)
 			}
 		}
 
@@ -44,14 +44,14 @@ func TestCapabilities(t *testing.T) {
 	})
 
 	t.Run("AddCapabilities_ValidName", func(t *testing.T) {
-		m, err := NewDevice("asset", "device")
+		m, err := NewDevice("Asset", "device")
 		assert.NoError(t, err)
 		err = m.AddCapabilities("firmware_update", true)
 		assert.NoError(t, err)
 	})
 
 	t.Run("AddCapabilities_EmptyName", func(t *testing.T) {
-		m, err := NewDevice("asset", "device")
+		m, err := NewDevice("Asset", "device")
 		assert.NoError(t, err)
 		err = m.AddCapabilities("", true)
 		assert.Error(t, err)
