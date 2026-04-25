@@ -37,6 +37,16 @@ func (d *DeviceInfo) AddNameplate(manufacturerName string,
 		return err
 	}
 
+	if err := ValidateField(
+		uriOfTheProduct,
+		"ProductLink",
+		"Product link is empty",
+		IdLinkPattern,
+		"Product link format is invalid. Please refer to the base schema for the supported pattern.",
+	); err != nil {
+		return err
+	}
+
 	// We hash the manufacturer to get a unique identifier
 	h := sha1.New()
 	h.Write([]byte(manufacturerName))
@@ -66,6 +76,15 @@ func (d *DeviceInfo) AddSoftware(name string, version string, isFirmware bool) e
 		return err
 	}
 	if err := ValidateField(version, "SoftwareVersion", "Software version is empty", "", ""); err != nil {
+		return err
+	}
+	if err := ValidateField(
+		FunctionalObjectSchemaUrl,
+		"FunctionalObjectSchemaUrl",
+		"Functional object schema URL is empty",
+		FunctionalObjectSchemaUrlPattern,
+		"Functional object schema URL format is invalid. Please refer to the base schema for the supported pattern.",
+	); err != nil {
 		return err
 	}
 

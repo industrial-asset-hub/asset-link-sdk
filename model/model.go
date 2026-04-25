@@ -25,6 +25,16 @@ func NewDevice(functionalObjectType string, assetName string) (*DeviceInfo, erro
 		return &d, err
 	}
 
+	if err := ValidateField(
+		FunctionalObjectSchemaUrl,
+		"FunctionalObjectSchemaUrl",
+		"Functional object schema URL is empty",
+		FunctionalObjectSchemaUrlPattern,
+		"Functional object schema URL format is invalid. Please refer to the base schema for the supported pattern.",
+	); err != nil {
+		return &d, err
+	}
+
 	d.FunctionalObjectType = functionalObjectType
 	d.FunctionalObjectSchemaUrl = FunctionalObjectSchemaUrl
 	d.Name = &assetName

@@ -68,6 +68,31 @@ func TestNameplate(t *testing.T) {
 		}
 		assert.Equal(t, 1, found)
 	})
+
+	t.Run("AddNameplate_InvalidProductLink", func(t *testing.T) {
+		m, err := NewDevice("asset", "device")
+		assert.NoError(t, err)
+
+		err = m.AddNameplate(
+			"ManufacturerCompany",
+			"not-a-valid-id-link",
+			"MyOrderNumber",
+			"ProductFamily",
+			"0.1.2",
+			"s-n-1.2.3",
+		)
+		assert.Error(t, err)
+
+		var ve *ValidationError
+		if assert.ErrorAs(t, err, &ve) {
+			assert.Equal(t, "ProductLink", ve.Field)
+			assert.Equal(t, "Product link format is invalid. Please refer to the base schema for the supported pattern.", ve.Message)
+			assert.Equal(t, "not-a-valid-id-link", ve.Value)
+		}
+
+		assert.Nil(t, m.ProductInstanceInformation)
+		assert.Empty(t, m.getIdLink())
+	})
 }
 
 func TestSoftwareNameplate(t *testing.T) {
@@ -139,6 +164,10 @@ func TestSoftwareNameplate(t *testing.T) {
 		assert.Error(t, err)
 		err = m.AddSoftware("SoftwareName", "", false)
 		assert.Error(t, err)
+	})
+
+	t.Run("FunctionalObjectSchemaUrl_MatchesSchemaPattern", func(t *testing.T) {
+		assert.True(t, ValidateByPattern(FunctionalObjectSchemaUrl, FunctionalObjectSchemaUrlPattern))
 	})
 }
 
