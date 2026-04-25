@@ -181,7 +181,7 @@ test_validate-asset(){
     fi
 
     # download the base schema for validation
-    test_ok curl -o "$TEST_PATH/iah_base.yaml" https://raw.githubusercontent.com/industrial-asset-hub/asset-link-sdk/main/model/iah_base_v0.12.0.yaml
+    test_ok curl -o "$TEST_PATH/iah_base.yaml" https://raw.githubusercontent.com/industrial-asset-hub/asset-link-sdk/main/model/iah_base_v1.9.0.yaml
 
     # run the validate asset tests
     test_ok alctl test api -l --service-name discovery -v --base-schema-path "$TEST_PATH/iah_base.yaml" --target-class Asset
