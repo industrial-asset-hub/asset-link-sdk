@@ -18,7 +18,7 @@ The following methods are available for converting asset model structures:
 Example: Creating an Asset Structure and Converting to JSON
 
 ```go
-device, err := NewDevice("DummyDevice", "Asset")
+device, err := NewDevice("Asset", "DummyDevice")
 if err != nil{
     // handle error
 }
@@ -45,29 +45,4 @@ if err != nil{
     // handle error
 }
 jsonMap, _ := device.ConvertToJson()
-```
-
-Example: Creating a Gateway Structure
-
-```go
-gateway, err := NewGateway("new-gateway")
-if err != nil{
-    // handle error
-}
-err = gateway.AddTrustEstablishmentState("trusted") // allowed values (failed, pending, trusted)
-if err != nil{
-    // handle error
-}
-err = gateway.AddProductInstanceIdentifier("PROD123", "v1.0.0", "Test Gateway", "Test Manufacturer", "SN123456")
-if err != nil{
-    // handle error
-}
-err = gateway.AddReachabilityState("reached") // allowed values (failed, reached, unknown)
-if err != nil{
-    // handle error
-}
-err = gateway.AddRunningSoftwareType("cdm_gateway") // allowed values (cdm_gateway, iah_gateway, other)
-if err != nil{
-    // handle error
-}
 ```

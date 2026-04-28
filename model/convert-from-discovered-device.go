@@ -20,7 +20,7 @@ import (
 
 const (
 	parentKeyIndex = 1
-	prefix         = "https://schema.industrial-assets.io/"
+	prefix         = "https://industrial-assets.io/"
 )
 
 type classifier struct {

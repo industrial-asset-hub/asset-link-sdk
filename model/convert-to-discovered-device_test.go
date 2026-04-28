@@ -19,7 +19,7 @@ import (
 )
 
 func TestConvertToDiscoveredDevice(t *testing.T) {
-	device := generateDevice("Device", "Profinet")
+	device := generateDevice("Asset", "Profinet")
 	discoveredDevice := device.ConvertToDiscoveredDevice()
 	discoveredDeviceType := fmt.Sprintf("%s/%s", baseSchemaPrefix, "Asset#functional_object_type")
 	assert.Equal(t, 12, len(discoveredDevice.Identifiers))
@@ -28,12 +28,11 @@ func TestConvertToDiscoveredDevice(t *testing.T) {
 }
 
 func TestConvertFromDerivedSchemaToDiscoveredDevice(t *testing.T) {
-	schemaUri := "https://schema.industrial-assets.io/sat/v0.8.2"
 	device := generateDevice("Device", "SatController")
-	discoveredDevice := ConvertFromDerivedSchemaToDiscoveredDevice(device, schemaUri, "SatController")
+	discoveredDevice := ConvertFromDerivedSchemaToDiscoveredDevice(device, baseSchemaPrefix, "Device")
 	assert.Equal(t, 12, len(discoveredDevice.Identifiers))
 	assert.Equal(t, "URI", discoveredDevice.Identifiers[0].Classifiers[0].GetType())
-	assert.Equal(t, "https://schema.industrial-assets.io/sat/v0.8.2/SatController#functional_object_type", discoveredDevice.Identifiers[0].Classifiers[0].GetValue())
+	assert.Equal(t, baseSchemaPrefix+"/Device#functional_object_type", discoveredDevice.Identifiers[0].Classifiers[0].GetValue())
 }
 
 type DerivedDeviceInfo struct {
@@ -50,7 +49,7 @@ func TestConvertDerivedSchemaToDiscoveredDevice(t *testing.T) {
 	}
 	*satDevice.PasswordProtected = true
 
-	discoveredDevice := ConvertFromDerivedSchemaToDiscoveredDevice(satDevice, "https://schema.industrial-assets.io/sat/v0.8.2", "SatController")
+	discoveredDevice := ConvertFromDerivedSchemaToDiscoveredDevice(satDevice, baseSchemaPrefix, "Device")
 	assert.Equal(t, 13, len(discoveredDevice.Identifiers))
 	passwordProtectedFound := false
 	for _, identifier := range discoveredDevice.Identifiers {
@@ -171,7 +170,7 @@ func checkForIdentifierUncertainty(t *testing.T, identifiers []*iah_discovery.De
 }
 
 func TestConvertNumberTypeToDiscoveredDevice(t *testing.T) {
-	device, err := NewDevice("Profinet", "Device")
+	device, err := NewDevice("Device", "Profinet")
 	if err != nil {
 		panic(err)
 	}
@@ -292,7 +291,7 @@ func TestConversionOfAllTypes(t *testing.T) {
 }
 
 func TestConvertToDeviceIdentifiers_IgnoredIdentifier(t *testing.T) {
-	device := generateDevice("Profinet", "Device")
+	device := generateDevice("Device", "Profinet")
 	var missingIdentifierUncertainty *int
 	testCases := []struct {
 		fieldValue interface{}

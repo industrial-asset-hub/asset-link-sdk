@@ -8,8 +8,8 @@
 package model
 
 const (
-	baseSchemaVersion = "v1.9.0"
-	baseSchemaPrefix  = "https://schema.industrial-assets.io/base/" + baseSchemaVersion
+	baseSchemaVersion = "v1"
+	baseSchemaPrefix  = "https://industrial-assets.io/schemas/iah/base-schema/released/" + baseSchemaVersion
 )
 
 // NewDevice Generates a new asset skeleton
