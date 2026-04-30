@@ -189,7 +189,7 @@ func createDiscoverError(sdError error, sdAddress simdevices.SimulatedDeviceAddr
 }
 
 func createDeviceInfo(device simdevices.SimulatedDeviceInfo) (*model.DeviceInfo, error) {
-	deviceInfo, err := model.NewDevice("EthernetDevice", device.GetDeviceName())
+	deviceInfo, err := model.NewDevice("Asset", device.GetDeviceName())
 	if err != nil {
 		if errors.Is(err, model.ErrEmpty) {
 			log.Warn().Err(err).Msg("one or more required fields for creating device info are empty, cannot create device info for discovered device")
@@ -198,6 +198,7 @@ func createDeviceInfo(device simdevices.SimulatedDeviceInfo) (*model.DeviceInfo,
 		log.Warn().Err(err).Msg("Could not create device info")
 		return deviceInfo, nil
 	}
+
 	err = deviceInfo.AddNameplate(device.GetManufacturer(), device.GetIDLink(), device.GetArticleNumber(),
 		device.GetProductDesignation(), device.GetHardwareVersion(), device.GetSerialNumber())
 	if err != nil {

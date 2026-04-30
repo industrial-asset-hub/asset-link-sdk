@@ -14,27 +14,40 @@ import (
 	"testing"
 	"time"
 
-	"github.com/google/uuid"
 	iah_discovery "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestConvertToDiscoveredDevice(t *testing.T) {
-	device := generateDevice("Profinet", "Device")
+	device := generateDevice("Asset", "Profinet")
 	discoveredDevice := device.ConvertToDiscoveredDevice()
-	discoveredDeviceType := fmt.Sprintf("%s/%s", baseSchemaPrefix, "Asset#@type")
-	assert.Equal(t, 23, len(discoveredDevice.Identifiers))
+	discoveredDeviceType := fmt.Sprintf("%s/%s", baseSchemaPrefix, "Asset#functional_object_type")
+	assert.Equal(t, 12, len(discoveredDevice.Identifiers))
 	assert.Equal(t, "URI", discoveredDevice.Identifiers[0].Classifiers[0].GetType())
 	assert.Equal(t, discoveredDeviceType, discoveredDevice.Identifiers[0].Classifiers[0].GetValue())
 }
 
+func TestConvertToDiscoveredDevice_UsesFunctionalObjectTypeAsClassifierClass(t *testing.T) {
+	device := generateDevice("Device", "Profinet")
+
+	discoveredDevice := device.ConvertToDiscoveredDevice()
+
+	assert.Equal(t, baseSchemaPrefix+"/Device#functional_object_type", discoveredDevice.Identifiers[0].Classifiers[0].GetValue())
+}
+
+func TestResolveDeviceClassFromFunctionalObjectType_ReturnsInputOnly(t *testing.T) {
+	assert.Equal(t, "", resolveDeviceClassFromFunctionalObjectType(nil))
+	assert.Equal(t, "", resolveDeviceClassFromFunctionalObjectType(""))
+	assert.Equal(t, "   ", resolveDeviceClassFromFunctionalObjectType("   "))
+	assert.Equal(t, "", resolveDeviceClassFromFunctionalObjectType(42))
+}
+
 func TestConvertFromDerivedSchemaToDiscoveredDevice(t *testing.T) {
-	schemaUri := "https://schema.industrial-assets.io/sat/v0.8.2"
-	device := generateDevice("SatController", "Device")
-	discoveredDevice := ConvertFromDerivedSchemaToDiscoveredDevice(device, schemaUri, "SatController")
-	assert.Equal(t, 23, len(discoveredDevice.Identifiers))
+	device := generateDevice("Device", "SatController")
+	discoveredDevice := ConvertFromDerivedSchemaToDiscoveredDevice(device, baseSchemaPrefix, "Device")
+	assert.Equal(t, 12, len(discoveredDevice.Identifiers))
 	assert.Equal(t, "URI", discoveredDevice.Identifiers[0].Classifiers[0].GetType())
-	assert.Equal(t, "https://schema.industrial-assets.io/sat/v0.8.2/SatController#@type", discoveredDevice.Identifiers[0].Classifiers[0].GetValue())
+	assert.Equal(t, baseSchemaPrefix+"/Device#functional_object_type", discoveredDevice.Identifiers[0].Classifiers[0].GetValue())
 }
 
 type DerivedDeviceInfo struct {
@@ -44,15 +57,15 @@ type DerivedDeviceInfo struct {
 
 func TestConvertDerivedSchemaToDiscoveredDevice(t *testing.T) {
 	var satDevice *DerivedDeviceInfo
-	device := generateDevice("SatController", "Device")
+	device := generateDevice("Device", "SatController")
 	satDevice = &DerivedDeviceInfo{
 		DeviceInfo:        *device,
 		PasswordProtected: new(bool),
 	}
 	*satDevice.PasswordProtected = true
 
-	discoveredDevice := ConvertFromDerivedSchemaToDiscoveredDevice(satDevice, "https://schema.industrial-assets.io/sat/v0.8.2", "SatController")
-	assert.Equal(t, 24, len(discoveredDevice.Identifiers))
+	discoveredDevice := ConvertFromDerivedSchemaToDiscoveredDevice(satDevice, baseSchemaPrefix, "Device")
+	assert.Equal(t, 13, len(discoveredDevice.Identifiers))
 	passwordProtectedFound := false
 	for _, identifier := range discoveredDevice.Identifiers {
 		if strings.Contains(identifier.Classifiers[0].GetValue(), "password_protected") {
@@ -68,7 +81,6 @@ func generateDevice(typeOfAsset string, assetName string) *DeviceInfo {
 	if err != nil {
 		panic(err)
 	}
-	timestamp := getAssetCreationTimestamp(device.ManagementState.StateTimestamp)
 	Name := "Device"
 	device.Name = &Name
 	product := "test-product"
@@ -76,30 +88,22 @@ func generateDevice(typeOfAsset string, assetName string) *DeviceInfo {
 	vendorName := "test-vendor"
 	serialNumber := "test"
 	vendor := Organization{
-		Address:        nil,
-		AlternateNames: nil,
-		ContactPoint:   nil,
-		Id:             "",
-		Name:           &vendorName,
+		Name: &vendorName,
 	}
-	productSerialidentifier := ProductSerialIdentifier{
-		IdentifierType:        nil,
-		IdentifierUncertainty: nil,
+	productInstanceInformation := ProductInstanceInformation{
 		ManufacturerProduct: &Product{
-			Id:             uuid.New().String(),
 			Manufacturer:   &vendor,
-			Name:           &Name,
 			ProductId:      &product,
 			ProductVersion: &version,
 		},
 		SerialNumber: &serialNumber,
 	}
-	device.ProductInstanceIdentifier = &productSerialidentifier
+	device.ProductInstanceInformation = &productInstanceInformation
 
 	randomMacAddress := "12:12:12:12:12:12"
 	identifierUncertainty := 1
-	device.MacIdentifiers = append(device.MacIdentifiers, MacIdentifier{
-		MacAddress:            &randomMacAddress,
+	device.AssetIdentifiers = append(device.AssetIdentifiers, MacIdentifier{
+		MacAddress:            randomMacAddress,
 		IdentifierUncertainty: &identifierUncertainty,
 	})
 
@@ -112,57 +116,46 @@ func generateDevice(typeOfAsset string, assetName string) *DeviceInfo {
 	Ipv6Address := "fd12:3456:789a::1"
 	conPoint := "eth0"
 	relatedConnectionPoint := RelatedConnectionPoint{
-		ConnectionPoint:    &conPoint,
-		CustomRelationship: &connectionPoint,
+		ConnectionPointId:  conPoint,
+		CustomRelationship: connectionPoint,
 	}
 	relatedConnectionPoints := make([]RelatedConnectionPoint, 0)
 	relatedConnectionPoints = append(relatedConnectionPoints, relatedConnectionPoint)
+
+	ipv4ConnectionPointID := "1"
 	Ipv4Connectivity := Ipv4Connectivity{
-		ConnectionPointType:     &connectionPointType,
-		Id:                      "1",
-		InstanceAnnotations:     nil,
-		Ipv4Address:             &Ipv4Address,
+		ConnectionPointType:     connectionPointType,
+		Id:                      &ipv4ConnectionPointID,
+		Ipv4Address:             Ipv4Address,
 		NetworkMask:             &Ipv4NetMask,
 		RelatedConnectionPoints: relatedConnectionPoints,
 		RouterIpv4Address:       nil,
 	}
 	device.ConnectionPoints = append(device.ConnectionPoints, Ipv4Connectivity)
+
+	ipv6ConnectionPointID := "2"
 	Ipv6Connectivity := Ipv6Connectivity{
-		ConnectionPointType:     &connectionPointTypeIpv6,
-		Id:                      "2",
-		InstanceAnnotations:     nil,
-		Ipv6Address:             &Ipv6Address,
+		ConnectionPointType:     connectionPointTypeIpv6,
+		Id:                      &ipv6ConnectionPointID,
+		Ipv6Address:             Ipv6Address,
 		RelatedConnectionPoints: nil,
 		RouterIpv6Address:       &routerIpv6Address,
 	}
+
 	device.ConnectionPoints = append(device.ConnectionPoints, Ipv6Connectivity)
 	ethernetType := EthernetPortConnectionPointTypeEthernetPort
+	ethernetPortID := "3"
 	EthernetPort := EthernetPort{
-		Id:                  "3",
-		ConnectionPointType: &ethernetType,
-		MacAddress:          &randomMacAddress,
+		Id:                  &ethernetPortID,
+		ConnectionPointType: ethernetType,
+		MacAddress:          randomMacAddress,
 	}
 	device.ConnectionPoints = append(device.ConnectionPoints, EthernetPort)
 
-	state := ManagementStateValuesUnknown
-	State := ManagementState{
-		StateTimestamp: &timestamp,
-		StateValue:     &state,
-	}
-	device.ManagementState = State
-
-	reachabilityStateValue := ReachabilityStateValuesReached
-	reachabilityState := ReachabilityState{
-		StateTimestamp: &timestamp,
-		StateValue:     &reachabilityStateValue,
-	}
-	device.ReachabilityState = &reachabilityState
-
 	assetOperationName := "Firmware Update"
-	assetOperationActivationFlag := true
 	assetOperations := AssetOperation{
-		OperationName:  &assetOperationName,
-		ActivationFlag: &assetOperationActivationFlag,
+		OperationName:  assetOperationName,
+		ActivationFlag: true,
 	}
 	device.AssetOperations = append(device.AssetOperations, assetOperations)
 	return device
@@ -192,11 +185,11 @@ func checkForIdentifierUncertainty(t *testing.T, identifiers []*iah_discovery.De
 }
 
 func TestConvertNumberTypeToDiscoveredDevice(t *testing.T) {
-	device, err := NewDevice("Profinet", "Device")
+	device, err := NewDevice("Device", "Profinet")
 	if err != nil {
 		panic(err)
 	}
-	device.addIdentifier("ffeffawfafwfw")
+	device.addMacIdentifier("ffeffawfafwfw")
 
 	discoveredDevice := device.ConvertToDiscoveredDevice()
 	result := checkForIdentifierUncertainty(t, discoveredDevice.GetIdentifiers())
@@ -313,13 +306,14 @@ func TestConversionOfAllTypes(t *testing.T) {
 }
 
 func TestConvertToDeviceIdentifiers_IgnoredIdentifier(t *testing.T) {
-	device := generateDevice("Profinet", "Device")
+	device := generateDevice("Device", "Profinet")
+	var missingIdentifierUncertainty *int
 	testCases := []struct {
 		fieldValue interface{}
 		uri        string
 	}{
-		{device.ProductInstanceIdentifier.IdentifierUncertainty, "https://schema.industrial-assets.io/base/v0.12.0/Asset#asset_identifiers/identifier_uncertainty"},
-		{device.InstanceAnnotations, "https://schema.industrial-assets.io/base/v0.12.0/Asset#instance_annotations"},
+		{missingIdentifierUncertainty, fmt.Sprintf("%s/%s", baseSchemaPrefix, "Asset#asset_identifiers/identifier_uncertainty")},
+		{device.InstanceAnnotations, fmt.Sprintf("%s/%s", baseSchemaPrefix, "Asset#instance_annotations")},
 	}
 
 	for _, testCase := range testCases {

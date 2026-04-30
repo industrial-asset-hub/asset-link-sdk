@@ -7,135 +7,79 @@
 
 package model
 
-import (
-	"time"
-)
-
 const (
-	baseSchemaVersion   = "v0.12.0"
-	baseSchemaPrefix    = "https://schema.industrial-assets.io/base/" + baseSchemaVersion
-	baseSchemaInContext = "https://common-device-management.code.siemens.io/documentation/asset-modeling/base-schema/" + baseSchemaVersion + "/"
-
-	gateway = "Gateway"
+	baseSchemaVersion = "v1"
+	baseSchemaPrefix  = "https://industrial-assets.io/schemas/iah/base-schema/released/" + baseSchemaVersion
 )
+
+var allowedFunctionalObjectTypes = []interface{}{
+	string(AssetFunctionalObjectTypeAsset),
+	string(DeviceFunctionalObjectTypeDevice),
+	string(GatewayFunctionalObjectTypeGateway),
+	string(SoftwareArtifactFunctionalObjectTypeSoftwareArtifact),
+}
 
 // NewDevice Generates a new asset skeleton
-func NewDevice(typeOfAsset string, assetName string) (*DeviceInfo, error) {
+func NewDevice(functionalObjectType string, assetName string) (*DeviceInfo, error) {
 
 	d := DeviceInfo{}
-	if !isNonEmptyValues(typeOfAsset) {
+	if !isNonEmptyValues(functionalObjectType) {
 		err := &EmptyError{
-			Field:   "Type",
-			Message: "Asset type is required and cannot be empty",
-			Value:   typeOfAsset,
+			Field:   "FunctionalObjectType",
+			Message: "Functional object type is required and cannot be empty",
+			Value:   functionalObjectType,
 		}
 		return &d, err
 	}
 
-	d.Type = typeOfAsset
-	d.Name = &assetName
-	d.Context = getAssetContext()
-
-	err := d.AddManagementState(ManagementStateValuesUnknown)
-	if err != nil {
-		return nil, err
+	if !isAllowedFunctionalObjectType(functionalObjectType) {
+		err := &PermissibleValuesError{
+			Field:   "FunctionalObjectType",
+			Message: "Functional object type is not valid. Please refer to the base schema for the supported functional object types.",
+			Value:   functionalObjectType,
+			Allowed: allowedFunctionalObjectTypes,
+		}
+		return &d, err
 	}
-	d.addReachabilityState()
+
+	if err := ValidateField(
+		FunctionalObjectSchemaUrl,
+		"FunctionalObjectSchemaUrl",
+		"Functional object schema URL is empty",
+		FunctionalObjectSchemaUrlPattern,
+		"Functional object schema URL format is invalid. Please refer to the base schema for the supported pattern.",
+	); err != nil {
+		return &d, err
+	}
+
+	d.FunctionalObjectType = functionalObjectType
+	d.FunctionalObjectSchemaUrl = FunctionalObjectSchemaUrl
+	d.Name = &assetName
 
 	return &d, nil
 }
 
-// NewGateway Generates a new gateway skeleton
-func NewGateway(gatewayName string) (*GatewayInfo, error) {
-
-	d := GatewayInfo{}
-
-	d.Type = gateway
-	d.Name = &gatewayName
-	d.Context = getAssetContext()
-
-	err := d.addManagementState(ManagementStateValuesRegarded)
-	if err != nil {
-		return nil, err
+func isAllowedFunctionalObjectType(functionalObjectType string) bool {
+	for _, allowed := range allowedFunctionalObjectTypes {
+		if allowedValue, ok := allowed.(string); ok && functionalObjectType == allowedValue {
+			return true
+		}
 	}
-
-	return &d, nil
+	return false
 }
 
 type DeviceInfo struct {
-	Type    string        `json:"@type"`
-	Context *AssetContext `json:"@context,omitempty"`
+	FunctionalObjectType      any `json:"functional_object_type"`
+	FunctionalObjectSchemaUrl any `json:"functional_object_schema_url"`
 	// Override connection point, since generated base schema does not provide derived types
 	ConnectionPoints []any `json:"connection_points,omitempty"`
 	Asset
-	MacIdentifiers []MacIdentifier `json:"mac_identifiers"`
+	AssetIdentifiers []any `json:"asset_identifiers"`
 	// To Be clarified
 	SoftwareComponents []any `json:"software_components,omitempty"`
 }
 
-type GatewayInfo struct {
-	Type    string        `json:"@type"`
-	Context *AssetContext `json:"@context,omitempty"`
-	Gateway
-}
-
-type AssetContext struct {
-	Lis       string `json:"lis"`
-	Base      string `json:"base"`
-	Skos      string `json:"skos"`
-	Vocab     string `json:"@vocab"`
-	Linkml    string `json:"linkml"`
-	SchemaOrg string `json:"schemaorg"`
-}
-
-// Add Management state to the asset
-func (d *DeviceInfo) AddManagementState(stateValue ManagementStateValues) error {
-	mgmtState, err := managementStatePtr(stateValue, getAssetCreationTimestamp(d.ManagementState.StateTimestamp))
-	if mgmtState == nil {
-		return err
-	}
-	d.ManagementState = *mgmtState
-	return nil
-}
-
-func (d *GatewayInfo) addManagementState(stateValue ManagementStateValues) error {
-	mgmtState, err := managementStatePtr(stateValue, getAssetCreationTimestamp(d.ManagementState.StateTimestamp))
-	if mgmtState == nil {
-		return err
-	}
-
-	d.ManagementState = *mgmtState
-	return nil
-}
-
-func managementStatePtr(stateValue ManagementStateValues, timestamp time.Time) (*ManagementState, error) {
-	if !isNonEmptyValues(string(stateValue)) {
-		err := &EmptyError{
-			Field:   "ManagementState",
-			Message: "Management state value is empty",
-			Value:   stateValue,
-		}
-		return nil, err
-	}
-	if stateValue != ManagementStateValuesIgnored && stateValue != ManagementStateValuesRegarded && stateValue != ManagementStateValuesUnknown {
-		err := &PermissibleValuesError{
-			Field:   "ManagementState",
-			Value:   stateValue,
-			Allowed: []interface{}{ManagementStateValuesIgnored, ManagementStateValuesRegarded, ManagementStateValuesUnknown},
-		}
-		return nil, err
-	}
-
-	mgmtState := ManagementState{
-		StateTimestamp: &timestamp,
-		StateValue:     &stateValue,
-	}
-
-	return &mgmtState, nil
-}
-
 func (d *DeviceInfo) AddDescription(description string) error {
-
 	if !isNonEmptyValues(description) {
 		err := &EmptyError{
 			Field:   "Description",
@@ -143,7 +87,6 @@ func (d *DeviceInfo) AddDescription(description string) error {
 		}
 		return err
 	}
-
 	d.Description = &description
 	return nil
 }

@@ -10,6 +10,7 @@ package handler
 import (
 	"errors"
 	"fmt"
+	"net/url"
 	"strings"
 	"sync"
 
@@ -76,9 +77,14 @@ func (m *AssetLinkImplementation) Discover(discoveryConfig config.DiscoveryConfi
 	hardwareVersion := "3"
 	firmwareVersion := "1.0.0"
 
-	productUri := fmt.Sprintf("urn:%s/%s/%s", strings.ReplaceAll(vendorName, " ", "_"), strings.ReplaceAll(productName, " ", "_"), serialNumber)
+	productUri := fmt.Sprintf(
+		"%s/?1P=%s&S=%s",
+		strings.TrimRight("{{ cookiecutter.company_url }}", "/"),
+		url.QueryEscape(orderNumber),
+		url.QueryEscape(serialNumber),
+	)
 
-	deviceInfo, err := model.NewDevice("EthernetDevice", assetName)
+	deviceInfo, err := model.NewDevice("Asset", assetName)
 	if err != nil {
 		if errors.Is(err, model.ErrEmpty) {
 			log.Warn().Err(err).Msg("one or more required fields for creating device info are empty, cannot create device info for discovered device")
