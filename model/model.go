@@ -12,6 +12,13 @@ const (
 	baseSchemaPrefix  = "https://industrial-assets.io/schemas/iah/base-schema/released/" + baseSchemaVersion
 )
 
+var allowedFunctionalObjectTypes = []interface{}{
+	string(AssetFunctionalObjectTypeAsset),
+	string(DeviceFunctionalObjectTypeDevice),
+	string(GatewayFunctionalObjectTypeGateway),
+	string(SoftwareArtifactFunctionalObjectTypeSoftwareArtifact),
+}
+
 // NewDevice Generates a new asset skeleton
 func NewDevice(functionalObjectType string, assetName string) (*DeviceInfo, error) {
 
@@ -21,6 +28,16 @@ func NewDevice(functionalObjectType string, assetName string) (*DeviceInfo, erro
 			Field:   "FunctionalObjectType",
 			Message: "Functional object type is required and cannot be empty",
 			Value:   functionalObjectType,
+		}
+		return &d, err
+	}
+
+	if !isAllowedFunctionalObjectType(functionalObjectType) {
+		err := &PermissibleValuesError{
+			Field:   "FunctionalObjectType",
+			Message: "Functional object type is not valid. Please refer to the base schema for the supported functional object types.",
+			Value:   functionalObjectType,
+			Allowed: allowedFunctionalObjectTypes,
 		}
 		return &d, err
 	}
@@ -40,6 +57,15 @@ func NewDevice(functionalObjectType string, assetName string) (*DeviceInfo, erro
 	d.Name = &assetName
 
 	return &d, nil
+}
+
+func isAllowedFunctionalObjectType(functionalObjectType string) bool {
+	for _, allowed := range allowedFunctionalObjectTypes {
+		if allowedValue, ok := allowed.(string); ok && functionalObjectType == allowedValue {
+			return true
+		}
+	}
+	return false
 }
 
 type DeviceInfo struct {

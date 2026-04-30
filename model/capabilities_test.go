@@ -16,7 +16,7 @@ import (
 
 func TestCapabilities(t *testing.T) {
 	t.Run("AddCapabilties", func(t *testing.T) {
-		m, err := NewDevice("asset", "device")
+		m, err := NewDevice("Asset", "device")
 		assert.NoError(t, err)
 
 		err = m.AddCapabilities("Capabilties-1", true)
@@ -44,14 +44,14 @@ func TestCapabilities(t *testing.T) {
 	})
 
 	t.Run("AddCapabilities_ValidName", func(t *testing.T) {
-		m, err := NewDevice("asset", "device")
+		m, err := NewDevice("Asset", "device")
 		assert.NoError(t, err)
 		err = m.AddCapabilities("firmware_update", true)
 		assert.NoError(t, err)
 	})
 
 	t.Run("AddCapabilities_EmptyName", func(t *testing.T) {
-		m, err := NewDevice("asset", "device")
+		m, err := NewDevice("Asset", "device")
 		assert.NoError(t, err)
 		err = m.AddCapabilities("", true)
 		assert.Error(t, err)

@@ -17,7 +17,7 @@ const testIDLink = "https://i.siemens.com/1P6ES7131-6BF00-0CA0+SC-P4TM3526"
 
 func TestNameplate(t *testing.T) {
 	t.Run("AddNameplate", func(t *testing.T) {
-		m, err := NewDevice("asset", "device")
+		m, err := NewDevice("Asset", "device")
 		assert.NoError(t, err)
 
 		err = m.AddNameplate(
@@ -70,7 +70,7 @@ func TestNameplate(t *testing.T) {
 	})
 
 	t.Run("AddNameplate_InvalidProductLink", func(t *testing.T) {
-		m, err := NewDevice("asset", "device")
+		m, err := NewDevice("Asset", "device")
 		assert.NoError(t, err)
 
 		err = m.AddNameplate(
@@ -97,7 +97,7 @@ func TestNameplate(t *testing.T) {
 
 func TestSoftwareNameplate(t *testing.T) {
 	t.Run("AddFirmwareAndOtherSoftware", func(t *testing.T) {
-		m, err := NewDevice("asset", "device")
+		m, err := NewDevice("Asset", "device")
 		assert.NoError(t, err)
 
 		firmwareName := "Firmware"
@@ -158,7 +158,7 @@ func TestSoftwareNameplate(t *testing.T) {
 	})
 
 	t.Run("AddSoftware_EmptyNameOrVersion", func(t *testing.T) {
-		m, err := NewDevice("asset", "device")
+		m, err := NewDevice("Asset", "device")
 		assert.NoError(t, err)
 		err = m.AddSoftware("", "1.0.0", false)
 		assert.Error(t, err)

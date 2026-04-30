@@ -14,12 +14,12 @@ import (
 )
 
 func TestNewDevice(t *testing.T) {
-	deviceInfo, err := NewDevice("testAsset", "test")
+	deviceInfo, err := NewDevice("Asset", "test")
 	assert.NoError(t, err)
 	_, err = deviceInfo.AddNic("test", "ab:ab:ab:ab:ab:ab")
 	assert.NoError(t, err)
 
-	assert.Equal(t, "testAsset", deviceInfo.FunctionalObjectType)
+	assert.Equal(t, "Asset", deviceInfo.FunctionalObjectType)
 	assert.Equal(t, "test", *deviceInfo.Name)
 	if assert.Len(t, deviceInfo.AssetIdentifiers, 1) {
 		macIdentifier, ok := deviceInfo.AssetIdentifiers[0].(MacIdentifier)
@@ -31,6 +31,30 @@ func TestNewDevice(t *testing.T) {
 		}
 	}
 	assert.Equal(t, FunctionalObjectSchemaUrl, deviceInfo.FunctionalObjectSchemaUrl)
+}
+
+func TestNewDevice_InvalidType(t *testing.T) {
+	deviceInfo, err := NewDevice("testAsset", "test")
+	assert.Error(t, err)
+	assert.NotNil(t, deviceInfo)
+	var pve *PermissibleValuesError
+	if assert.ErrorAs(t, err, &pve) {
+		assert.Equal(t, "FunctionalObjectType", pve.Field)
+		assert.Equal(t, "testAsset", pve.Value)
+		assert.Equal(t, allowedFunctionalObjectTypes, pve.Allowed)
+	}
+}
+
+func TestNewDevice_InvalidType_CaseSensitive(t *testing.T) {
+	deviceInfo, err := NewDevice("asset", "test")
+	assert.Error(t, err)
+	assert.NotNil(t, deviceInfo)
+	var pve *PermissibleValuesError
+	if assert.ErrorAs(t, err, &pve) {
+		assert.Equal(t, "FunctionalObjectType", pve.Field)
+		assert.Equal(t, "asset", pve.Value)
+		assert.Equal(t, allowedFunctionalObjectTypes, pve.Allowed)
+	}
 }
 
 func TestNewDevice_EmptyType(t *testing.T) {
@@ -46,7 +70,7 @@ func TestNewDevice_EmptyType(t *testing.T) {
 }
 
 func TestAddDescriptionValidDescription(t *testing.T) {
-	deviceInfo, err := NewDevice("testAsset", "test")
+	deviceInfo, err := NewDevice("Asset", "test")
 	assert.NoError(t, err)
 	description := "This is a test device"
 	err = deviceInfo.AddDescription(description)
@@ -56,7 +80,7 @@ func TestAddDescriptionValidDescription(t *testing.T) {
 }
 
 func TestAddDescriptionEmptyDescription(t *testing.T) {
-	deviceInfo, err := NewDevice("testAsset", "test")
+	deviceInfo, err := NewDevice("Asset", "test")
 	assert.NoError(t, err)
 	// Set an initial description to check it doesn't get overwritten
 	initialDescription := "Initial description"

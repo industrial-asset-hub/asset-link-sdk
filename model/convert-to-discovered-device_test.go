@@ -27,6 +27,21 @@ func TestConvertToDiscoveredDevice(t *testing.T) {
 	assert.Equal(t, discoveredDeviceType, discoveredDevice.Identifiers[0].Classifiers[0].GetValue())
 }
 
+func TestConvertToDiscoveredDevice_UsesFunctionalObjectTypeAsClassifierClass(t *testing.T) {
+	device := generateDevice("Device", "Profinet")
+
+	discoveredDevice := device.ConvertToDiscoveredDevice()
+
+	assert.Equal(t, baseSchemaPrefix+"/Device#functional_object_type", discoveredDevice.Identifiers[0].Classifiers[0].GetValue())
+}
+
+func TestResolveDeviceClassFromFunctionalObjectType_ReturnsInputOnly(t *testing.T) {
+	assert.Equal(t, "", resolveDeviceClassFromFunctionalObjectType(nil))
+	assert.Equal(t, "", resolveDeviceClassFromFunctionalObjectType(""))
+	assert.Equal(t, "   ", resolveDeviceClassFromFunctionalObjectType("   "))
+	assert.Equal(t, "", resolveDeviceClassFromFunctionalObjectType(42))
+}
+
 func TestConvertFromDerivedSchemaToDiscoveredDevice(t *testing.T) {
 	device := generateDevice("Device", "SatController")
 	discoveredDevice := ConvertFromDerivedSchemaToDiscoveredDevice(device, baseSchemaPrefix, "Device")

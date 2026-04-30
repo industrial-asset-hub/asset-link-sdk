@@ -18,7 +18,7 @@ import (
 
 func TestNetwork(t *testing.T) {
 	t.Run("AddNic", func(t *testing.T) {
-		m, err := NewDevice("asset", "MyDevice")
+		m, err := NewDevice("Asset", "MyDevice")
 		assert.NoError(t, err)
 
 		nic2Id, err := m.AddNic("nic2", "AA:AA:AA:AA:AA:AA")
@@ -54,7 +54,7 @@ func TestNetwork(t *testing.T) {
 	})
 
 	t.Run("AddIpv4", func(t *testing.T) {
-		m, err := NewDevice("asset", "device")
+		m, err := NewDevice("Asset", "device")
 		assert.NoError(t, err)
 
 		id, err := m.AddIPv4("nic0", "10.0.0.1", "255.0.0.0", "10.0.0.254")
@@ -106,7 +106,7 @@ func TestNetwork(t *testing.T) {
 	})
 
 	t.Run("AddIpv6", func(t *testing.T) {
-		m, err := NewDevice("asset", "device")
+		m, err := NewDevice("Asset", "device")
 		assert.NoError(t, err)
 
 		id1, err1 := m.AddIPv6("nic0", "2001:0db8:85a3:0000:0000:8a2e:0370:7334", "2001:db8:/64", "2001:0db8:85a3:0000:0000:8a2e:0370:7334")
@@ -138,14 +138,14 @@ func TestNetwork(t *testing.T) {
 	})
 
 	t.Run("AddNic returns an error when the NIC name is empty", func(t *testing.T) {
-		m, err := NewDevice("asset", "MyDevice")
+		m, err := NewDevice("Asset", "MyDevice")
 		assert.NoError(t, err)
 		_, err = m.AddNic("", "AA:BB:CC:DD:EE:FF")
 		assert.Error(t, err) // AddNic with empty name should return an error based on network.go validation
 	})
 
 	t.Run("AddNic stores the provided NIC name on EthernetPort.Name", func(t *testing.T) {
-		m, err := NewDevice("asset", "MyDevice")
+		m, err := NewDevice("Asset", "MyDevice")
 		assert.NoError(t, err)
 		_, err = m.AddNic("Test-Nic", "AA:BB:CC:DD:EE:FF")
 		assert.NoError(t, err)
@@ -156,7 +156,7 @@ func TestNetwork(t *testing.T) {
 }
 
 func TestAddNic_MacAddressValidation(t *testing.T) {
-	m, err := NewDevice("asset", "TestDevice")
+	m, err := NewDevice("Asset", "TestDevice")
 	assert.NoError(t, err)
 
 	t.Run("Empty MAC address should return EmptyError", func(t *testing.T) {
@@ -189,7 +189,7 @@ func TestAddNic_MacAddressValidation(t *testing.T) {
 }
 
 func TestAddIPv6_Validation(t *testing.T) {
-	m, err := NewDevice("asset", "TestDevice")
+	m, err := NewDevice("Asset", "TestDevice")
 	assert.NoError(t, err)
 
 	nicId, err := m.AddNic("nic6", "AA:BB:CC:DD:EE:FF")
