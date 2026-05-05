@@ -3,7 +3,7 @@ module github.com/industrial-asset-hub/asset-link-sdk/v3
 go 1.25.7
 
 require (
-	github.com/Masterminds/semver/v3 v3.4.0
+	github.com/Masterminds/semver/v3 v3.5.0
 	github.com/gin-contrib/logger v1.2.7
 	github.com/gin-gonic/gin v1.12.0
 	github.com/google/uuid v1.6.0
