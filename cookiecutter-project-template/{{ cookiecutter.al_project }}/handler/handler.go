@@ -10,6 +10,7 @@ package handler
 import (
 	"errors"
 	"fmt"
+	"net/url"
 	"strings"
 	"sync"
 
@@ -76,9 +77,14 @@ func (m *AssetLinkImplementation) Discover(discoveryConfig config.DiscoveryConfi
 	hardwareVersion := "3"
 	firmwareVersion := "1.0.0"
 
-	productUri := fmt.Sprintf("urn:%s/%s/%s", strings.ReplaceAll(vendorName, " ", "_"), strings.ReplaceAll(productName, " ", "_"), serialNumber)
+	productUri := fmt.Sprintf(
+		"%s/?1P=%s&S=%s",
+		strings.TrimRight("{{ cookiecutter.company_url }}", "/"),
+		url.QueryEscape(orderNumber),
+		url.QueryEscape(serialNumber),
+	)
 
-	deviceInfo, err := model.NewDevice("EthernetDevice", assetName)
+	deviceInfo, err := model.NewDevice("Asset", assetName)
 	if err != nil {
 		if errors.Is(err, model.ErrEmpty) {
 			log.Warn().Err(err).Msg("one or more required fields for creating device info are empty, cannot create device info for discovered device")
@@ -95,7 +101,7 @@ func (m *AssetLinkImplementation) Discover(discoveryConfig config.DiscoveryConfi
 		log.Warn().Err(err).Msg("Could not add nameplate information to device info")
 		return nil
 	}
-	if err = deviceInfo.AddSoftware("Firmware", firmwareVersion, true); err != nil {
+	if err = deviceInfo.AddSoftwareArtifactComponent("Firmware", firmwareVersion, true); err != nil {
 		if errors.Is(err, model.ErrEmpty) {
 			log.Warn().Err(err).Msg("Firmware version is empty, cannot add firmware information to device info")
 			return nil
@@ -121,7 +127,7 @@ func (m *AssetLinkImplementation) Discover(discoveryConfig config.DiscoveryConfi
 			return nil
 		} else if errors.Is(err, model.ErrValidation) {
 			log.Warn().Err(err).Msg("MAC address format is invalid, cannot add NIC to device info")
-			return nil // return device info without NIC -ask?
+			return nil
 		}
 		log.Warn().Err(err).Msg("Could not add NIC to device info")
 		return nil
@@ -129,10 +135,10 @@ func (m *AssetLinkImplementation) Discover(discoveryConfig config.DiscoveryConfi
 	if _, err = deviceInfo.AddIPv4(nicID, "192.168.0.10", "255.255.255.0", "192.168.0.1"); err != nil {
 		if errors.Is(err, model.ErrEmpty) {
 			log.Warn().Err(err).Msg("IP address or network mask is empty, cannot add IPv4 connectivity to device info")
-			return nil // return device info without IPv4 connectivity
+			return nil
 		} else if errors.Is(err, model.ErrValidation) {
 			log.Warn().Err(err).Msg("IP address or network mask format is invalid, cannot add IPv4 connectivity to device info")
-			return nil // return device info without IPv4 connectivity
+			return nil
 		}
 		log.Warn().Err(err).Msg("Could not add IPv4 connectivity to device info")
 		return nil
@@ -140,10 +146,10 @@ func (m *AssetLinkImplementation) Discover(discoveryConfig config.DiscoveryConfi
 	if _, err = deviceInfo.AddIPv4(nicID, "10.0.0.153", "255.255.255.0", "10.0.0.1"); err != nil {
 		if errors.Is(err, model.ErrEmpty) {
 			log.Warn().Err(err).Msg("IP address or network mask is empty, cannot add IPv4 connectivity to device info")
-			return nil // return device info without IPv4 connectivity
+			return nil
 		} else if errors.Is(err, model.ErrValidation) {
 			log.Warn().Err(err).Msg("IP address or network mask format is invalid, cannot add IPv4 connectivity to device info")
-			return nil // return device info without IPv4 connectivity
+			return nil
 		}
 		log.Warn().Err(err).Msg("Could not add IPv4 connectivity to device info")
 		return nil

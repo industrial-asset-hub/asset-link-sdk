@@ -370,7 +370,7 @@ func (d *simulatedDeviceInfo) GetIpRoute() string {
 
 func (d *simulatedDeviceInfo) GetIDLink() string {
 	// generate ID link from device data
-	idLink := fmt.Sprintf("https://industrial-assets.io?1P=%s&S=%s", d.ArticleNumber, d.SerialNumber)
+	idLink := fmt.Sprintf("https://industrial-assets.io/?1P=%s&S=%s", d.ArticleNumber, d.SerialNumber)
 	return idLink
 }
 

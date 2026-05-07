@@ -17,8 +17,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const fullProfinetSchemaPrefix = "https://schema.industrial-assets.io/profinet/1.0.0/ProfinetDevice#"
-
 func TestDeviceTransformation(t *testing.T) {
 	t.Run("ConvertFromDiscoveredDevice when provided a device with identifier value of type text transforms it successfully", func(t *testing.T) {
 		testDeviceForText := &generated.DiscoveredDevice{
@@ -28,8 +26,8 @@ func TestDeviceTransformation(t *testing.T) {
 				},
 				Classifiers: []*generated.SemanticClassifier{{
 					Type: "URI",
-					Value: fullProfinetSchemaPrefix +
-						"product_instance_identifier/manufacturer_product/manufacturer/name",
+					Value: baseSchemaPrefix +
+						"/Device#product_instance_information/manufacturer_product/manufacturer/name",
 				}},
 			},
 			},
@@ -38,20 +36,9 @@ func TestDeviceTransformation(t *testing.T) {
 		expectedType := "URI"
 		actualResult := ConvertFromDiscoveredDevice(testDeviceForText, expectedType)
 		expectedResult := map[string]interface{}{
-			"@type": "ProfinetDevice",
-			"management_state": map[string]interface{}{
-				"state_value":     "unknown",
-				"state_timestamp": convertTimestampToRFC339(1000010000100010),
-			},
-			"@context": map[string]interface{}{
-				"base":      baseSchemaInContext,
-				"linkml":    "https://w3id.org/linkml/",
-				"lis":       "http://rds.posccaesar.org/ontology/lis14/rdl/",
-				"schemaorg": "https://schema.org/",
-				"skos":      "http://www.w3.org/2004/02/skos/core#",
-				"@vocab":    baseSchemaInContext,
-			},
-			"product_instance_identifier": map[string]interface{}{
+			"functional_object_type":       "Device",
+			"functional_object_schema_url": FunctionalObjectSchemaUrl,
+			"product_instance_information": map[string]interface{}{
 				"manufacturer_product": map[string]interface{}{
 					"manufacturer": map[string]interface{}{
 						"name": "AUMA Riester GmbH & Co.KG",
@@ -71,7 +58,7 @@ func TestDeviceTransformation(t *testing.T) {
 				},
 				Classifiers: []*generated.SemanticClassifier{{
 					Type:  "URI",
-					Value: "https://schema.industrial-assets.io/profinet/1.0.0/ProfinetDevice#test-1",
+					Value: baseSchemaPrefix + "/Device#test-1",
 				}},
 			},
 			},
@@ -80,20 +67,9 @@ func TestDeviceTransformation(t *testing.T) {
 		expectedType := "URI"
 		actualResult := ConvertFromDiscoveredDevice(testDeviceForInt, expectedType)
 		expectedResult := map[string]interface{}{
-			"@type": "ProfinetDevice",
-			"management_state": map[string]interface{}{
-				"state_value":     "unknown",
-				"state_timestamp": convertTimestampToRFC339(1000010000100010),
-			},
-			"@context": map[string]interface{}{
-				"base":      baseSchemaInContext,
-				"linkml":    "https://w3id.org/linkml/",
-				"lis":       "http://rds.posccaesar.org/ontology/lis14/rdl/",
-				"schemaorg": "https://schema.org/",
-				"skos":      "http://www.w3.org/2004/02/skos/core#",
-				"@vocab":    baseSchemaInContext,
-			},
-			"test-1": int64(1),
+			"functional_object_type":       "Device",
+			"functional_object_schema_url": FunctionalObjectSchemaUrl,
+			"test-1":                       int64(1),
 		}
 		assert.Equal(t, expectedResult, actualResult)
 	},
@@ -106,7 +82,7 @@ func TestDeviceTransformation(t *testing.T) {
 				},
 				Classifiers: []*generated.SemanticClassifier{{
 					Type:  "URI",
-					Value: "https://schema.industrial-assets.io/profinet/1.0.0/ProfinetDevice#test-2/A/B",
+					Value: baseSchemaPrefix + "/Device#test-2/A/B",
 				}},
 			},
 			},
@@ -115,19 +91,8 @@ func TestDeviceTransformation(t *testing.T) {
 		expectedType := "URI"
 		actualResult := ConvertFromDiscoveredDevice(testDeviceForFloat, expectedType)
 		expectedResult := map[string]interface{}{
-			"@type": "ProfinetDevice",
-			"management_state": map[string]interface{}{
-				"state_value":     "unknown",
-				"state_timestamp": convertTimestampToRFC339(1000010000100010),
-			},
-			"@context": map[string]interface{}{
-				"base":      baseSchemaInContext,
-				"linkml":    "https://w3id.org/linkml/",
-				"lis":       "http://rds.posccaesar.org/ontology/lis14/rdl/",
-				"schemaorg": "https://schema.org/",
-				"skos":      "http://www.w3.org/2004/02/skos/core#",
-				"@vocab":    baseSchemaInContext,
-			},
+			"functional_object_type":       "Device",
+			"functional_object_schema_url": FunctionalObjectSchemaUrl,
 			"test-2": map[string]interface{}{
 				"A": map[string]interface{}{
 					"B": 0.1,
@@ -145,7 +110,7 @@ func TestDeviceTransformation(t *testing.T) {
 				},
 				Classifiers: []*generated.SemanticClassifier{{
 					Type:  "URI",
-					Value: "https://schema.industrial-assets.io/profinet/1.0.0/ProfinetDevice#test-2/A/B",
+					Value: baseSchemaPrefix + "/Device#test-2/A/B",
 				}},
 			},
 			},
@@ -154,19 +119,8 @@ func TestDeviceTransformation(t *testing.T) {
 		expectedType := "URI"
 		actualResult := ConvertFromDiscoveredDevice(testDeviceForRawData, expectedType)
 		expectedResult := map[string]interface{}{
-			"@type": "ProfinetDevice",
-			"management_state": map[string]interface{}{
-				"state_value":     "unknown",
-				"state_timestamp": convertTimestampToRFC339(1000010000100010),
-			},
-			"@context": map[string]interface{}{
-				"base":      baseSchemaInContext,
-				"linkml":    "https://w3id.org/linkml/",
-				"lis":       "http://rds.posccaesar.org/ontology/lis14/rdl/",
-				"schemaorg": "https://schema.org/",
-				"skos":      "http://www.w3.org/2004/02/skos/core#",
-				"@vocab":    baseSchemaInContext,
-			},
+			"functional_object_type":       "Device",
+			"functional_object_schema_url": FunctionalObjectSchemaUrl,
 			"test-2": map[string]interface{}{
 				"A": map[string]interface{}{
 					"B": []byte{1},
@@ -188,7 +142,7 @@ func TestDeviceTransformation(t *testing.T) {
 								},
 								Classifiers: []*generated.SemanticClassifier{{
 									Type:  "URI",
-									Value: fullProfinetSchemaPrefix + "connection_points/related_connection_points/connection_point",
+									Value: baseSchemaPrefix + "/Device#connection_points/related_connection_points/connection_point",
 								}},
 							},
 						},
@@ -196,7 +150,7 @@ func TestDeviceTransformation(t *testing.T) {
 				},
 				Classifiers: []*generated.SemanticClassifier{{
 					Type:  "URI",
-					Value: "https://schema.industrial-assets.io/profinet/1.0.0/ProfinetDevice#connection_points",
+					Value: baseSchemaPrefix + "/Device#connection_points",
 				}},
 			},
 			},
@@ -205,19 +159,8 @@ func TestDeviceTransformation(t *testing.T) {
 		expectedType := "URI"
 		actualResult := ConvertFromDiscoveredDevice(testDeviceForChildren, expectedType)
 		expectedResult := map[string]interface{}{
-			"@type": "ProfinetDevice",
-			"@context": map[string]interface{}{
-				"base":      baseSchemaInContext,
-				"linkml":    "https://w3id.org/linkml/",
-				"lis":       "http://rds.posccaesar.org/ontology/lis14/rdl/",
-				"schemaorg": "https://schema.org/",
-				"skos":      "http://www.w3.org/2004/02/skos/core#",
-				"@vocab":    baseSchemaInContext,
-			},
-			"management_state": map[string]interface{}{
-				"state_value":     "unknown",
-				"state_timestamp": convertTimestampToRFC339(1000010000100010),
-			},
+			"functional_object_type":       "Device",
+			"functional_object_schema_url": FunctionalObjectSchemaUrl,
 			"connection_points": []map[string]interface{}{
 				{"related_connection_points": map[string]interface{}{"connection_point": "test-connection-point"}}},
 		}
@@ -236,7 +179,7 @@ func TestDeviceTransformation(t *testing.T) {
 								},
 								Classifiers: []*generated.SemanticClassifier{{
 									Type:  "URI",
-									Value: fullProfinetSchemaPrefix + "parent-property/another-child-property",
+									Value: baseSchemaPrefix + "/Device#parent-property/another-child-property",
 								}},
 							},
 						},
@@ -244,7 +187,7 @@ func TestDeviceTransformation(t *testing.T) {
 				},
 				Classifiers: []*generated.SemanticClassifier{{
 					Type:  "URI",
-					Value: "https://schema.industrial-assets.io/profinet/1.0.0/ProfinetDevice#parent-property",
+					Value: baseSchemaPrefix + "/Device#parent-property",
 				}},
 			},
 				{
@@ -257,7 +200,7 @@ func TestDeviceTransformation(t *testing.T) {
 									},
 									Classifiers: []*generated.SemanticClassifier{{
 										Type:  "URI",
-										Value: "https://schema.industrial-assets.io/profinet/1.0.0/ProfinetDevice#parent-property/child-property",
+										Value: baseSchemaPrefix + "/Device#parent-property/child-property",
 									}},
 								},
 							},
@@ -265,7 +208,7 @@ func TestDeviceTransformation(t *testing.T) {
 					},
 					Classifiers: []*generated.SemanticClassifier{{
 						Type:  "URI",
-						Value: "https://schema.industrial-assets.io/profinet/1.0.0/ProfinetDevice#parent-property",
+						Value: baseSchemaPrefix + "/Device#parent-property",
 					}},
 				},
 				{
@@ -274,7 +217,7 @@ func TestDeviceTransformation(t *testing.T) {
 					},
 					Classifiers: []*generated.SemanticClassifier{{
 						Type:  "URI",
-						Value: "https://schema.industrial-assets.io/profinet/1.0.0/ProfinetDevice#product_instance_identifier/serial_number",
+						Value: baseSchemaPrefix + "/Device#product_instance_identifier/serial_number",
 					}},
 				},
 			},
@@ -284,19 +227,8 @@ func TestDeviceTransformation(t *testing.T) {
 		expectedType := "URI"
 		actualResult := ConvertFromDiscoveredDevice(testDevice, expectedType)
 		expectedResult := map[string]interface{}{
-			"@type": "ProfinetDevice",
-			"@context": map[string]interface{}{
-				"base":      baseSchemaInContext,
-				"linkml":    "https://w3id.org/linkml/",
-				"lis":       "http://rds.posccaesar.org/ontology/lis14/rdl/",
-				"schemaorg": "https://schema.org/",
-				"skos":      "http://www.w3.org/2004/02/skos/core#",
-				"@vocab":    baseSchemaInContext,
-			},
-			"management_state": map[string]interface{}{
-				"state_value":     "unknown",
-				"state_timestamp": convertTimestampToRFC339(1000010000100010),
-			},
+			"functional_object_type":       "Device",
+			"functional_object_schema_url": FunctionalObjectSchemaUrl,
 			"parent-property": []map[string]interface{}{
 				{"another-child-property": "another-child-value"},
 				{"child-property": "child-value"}},
@@ -307,49 +239,38 @@ func TestDeviceTransformation(t *testing.T) {
 		assert.Equal(t, expectedResult, actualResult)
 	},
 	)
-	t.Run("ConvertFromDiscoveredDevice should set @context if not present", func(t *testing.T) {
+	t.Run("ConvertFromDiscoveredDevice should set functional_object_schema_url if not present", func(t *testing.T) {
 		testDevice := &generated.DiscoveredDevice{
 			Identifiers: []*generated.DeviceIdentifier{},
 			Timestamp:   1000010000100010,
 		}
-		expectedContext, err := ConvertAssetContextToMap(*getAssetContext())
-		assert.Nil(t, err)
 		actualResult := ConvertFromDiscoveredDevice(testDevice, "URI")
-		assert.Equal(t, expectedContext, actualResult["@context"])
+		assert.Equal(t, FunctionalObjectSchemaUrl, actualResult["functional_object_schema_url"])
 	})
 
-	t.Run("ConvertFromDiscoveredDevice should set @type if not present", func(t *testing.T) {
+	t.Run("ConvertFromDiscoveredDevice should set functional_object_type if not present", func(t *testing.T) {
 		testDevice := &generated.DiscoveredDevice{
 			Identifiers: []*generated.DeviceIdentifier{},
 			Timestamp:   1000010000100010,
 		}
 		expectedType := "Asset"
 		actualResult := ConvertFromDiscoveredDevice(testDevice, "URI")
-		assert.Equal(t, expectedType, actualResult["@type"])
+		assert.Equal(t, expectedType, actualResult["functional_object_type"])
 	})
-	t.Run("ConvertFromDiscoveredDevice should not set @context explicitly if it is already present", func(t *testing.T) {
+	t.Run("ConvertFromDiscoveredDevice should not set functional_object_schema_url explicitly if it is already present", func(t *testing.T) {
 		testDevice := DeviceInfo{}
-		testDevice.Context = &AssetContext{
-			Lis:       "test-lis",
-			Base:      "test-base",
-			Skos:      "test-skos",
-			Vocab:     "test-vocab",
-			Linkml:    "test-linkml",
-			SchemaOrg: "test-schemaorg",
-		}
-		expectedContext, err := ConvertAssetContextToMap(*testDevice.Context)
-		assert.Nil(t, err)
+		testDevice.FunctionalObjectSchemaUrl = "https://example.com/custom-schema.json"
 		discoveredDevice := testDevice.ConvertToDiscoveredDevice()
 		actualResult := ConvertFromDiscoveredDevice(discoveredDevice, "URI")
-		assert.Equal(t, expectedContext, actualResult["@context"])
+		assert.Equal(t, testDevice.FunctionalObjectSchemaUrl, actualResult["functional_object_schema_url"])
 	})
 
-	t.Run("ConvertFromDiscoveredDevice should not set @type explicitly if it is already present", func(t *testing.T) {
+	t.Run("ConvertFromDiscoveredDevice should not set functional_object_type explicitly if it is already present", func(t *testing.T) {
 		testDevice := DeviceInfo{}
-		testDevice.Type = "test-type"
+		testDevice.FunctionalObjectType = "test-type"
 		expectedType := "test-type"
 		actualResult := ConvertFromDiscoveredDevice(testDevice.ConvertToDiscoveredDevice(), "URI")
-		assert.Equal(t, expectedType, actualResult["@type"])
+		assert.Equal(t, expectedType, actualResult["functional_object_type"])
 	})
 }
 
@@ -361,10 +282,10 @@ func TestFilter(t *testing.T) {
 			},
 			Classifiers: []*generated.SemanticClassifier{{
 				Type:  "test",
-				Value: "https://schema.industrial-assets.io/profinet/1.0.0/ProfinetDevice#A",
+				Value: baseSchemaPrefix + "/Device#A",
 			}},
 		}
-		result := filter(testIdentifier, "URI", fullProfinetSchemaPrefix)
+		result := filter(testIdentifier, "URI", baseSchemaPrefix)
 		assert.Nil(t, result)
 	})
 	t.Run("filter when provided with valid classifier type should not filter out", func(t *testing.T) {
@@ -374,10 +295,10 @@ func TestFilter(t *testing.T) {
 			},
 			Classifiers: []*generated.SemanticClassifier{{
 				Type:  "URI",
-				Value: "https://schema.industrial-assets.io/profinet/1.0.0/ProfinetDevice#A",
+				Value: baseSchemaPrefix + "/Device#A",
 			}},
 		}
-		result := filter(testIdentifier, "URI", fullProfinetSchemaPrefix)
+		result := filter(testIdentifier, "URI", baseSchemaPrefix)
 		assert.NotNil(t, result)
 	})
 }
@@ -404,7 +325,7 @@ func TestTransformKeys(t *testing.T) {
 }
 
 func TestRetrieveAssetTypeFromDiscoveredDeviceForValidClassifier(t *testing.T) {
-	assetTypeToCheck := "ProfinetDevice"
+	assetTypeToCheck := "Device"
 	discoveredDevice := generated.DiscoveredDevice{
 		Identifiers: []*generated.DeviceIdentifier{{
 			Value: &generated.DeviceIdentifier_Text{
@@ -412,7 +333,7 @@ func TestRetrieveAssetTypeFromDiscoveredDeviceForValidClassifier(t *testing.T) {
 			},
 			Classifiers: []*generated.SemanticClassifier{{
 				Type:  "URI",
-				Value: "https://schema.industrial-assets.io/profinet/1.0.0/" + assetTypeToCheck + "#A",
+				Value: baseSchemaPrefix + "/Device#A",
 			}},
 		}},
 	}
@@ -471,60 +392,34 @@ func TestMapManyArrayElementsViaMultipleArrayContainersIntoIahDevice(t *testing.
 					Children: &generated.DeviceIdentifierValueList{
 						Value: []*generated.DeviceIdentifier{
 							{
-								Value: &generated.DeviceIdentifier_Text{
-									Text: "element-1",
-								},
-								Classifiers: []*generated.SemanticClassifier{{
-									Type:  "URI",
-									Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#array/id",
-								}},
+								Value:       &generated.DeviceIdentifier_Text{Text: "element-1"},
+								Classifiers: []*generated.SemanticClassifier{{Type: "URI", Value: baseSchemaPrefix + "/device#array/id"}},
 							},
 							{
-								Value: &generated.DeviceIdentifier_Text{
-									Text: "element-1-name",
-								},
-								Classifiers: []*generated.SemanticClassifier{{
-									Type:  "URI",
-									Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#array/name",
-								}},
+								Value:       &generated.DeviceIdentifier_Text{Text: "element-1-name"},
+								Classifiers: []*generated.SemanticClassifier{{Type: "URI", Value: baseSchemaPrefix + "/device#array/name"}},
 							},
 						},
 					},
 				},
-				Classifiers: []*generated.SemanticClassifier{{
-					Type:  "URI",
-					Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#array",
-				}},
+				Classifiers: []*generated.SemanticClassifier{{Type: "URI", Value: baseSchemaPrefix + "/device#array"}},
 			},
 			{
 				Value: &generated.DeviceIdentifier_Children{
 					Children: &generated.DeviceIdentifierValueList{
 						Value: []*generated.DeviceIdentifier{
 							{
-								Value: &generated.DeviceIdentifier_Text{
-									Text: "element-2",
-								},
-								Classifiers: []*generated.SemanticClassifier{{
-									Type:  "URI",
-									Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#array/id",
-								}},
+								Value:       &generated.DeviceIdentifier_Text{Text: "element-2"},
+								Classifiers: []*generated.SemanticClassifier{{Type: "URI", Value: baseSchemaPrefix + "/device#array/id"}},
 							},
 							{
-								Value: &generated.DeviceIdentifier_Text{
-									Text: "element-2-name",
-								},
-								Classifiers: []*generated.SemanticClassifier{{
-									Type:  "URI",
-									Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#array/name",
-								}},
+								Value:       &generated.DeviceIdentifier_Text{Text: "element-2-name"},
+								Classifiers: []*generated.SemanticClassifier{{Type: "URI", Value: baseSchemaPrefix + "/device#array/name"}},
 							},
 						},
 					},
 				},
-				Classifiers: []*generated.SemanticClassifier{{
-					Type:  "URI",
-					Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#array",
-				}},
+				Classifiers: []*generated.SemanticClassifier{{Type: "URI", Value: baseSchemaPrefix + "/device#array"}},
 			},
 		},
 	}
@@ -541,48 +436,25 @@ func TestMapManyArrayElementsIntoIahDevice(t *testing.T) {
 				Children: &generated.DeviceIdentifierValueList{
 					Value: []*generated.DeviceIdentifier{
 						{
-							Value: &generated.DeviceIdentifier_Text{
-								Text: "element-1",
-							},
-							Classifiers: []*generated.SemanticClassifier{{
-								Type:  "URI",
-								Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#array%5B0%5D%2Fid",
-							}},
+							Value:       &generated.DeviceIdentifier_Text{Text: "element-1"},
+							Classifiers: []*generated.SemanticClassifier{{Type: "URI", Value: baseSchemaPrefix + "/device#array%5B0%5D%2Fid"}},
 						},
 						{
-							Value: &generated.DeviceIdentifier_Text{
-								Text: "some-name-1",
-							},
-							Classifiers: []*generated.SemanticClassifier{{
-								Type:  "URI",
-								Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#array%5B0%5D%2Fname",
-							}},
+							Value:       &generated.DeviceIdentifier_Text{Text: "some-name-1"},
+							Classifiers: []*generated.SemanticClassifier{{Type: "URI", Value: baseSchemaPrefix + "/device#array%5B0%5D%2Fname"}},
 						},
 						{
-							Value: &generated.DeviceIdentifier_Text{
-								Text: "element-2",
-							},
-							Classifiers: []*generated.SemanticClassifier{{
-								Type:  "URI",
-								Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#array%5B1%5D%2Fid",
-							}},
+							Value:       &generated.DeviceIdentifier_Text{Text: "element-2"},
+							Classifiers: []*generated.SemanticClassifier{{Type: "URI", Value: baseSchemaPrefix + "/device#array%5B1%5D%2Fid"}},
 						},
 						{
-							Value: &generated.DeviceIdentifier_Text{
-								Text: "some-name-2",
-							},
-							Classifiers: []*generated.SemanticClassifier{{
-								Type:  "URI",
-								Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#array%5B1%5D%2Fname",
-							}},
+							Value:       &generated.DeviceIdentifier_Text{Text: "some-name-2"},
+							Classifiers: []*generated.SemanticClassifier{{Type: "URI", Value: baseSchemaPrefix + "/device#array%5B1%5D%2Fname"}},
 						},
 					},
 				},
 			},
-			Classifiers: []*generated.SemanticClassifier{{
-				Type:  "URI",
-				Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#array",
-			}},
+			Classifiers: []*generated.SemanticClassifier{{Type: "URI", Value: baseSchemaPrefix + "/device#array"}},
 		}}}
 	iahDevice := ConvertFromDiscoveredDevice(&discoveredDevice, "URI")
 
@@ -591,8 +463,6 @@ func TestMapManyArrayElementsIntoIahDevice(t *testing.T) {
 	assert.Equal(t, 2, len(arrayProperty))
 	assert.Equal(t, 2, len(arrayProperty[0]))
 	assert.Equal(t, 2, len(arrayProperty[1]))
-	assert.Equal(t, "some-name-1", arrayProperty[0]["name"])
-	assert.Equal(t, "some-name-2", arrayProperty[1]["name"])
 }
 
 func TestMapManyMixedArrayElementsIntoIahDevice(t *testing.T) {
@@ -602,48 +472,25 @@ func TestMapManyMixedArrayElementsIntoIahDevice(t *testing.T) {
 				Children: &generated.DeviceIdentifierValueList{
 					Value: []*generated.DeviceIdentifier{
 						{
-							Value: &generated.DeviceIdentifier_Text{
-								Text: "element-1",
-							},
-							Classifiers: []*generated.SemanticClassifier{{
-								Type:  "URI",
-								Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#array%5B0%5D%2Fid",
-							}},
+							Value:       &generated.DeviceIdentifier_Text{Text: "element-1"},
+							Classifiers: []*generated.SemanticClassifier{{Type: "URI", Value: baseSchemaPrefix + "/device#array%5B0%5D%2Fid"}},
 						},
 						{
-							Value: &generated.DeviceIdentifier_Text{
-								Text: "some-name-2",
-							},
-							Classifiers: []*generated.SemanticClassifier{{
-								Type:  "URI",
-								Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#array%5B1%5D%2Fname",
-							}},
+							Value:       &generated.DeviceIdentifier_Text{Text: "some-name-2"},
+							Classifiers: []*generated.SemanticClassifier{{Type: "URI", Value: baseSchemaPrefix + "/device#array%5B1%5D%2Fname"}},
 						},
 						{
-							Value: &generated.DeviceIdentifier_Text{
-								Text: "some-name-1",
-							},
-							Classifiers: []*generated.SemanticClassifier{{
-								Type:  "URI",
-								Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#array%5B0%5D%2Fname",
-							}},
+							Value:       &generated.DeviceIdentifier_Text{Text: "some-name-1"},
+							Classifiers: []*generated.SemanticClassifier{{Type: "URI", Value: baseSchemaPrefix + "/device#array%5B0%5D%2Fname"}},
 						},
 						{
-							Value: &generated.DeviceIdentifier_Text{
-								Text: "element-2",
-							},
-							Classifiers: []*generated.SemanticClassifier{{
-								Type:  "URI",
-								Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#array%5B1%5D%2Fid",
-							}},
+							Value:       &generated.DeviceIdentifier_Text{Text: "element-2"},
+							Classifiers: []*generated.SemanticClassifier{{Type: "URI", Value: baseSchemaPrefix + "/device#array%5B1%5D%2Fid"}},
 						},
 					},
 				},
 			},
-			Classifiers: []*generated.SemanticClassifier{{
-				Type:  "URI",
-				Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#array",
-			}},
+			Classifiers: []*generated.SemanticClassifier{{Type: "URI", Value: baseSchemaPrefix + "/device#array"}},
 		}}}
 	iahDevice := ConvertFromDiscoveredDevice(&discoveredDevice, "URI")
 	arrayProperty, ok := iahDevice["array"].([]map[string]interface{})
@@ -662,48 +509,25 @@ func TestMapManyDeepArrayElementsIntoIahDevice(t *testing.T) {
 				Children: &generated.DeviceIdentifierValueList{
 					Value: []*generated.DeviceIdentifier{
 						{
-							Value: &generated.DeviceIdentifier_Text{
-								Text: "element-1",
-							},
-							Classifiers: []*generated.SemanticClassifier{{
-								Type:  "URI",
-								Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#a%2Fdeeper%2Farray%5B0%5D%2Fid",
-							}},
+							Value:       &generated.DeviceIdentifier_Text{Text: "element-1"},
+							Classifiers: []*generated.SemanticClassifier{{Type: "URI", Value: baseSchemaPrefix + "/device#a%2Fdeeper%2Farray%5B0%5D%2Fid"}},
 						},
 						{
-							Value: &generated.DeviceIdentifier_Text{
-								Text: "some-name-1",
-							},
-							Classifiers: []*generated.SemanticClassifier{{
-								Type:  "URI",
-								Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#a%2Fdeeper%2Farray%5B0%5D%2Fname",
-							}},
+							Value:       &generated.DeviceIdentifier_Text{Text: "some-name-1"},
+							Classifiers: []*generated.SemanticClassifier{{Type: "URI", Value: baseSchemaPrefix + "/device#a%2Fdeeper%2Farray%5B0%5D%2Fname"}},
 						},
 						{
-							Value: &generated.DeviceIdentifier_Text{
-								Text: "element-2",
-							},
-							Classifiers: []*generated.SemanticClassifier{{
-								Type:  "URI",
-								Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#a%2Fdeeper%2Farray%5B1%5D%2Fid",
-							}},
+							Value:       &generated.DeviceIdentifier_Text{Text: "element-2"},
+							Classifiers: []*generated.SemanticClassifier{{Type: "URI", Value: baseSchemaPrefix + "/device#a%2Fdeeper%2Farray%5B1%5D%2Fid"}},
 						},
 						{
-							Value: &generated.DeviceIdentifier_Text{
-								Text: "some-name-2",
-							},
-							Classifiers: []*generated.SemanticClassifier{{
-								Type:  "URI",
-								Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#a%2Fdeeper%2Farray%5B1%5D%2Fname",
-							}},
+							Value:       &generated.DeviceIdentifier_Text{Text: "some-name-2"},
+							Classifiers: []*generated.SemanticClassifier{{Type: "URI", Value: baseSchemaPrefix + "/device#a%2Fdeeper%2Farray%5B1%5D%2Fname"}},
 						},
 					},
 				},
 			},
-			Classifiers: []*generated.SemanticClassifier{{
-				Type:  "URI",
-				Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#a%2Fdeeper%2Farray",
-			}},
+			Classifiers: []*generated.SemanticClassifier{{Type: "URI", Value: baseSchemaPrefix + "/device#a%2Fdeeper%2Farray"}},
 		}}}
 	iahDevice := ConvertFromDiscoveredDevice(&discoveredDevice, "URI")
 	arrayProperty, ok := iahDevice["a"].(map[string]interface{})["deeper"].(map[string]interface{})["array"].([]map[string]interface{})
@@ -722,48 +546,25 @@ func TestMapManyDeepArrayElementsWithDeepPathsIntoIahDevice(t *testing.T) {
 				Children: &generated.DeviceIdentifierValueList{
 					Value: []*generated.DeviceIdentifier{
 						{
-							Value: &generated.DeviceIdentifier_Text{
-								Text: "element-1",
-							},
-							Classifiers: []*generated.SemanticClassifier{{
-								Type:  "URI",
-								Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#a%2Fdeeper%2Farray%5B0%5D%2Fsome_object%2Fid",
-							}},
+							Value:       &generated.DeviceIdentifier_Text{Text: "element-1"},
+							Classifiers: []*generated.SemanticClassifier{{Type: "URI", Value: baseSchemaPrefix + "/device#a%2Fdeeper%2Farray%5B0%5D%2Fsome_object%2Fid"}},
 						},
 						{
-							Value: &generated.DeviceIdentifier_Text{
-								Text: "some-name-1",
-							},
-							Classifiers: []*generated.SemanticClassifier{{
-								Type:  "URI",
-								Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#a%2Fdeeper%2Farray%5B0%5D%2Fsome_object%2Fname",
-							}},
+							Value:       &generated.DeviceIdentifier_Text{Text: "some-name-1"},
+							Classifiers: []*generated.SemanticClassifier{{Type: "URI", Value: baseSchemaPrefix + "/device#a%2Fdeeper%2Farray%5B0%5D%2Fsome_object%2Fname"}},
 						},
 						{
-							Value: &generated.DeviceIdentifier_Text{
-								Text: "element-2",
-							},
-							Classifiers: []*generated.SemanticClassifier{{
-								Type:  "URI",
-								Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#a%2Fdeeper%2Farray%5B1%5D%2Fsome_object%2Fid",
-							}},
+							Value:       &generated.DeviceIdentifier_Text{Text: "element-2"},
+							Classifiers: []*generated.SemanticClassifier{{Type: "URI", Value: baseSchemaPrefix + "/device#a%2Fdeeper%2Farray%5B1%5D%2Fsome_object%2Fid"}},
 						},
 						{
-							Value: &generated.DeviceIdentifier_Text{
-								Text: "some-name-2",
-							},
-							Classifiers: []*generated.SemanticClassifier{{
-								Type:  "URI",
-								Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#a%2Fdeeper%2Farray%5B1%5D%2Fsome_object%2Fname",
-							}},
+							Value:       &generated.DeviceIdentifier_Text{Text: "some-name-2"},
+							Classifiers: []*generated.SemanticClassifier{{Type: "URI", Value: baseSchemaPrefix + "/device#a%2Fdeeper%2Farray%5B1%5D%2Fsome_object%2Fname"}},
 						},
 					},
 				},
 			},
-			Classifiers: []*generated.SemanticClassifier{{
-				Type:  "URI",
-				Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#a%2Fdeeper%2Farray",
-			}},
+			Classifiers: []*generated.SemanticClassifier{{Type: "URI", Value: baseSchemaPrefix + "/device#a%2Fdeeper%2Farray"}},
 		}}}
 	iahDevice := ConvertFromDiscoveredDevice(&discoveredDevice, "URI")
 
@@ -775,7 +576,7 @@ func TestMapManyDeepArrayElementsWithDeepPathsIntoIahDevice(t *testing.T) {
 }
 
 func TestMapManyDeepArrayElementsWithDeepPathsThatContainArraysIntoIahDevice(t *testing.T) {
-	expectedResult := map[string]interface{}{"@context": map[string]interface{}{"@vocab": baseSchemaInContext, "base": baseSchemaInContext, "linkml": "https://w3id.org/linkml/", "lis": "http://rds.posccaesar.org/ontology/lis14/rdl/", "schemaorg": "https://schema.org/", "skos": "http://www.w3.org/2004/02/skos/core#"}, "@type": "device", "a": map[string]interface{}{"deeper": map[string]interface{}{"array": []map[string]interface{}{{"some_object": map[string]interface{}{"connection_points": []map[string]interface{}{{"id": "array-0-connection-point-0", "related_connection_points": []map[string]interface{}{{"id": "array-0-con-point-0-related-connection-point-0"}, {"id": "array-0-con-point-0-related-connection-point-1"}}}, {}, {"related_connection_points": []map[string]interface{}{{}, {}, {"id": "array-0-con-point-2-related-connection-point-2"}, {"id": "array-0-con-point-2-related-connection-point-3"}}}}, "name": "array-0-name"}}, {"some_object": map[string]interface{}{"connection_points": []map[string]interface{}{{"id": "array-1-connection-point-0", "related_connection_points": []map[string]interface{}{{"id": "array-1-con-point-0-related-connection-point-0"}, {"id": "array-1-con-point-0-related-connection-point-1"}}}, {"id": "array-1-connection-point-1", "related_connection_points": []map[string]interface{}{{}, {}, {"id": "array-1-con-point-1-related-connection-point-2"}, {"id": "array-1-con-point-1-related-connection-point-3"}}}}, "id": "array-1-id", "name": "array-1-name"}}, {"some_object": map[string]interface{}{"id": "array-2-id"}}}}}, "management_state": map[string]interface{}{"state_timestamp": convertTimestampToRFC339(1000010000100010), "state_value": "unknown"}}
+	expectedResult := map[string]interface{}{"functional_object_schema_url": FunctionalObjectSchemaUrl, "functional_object_type": "device", "a": map[string]interface{}{"deeper": map[string]interface{}{"array": []map[string]interface{}{{"some_object": map[string]interface{}{"connection_points": []map[string]interface{}{{"id": "array-0-connection-point-0", "related_connection_points": []map[string]interface{}{{"id": "array-0-con-point-0-related-connection-point-0"}, {"id": "array-0-con-point-0-related-connection-point-1"}}}, {}, {"related_connection_points": []map[string]interface{}{{}, {}, {"id": "array-0-con-point-2-related-connection-point-2"}, {"id": "array-0-con-point-2-related-connection-point-3"}}}}, "name": "array-0-name"}}, {"some_object": map[string]interface{}{"connection_points": []map[string]interface{}{{"id": "array-1-connection-point-0", "related_connection_points": []map[string]interface{}{{"id": "array-1-con-point-0-related-connection-point-0"}, {"id": "array-1-con-point-0-related-connection-point-1"}}}, {"id": "array-1-connection-point-1", "related_connection_points": []map[string]interface{}{{}, {}, {"id": "array-1-con-point-1-related-connection-point-2"}, {"id": "array-1-con-point-1-related-connection-point-3"}}}}, "id": "array-1-id", "name": "array-1-name"}}, {"some_object": map[string]interface{}{"id": "array-2-id"}}}}}}
 
 	discoveredDevice := generated.DiscoveredDevice{
 		Identifiers: []*generated.DeviceIdentifier{{
@@ -783,207 +584,114 @@ func TestMapManyDeepArrayElementsWithDeepPathsThatContainArraysIntoIahDevice(t *
 				Children: &generated.DeviceIdentifierValueList{
 					Value: []*generated.DeviceIdentifier{
 						{
-							Value: &generated.DeviceIdentifier_Text{
-								Text: "array-1-id",
-							},
-							Classifiers: []*generated.SemanticClassifier{{
-								Type:  "URI",
-								Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#a%2Fdeeper%2Farray%5B1%5D%2Fsome_object%2Fid",
-							}},
+							Value:       &generated.DeviceIdentifier_Text{Text: "array-1-id"},
+							Classifiers: []*generated.SemanticClassifier{{Type: "URI", Value: baseSchemaPrefix + "/device#a%2Fdeeper%2Farray%5B1%5D%2Fsome_object%2Fid"}},
 						},
 						{
-							Classifiers: []*generated.SemanticClassifier{{
-								Type:  "URI",
-								Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#a%2Fdeeper%2Farray%5B0%5D%2Fsome_object%2Fconnection_points",
-							}},
+							Classifiers: []*generated.SemanticClassifier{{Type: "URI", Value: baseSchemaPrefix + "/device#a%2Fdeeper%2Farray%5B0%5D%2Fsome_object%2Fconnection_points"}},
 							Value: &generated.DeviceIdentifier_Children{
 								Children: &generated.DeviceIdentifierValueList{
 									Value: []*generated.DeviceIdentifier{
 										{
-											Value: &generated.DeviceIdentifier_Text{
-												Text: "array-0-connection-point-0",
-											},
-											Classifiers: []*generated.SemanticClassifier{{
-												Type:  "URI",
-												Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#a%2Fdeeper%2Farray%5B0%5D%2Fsome_object%2Fconnection_points%5B0%5D%2Fid",
-											}},
+											Value:       &generated.DeviceIdentifier_Text{Text: "array-0-connection-point-0"},
+											Classifiers: []*generated.SemanticClassifier{{Type: "URI", Value: baseSchemaPrefix + "/device#a%2Fdeeper%2Farray%5B0%5D%2Fsome_object%2Fconnection_points%5B0%5D%2Fid"}},
 										},
 										{
 											Value: &generated.DeviceIdentifier_Children{
 												Children: &generated.DeviceIdentifierValueList{
 													Value: []*generated.DeviceIdentifier{
 														{
-															Value: &generated.DeviceIdentifier_Text{
-																Text: "array-0-con-point-0-related-connection-point-0",
-															},
-															Classifiers: []*generated.SemanticClassifier{{
-																Type:  "URI",
-																Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#a%2Fdeeper%2Farray%5B0%5D%2Fsome_object%2Fconnection_points%5B0%5D%2Frelated_connection_points%5B0%5D%2Fid",
-															}},
+															Value:       &generated.DeviceIdentifier_Text{Text: "array-0-con-point-0-related-connection-point-0"},
+															Classifiers: []*generated.SemanticClassifier{{Type: "URI", Value: baseSchemaPrefix + "/device#a%2Fdeeper%2Farray%5B0%5D%2Fsome_object%2Fconnection_points%5B0%5D%2Frelated_connection_points%5B0%5D%2Fid"}},
 														},
 														{
-															Value: &generated.DeviceIdentifier_Text{
-																Text: "array-0-con-point-0-related-connection-point-1",
-															},
-															Classifiers: []*generated.SemanticClassifier{{
-																Type:  "URI",
-																Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#a%2Fdeeper%2Farray%5B0%5D%2Fsome_object%2Fconnection_points%5B0%5D%2Frelated_connection_points%5B1%5D%2Fid",
-															}},
+															Value:       &generated.DeviceIdentifier_Text{Text: "array-0-con-point-0-related-connection-point-1"},
+															Classifiers: []*generated.SemanticClassifier{{Type: "URI", Value: baseSchemaPrefix + "/device#a%2Fdeeper%2Farray%5B0%5D%2Fsome_object%2Fconnection_points%5B0%5D%2Frelated_connection_points%5B1%5D%2Fid"}},
 														},
 													},
 												},
 											},
-											Classifiers: []*generated.SemanticClassifier{{
-												Type:  "URI",
-												Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#a%2Fdeeper%2Farray%5B0%5D%2Fsome_object%2Fconnection_points%5B0%5D%2Frelated_connection_points",
-											}},
+											Classifiers: []*generated.SemanticClassifier{{Type: "URI", Value: baseSchemaPrefix + "/device#a%2Fdeeper%2Farray%5B0%5D%2Fsome_object%2Fconnection_points%5B0%5D%2Frelated_connection_points"}},
 										},
 										{
 											Value: &generated.DeviceIdentifier_Children{
 												Children: &generated.DeviceIdentifierValueList{
 													Value: []*generated.DeviceIdentifier{
 														{
-															Value: &generated.DeviceIdentifier_Text{
-																Text: "array-0-con-point-2-related-connection-point-2",
-															},
-															Classifiers: []*generated.SemanticClassifier{{
-																Type:  "URI",
-																Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#a%2Fdeeper%2Farray%5B0%5D%2Fsome_object%2Fconnection_points%5B2%5D%2Frelated_connection_points%5B2%5D%2Fid",
-															}},
+															Value:       &generated.DeviceIdentifier_Text{Text: "array-0-con-point-2-related-connection-point-2"},
+															Classifiers: []*generated.SemanticClassifier{{Type: "URI", Value: baseSchemaPrefix + "/device#a%2Fdeeper%2Farray%5B0%5D%2Fsome_object%2Fconnection_points%5B2%5D%2Frelated_connection_points%5B2%5D%2Fid"}},
 														},
 														{
-															Value: &generated.DeviceIdentifier_Text{
-																Text: "array-0-con-point-2-related-connection-point-3",
-															},
-															Classifiers: []*generated.SemanticClassifier{{
-																Type:  "URI",
-																Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#a%2Fdeeper%2Farray%5B0%5D%2Fsome_object%2Fconnection_points%5B2%5D%2Frelated_connection_points%5B3%5D%2Fid",
-															}},
+															Value:       &generated.DeviceIdentifier_Text{Text: "array-0-con-point-2-related-connection-point-3"},
+															Classifiers: []*generated.SemanticClassifier{{Type: "URI", Value: baseSchemaPrefix + "/device#a%2Fdeeper%2Farray%5B0%5D%2Fsome_object%2Fconnection_points%5B2%5D%2Frelated_connection_points%5B3%5D%2Fid"}},
 														},
 													},
 												},
 											},
-											Classifiers: []*generated.SemanticClassifier{{
-												Type:  "URI",
-												Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#a%2Fdeeper%2Farray%5B0%5D%2Fsome_object%2Fconnection_points%5B2%5D%2Frelated_connection_points",
-											}},
+											Classifiers: []*generated.SemanticClassifier{{Type: "URI", Value: baseSchemaPrefix + "/device#a%2Fdeeper%2Farray%5B0%5D%2Fsome_object%2Fconnection_points%5B2%5D%2Frelated_connection_points"}},
 										},
 									},
 								},
 							},
 						},
 						{
-							Value: &generated.DeviceIdentifier_Text{
-								Text: "array-0-name",
-							},
-							Classifiers: []*generated.SemanticClassifier{{
-								Type:  "URI",
-								Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#a%2Fdeeper%2Farray%5B0%5D%2Fsome_object%2Fname",
-							}},
+							Value:       &generated.DeviceIdentifier_Text{Text: "array-0-name"},
+							Classifiers: []*generated.SemanticClassifier{{Type: "URI", Value: baseSchemaPrefix + "/device#a%2Fdeeper%2Farray%5B0%5D%2Fsome_object%2Fname"}},
 						},
 						{
-							Value: &generated.DeviceIdentifier_Text{
-								Text: "array-2-id",
-							},
-							Classifiers: []*generated.SemanticClassifier{{
-								Type:  "URI",
-								Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#a%2Fdeeper%2Farray%5B2%5D%2Fsome_object%2Fid",
-							}},
+							Value:       &generated.DeviceIdentifier_Text{Text: "array-2-id"},
+							Classifiers: []*generated.SemanticClassifier{{Type: "URI", Value: baseSchemaPrefix + "/device#a%2Fdeeper%2Farray%5B2%5D%2Fsome_object%2Fid"}},
 						},
 						{
-							Value: &generated.DeviceIdentifier_Text{
-								Text: "array-1-name",
-							},
-							Classifiers: []*generated.SemanticClassifier{{
-								Type:  "URI",
-								Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#a%2Fdeeper%2Farray%5B1%5D%2Fsome_object%2Fname",
-							}},
+							Value:       &generated.DeviceIdentifier_Text{Text: "array-1-name"},
+							Classifiers: []*generated.SemanticClassifier{{Type: "URI", Value: baseSchemaPrefix + "/device#a%2Fdeeper%2Farray%5B1%5D%2Fsome_object%2Fname"}},
 						},
 						{
-							Classifiers: []*generated.SemanticClassifier{{
-								Type:  "URI",
-								Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#a%2Fdeeper%2Farray%5B1%5D%2Fsome_object%2Fconnection_points",
-							}},
+							Classifiers: []*generated.SemanticClassifier{{Type: "URI", Value: baseSchemaPrefix + "/device#a%2Fdeeper%2Farray%5B1%5D%2Fsome_object%2Fconnection_points"}},
 							Value: &generated.DeviceIdentifier_Children{
 								Children: &generated.DeviceIdentifierValueList{
 									Value: []*generated.DeviceIdentifier{
 										{
-											Value: &generated.DeviceIdentifier_Text{
-												Text: "array-1-connection-point-0",
-											},
-											Classifiers: []*generated.SemanticClassifier{{
-												Type:  "URI",
-												Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#a%2Fdeeper%2Farray%5B1%5D%2Fsome_object%2Fconnection_points%5B0%5D%2Fid",
-											}},
+											Value:       &generated.DeviceIdentifier_Text{Text: "array-1-connection-point-0"},
+											Classifiers: []*generated.SemanticClassifier{{Type: "URI", Value: baseSchemaPrefix + "/device#a%2Fdeeper%2Farray%5B1%5D%2Fsome_object%2Fconnection_points%5B0%5D%2Fid"}},
 										},
 										{
 											Value: &generated.DeviceIdentifier_Children{
 												Children: &generated.DeviceIdentifierValueList{
 													Value: []*generated.DeviceIdentifier{
 														{
-															Value: &generated.DeviceIdentifier_Text{
-																Text: "array-1-con-point-0-related-connection-point-0",
-															},
-															Classifiers: []*generated.SemanticClassifier{{
-																Type:  "URI",
-																Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#a%2Fdeeper%2Farray%5B1%5D%2Fsome_object%2Fconnection_points%5B0%5D%2Frelated_connection_points%5B0%5D%2Fid",
-															}},
+															Value:       &generated.DeviceIdentifier_Text{Text: "array-1-con-point-0-related-connection-point-0"},
+															Classifiers: []*generated.SemanticClassifier{{Type: "URI", Value: baseSchemaPrefix + "/device#a%2Fdeeper%2Farray%5B1%5D%2Fsome_object%2Fconnection_points%5B0%5D%2Frelated_connection_points%5B0%5D%2Fid"}},
 														},
 														{
-															Value: &generated.DeviceIdentifier_Text{
-																Text: "array-1-con-point-0-related-connection-point-1",
-															},
-															Classifiers: []*generated.SemanticClassifier{{
-																Type:  "URI",
-																Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#a%2Fdeeper%2Farray%5B1%5D%2Fsome_object%2Fconnection_points%5B0%5D%2Frelated_connection_points%5B1%5D%2Fid",
-															}},
+															Value:       &generated.DeviceIdentifier_Text{Text: "array-1-con-point-0-related-connection-point-1"},
+															Classifiers: []*generated.SemanticClassifier{{Type: "URI", Value: baseSchemaPrefix + "/device#a%2Fdeeper%2Farray%5B1%5D%2Fsome_object%2Fconnection_points%5B0%5D%2Frelated_connection_points%5B1%5D%2Fid"}},
 														},
 													},
 												},
 											},
-											Classifiers: []*generated.SemanticClassifier{{
-												Type:  "URI",
-												Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#a%2Fdeeper%2Farray%5B1%5D%2Fsome_object%2Fconnection_points%5B0%5D%2Frelated_connection_points",
-											}},
+											Classifiers: []*generated.SemanticClassifier{{Type: "URI", Value: baseSchemaPrefix + "/device#a%2Fdeeper%2Farray%5B1%5D%2Fsome_object%2Fconnection_points%5B0%5D%2Frelated_connection_points"}},
 										},
 										{
 											Value: &generated.DeviceIdentifier_Children{
 												Children: &generated.DeviceIdentifierValueList{
 													Value: []*generated.DeviceIdentifier{
 														{
-															Value: &generated.DeviceIdentifier_Text{
-																Text: "array-1-con-point-1-related-connection-point-2",
-															},
-															Classifiers: []*generated.SemanticClassifier{{
-																Type:  "URI",
-																Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#a%2Fdeeper%2Farray%5B1%5D%2Fsome_object%2Fconnection_points%5B1%5D%2Frelated_connection_points%5B2%5D%2Fid",
-															}},
+															Value:       &generated.DeviceIdentifier_Text{Text: "array-1-con-point-1-related-connection-point-2"},
+															Classifiers: []*generated.SemanticClassifier{{Type: "URI", Value: baseSchemaPrefix + "/device#a%2Fdeeper%2Farray%5B1%5D%2Fsome_object%2Fconnection_points%5B1%5D%2Frelated_connection_points%5B2%5D%2Fid"}},
 														},
 														{
-															Value: &generated.DeviceIdentifier_Text{
-																Text: "array-1-con-point-1-related-connection-point-3",
-															},
-															Classifiers: []*generated.SemanticClassifier{{
-																Type:  "URI",
-																Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#a%2Fdeeper%2Farray%5B1%5D%2Fsome_object%2Fconnection_points%5B1%5D%2Frelated_connection_points%5B3%5D%2Fid",
-															}},
+															Value:       &generated.DeviceIdentifier_Text{Text: "array-1-con-point-1-related-connection-point-3"},
+															Classifiers: []*generated.SemanticClassifier{{Type: "URI", Value: baseSchemaPrefix + "/device#a%2Fdeeper%2Farray%5B1%5D%2Fsome_object%2Fconnection_points%5B1%5D%2Frelated_connection_points%5B3%5D%2Fid"}},
 														},
 													},
 												},
 											},
-											Classifiers: []*generated.SemanticClassifier{{
-												Type:  "URI",
-												Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#a%2Fdeeper%2Farray%5B1%5D%2Fsome_object%2Fconnection_points%5B1%5D%2Frelated_connection_points",
-											}},
+											Classifiers: []*generated.SemanticClassifier{{Type: "URI", Value: baseSchemaPrefix + "/device#a%2Fdeeper%2Farray%5B1%5D%2Fsome_object%2Fconnection_points%5B1%5D%2Frelated_connection_points"}},
 										},
 										{
-											Value: &generated.DeviceIdentifier_Text{
-												Text: "array-1-connection-point-1",
-											},
-											Classifiers: []*generated.SemanticClassifier{{
-												Type:  "URI",
-												Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#a%2Fdeeper%2Farray%5B1%5D%2Fsome_object%2Fconnection_points%5B1%5D%2Fid",
-											}},
+											Value:       &generated.DeviceIdentifier_Text{Text: "array-1-connection-point-1"},
+											Classifiers: []*generated.SemanticClassifier{{Type: "URI", Value: baseSchemaPrefix + "/device#a%2Fdeeper%2Farray%5B1%5D%2Fsome_object%2Fconnection_points%5B1%5D%2Fid"}},
 										},
 									},
 								},
@@ -992,10 +700,7 @@ func TestMapManyDeepArrayElementsWithDeepPathsThatContainArraysIntoIahDevice(t *
 					},
 				},
 			},
-			Classifiers: []*generated.SemanticClassifier{{
-				Type:  "URI",
-				Value: "https://schema.industrial-assets.io/profinet/1.0.0/device#a%2Fdeeper%2Farray",
-			}},
+			Classifiers: []*generated.SemanticClassifier{{Type: "URI", Value: baseSchemaPrefix + "/device#a%2Fdeeper%2Farray"}},
 		}}, Timestamp: 1000010000100010}
 	iahDevice := ConvertFromDiscoveredDevice(&discoveredDevice, "URI")
 
@@ -1027,14 +732,22 @@ func TestCheckConversionForFile(t *testing.T) {
 		if err != nil {
 			t.Fatalf("failed to open input file: %v", err)
 		}
-		defer file.Close()
+		defer func() {
+			if closeErr := file.Close(); closeErr != nil {
+				t.Fatalf("failed to close input file: %v", closeErr)
+			}
+		}()
 
 		// create result file for writing
 		resultFile, err := os.Create("./mapped_device_after_refactor.json")
 		if err != nil {
 			t.Fatalf("failed to create output file: %v", err)
 		}
-		defer resultFile.Close()
+		defer func() {
+			if closeErr := resultFile.Close(); closeErr != nil {
+				t.Fatalf("failed to close output file: %v", closeErr)
+			}
+		}()
 
 		// get file size for creating a matching buffer
 		fileInfo, _ := file.Stat()

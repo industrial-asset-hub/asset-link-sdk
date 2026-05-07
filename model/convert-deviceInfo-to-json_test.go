@@ -12,7 +12,7 @@ import (
 )
 
 func TestConvertToJson(t *testing.T) {
-	device, err := NewDevice("DummyDevice", "Dummy Asset")
+	device, err := NewDevice("Device", "Dummy Asset")
 	if err != nil {
 		t.Fatalf("NewDevice failed: %v", err)
 	}
@@ -30,9 +30,9 @@ func TestConvertToJson(t *testing.T) {
 	if err != nil {
 		t.Fatalf("AddIPv4 failed: %v", err)
 	}
-	err = device.AddSoftware("DummySoftware", "1.0.0", true)
+	err = device.AddSoftwareArtifactComponent("DummySoftware", "1.0.0", true)
 	if err != nil {
-		t.Fatalf("AddSoftware failed: %v", err)
+		t.Fatalf("AddSoftwareArtifactComponent failed: %v", err)
 	}
 	err = device.AddCapabilities("firmware_update", true)
 	if err != nil {
@@ -51,7 +51,7 @@ func TestConvertToJson(t *testing.T) {
 		t.Fatalf("ConvertToJson failed: %v", err)
 	}
 
-	expectedLength := 12
+	expectedLength := 9
 	if len(jsonMap) != expectedLength {
 		t.Fatalf("ConvertToJson should return %d keys, got: %d", expectedLength, len(jsonMap))
 	}

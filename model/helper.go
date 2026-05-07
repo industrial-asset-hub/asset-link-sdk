@@ -7,48 +7,58 @@
 
 package model
 
-import "time"
+import "strings"
 
-func (d *DeviceInfo) addIdentifier(macAddress string) {
+// addMacIdentifier appends a MacIdentifier only when provided value is non-empty.
+func (d *DeviceInfo) addMacIdentifier(macAddress string) {
 
 	if isNonEmptyValues(macAddress) {
 		identifierUncertainty := 1
 		identifier := MacIdentifier{
+			AssetIdentifierType:   MacIdentifierAssetIdentifierTypeMacIdentifier,
 			IdentifierType:        nil,
 			IdentifierUncertainty: &identifierUncertainty,
-			MacAddress:            &macAddress,
+			MacAddress:            macAddress,
 		}
-		d.MacIdentifiers = append(d.MacIdentifiers, identifier)
+		d.AssetIdentifiers = append(d.AssetIdentifiers, identifier)
 	}
 }
 
-// Add reachability state to the asset
-func (d *DeviceInfo) addReachabilityState() {
-	timestamp := getAssetCreationTimestamp(d.ManagementState.StateTimestamp)
-	state := ReachabilityStateValuesReached
-
-	reachabilityState := ReachabilityState{
-		StateTimestamp: &timestamp,
-		StateValue:     &state,
+func (d *DeviceInfo) addIdLinkIdentifier(uriOfTheProduct string) {
+	if isNonEmptyValues(uriOfTheProduct) && ValidateByPattern(uriOfTheProduct, IdLinkPattern) {
+		idLinkIdentifier := IdLinkIdentifier{
+			AssetIdentifierType:   IdLinkIdentifierAssetIdentifierTypeIdLinkIdentifier,
+			IdLink:                uriOfTheProduct,
+			IdentifierType:        nil,
+			IdentifierUncertainty: nil,
+		}
+		d.AssetIdentifiers = append(d.AssetIdentifiers, idLinkIdentifier)
 	}
-
-	d.ReachabilityState = &reachabilityState
 }
 
-func getAssetCreationTimestamp(timestamp *time.Time) time.Time {
-	if timestamp != nil {
-		return *timestamp
+// AddCustomIdentifier appends a CustomIdentifier only when provided values are valid.
+func (d *DeviceInfo) AddCustomIdentifier(name, value string) {
+	if strings.TrimSpace(name) != "" && strings.TrimSpace(value) != "" && ValidateByPattern(value, CustomIdentifierValuePattern) {
+		identifier := CustomIdentifier{
+			AssetIdentifierType:   CustomIdentifierAssetIdentifierTypeCustomIdentifier,
+			IdentifierType:        nil,
+			IdentifierUncertainty: nil,
+			Name:                  name,
+			Value:                 value,
+		}
+		d.AssetIdentifiers = append(d.AssetIdentifiers, identifier)
 	}
-	return time.Now().UTC()
 }
 
-func getAssetContext() *AssetContext {
-	return &AssetContext{
-		Lis:       "http://rds.posccaesar.org/ontology/lis14/rdl/",
-		Base:      baseSchemaInContext,
-		Skos:      "http://www.w3.org/2004/02/skos/core#",
-		Vocab:     baseSchemaInContext,
-		Linkml:    "https://w3id.org/linkml/",
-		SchemaOrg: "https://schema.org/",
+// AddCertificateIdentifier appends a CertificateIdentifier only when provided value is non-empty.
+func (d *DeviceInfo) AddCertificateIdentifier(certificateID string) {
+	if isNonEmptyValues(certificateID) {
+		identifier := CertificateIdentifier{
+			AssetIdentifierType:   CertificateIdentifierAssetIdentifierTypeCertificateIdentifier,
+			CertificateId:         certificateID,
+			IdentifierType:        nil,
+			IdentifierUncertainty: nil,
+		}
+		d.AssetIdentifiers = append(d.AssetIdentifiers, identifier)
 	}
 }
