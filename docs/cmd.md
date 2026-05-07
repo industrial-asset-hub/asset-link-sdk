@@ -19,7 +19,7 @@ Build it locally or install it by running:
 # build
 go build cmd/al-ctl/al-ctl.go
 # install
-go install github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl@main
+go install github.com/industrial-asset-hub/asset-link-sdk/v4/cmd/al-ctl@main
 ```
 
 By running the `al-ctl` with the `--help` argument will give you a description of the available commands and the options.

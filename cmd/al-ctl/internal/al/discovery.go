@@ -12,13 +12,13 @@ import (
 	"io"
 	"time"
 
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/dataio"
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/fileformat"
+	"github.com/industrial-asset-hub/asset-link-sdk/v4/cmd/al-ctl/internal/dataio"
+	"github.com/industrial-asset-hub/asset-link-sdk/v4/cmd/al-ctl/internal/fileformat"
 	"google.golang.org/protobuf/encoding/protojson"
 
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/shared"
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/config"
-	generated "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
+	"github.com/industrial-asset-hub/asset-link-sdk/v4/cmd/al-ctl/internal/shared"
+	"github.com/industrial-asset-hub/asset-link-sdk/v4/config"
+	generated "github.com/industrial-asset-hub/asset-link-sdk/v4/generated/iah-discovery"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/net/context"
 )

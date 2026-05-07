@@ -1,4 +1,4 @@
-module github.com/industrial-asset-hub/asset-link-sdk/v3
+module github.com/industrial-asset-hub/asset-link-sdk/v4
 
 go 1.25.7
 

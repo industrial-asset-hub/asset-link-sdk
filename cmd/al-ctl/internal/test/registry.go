@@ -8,8 +8,9 @@ package test
 
 import (
 	"context"
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/shared"
-	generated "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/conn_suite_registry"
+
+	"github.com/industrial-asset-hub/asset-link-sdk/v4/cmd/al-ctl/internal/shared"
+	generated "github.com/industrial-asset-hub/asset-link-sdk/v4/generated/conn_suite_registry"
 	"github.com/rs/zerolog/log"
 )
 
