@@ -11,9 +11,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/al"
-	iah_discovery "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/model"
+	"github.com/industrial-asset-hub/asset-link-sdk/v4/cmd/al-ctl/internal/al"
+	iah_discovery "github.com/industrial-asset-hub/asset-link-sdk/v4/generated/iah-discovery"
+	"github.com/industrial-asset-hub/asset-link-sdk/v4/model"
 	"github.com/rs/zerolog/log"
 )
 

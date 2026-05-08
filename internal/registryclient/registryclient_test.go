@@ -12,7 +12,7 @@ import (
 	"net"
 	"testing"
 
-	pb "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/conn_suite_registry"
+	pb "github.com/industrial-asset-hub/asset-link-sdk/v4/generated/conn_suite_registry"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"

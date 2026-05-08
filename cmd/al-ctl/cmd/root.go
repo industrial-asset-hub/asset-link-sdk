@@ -11,15 +11,15 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/cmd/registry"
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/logging"
+	"github.com/industrial-asset-hub/asset-link-sdk/v4/cmd/al-ctl/cmd/registry"
+	"github.com/industrial-asset-hub/asset-link-sdk/v4/cmd/al-ctl/internal/logging"
 
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/cmd/test"
+	"github.com/industrial-asset-hub/asset-link-sdk/v4/cmd/al-ctl/cmd/test"
 
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/cmd/info"
+	"github.com/industrial-asset-hub/asset-link-sdk/v4/cmd/al-ctl/cmd/info"
 
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/cmd/assets"
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/shared"
+	"github.com/industrial-asset-hub/asset-link-sdk/v4/cmd/al-ctl/cmd/assets"
+	"github.com/industrial-asset-hub/asset-link-sdk/v4/cmd/al-ctl/internal/shared"
 	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
 )

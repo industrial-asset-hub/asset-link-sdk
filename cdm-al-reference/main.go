@@ -14,12 +14,12 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/metadata"
+	"github.com/industrial-asset-hub/asset-link-sdk/v4/metadata"
 
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/assetlink"
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/cdm-al-reference/reference"
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/cdm-al-reference/simdevices"
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/logging"
+	"github.com/industrial-asset-hub/asset-link-sdk/v4/assetlink"
+	"github.com/industrial-asset-hub/asset-link-sdk/v4/cdm-al-reference/reference"
+	"github.com/industrial-asset-hub/asset-link-sdk/v4/cdm-al-reference/simdevices"
+	"github.com/industrial-asset-hub/asset-link-sdk/v4/logging"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"

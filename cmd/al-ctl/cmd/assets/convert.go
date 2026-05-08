@@ -10,10 +10,10 @@ package assets
 import (
 	"encoding/json"
 
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/dataio"
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/fileformat"
-	generated "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/model"
+	"github.com/industrial-asset-hub/asset-link-sdk/v4/cmd/al-ctl/internal/dataio"
+	"github.com/industrial-asset-hub/asset-link-sdk/v4/cmd/al-ctl/internal/fileformat"
+	generated "github.com/industrial-asset-hub/asset-link-sdk/v4/generated/iah-discovery"
+	"github.com/industrial-asset-hub/asset-link-sdk/v4/model"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 	"google.golang.org/protobuf/encoding/protojson"

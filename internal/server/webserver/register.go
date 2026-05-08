@@ -10,7 +10,7 @@
 package webserver
 
 import (
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/internal/features"
+	"github.com/industrial-asset-hub/asset-link-sdk/v4/internal/features"
 )
 
 func init() {

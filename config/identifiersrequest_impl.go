@@ -7,7 +7,7 @@
 
 package config
 
-import generated "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
+import generated "github.com/industrial-asset-hub/asset-link-sdk/v4/generated/iah-discovery"
 
 type identifiersRequest struct {
 	getIdentifiersReq *generated.GetIdentifiersRequest
