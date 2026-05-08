@@ -1,0 +1,1962 @@
+{
+    "$defs": {
+        "Akz": {
+            "additionalProperties": false,
+            "description": "Plant Labeling System very well-established in Germany which helps locating a device in a plant based on its function in the plant. The acronym originates from the German word \"Anlagekennzeichnung\" (something like \"plant coding system\").",
+            "properties": {
+                "location_type": {
+                    "const": "Akz",
+                    "description": "Type designator that provides support for polymorphism using location.",
+                    "enum": [
+                        "Akz"
+                    ],
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "plant_designation": {
+                    "description": "String that provides the location of the device in the plant. This string is built-up concatenating different information items with separators. Some of these systems are standardized, some others are company-specific.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "plant_designation"
+            ],
+            "title": "Akz",
+            "type": "object"
+        },
+        "Asset": {
+            "additionalProperties": false,
+            "description": "An asset is the representation of a functional object with a technical function that is known to Industrial Asset Hub (IAH). Industrial Asset Hub (IAH) might want to manage the asset, model its relationships with other assets, or it might know the asset and ignore it,...\nAn asset instance might represent a physical object (like a Raspberry Pi or an application running on a system) or a virtual object (like a router in a network topology, no matter which physical device it is). In both cases an identifier for the object being represented is needed.",
+            "properties": {
+                "asset_identifiers": {
+                    "description": "An asset identifier is an asset attribute that provides enough information to unequivocally identify the represented object.\nIn some cases the ID attribute acts simultaneously as a reference for the asset instance and as identifier for the represented object. Otherwise at least one asset identifier is needed.\nThere can be multiple asset_identifiers with different goals. For example, the information of a metal nameplate can be used by a human-being to identify a device represented by an asset instance, but a software certificate provided by a device might help a software component identify the device in the network,...\nAn asset identifier might have an identifier_type, that defines its format and possibly even semantics.",
+                    "items": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/$defs/MacIdentifier"
+                            },
+                            {
+                                "$ref": "#/$defs/SoftwareIdentifier"
+                            },
+                            {
+                                "$ref": "#/$defs/CertificateIdentifier"
+                            },
+                            {
+                                "$ref": "#/$defs/CustomIdentifier"
+                            },
+                            {
+                                "$ref": "#/$defs/IdLinkIdentifier"
+                            }
+                        ]
+                    },
+                    "type": "array"
+                },
+                "asset_operations": {
+                    "description": "List of device management operations supported by an asset. Each operation type might appear only once.",
+                    "items": {
+                        "$ref": "#/$defs/AssetOperation"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "connection_points": {
+                    "description": "An asset might have a connection point that can be used to connect with the asset. In the case of devices, at least one connection point is required. It might be a connection point needed for AssetManagement for interaction with the asset, or for other connections of the asset related to the asset function but not to device management.",
+                    "items": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/$defs/Ipv4Connectivity"
+                            },
+                            {
+                                "$ref": "#/$defs/Ipv6Connectivity"
+                            },
+                            {
+                                "$ref": "#/$defs/EthernetPort"
+                            }
+                        ]
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "description": {
+                    "description": "A textual description of the item's purpose and use.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "functional_object_schema_url": {
+                    "description": "URL of the schema that defines the functional object type.",
+                    "pattern": "^https://industrial-assets\\.io.*$",
+                    "type": "string"
+                },
+                "functional_object_type": {
+                    "const": "Asset",
+                    "description": "Type designator that supports polymorphism using functional parts. This type is used for validation of the provided functional objects.",
+                    "enum": [
+                        "Asset"
+                    ],
+                    "type": "string"
+                },
+                "instance_annotations": {
+                    "description": "Metadata associated with an object.",
+                    "items": {
+                        "$ref": "#/$defs/InstanceAnnotation"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "location": {
+                    "description": "Possible ways to know where an asset is located.",
+                    "items": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/$defs/AssetLocation"
+                            },
+                            {
+                                "$ref": "#/$defs/GeoLocation"
+                            },
+                            {
+                                "$ref": "#/$defs/Okz"
+                            },
+                            {
+                                "$ref": "#/$defs/Akz"
+                            },
+                            {
+                                "$ref": "#/$defs/MountingLocation"
+                            }
+                        ]
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "name": {
+                    "description": "The name of the item.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "operating_mode": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/OperatingMode"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "description": "The current operating mode of the asset."
+                },
+                "product_instance_information": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/ProductInstanceInformation"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "description": "Information about the product instance."
+                },
+                "software_components": {
+                    "description": "An asset can host software artifacts that might want to be tracked. This can be used simply to keep track of the firmware version or to keep a full-blown Software Bill of Material (SBOM).",
+                    "items": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/$defs/RunningSoftwareComponent"
+                            },
+                            {
+                                "$ref": "#/$defs/SoftwareArtifactComponent"
+                            }
+                        ]
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                }
+            },
+            "required": [
+                "asset_identifiers",
+                "functional_object_type",
+                "functional_object_schema_url"
+            ],
+            "title": "Asset",
+            "type": "object"
+        },
+        "AssetLink": {
+            "additionalProperties": false,
+            "description": "Asset Link that can be used to interact with assets and can be reached by the gateway.",
+            "properties": {
+                "artifact": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/SoftwareArtifact"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "description": "Reference to the software artifact asset.\nAs of now the combination of multiple software artifacts into a running software (for example with plug-ins) is not supported and cannot be natively modeled."
+                }
+            },
+            "title": "AssetLink",
+            "type": "object"
+        },
+        "AssetLocation": {
+            "additionalProperties": false,
+            "description": "Attributes that help locate where an asset can be physically found.",
+            "properties": {
+                "location_type": {
+                    "description": "Type designator that provides support for polymorphism using location.",
+                    "enum": [
+                        "AssetLocation"
+                    ],
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            },
+            "title": "AssetLocation",
+            "type": "object"
+        },
+        "AssetOperation": {
+            "additionalProperties": false,
+            "description": "Operations that can be performed on the asset",
+            "properties": {
+                "activation_flag": {
+                    "description": "Attribute for specifying if the operation is available in terms of true or false",
+                    "type": "boolean"
+                },
+                "operation_name": {
+                    "description": "Name of a device management operation.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "operation_name",
+                "activation_flag"
+            ],
+            "title": "AssetOperation",
+            "type": "object"
+        },
+        "BackupOperation": {
+            "additionalProperties": false,
+            "description": "Backup operation can be performed on the asset",
+            "properties": {
+                "activation_flag": {
+                    "description": "Attribute for specifying if the operation is available in terms of true or false",
+                    "type": "boolean"
+                },
+                "operation_name": {
+                    "const": "Backup",
+                    "description": "Name of a device management operation.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "operation_name",
+                "activation_flag"
+            ],
+            "title": "BackupOperation",
+            "type": "object"
+        },
+        "CertificateIdentifier": {
+            "additionalProperties": false,
+            "description": "Base64 encoded version of certificate subject key identifier will be the identifier.",
+            "properties": {
+                "asset_identifier_type": {
+                    "const": "CertificateIdentifier",
+                    "description": "Type designator that supports polymorphism using asset identifiers.",
+                    "enum": [
+                        "CertificateIdentifier"
+                    ],
+                    "type": "string"
+                },
+                "certificate_id": {
+                    "description": "Base64 encoded version of certificate subject key identifier",
+                    "type": "string"
+                },
+                "identifier_type": {
+                    "description": "Type of an items identifier.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "identifier_uncertainty": {
+                    "description": "Number that indicates how uncertain an identifier is compared to other identifiers provided by an Asset Link. The higher the number, the more uncertain the identification must be considered. This number must be considered relative to the other identifiers for the same element. The default value is 0, meaning no uncertainty.\nThis index helps to decide which identifiers are better suited for deduplication across Asset Links. The identifier provided by two different Asset Links with the lowest uncertainty should be chosen for deduplication purposes.",
+                    "type": [
+                        "integer",
+                        "null"
+                    ]
+                }
+            },
+            "required": [
+                "certificate_id",
+                "asset_identifier_type"
+            ],
+            "title": "CertificateIdentifier",
+            "type": "object"
+        },
+        "ChangeModeOperation": {
+            "additionalProperties": false,
+            "description": "Change mode operation can be performed on the asset",
+            "properties": {
+                "activation_flag": {
+                    "description": "Attribute for specifying if the operation is available in terms of true or false",
+                    "type": "boolean"
+                },
+                "operation_name": {
+                    "const": "ChangeMode",
+                    "description": "Name of a device management operation.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "operation_name",
+                "activation_flag"
+            ],
+            "title": "ChangeModeOperation",
+            "type": "object"
+        },
+        "CirOperatingMode": {
+            "additionalProperties": false,
+            "description": "Asset is in CIR (Configuration In Run) mode.",
+            "properties": {
+                "mode_name": {
+                    "const": "cir",
+                    "description": "Name of the operating mode.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "mode_name"
+            ],
+            "title": "CirOperatingMode",
+            "type": "object"
+        },
+        "CustomIdentifier": {
+            "additionalProperties": false,
+            "description": "Identifier especially for assets that are imported from external sources and do not provide a native identifier. The 'name' is used to specify the external source or type of the identifier. The 'value' is used to provide the actual identifier value within that context.",
+            "properties": {
+                "asset_identifier_type": {
+                    "const": "CustomIdentifier",
+                    "description": "Type designator that supports polymorphism using asset identifiers.",
+                    "enum": [
+                        "CustomIdentifier"
+                    ],
+                    "type": "string"
+                },
+                "identifier_type": {
+                    "description": "Type of an items identifier.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "identifier_uncertainty": {
+                    "description": "Number that indicates how uncertain an identifier is compared to other identifiers provided by an Asset Link. The higher the number, the more uncertain the identification must be considered. This number must be considered relative to the other identifiers for the same element. The default value is 0, meaning no uncertainty.\nThis index helps to decide which identifiers are better suited for deduplication across Asset Links. The identifier provided by two different Asset Links with the lowest uncertainty should be chosen for deduplication purposes.",
+                    "type": [
+                        "integer",
+                        "null"
+                    ]
+                },
+                "name": {
+                    "description": "The name of the item.",
+                    "type": "string"
+                },
+                "value": {
+                    "description": "The value of the custom identifier. ",
+                    "pattern": "^[A-Za-z0-9._~!$&'()*+,;=:/?@%-]{1,256}$",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "name",
+                "value",
+                "asset_identifier_type"
+            ],
+            "title": "CustomIdentifier",
+            "type": "object"
+        },
+        "DefectiveOperatingMode": {
+            "additionalProperties": false,
+            "description": "Asset is defective.",
+            "properties": {
+                "mode_name": {
+                    "const": "defective",
+                    "description": "Name of the operating mode.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "mode_name"
+            ],
+            "title": "DefectiveOperatingMode",
+            "type": "object"
+        },
+        "Device": {
+            "additionalProperties": false,
+            "description": "A device is a special type of asset that can be managed with some asset management system. In order to be manageable, it requires at least one connection point for the asset management to communicate with the device and software capable of interacting with the asset management.",
+            "properties": {
+                "asset_identifiers": {
+                    "description": "An asset identifier is an asset attribute that provides enough information to unequivocally identify the represented object.\nIn some cases the ID attribute acts simultaneously as a reference for the asset instance and as identifier for the represented object. Otherwise at least one asset identifier is needed.\nThere can be multiple asset_identifiers with different goals. For example, the information of a metal nameplate can be used by a human-being to identify a device represented by an asset instance, but a software certificate provided by a device might help a software component identify the device in the network,...\nAn asset identifier might have an identifier_type, that defines its format and possibly even semantics.",
+                    "items": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/$defs/MacIdentifier"
+                            },
+                            {
+                                "$ref": "#/$defs/SoftwareIdentifier"
+                            },
+                            {
+                                "$ref": "#/$defs/CertificateIdentifier"
+                            },
+                            {
+                                "$ref": "#/$defs/CustomIdentifier"
+                            },
+                            {
+                                "$ref": "#/$defs/IdLinkIdentifier"
+                            }
+                        ]
+                    },
+                    "type": "array"
+                },
+                "asset_operations": {
+                    "description": "List of device management operations supported by an asset. Each operation type might appear only once.",
+                    "items": {
+                        "$ref": "#/$defs/AssetOperation"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "connection_points": {
+                    "description": "An asset might have a connection point that can be used to connect with the asset. In the case of devices, at least one connection point is required. It might be a connection point needed for AssetManagement for interaction with the asset, or for other connections of the asset related to the asset function but not to device management.",
+                    "items": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/$defs/Ipv4Connectivity"
+                            },
+                            {
+                                "$ref": "#/$defs/Ipv6Connectivity"
+                            },
+                            {
+                                "$ref": "#/$defs/EthernetPort"
+                            }
+                        ]
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "description": {
+                    "description": "A textual description of the item's purpose and use.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "functional_object_schema_url": {
+                    "description": "URL of the schema that defines the functional object type.",
+                    "pattern": "^https://industrial-assets\\.io.*$",
+                    "type": "string"
+                },
+                "functional_object_type": {
+                    "const": "Device",
+                    "description": "Type designator that supports polymorphism using functional parts. This type is used for validation of the provided functional objects.",
+                    "enum": [
+                        "Device"
+                    ],
+                    "type": "string"
+                },
+                "instance_annotations": {
+                    "description": "Metadata associated with an object.",
+                    "items": {
+                        "$ref": "#/$defs/InstanceAnnotation"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "location": {
+                    "description": "Possible ways to know where an asset is located.",
+                    "items": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/$defs/AssetLocation"
+                            },
+                            {
+                                "$ref": "#/$defs/GeoLocation"
+                            },
+                            {
+                                "$ref": "#/$defs/Okz"
+                            },
+                            {
+                                "$ref": "#/$defs/Akz"
+                            },
+                            {
+                                "$ref": "#/$defs/MountingLocation"
+                            }
+                        ]
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "name": {
+                    "description": "The name of the item.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "operating_mode": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/OperatingMode"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "description": "The current operating mode of the asset."
+                },
+                "product_instance_information": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/ProductInstanceInformation"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "description": "Information about the product instance."
+                },
+                "software_components": {
+                    "description": "An asset can host software artifacts that might want to be tracked. This can be used simply to keep track of the firmware version or to keep a full-blown Software Bill of Material (SBOM).",
+                    "items": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/$defs/RunningSoftwareComponent"
+                            },
+                            {
+                                "$ref": "#/$defs/SoftwareArtifactComponent"
+                            }
+                        ]
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                }
+            },
+            "required": [
+                "asset_identifiers",
+                "functional_object_type",
+                "functional_object_schema_url"
+            ],
+            "title": "Device",
+            "type": "object"
+        },
+        "ErrorSearchOperatingMode": {
+            "additionalProperties": false,
+            "description": "Asset is in error search mode.",
+            "properties": {
+                "mode_name": {
+                    "const": "error_search",
+                    "description": "Name of the operating mode.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "mode_name"
+            ],
+            "title": "ErrorSearchOperatingMode",
+            "type": "object"
+        },
+        "EthernetPort": {
+            "additionalProperties": false,
+            "description": "A hardware ConnectionPoint that supports one of the Ethernet networking protocols as defined in the standard [IEEE 802.3](https://en.wikipedia.org/wiki/IEEE_802.3).",
+            "properties": {
+                "connection_point_type": {
+                    "const": "EthernetPort",
+                    "description": "Type designator that provides support for polymorphism using connection points.",
+                    "enum": [
+                        "EthernetPort"
+                    ],
+                    "type": "string"
+                },
+                "id": {
+                    "description": "The identifier is used to identify the connection point within the asset. It shall be generated by the asset link. Setting this identifier is only needed if the connection point needs to be referenced by an other connection point as RelatedConnectionPoint.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "mac_address": {
+                    "description": "The MAC address of the port. It is expected to be fixed, but in some ethernet ports it can be changed.\nAn asset instance must provide for each ethernet port the default MAC address.",
+                    "pattern": "^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Name of the connection point. The name is provided by the Asset Link during the discovery process. Usually, the name is provided by the operating system of the asset or may be labeled on the asset itself.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "related_connection_points": {
+                    "description": "A connection point might rely on another connection point to work.\nExamples: a TCP/IP connection can only work if there is some kind of connection point at physical level (e.g. Ethernet Port, Bluetooth Port), a container might be connected over a virtual ethernet to a software bridge, a software bridge might be directly connected to an ethernet port.\nThis attribute enables modeling these kind of dependencies in a limited way. Other modeling mechanisms might be needed to model complex networking setups.",
+                    "items": {
+                        "$ref": "#/$defs/RelatedConnectionPoint"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                }
+            },
+            "required": [
+                "mac_address",
+                "connection_point_type"
+            ],
+            "title": "EthernetPort",
+            "type": "object"
+        },
+        "FactoryResetOperation": {
+            "additionalProperties": false,
+            "description": "Factory reset operation can be performed on the asset",
+            "properties": {
+                "activation_flag": {
+                    "description": "Attribute for specifying if the operation is available in terms of true or false",
+                    "type": "boolean"
+                },
+                "operation_name": {
+                    "const": "FactoryReset",
+                    "description": "Name of a device management operation.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "operation_name",
+                "activation_flag"
+            ],
+            "title": "FactoryResetOperation",
+            "type": "object"
+        },
+        "FirmwareUpdateOperation": {
+            "additionalProperties": false,
+            "description": "Firmware update operation can be performed on the asset",
+            "properties": {
+                "activation_flag": {
+                    "description": "Attribute for specifying if the operation is available in terms of true or false",
+                    "type": "boolean"
+                },
+                "operation_name": {
+                    "const": "FirmwareUpdate",
+                    "description": "Name of a device management operation.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "operation_name",
+                "activation_flag"
+            ],
+            "title": "FirmwareUpdateOperation",
+            "type": "object"
+        },
+        "Gateway": {
+            "additionalProperties": false,
+            "description": "Gateway as a software asset can be mapped using the class. It represents the container bundle that is deployed on a device or virtual machine and provides connectivity between assets in the shopfloor and the IAH backend.",
+            "properties": {
+                "asset_identifiers": {
+                    "description": "An asset identifier is an asset attribute that provides enough information to unequivocally identify the represented object.\nIn some cases the ID attribute acts simultaneously as a reference for the asset instance and as identifier for the represented object. Otherwise at least one asset identifier is needed.\nThere can be multiple asset_identifiers with different goals. For example, the information of a metal nameplate can be used by a human-being to identify a device represented by an asset instance, but a software certificate provided by a device might help a software component identify the device in the network,...\nAn asset identifier might have an identifier_type, that defines its format and possibly even semantics.",
+                    "items": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/$defs/MacIdentifier"
+                            },
+                            {
+                                "$ref": "#/$defs/SoftwareIdentifier"
+                            },
+                            {
+                                "$ref": "#/$defs/CertificateIdentifier"
+                            },
+                            {
+                                "$ref": "#/$defs/CustomIdentifier"
+                            },
+                            {
+                                "$ref": "#/$defs/IdLinkIdentifier"
+                            }
+                        ]
+                    },
+                    "type": "array"
+                },
+                "asset_links": {
+                    "description": "List of asset links that are connected to the asset gateway.",
+                    "items": {
+                        "$ref": "#/$defs/AssetLink"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "asset_operations": {
+                    "description": "List of device management operations supported by an asset. Each operation type might appear only once.",
+                    "items": {
+                        "$ref": "#/$defs/AssetOperation"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "connection_points": {
+                    "description": "An asset might have a connection point that can be used to connect with the asset. In the case of devices, at least one connection point is required. It might be a connection point needed for AssetManagement for interaction with the asset, or for other connections of the asset related to the asset function but not to device management.",
+                    "items": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/$defs/Ipv4Connectivity"
+                            },
+                            {
+                                "$ref": "#/$defs/Ipv6Connectivity"
+                            },
+                            {
+                                "$ref": "#/$defs/EthernetPort"
+                            }
+                        ]
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "description": {
+                    "description": "A textual description of the item's purpose and use.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "functional_object_schema_url": {
+                    "description": "URL of the schema that defines the functional object type.",
+                    "pattern": "^https://industrial-assets\\.io.*$",
+                    "type": "string"
+                },
+                "functional_object_type": {
+                    "const": "Gateway",
+                    "description": "Type designator that supports polymorphism using functional parts. This type is used for validation of the provided functional objects.",
+                    "enum": [
+                        "Gateway"
+                    ],
+                    "type": "string"
+                },
+                "instance_annotations": {
+                    "description": "Metadata associated with an object.",
+                    "items": {
+                        "$ref": "#/$defs/InstanceAnnotation"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "location": {
+                    "description": "Possible ways to know where an asset is located.",
+                    "items": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/$defs/AssetLocation"
+                            },
+                            {
+                                "$ref": "#/$defs/GeoLocation"
+                            },
+                            {
+                                "$ref": "#/$defs/Okz"
+                            },
+                            {
+                                "$ref": "#/$defs/Akz"
+                            },
+                            {
+                                "$ref": "#/$defs/MountingLocation"
+                            }
+                        ]
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "name": {
+                    "description": "The name of the item.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "operating_mode": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/OperatingMode"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "description": "The current operating mode of the asset."
+                },
+                "product_instance_information": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/ProductInstanceInformation"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "description": "Information about the product instance."
+                },
+                "software_components": {
+                    "description": "An asset can host software artifacts that might want to be tracked. This can be used simply to keep track of the firmware version or to keep a full-blown Software Bill of Material (SBOM).",
+                    "items": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/$defs/RunningSoftwareComponent"
+                            },
+                            {
+                                "$ref": "#/$defs/SoftwareArtifactComponent"
+                            }
+                        ]
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                }
+            },
+            "required": [
+                "asset_identifiers",
+                "functional_object_type",
+                "functional_object_schema_url"
+            ],
+            "title": "Gateway",
+            "type": "object"
+        },
+        "GeoLocation": {
+            "additionalProperties": false,
+            "description": "Geographic coordinates in which an asset can be found.",
+            "properties": {
+                "elevation": {
+                    "description": "The elevation of a location in meters (WGS 84).",
+                    "type": [
+                        "number",
+                        "null"
+                    ]
+                },
+                "latitude": {
+                    "description": "The latitude of a location. For example 37.42242 (WGS 84).",
+                    "type": [
+                        "number",
+                        "null"
+                    ]
+                },
+                "location_type": {
+                    "const": "GeoLocation",
+                    "description": "Type designator that provides support for polymorphism using location.",
+                    "enum": [
+                        "GeoLocation"
+                    ],
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "longitude": {
+                    "description": "The longitude of a location. For example -122.08585 (WGS 84).",
+                    "type": [
+                        "number",
+                        "null"
+                    ]
+                }
+            },
+            "title": "GeoLocation",
+            "type": "object"
+        },
+        "HaltOperatingMode": {
+            "additionalProperties": false,
+            "description": "Asset is halted.",
+            "properties": {
+                "mode_name": {
+                    "const": "halt",
+                    "description": "Name of the operating mode.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "mode_name"
+            ],
+            "title": "HaltOperatingMode",
+            "type": "object"
+        },
+        "IdLinkIdentifier": {
+            "additionalProperties": false,
+            "description": "Identifier for an asset instance using a vendor-provided ID Link URL. The URL must be absolute (i.e. include a scheme and host) and follow the ID Link convention (IEC 61406 / DIN SPEC 91406).",
+            "properties": {
+                "asset_identifier_type": {
+                    "const": "IdLinkIdentifier",
+                    "description": "Type designator that supports polymorphism using asset identifiers.",
+                    "enum": [
+                        "IdLinkIdentifier"
+                    ],
+                    "type": "string"
+                },
+                "id_link": {
+                    "description": "A vendor-supplied URL that uniquely identifies a product instance following the ID Link convention (IEC 61406 / DIN SPEC 91406). The URL must be absolute (i.e. include a scheme and host). For comparison and deduplication purposes, the scheme and host are case-insensitive, while path and query are treated as case-sensitive.",
+                    "pattern": "^https?://(?:www\\.)?[a-z0-9.-]+(?:\\.[a-z]+)?/[^\\s#]*$",
+                    "type": "string"
+                },
+                "identifier_type": {
+                    "description": "Type of an items identifier.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "identifier_uncertainty": {
+                    "description": "Number that indicates how uncertain an identifier is compared to other identifiers provided by an Asset Link. The higher the number, the more uncertain the identification must be considered. This number must be considered relative to the other identifiers for the same element. The default value is 0, meaning no uncertainty.\nThis index helps to decide which identifiers are better suited for deduplication across Asset Links. The identifier provided by two different Asset Links with the lowest uncertainty should be chosen for deduplication purposes.",
+                    "type": [
+                        "integer",
+                        "null"
+                    ]
+                }
+            },
+            "required": [
+                "id_link",
+                "asset_identifier_type"
+            ],
+            "title": "IdLinkIdentifier",
+            "type": "object"
+        },
+        "InstanceAnnotation": {
+            "additionalProperties": false,
+            "description": "Key/value pair that can be used to add metadata to an object.",
+            "properties": {
+                "key": {
+                    "description": "The identifier of a key/value pair.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "value": {
+                    "description": "The real metadata of a key/value pair.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            },
+            "title": "InstanceAnnotation",
+            "type": "object"
+        },
+        "Ipv4Connectivity": {
+            "additionalProperties": false,
+            "description": "Configuration of an IP port. Please note that the configuration of an IP address is independent of the Ethernet port configuration.",
+            "properties": {
+                "connection_point_type": {
+                    "const": "Ipv4Connectivity",
+                    "description": "Type designator that provides support for polymorphism using connection points.",
+                    "enum": [
+                        "Ipv4Connectivity"
+                    ],
+                    "type": "string"
+                },
+                "id": {
+                    "description": "The identifier is used to identify the connection point within the asset. It shall be generated by the asset link. Setting this identifier is only needed if the connection point needs to be referenced by an other connection point as RelatedConnectionPoint.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "ipv4_address": {
+                    "description": "The IP v4 address of a device port.",
+                    "pattern": "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Name of the connection point. The name is provided by the Asset Link during the discovery process. Usually, the name is provided by the operating system of the asset or may be labeled on the asset itself.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "network_mask": {
+                    "description": "The mask that segregates IPs v4 belonging to the same sub-network from the rest.",
+                    "pattern": "^(255)\\.(0|128|192|224|240|248|252|254|255)\\.(0|128|192|224|240|248|252|254|255)\\.(0|128|192|224|240|248|252|254|255)$",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "related_connection_points": {
+                    "description": "A connection point might rely on another connection point to work.\nExamples: a TCP/IP connection can only work if there is some kind of connection point at physical level (e.g. Ethernet Port, Bluetooth Port), a container might be connected over a virtual ethernet to a software bridge, a software bridge might be directly connected to an ethernet port.\nThis attribute enables modeling these kind of dependencies in a limited way. Other modeling mechanisms might be needed to model complex networking setups.",
+                    "items": {
+                        "$ref": "#/$defs/RelatedConnectionPoint"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "router_ipv4_address": {
+                    "description": "The IPv4 address of the router (AKA gateway) corresponding to a IPv4 address.",
+                    "pattern": "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            },
+            "required": [
+                "ipv4_address",
+                "connection_point_type"
+            ],
+            "title": "Ipv4Connectivity",
+            "type": "object"
+        },
+        "Ipv6Connectivity": {
+            "additionalProperties": false,
+            "description": "Configuration of an IP port. Please note that the configuration of an IP address is independent of the Ethernet port configuration.",
+            "properties": {
+                "connection_point_type": {
+                    "const": "Ipv6Connectivity",
+                    "description": "Type designator that provides support for polymorphism using connection points.",
+                    "enum": [
+                        "Ipv6Connectivity"
+                    ],
+                    "type": "string"
+                },
+                "id": {
+                    "description": "The identifier is used to identify the connection point within the asset. It shall be generated by the asset link. Setting this identifier is only needed if the connection point needs to be referenced by an other connection point as RelatedConnectionPoint.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "ipv6_address": {
+                    "description": "The IP v6 address of a device port.",
+                    "pattern": "^(?:[a-fA-F0-9]{1,4}:){7}[a-fA-F0-9]{1,4}$",
+                    "type": "string"
+                },
+                "ipv6_network_prefix": {
+                    "description": "Prefix of the subnetwork in which the IP address is located.",
+                    "pattern": "^[a-fA-F0-9]{1,4}:(?:[a-fA-F0-9]{0,4}:){1,7}/([0-9]{1,2}|1[01][0-9]|12[0-8])$",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "name": {
+                    "description": "Name of the connection point. The name is provided by the Asset Link during the discovery process. Usually, the name is provided by the operating system of the asset or may be labeled on the asset itself.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "related_connection_points": {
+                    "description": "A connection point might rely on another connection point to work.\nExamples: a TCP/IP connection can only work if there is some kind of connection point at physical level (e.g. Ethernet Port, Bluetooth Port), a container might be connected over a virtual ethernet to a software bridge, a software bridge might be directly connected to an ethernet port.\nThis attribute enables modeling these kind of dependencies in a limited way. Other modeling mechanisms might be needed to model complex networking setups.",
+                    "items": {
+                        "$ref": "#/$defs/RelatedConnectionPoint"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "router_ipv6_address": {
+                    "description": "The IP v6 address of the default IP v6 router (AKA gateway).",
+                    "pattern": "^(?:[a-fA-F0-9]{0,4}:){1,7}[a-fA-F0-9]{1,4}$",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            },
+            "required": [
+                "ipv6_address",
+                "connection_point_type"
+            ],
+            "title": "Ipv6Connectivity",
+            "type": "object"
+        },
+        "LinkUpOperatingMode": {
+            "additionalProperties": false,
+            "description": "Asset has an active network link.",
+            "properties": {
+                "mode_name": {
+                    "const": "link_up",
+                    "description": "Name of the operating mode.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "mode_name"
+            ],
+            "title": "LinkUpOperatingMode",
+            "type": "object"
+        },
+        "MacIdentifier": {
+            "additionalProperties": false,
+            "description": "Identifier for an Asset instance using the mac address.",
+            "properties": {
+                "asset_identifier_type": {
+                    "const": "MacIdentifier",
+                    "description": "Type designator that supports polymorphism using asset identifiers.",
+                    "enum": [
+                        "MacIdentifier"
+                    ],
+                    "type": "string"
+                },
+                "identifier_type": {
+                    "description": "Type of an items identifier.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "identifier_uncertainty": {
+                    "description": "Number that indicates how uncertain an identifier is compared to other identifiers provided by an Asset Link. The higher the number, the more uncertain the identification must be considered. This number must be considered relative to the other identifiers for the same element. The default value is 0, meaning no uncertainty.\nThis index helps to decide which identifiers are better suited for deduplication across Asset Links. The identifier provided by two different Asset Links with the lowest uncertainty should be chosen for deduplication purposes.",
+                    "type": [
+                        "integer",
+                        "null"
+                    ]
+                },
+                "mac_address": {
+                    "description": "The MAC address of the port. It is expected to be fixed, but in some ethernet ports it can be changed.\nAn asset instance must provide for each ethernet port the default MAC address.",
+                    "pattern": "^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "mac_address",
+                "asset_identifier_type"
+            ],
+            "title": "MacIdentifier",
+            "type": "object"
+        },
+        "MemoryResetOperation": {
+            "additionalProperties": false,
+            "description": "Memory reset operation can be performed on the asset",
+            "properties": {
+                "activation_flag": {
+                    "description": "Attribute for specifying if the operation is available in terms of true or false",
+                    "type": "boolean"
+                },
+                "operation_name": {
+                    "const": "MemoryReset",
+                    "description": "Name of a device management operation.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "operation_name",
+                "activation_flag"
+            ],
+            "title": "MemoryResetOperation",
+            "type": "object"
+        },
+        "MountingLocation": {
+            "additionalProperties": false,
+            "description": "Representation of the location of an asset in an automation environment, where the information about the place where the device is mounted is used.",
+            "properties": {
+                "location_type": {
+                    "const": "MountingLocation",
+                    "description": "Type designator that provides support for polymorphism using location.",
+                    "enum": [
+                        "MountingLocation"
+                    ],
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "slot_name": {
+                    "description": "User-assigned name of the slot, within the specified rack, where the asset can be found.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "slot_number": {
+                    "description": "Identification of the slot, within the specified rack, where the asset can be found.",
+                    "type": [
+                        "integer",
+                        "null"
+                    ]
+                },
+                "station_number": {
+                    "description": "Identification of the rack where the asset can be found.",
+                    "type": [
+                        "integer",
+                        "null"
+                    ]
+                },
+                "subslot_number": {
+                    "description": "Identification of the subslot, within the specified slot, where the asset can be found.",
+                    "type": [
+                        "integer",
+                        "null"
+                    ]
+                }
+            },
+            "title": "MountingLocation",
+            "type": "object"
+        },
+        "NoPowerOperatingMode": {
+            "additionalProperties": false,
+            "description": "Asset has no power.",
+            "properties": {
+                "mode_name": {
+                    "const": "no_power",
+                    "description": "Name of the operating mode.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "mode_name"
+            ],
+            "title": "NoPowerOperatingMode",
+            "type": "object"
+        },
+        "NotSupportedOperatingMode": {
+            "additionalProperties": false,
+            "description": "Asset is in a not supported operating mode.",
+            "properties": {
+                "mode_name": {
+                    "const": "not_supported",
+                    "description": "Name of the operating mode.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "mode_name"
+            ],
+            "title": "NotSupportedOperatingMode",
+            "type": "object"
+        },
+        "Okz": {
+            "additionalProperties": false,
+            "description": "Plant Labeling System that is well-established in Germany and helps locate a device in a plant based on references and coordinates in the plant. The acronym originates from the German word \"Ortskennzeichnung\" (something like \"location coding system\").",
+            "properties": {
+                "location_identifier": {
+                    "description": "String that provides the location of the plant. This string is built-up by concatenating different information items with separators. Some of these systems are standardized, some others are company-specific.",
+                    "type": "string"
+                },
+                "location_type": {
+                    "const": "Okz",
+                    "description": "Type designator that provides support for polymorphism using location.",
+                    "enum": [
+                        "Okz"
+                    ],
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            },
+            "required": [
+                "location_identifier"
+            ],
+            "title": "Okz",
+            "type": "object"
+        },
+        "OperatingMode": {
+            "additionalProperties": false,
+            "description": "Operating mode of an asset. Known modes are based on SAT terminology.\nRelevant SAT online documentation:  - https://cache.industry.siemens.com/dl/dl-media/801/109801801/att_1079538/v1/SAT_UserGuide_V4_0_SP3_html5_en-US/en-US/index.html#treeId=c79345b269fec83819077e2bbecdf4a4 - https://cache.industry.siemens.com/dl/dl-media/801/109801801/att_1079538/v1/SAT_UserGuide_V4_0_SP3_html5_en-US/en-US/index.html#treeId=2f2825bd45212943f998eee7caeb6fe1",
+            "properties": {
+                "mode_name": {
+                    "description": "Name of the operating mode.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "mode_name"
+            ],
+            "title": "OperatingMode",
+            "type": "object"
+        },
+        "Organization": {
+            "additionalProperties": false,
+            "description": "An organization such as a school, NGO, corporation, club, etc.",
+            "properties": {
+                "name": {
+                    "description": "The name of the item.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            },
+            "title": "Organization",
+            "type": "object"
+        },
+        "Product": {
+            "additionalProperties": false,
+            "description": "Any offered product or service that might have different versions for the same product ID.",
+            "properties": {
+                "manufacturer": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/Organization"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "description": "The manufacturer of the product."
+                },
+                "product_family": {
+                    "description": "The product family represents a group of related products that share common characteristics, design principles, manufacturing processes, or functional purposes, while differing in specific features, sizes, or performance parameters. This attribute establishes the hierarchical classification and inheritance relationship between a specific product instance and its broader product category.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "product_id": {
+                    "description": "The product identifiers, such as ISBN.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "product_link": {
+                    "description": "Link to identify a product. It can also provide additional information about the product.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "product_version": {
+                    "description": "Some products might have different versions under the same product ID. The product version helps differentiating the different versions of a product, if multiple exist.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            },
+            "title": "Product",
+            "type": "object"
+        },
+        "ProductInstanceInformation": {
+            "additionalProperties": false,
+            "description": "",
+            "properties": {
+                "manufacturer_product": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/Product"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "description": "A way to identify a product based on the manufacturer and the product identifier given by the manufacturer."
+                },
+                "serial_number": {
+                    "description": "The serial number or any alphanumeric identifier of a particular product. When attached to an offer, it is a shortcut for the serial number of the product included in the offer.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            },
+            "title": "ProductInstanceInformation",
+            "type": "object"
+        },
+        "ProgramUpdateOperation": {
+            "additionalProperties": false,
+            "description": "Program update operation can be performed on the asset",
+            "properties": {
+                "activation_flag": {
+                    "description": "Attribute for specifying if the operation is available in terms of true or false",
+                    "type": "boolean"
+                },
+                "operation_name": {
+                    "const": "ProgramUpdate",
+                    "description": "Name of a device management operation.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "operation_name",
+                "activation_flag"
+            ],
+            "title": "ProgramUpdateOperation",
+            "type": "object"
+        },
+        "RelatedConnectionPoint": {
+            "additionalProperties": false,
+            "description": "Relationship of a ConnectionPoint with another one. This relationship could be of the type \"ConnectionPoint A relies on the connectivity of ConnectionPoint B to work\".",
+            "properties": {
+                "connection_point_id": {
+                    "description": "Reference to the related ConnectionPoint by providing its identifier.",
+                    "type": "string"
+                },
+                "custom_relationship": {
+                    "description": "Type of relationship in an unstructured format.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "connection_point_id",
+                "custom_relationship"
+            ],
+            "title": "RelatedConnectionPoint",
+            "type": "object"
+        },
+        "ResetCommunicationParameterOperation": {
+            "additionalProperties": false,
+            "description": "Reset communication parameter operation can be performed on the asset",
+            "properties": {
+                "activation_flag": {
+                    "description": "Attribute for specifying if the operation is available in terms of true or false",
+                    "type": "boolean"
+                },
+                "operation_name": {
+                    "const": "ResetCommunicationParameter",
+                    "description": "Name of a device management operation.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "operation_name",
+                "activation_flag"
+            ],
+            "title": "ResetCommunicationParameterOperation",
+            "type": "object"
+        },
+        "RestoreOperation": {
+            "additionalProperties": false,
+            "description": "Restore operation can be performed on the asset",
+            "properties": {
+                "activation_flag": {
+                    "description": "Attribute for specifying if the operation is available in terms of true or false",
+                    "type": "boolean"
+                },
+                "operation_name": {
+                    "const": "Restore",
+                    "description": "Name of a device management operation.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "operation_name",
+                "activation_flag"
+            ],
+            "title": "RestoreOperation",
+            "type": "object"
+        },
+        "RunOdisOperatingMode": {
+            "additionalProperties": false,
+            "description": "Asset is running with ODIS.",
+            "properties": {
+                "mode_name": {
+                    "const": "run_odis",
+                    "description": "Name of the operating mode.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "mode_name"
+            ],
+            "title": "RunOdisOperatingMode",
+            "type": "object"
+        },
+        "RunOperatingMode": {
+            "additionalProperties": false,
+            "description": "Asset is running.",
+            "properties": {
+                "mode_name": {
+                    "const": "run",
+                    "description": "Name of the operating mode.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "mode_name"
+            ],
+            "title": "RunOperatingMode",
+            "type": "object"
+        },
+        "RunRedundantOperatingMode": {
+            "additionalProperties": false,
+            "description": "Asset is running in redundant mode.",
+            "properties": {
+                "mode_name": {
+                    "const": "run_redundant",
+                    "description": "Name of the operating mode.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "mode_name"
+            ],
+            "title": "RunRedundantOperatingMode",
+            "type": "object"
+        },
+        "RunningSoftwareComponent": {
+            "additionalProperties": false,
+            "description": "Software component representing running software.\nMultiple running software components can be instantiated from a single artifact. For example, multiple containers can be instantiated from a single container image.",
+            "properties": {
+                "artifact": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/SoftwareArtifact"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "description": "Reference to the software artifact asset.\nAs of now the combination of multiple software artifacts into a running software (for example with plug-ins) is not supported and cannot be natively modeled."
+                },
+                "running_software_id": {
+                    "description": "Identifier for a running software instance.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "software_component_type": {
+                    "const": "RunningSoftwareComponent",
+                    "description": "Type designator that supports polymorphism using software components. This type is used for validation of the provided software components.",
+                    "enum": [
+                        "RunningSoftwareComponent"
+                    ],
+                    "type": "string"
+                }
+            },
+            "required": [
+                "software_component_type"
+            ],
+            "title": "RunningSoftwareComponent",
+            "type": "object"
+        },
+        "SchemaOrgProduct": {
+            "additionalProperties": false,
+            "description": "Any offered product or service. For example: a pair of shoes; a concert ticket; the rental of a car; a haircut; or an episode of a TV show streamed online.",
+            "properties": {
+                "manufacturer": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/Organization"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "description": "The manufacturer of the product."
+                },
+                "product_id": {
+                    "description": "The product identifiers, such as ISBN.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            },
+            "title": "SchemaOrgProduct",
+            "type": "object"
+        },
+        "SoftwareArtifact": {
+            "additionalProperties": false,
+            "description": "Software asset",
+            "properties": {
+                "asset_identifiers": {
+                    "description": "An asset identifier is an asset attribute that provides enough information to unequivocally identify the represented object.\nIn some cases the ID attribute acts simultaneously as a reference for the asset instance and as identifier for the represented object. Otherwise at least one asset identifier is needed.\nThere can be multiple asset_identifiers with different goals. For example, the information of a metal nameplate can be used by a human-being to identify a device represented by an asset instance, but a software certificate provided by a device might help a software component identify the device in the network,...\nAn asset identifier might have an identifier_type, that defines its format and possibly even semantics.",
+                    "items": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/$defs/MacIdentifier"
+                            },
+                            {
+                                "$ref": "#/$defs/SoftwareIdentifier"
+                            },
+                            {
+                                "$ref": "#/$defs/CertificateIdentifier"
+                            },
+                            {
+                                "$ref": "#/$defs/CustomIdentifier"
+                            },
+                            {
+                                "$ref": "#/$defs/IdLinkIdentifier"
+                            }
+                        ]
+                    },
+                    "type": "array"
+                },
+                "asset_operations": {
+                    "description": "List of device management operations supported by an asset. Each operation type might appear only once.",
+                    "items": {
+                        "$ref": "#/$defs/AssetOperation"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "connection_points": {
+                    "description": "An asset might have a connection point that can be used to connect with the asset. In the case of devices, at least one connection point is required. It might be a connection point needed for AssetManagement for interaction with the asset, or for other connections of the asset related to the asset function but not to device management.",
+                    "items": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/$defs/Ipv4Connectivity"
+                            },
+                            {
+                                "$ref": "#/$defs/Ipv6Connectivity"
+                            },
+                            {
+                                "$ref": "#/$defs/EthernetPort"
+                            }
+                        ]
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "description": {
+                    "description": "A textual description of the item's purpose and use.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "functional_object_schema_url": {
+                    "description": "URL of the schema that defines the functional object type.",
+                    "pattern": "^https://industrial-assets\\.io.*$",
+                    "type": "string"
+                },
+                "functional_object_type": {
+                    "const": "SoftwareArtifact",
+                    "description": "Type designator that supports polymorphism using functional parts. This type is used for validation of the provided functional objects.",
+                    "enum": [
+                        "SoftwareArtifact"
+                    ],
+                    "type": "string"
+                },
+                "instance_annotations": {
+                    "description": "Metadata associated with an object.",
+                    "items": {
+                        "$ref": "#/$defs/InstanceAnnotation"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "is_firmware": {
+                    "description": "Flag indicating that the software artifact is provided by a hardware manufacturer for one or more of its devices.\nUnlike other software artifacts, updating the firmware requires contacting the source specified by the device manufacturer.\nDue to this definition, firmware in IAH has a much wider scope than in some domains, where firmware is only meant to be close-to-the-silicon software.",
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "location": {
+                    "description": "Possible ways to know where an asset is located.",
+                    "items": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/$defs/AssetLocation"
+                            },
+                            {
+                                "$ref": "#/$defs/GeoLocation"
+                            },
+                            {
+                                "$ref": "#/$defs/Okz"
+                            },
+                            {
+                                "$ref": "#/$defs/Akz"
+                            },
+                            {
+                                "$ref": "#/$defs/MountingLocation"
+                            }
+                        ]
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "name": {
+                    "description": "The name of the item.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "operating_mode": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/OperatingMode"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "description": "The current operating mode of the asset."
+                },
+                "product_instance_information": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/ProductInstanceInformation"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "description": "Information about the product instance."
+                },
+                "software_components": {
+                    "description": "An asset can host software artifacts that might want to be tracked. This can be used simply to keep track of the firmware version or to keep a full-blown Software Bill of Material (SBOM).",
+                    "items": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/$defs/RunningSoftwareComponent"
+                            },
+                            {
+                                "$ref": "#/$defs/SoftwareArtifactComponent"
+                            }
+                        ]
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                }
+            },
+            "required": [
+                "asset_identifiers",
+                "functional_object_type",
+                "functional_object_schema_url"
+            ],
+            "title": "SoftwareArtifact",
+            "type": "object"
+        },
+        "SoftwareArtifactComponent": {
+            "additionalProperties": false,
+            "description": "",
+            "properties": {
+                "artifact": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/SoftwareArtifact"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "description": "Reference to the software artifact asset.\nAs of now the combination of multiple software artifacts into a running software (for example with plug-ins) is not supported and cannot be natively modeled."
+                },
+                "software_component_type": {
+                    "const": "SoftwareArtifactComponent",
+                    "description": "Type designator that supports polymorphism using software components. This type is used for validation of the provided software components.",
+                    "enum": [
+                        "SoftwareArtifactComponent"
+                    ],
+                    "type": "string"
+                }
+            },
+            "required": [
+                "software_component_type"
+            ],
+            "title": "SoftwareArtifactComponent",
+            "type": "object"
+        },
+        "SoftwareIdentifier": {
+            "additionalProperties": false,
+            "description": "Identifier especially for software artifacts.",
+            "properties": {
+                "asset_identifier_type": {
+                    "const": "SoftwareIdentifier",
+                    "description": "Type designator that supports polymorphism using asset identifiers.",
+                    "enum": [
+                        "SoftwareIdentifier"
+                    ],
+                    "type": "string"
+                },
+                "identifier_type": {
+                    "description": "Type of an items identifier.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "identifier_uncertainty": {
+                    "description": "Number that indicates how uncertain an identifier is compared to other identifiers provided by an Asset Link. The higher the number, the more uncertain the identification must be considered. This number must be considered relative to the other identifiers for the same element. The default value is 0, meaning no uncertainty.\nThis index helps to decide which identifiers are better suited for deduplication across Asset Links. The identifier provided by two different Asset Links with the lowest uncertainty should be chosen for deduplication purposes.",
+                    "type": [
+                        "integer",
+                        "null"
+                    ]
+                },
+                "name": {
+                    "description": "The name of the item.",
+                    "type": "string"
+                },
+                "version": {
+                    "description": "Version of a software artifact.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "name",
+                "version",
+                "asset_identifier_type"
+            ],
+            "title": "SoftwareIdentifier",
+            "type": "object"
+        },
+        "StartupOperatingMode": {
+            "additionalProperties": false,
+            "description": "Asset is starting up.",
+            "properties": {
+                "mode_name": {
+                    "const": "startup",
+                    "description": "Name of the operating mode.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "mode_name"
+            ],
+            "title": "StartupOperatingMode",
+            "type": "object"
+        },
+        "StopFwUpdateOperatingMode": {
+            "additionalProperties": false,
+            "description": "Asset is stopped due to a firmware update.",
+            "properties": {
+                "mode_name": {
+                    "const": "stop_fw_update",
+                    "description": "Name of the operating mode.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "mode_name"
+            ],
+            "title": "StopFwUpdateOperatingMode",
+            "type": "object"
+        },
+        "StopOperatingMode": {
+            "additionalProperties": false,
+            "description": "Asset is stopped.",
+            "properties": {
+                "mode_name": {
+                    "const": "stop",
+                    "description": "Name of the operating mode.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "mode_name"
+            ],
+            "title": "StopOperatingMode",
+            "type": "object"
+        },
+        "StopSelfInitializationOperatingMode": {
+            "additionalProperties": false,
+            "description": "Asset is stopped during self-initialization.",
+            "properties": {
+                "mode_name": {
+                    "const": "stop_self_initialization",
+                    "description": "Name of the operating mode.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "mode_name"
+            ],
+            "title": "StopSelfInitializationOperatingMode",
+            "type": "object"
+        },
+        "StopWithoutOdisOperatingMode": {
+            "additionalProperties": false,
+            "description": "Asset is stopped without ODIS.",
+            "properties": {
+                "mode_name": {
+                    "const": "stop_without_odis",
+                    "description": "Name of the operating mode.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "mode_name"
+            ],
+            "title": "StopWithoutOdisOperatingMode",
+            "type": "object"
+        },
+        "TwoStepFirmwareUpdateOperation": {
+            "additionalProperties": false,
+            "description": "Two step firmware update operation can be performed on the asset",
+            "properties": {
+                "activation_flag": {
+                    "description": "Attribute for specifying if the operation is available in terms of true or false",
+                    "type": "boolean"
+                },
+                "operation_name": {
+                    "const": "TwoStepFirmwareUpdate",
+                    "description": "Name of a device management operation.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "operation_name",
+                "activation_flag"
+            ],
+            "title": "TwoStepFirmwareUpdateOperation",
+            "type": "object"
+        },
+        "UpdateOperatingMode": {
+            "additionalProperties": false,
+            "description": "Asset is performing an update.",
+            "properties": {
+                "mode_name": {
+                    "const": "update",
+                    "description": "Name of the operating mode.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "mode_name"
+            ],
+            "title": "UpdateOperatingMode",
+            "type": "object"
+        }
+    },
+    "$id": "https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base.yaml",
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "additionalProperties": true,
+    "metamodel_version": "1.7.0",
+    "title": "iah-base",
+    "type": "object",
+    "version": "v1"
+}
+

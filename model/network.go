@@ -22,26 +22,24 @@ func (d *DeviceInfo) AddNic(name, macAddress string) (string, error) {
 		return "", err
 	}
 
+	err = ValidateField(name, "Name", "Name is empty", "", "")
+	if err != nil {
+		return "", err
+	}
+
 	nicId := uuid.New().String()
 	connectionPointType := EthernetPortConnectionPointTypeEthernetPort
 	nic := EthernetPort{
-		ConnectionPointType:     &connectionPointType,
-		Id:                      nicId,
-		MacAddress:              &macAddress,
+		ConnectionPointType:     connectionPointType,
+		Id:                      &nicId,
+		Name:                    &name,
+		MacAddress:              macAddress,
 		RelatedConnectionPoints: nil,
-	}
-
-	if isNonEmptyValues(name) {
-		nameKey := "name"
-		nic.InstanceAnnotations = []InstanceAnnotation{{
-			Key:   &nameKey,
-			Value: &name,
-		}}
 	}
 
 	d.ConnectionPoints = append(d.ConnectionPoints, nic)
 	// automatically an MAC identifier, as it is required currently.
-	d.addIdentifier(macAddress)
+	d.addMacIdentifier(macAddress)
 
 	return nicId, nil
 }
@@ -72,14 +70,13 @@ func (d *DeviceInfo) AddIPv4(nicId string, ipv4Address string, networkMask strin
 	connectionPointType := Ipv4ConnectivityConnectionPointTypeIpv4Connectivity
 	customRelName := "Relies on"
 	relationship := RelatedConnectionPoint{
-		ConnectionPoint:    &nicId,
-		CustomRelationship: &customRelName,
+		ConnectionPointId:  nicId,
+		CustomRelationship: customRelName,
 	}
 	ipv4 := Ipv4Connectivity{
-		ConnectionPointType:     &connectionPointType,
-		Id:                      id,
-		InstanceAnnotations:     nil,
-		Ipv4Address:             &ipv4Address,
+		ConnectionPointType:     connectionPointType,
+		Id:                      &id,
+		Ipv4Address:             ipv4Address,
 		RelatedConnectionPoints: []RelatedConnectionPoint{relationship},
 	}
 	ipv4.NetworkMask = &networkMask
@@ -110,14 +107,13 @@ func (d *DeviceInfo) AddIPv6(nicId string, ipv6Address string, networkPrefix str
 	connectionPointType := Ipv6ConnectivityConnectionPointTypeIpv6Connectivity
 	customRelName := "Relies on"
 	relationship := RelatedConnectionPoint{
-		ConnectionPoint:    &nicId,
-		CustomRelationship: &customRelName,
+		ConnectionPointId:  nicId,
+		CustomRelationship: customRelName,
 	}
 	ipv6 := Ipv6Connectivity{
-		ConnectionPointType:     &connectionPointType,
-		Id:                      id,
-		InstanceAnnotations:     nil,
-		Ipv6Address:             &ipv6Address,
+		ConnectionPointType:     connectionPointType,
+		Id:                      &id,
+		Ipv6Address:             ipv6Address,
 		RelatedConnectionPoints: []RelatedConnectionPoint{relationship},
 	}
 	ipv6.Ipv6NetworkPrefix = &networkPrefix

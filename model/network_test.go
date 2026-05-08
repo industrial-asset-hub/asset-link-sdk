@@ -18,7 +18,7 @@ import (
 
 func TestNetwork(t *testing.T) {
 	t.Run("AddNic", func(t *testing.T) {
-		m, err := NewDevice("asset", "MyDevice")
+		m, err := NewDevice("Asset", "MyDevice")
 		assert.NoError(t, err)
 
 		nic2Id, err := m.AddNic("nic2", "AA:AA:AA:AA:AA:AA")
@@ -34,18 +34,18 @@ func TestNetwork(t *testing.T) {
 		}
 		found := 0
 		for _, v := range nics {
-			for _, ik := range v.InstanceAnnotations {
-				if *ik.Value == "nic0" {
-					found++
-					assert.Equal(t, "name", *v.InstanceAnnotations[0].Key)
-					assert.Equal(t, "nic0", *v.InstanceAnnotations[0].Value)
-					assert.Equal(t, "AA:BB:CC:DD:EE:FF", *v.MacAddress)
+			if v.Name != nil && *v.Name == "nic0" {
+				found++
+				assert.Equal(t, "AA:BB:CC:DD:EE:FF", v.MacAddress)
 
-					uncertainity := 1
-					id := MacIdentifier{MacAddress: v.MacAddress, IdentifierUncertainty: &uncertainity}
-					assert.Contains(t, m.MacIdentifiers, id)
-					break
+				uncertainity := 1
+				id := MacIdentifier{
+					AssetIdentifierType:   MacIdentifierAssetIdentifierTypeMacIdentifier,
+					MacAddress:            v.MacAddress,
+					IdentifierUncertainty: &uncertainity,
 				}
+				assert.Contains(t, m.AssetIdentifiers, id)
+				break
 			}
 		}
 
@@ -54,7 +54,7 @@ func TestNetwork(t *testing.T) {
 	})
 
 	t.Run("AddIpv4", func(t *testing.T) {
-		m, err := NewDevice("asset", "device")
+		m, err := NewDevice("Asset", "device")
 		assert.NoError(t, err)
 
 		id, err := m.AddIPv4("nic0", "10.0.0.1", "255.0.0.0", "10.0.0.254")
@@ -93,9 +93,9 @@ func TestNetwork(t *testing.T) {
 		found := 0
 		for _, v := range addresses {
 			for _, ik := range v.RelatedConnectionPoints {
-				if *ik.ConnectionPoint == "nic0" {
+				if ik.ConnectionPointId == "nic0" {
 					found++
-					assert.Equal(t, "10.0.0.1", *v.Ipv4Address)
+					assert.Equal(t, "10.0.0.1", v.Ipv4Address)
 					assert.Equal(t, "255.0.0.0", *v.NetworkMask)
 					assert.Equal(t, "10.0.0.254", *v.RouterIpv4Address)
 					break
@@ -106,7 +106,7 @@ func TestNetwork(t *testing.T) {
 	})
 
 	t.Run("AddIpv6", func(t *testing.T) {
-		m, err := NewDevice("asset", "device")
+		m, err := NewDevice("Asset", "device")
 		assert.NoError(t, err)
 
 		id1, err1 := m.AddIPv6("nic0", "2001:0db8:85a3:0000:0000:8a2e:0370:7334", "2001:db8:/64", "2001:0db8:85a3:0000:0000:8a2e:0370:7334")
@@ -125,9 +125,9 @@ func TestNetwork(t *testing.T) {
 		found := 0
 		for _, v := range addresses {
 			for _, ik := range v.RelatedConnectionPoints {
-				if *ik.ConnectionPoint == "nic0" {
+				if ik.ConnectionPointId == "nic0" {
 					found++
-					assert.Equal(t, "2001:0db8:85a3:0000:0000:8a2e:0370:7334", *v.Ipv6Address)
+					assert.Equal(t, "2001:0db8:85a3:0000:0000:8a2e:0370:7334", v.Ipv6Address)
 					assert.Equal(t, "2001:db8:/64", *v.Ipv6NetworkPrefix)
 					assert.Equal(t, "2001:0db8:85a3:0000:0000:8a2e:0370:7334", *v.RouterIpv6Address)
 					break
@@ -137,27 +137,26 @@ func TestNetwork(t *testing.T) {
 		assert.Equal(t, 1, found)
 	})
 
-	t.Run("When Name is not present instance annotations not be added", func(t *testing.T) {
-		m, err := NewDevice("asset", "MyDevice")
+	t.Run("AddNic returns an error when the NIC name is empty", func(t *testing.T) {
+		m, err := NewDevice("Asset", "MyDevice")
 		assert.NoError(t, err)
 		_, err = m.AddNic("", "AA:BB:CC:DD:EE:FF")
-		assert.NoError(t, err)
-		nics := m.getNics()
-		assert.Nil(t, nics[0].InstanceAnnotations)
+		assert.Error(t, err) // AddNic with empty name should return an error based on network.go validation
 	})
 
-	t.Run("When Name is present instance annotations should be added", func(t *testing.T) {
-		m, err := NewDevice("asset", "MyDevice")
+	t.Run("AddNic stores the provided NIC name on EthernetPort.Name", func(t *testing.T) {
+		m, err := NewDevice("Asset", "MyDevice")
 		assert.NoError(t, err)
 		_, err = m.AddNic("Test-Nic", "AA:BB:CC:DD:EE:FF")
 		assert.NoError(t, err)
 		nics := m.getNics()
-		assert.NotNil(t, nics[0].InstanceAnnotations)
+		assert.NotNil(t, nics[0].Name)
+		assert.Equal(t, "Test-Nic", *nics[0].Name)
 	})
 }
 
 func TestAddNic_MacAddressValidation(t *testing.T) {
-	m, err := NewDevice("asset", "TestDevice")
+	m, err := NewDevice("Asset", "TestDevice")
 	assert.NoError(t, err)
 
 	t.Run("Empty MAC address should return EmptyError", func(t *testing.T) {
@@ -190,7 +189,7 @@ func TestAddNic_MacAddressValidation(t *testing.T) {
 }
 
 func TestAddIPv6_Validation(t *testing.T) {
-	m, err := NewDevice("asset", "TestDevice")
+	m, err := NewDevice("Asset", "TestDevice")
 	assert.NoError(t, err)
 
 	nicId, err := m.AddNic("nic6", "AA:BB:CC:DD:EE:FF")

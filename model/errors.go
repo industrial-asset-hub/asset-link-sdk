@@ -44,6 +44,7 @@ func (e *EmptyError) Error() string {
 // PermissibleValuesError represents an error for values not in the allowed set.
 type PermissibleValuesError struct {
 	Field   string
+	Message string
 	Value   interface{}
 	Allowed []interface{}
 }

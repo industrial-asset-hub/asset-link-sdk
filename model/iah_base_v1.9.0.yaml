@@ -1,0 +1,1723 @@
+#   SPDX-FileCopyrightText: 2026 Siemens AG
+#   SPDX-License-Identifier: MIT
+
+# yaml-language-server: $schema=https://linkml.io/linkml-model/linkml_model/jsonschema/meta.schema.json
+name: iah-base
+description: 'This schema defines the base classes needed for Industrial Asset Hub
+  (IAH).
+
+  The hereby defined classes provide a schema to model assets and devices (as a special
+  asset subtype) and a vocabulary valid for the whole project and all stakeholders.
+  They are very generic and abstract on purpose so that multiple different specializations
+  can be derived from it without constraining them needlessly.
+
+  The schema here is the ''write'' schema and is therefore used to send asset data
+  to the IAH inventory. It is used by inventory''s v2 POST API. '
+title: Industrial Asset Hub Base Schema
+id: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base.yaml
+version: v1
+prefixes:
+  linkml:
+    prefix_prefix: linkml
+    prefix_reference: https://w3id.org/linkml/
+  lis:
+    prefix_prefix: lis
+    prefix_reference: http://rds.posccaesar.org/ontology/lis14/rdl/
+  schema:
+    prefix_prefix: schema
+    prefix_reference: http://schema.org/
+  base:
+    prefix_prefix: base
+    prefix_reference: https://common-device-management.code.siemens.io/documentation/asset-modeling/base-schema/v0.9.0/
+  sietechas:
+    prefix_prefix: sietechas
+    prefix_reference: http://ontology.siemens.com/base/enterprise/technical-asset#
+  sieiot:
+    prefix_prefix: sieiot
+    prefix_reference: http://ontology.siemens.com/base/enterprise/iot#
+  btlo:
+    prefix_prefix: btlo
+    prefix_reference: https://ontology.siemens.com/bt/shared/btlo/version/1.0/#
+  s4ehaw:
+    prefix_prefix: s4ehaw
+    prefix_reference: https://saref.etsi.org/saref4ehaw/
+  xsd:
+    prefix_prefix: xsd
+    prefix_reference: http://www.w3.org/2001/XMLSchema#
+  shex:
+    prefix_prefix: shex
+    prefix_reference: http://www.w3.org/ns/shex#
+default_prefix: base
+default_range: string
+subsets:
+  MostRelevant:
+    name: MostRelevant
+    description: 'Entry elements for the Industrial Asset Hub (IAH) base schema.
+
+      This subset includes the most relevant elements (classes, slots, enumerations,...)
+      to understand the Industrial Asset Hub (IAH) base schema.'
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-subsets.yaml
+  Connectivity:
+    name: Connectivity
+    description: 'Elements that are related to connectivity.
+
+      These elements enable modeling complex device-internal network setups and also
+      complex multi-device network setups.
+
+      Device-internal network setup examples: - Ethernet interface with MAC and IP
+      address. - Ethernet and WLAN interfaces bonded to a new interface.'
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-subsets.yaml
+  IndustryDomain:
+    name: IndustryDomain
+    description: Elements that are specifically relevant for the industry domain.
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-subsets.yaml
+  DeviceInteraction:
+    name: DeviceInteraction
+    description: 'Elements that are related to interactions with the devices. For
+      example: configure a device, reboot a device, update the firmware of a device,...'
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-subsets.yaml
+types:
+  string:
+    name: string
+    description: A character string
+    notes:
+    - In RDF serializations, a slot with range of string is treated as a literal or
+      type xsd:string.   If you are authoring schemas in LinkML YAML, the type is
+      referenced with the lower case "string".
+    from_schema: https://w3id.org/linkml/types
+    exact_mappings:
+    - schema:Text
+    base: str
+    uri: xsd:string
+  integer:
+    name: integer
+    description: An integer
+    notes:
+    - If you are authoring schemas in LinkML YAML, the type is referenced with the
+      lower case "integer".
+    from_schema: https://w3id.org/linkml/types
+    exact_mappings:
+    - schema:Integer
+    base: int
+    uri: xsd:integer
+  boolean:
+    name: boolean
+    description: A binary (true or false) value
+    notes:
+    - If you are authoring schemas in LinkML YAML, the type is referenced with the
+      lower case "boolean".
+    from_schema: https://w3id.org/linkml/types
+    exact_mappings:
+    - schema:Boolean
+    base: Bool
+    uri: xsd:boolean
+    repr: bool
+  float:
+    name: float
+    description: A real number that conforms to the xsd:float specification
+    notes:
+    - If you are authoring schemas in LinkML YAML, the type is referenced with the
+      lower case "float".
+    from_schema: https://w3id.org/linkml/types
+    exact_mappings:
+    - schema:Float
+    base: float
+    uri: xsd:float
+  double:
+    name: double
+    description: A real number that conforms to the xsd:double specification
+    notes:
+    - If you are authoring schemas in LinkML YAML, the type is referenced with the
+      lower case "double".
+    from_schema: https://w3id.org/linkml/types
+    close_mappings:
+    - schema:Float
+    base: float
+    uri: xsd:double
+  decimal:
+    name: decimal
+    description: A real number with arbitrary precision that conforms to the xsd:decimal
+      specification
+    notes:
+    - If you are authoring schemas in LinkML YAML, the type is referenced with the
+      lower case "decimal".
+    from_schema: https://w3id.org/linkml/types
+    broad_mappings:
+    - schema:Number
+    base: Decimal
+    uri: xsd:decimal
+  time:
+    name: time
+    description: A time object represents a (local) time of day, independent of any
+      particular day
+    notes:
+    - URI is dateTime because OWL reasoners do not work with straight date or time
+    - If you are authoring schemas in LinkML YAML, the type is referenced with the
+      lower case "time".
+    from_schema: https://w3id.org/linkml/types
+    exact_mappings:
+    - schema:Time
+    base: XSDTime
+    uri: xsd:time
+    repr: str
+  date:
+    name: date
+    description: a date (year, month and day) in an idealized calendar
+    notes:
+    - URI is dateTime because OWL reasoners don't work with straight date or time
+    - If you are authoring schemas in LinkML YAML, the type is referenced with the
+      lower case "date".
+    from_schema: https://w3id.org/linkml/types
+    exact_mappings:
+    - schema:Date
+    base: XSDDate
+    uri: xsd:date
+    repr: str
+  datetime:
+    name: datetime
+    description: The combination of a date and time
+    notes:
+    - If you are authoring schemas in LinkML YAML, the type is referenced with the
+      lower case "datetime".
+    from_schema: https://w3id.org/linkml/types
+    exact_mappings:
+    - schema:DateTime
+    base: XSDDateTime
+    uri: xsd:dateTime
+    repr: str
+  date_or_datetime:
+    name: date_or_datetime
+    description: Either a date or a datetime
+    notes:
+    - If you are authoring schemas in LinkML YAML, the type is referenced with the
+      lower case "date_or_datetime".
+    from_schema: https://w3id.org/linkml/types
+    base: str
+    uri: linkml:DateOrDatetime
+    repr: str
+  uriorcurie:
+    name: uriorcurie
+    description: a URI or a CURIE
+    notes:
+    - If you are authoring schemas in LinkML YAML, the type is referenced with the
+      lower case "uriorcurie".
+    from_schema: https://w3id.org/linkml/types
+    base: URIorCURIE
+    uri: xsd:anyURI
+    repr: str
+  curie:
+    name: curie
+    conforms_to: https://www.w3.org/TR/curie/
+    description: a compact URI
+    notes:
+    - If you are authoring schemas in LinkML YAML, the type is referenced with the
+      lower case "curie".
+    comments:
+    - in RDF serializations this MUST be expanded to a URI
+    - in non-RDF serializations MAY be serialized as the compact representation
+    from_schema: https://w3id.org/linkml/types
+    base: Curie
+    uri: xsd:string
+    repr: str
+  uri:
+    name: uri
+    conforms_to: https://www.ietf.org/rfc/rfc3987.txt
+    description: a complete URI
+    notes:
+    - If you are authoring schemas in LinkML YAML, the type is referenced with the
+      lower case "uri".
+    comments:
+    - in RDF serializations a slot with range of uri is treated as a literal or type
+      xsd:anyURI unless it is an identifier or a reference to an identifier, in which
+      case it is translated directly to a node
+    from_schema: https://w3id.org/linkml/types
+    close_mappings:
+    - schema:URL
+    base: URI
+    uri: xsd:anyURI
+    repr: str
+  ncname:
+    name: ncname
+    description: Prefix part of CURIE
+    notes:
+    - If you are authoring schemas in LinkML YAML, the type is referenced with the
+      lower case "ncname".
+    from_schema: https://w3id.org/linkml/types
+    base: NCName
+    uri: xsd:string
+    repr: str
+  objectidentifier:
+    name: objectidentifier
+    description: A URI or CURIE that represents an object in the model.
+    notes:
+    - If you are authoring schemas in LinkML YAML, the type is referenced with the
+      lower case "objectidentifier".
+    comments:
+    - Used for inheritance and type checking
+    from_schema: https://w3id.org/linkml/types
+    base: ElementIdentifier
+    uri: shex:iri
+    repr: str
+  nodeidentifier:
+    name: nodeidentifier
+    description: A URI, CURIE or BNODE that represents a node in a model.
+    notes:
+    - If you are authoring schemas in LinkML YAML, the type is referenced with the
+      lower case "nodeidentifier".
+    from_schema: https://w3id.org/linkml/types
+    base: NodeIdentifier
+    uri: shex:nonLiteral
+    repr: str
+  jsonpointer:
+    name: jsonpointer
+    conforms_to: https://datatracker.ietf.org/doc/html/rfc6901
+    description: A string encoding a JSON Pointer. The value of the string MUST conform
+      to JSON Point syntax and SHOULD dereference to a valid object within the current
+      instance document when encoded in tree form.
+    notes:
+    - If you are authoring schemas in LinkML YAML, the type is referenced with the
+      lower case "jsonpointer".
+    from_schema: https://w3id.org/linkml/types
+    base: str
+    uri: xsd:string
+    repr: str
+  jsonpath:
+    name: jsonpath
+    conforms_to: https://www.ietf.org/archive/id/draft-goessner-dispatch-jsonpath-00.html
+    description: A string encoding a JSON Path. The value of the string MUST conform
+      to JSON Point syntax and SHOULD dereference to zero or more valid objects within
+      the current instance document when encoded in tree form.
+    notes:
+    - If you are authoring schemas in LinkML YAML, the type is referenced with the
+      lower case "jsonpath".
+    from_schema: https://w3id.org/linkml/types
+    base: str
+    uri: xsd:string
+    repr: str
+  sparqlpath:
+    name: sparqlpath
+    conforms_to: https://www.w3.org/TR/sparql11-query/#propertypaths
+    description: A string encoding a SPARQL Property Path. The value of the string
+      MUST conform to SPARQL syntax and SHOULD dereference to zero or more valid objects
+      within the current instance document when encoded as RDF.
+    notes:
+    - If you are authoring schemas in LinkML YAML, the type is referenced with the
+      lower case "sparqlpath".
+    from_schema: https://w3id.org/linkml/types
+    base: str
+    uri: xsd:string
+    repr: str
+slots:
+  name:
+    name: name
+    description: The name of the item.
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-functional-object.yaml
+    slot_uri: schema:name
+    range: string
+  description:
+    name: description
+    description: A textual description of the item's purpose and use.
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-functional-object.yaml
+    slot_uri: linkml:description
+    range: string
+  instance_annotations:
+    name: instance_annotations
+    description: Metadata associated with an object.
+    title: instance annotations
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-functional-object.yaml
+    range: InstanceAnnotation
+    multivalued: true
+    inlined: true
+    inlined_as_list: true
+  functional_object_type:
+    name: functional_object_type
+    description: Type designator that supports polymorphism using functional parts.
+      This type is used for validation of the provided functional objects.
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-functional-object.yaml
+    designates_type: true
+    range: string
+    required: true
+  functional_object_schema_url:
+    name: functional_object_schema_url
+    description: URL of the schema that defines the functional object type.
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-functional-object.yaml
+    range: uri
+    required: true
+    pattern: ^https://industrial-assets\.io.*$
+  product_instance_information:
+    name: product_instance_information
+    description: Information about the product instance.
+    title: product instance information
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-product-information.yaml
+    range: ProductInstanceInformation
+  serial_number:
+    name: serial_number
+    description: The serial number or any alphanumeric identifier of a particular
+      product. When attached to an offer, it is a shortcut for the serial number of
+      the product included in the offer.
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-product-information.yaml
+    structured_aliases:
+      0173-1#02-AAM556#004:
+        literal_form: 0173-1#02-AAM556#004
+        categories:
+        - urn:iso:std:iso-iec:11179:-6:ed-3:en
+        - https://www.iso.org/standard/78916.html
+        description: ECLASS IRDI for Digital Nameplate v3.0 "SerialNumber"
+        source: https://github.com/admin-shell-io/submodel-templates/blob/5cf33804147c204c538515d4e53bcf7d40ba2c8c/published/Digital%20nameplate/3/0/IDTA%2002006-3-0_Template_Digital%20Nameplate.json#L502
+      0112/2///61987#ABA951#009:
+        literal_form: 0112/2///61987#ABA951#009
+        categories:
+        - urn:iso:std:iso-iec:11179:-6:ed-3:en
+        - https://tc3.iec.ch/tc-activity/common-data-dictionary-cdd/
+        description: IEC CDD IRDI for Digital Nameplate v3.0 "SerialNumber"
+        source: https://github.com/admin-shell-io/submodel-templates/blob/5cf33804147c204c538515d4e53bcf7d40ba2c8c/published/Digital%20nameplate/3/0/IDTA%2002006-3-0_Template_Digital%20Nameplate.json#L492
+    slot_uri: schema:serialNumber
+    range: string
+  manufacturer_product:
+    name: manufacturer_product
+    description: A way to identify a product based on the manufacturer and the product
+      identifier given by the manufacturer.
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-product-information.yaml
+    range: Product
+    inlined: true
+  manufacturer:
+    name: manufacturer
+    description: The manufacturer of the product.
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-product-information.yaml
+    slot_uri: schema:manufacturer
+    range: Organization
+  product_id:
+    name: product_id
+    description: The product identifiers, such as ISBN.
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-product-information.yaml
+    structured_aliases:
+      0173-1#02-AAO057#004:
+        literal_form: 0173-1#02-AAO057#004
+        categories:
+        - urn:iso:std:iso-iec:11179:-6:ed-3:en
+        - https://www.iso.org/standard/78916.html
+        description: ECLASS IRDI for Digital Nameplate v3.0 "ManufacturerProductType"
+        source: https://github.com/admin-shell-io/submodel-templates/blob/e45fb10d744289a4655b8203f9c2a005bebff4b9/published/Digital%20nameplate/3/0/IDTA%2002006-3-0_Template_Digital%20Nameplate.json#L373
+      0112/2///61987#ABA300#008:
+        literal_form: 0112/2///61987#ABA300#008
+        categories:
+        - urn:iso:std:iso-iec:11179:-6:ed-3:en
+        - https://www.iso.org/standard/78916.html
+        description: IEC CDD IRDI for Digital Nameplate v3.0 "ManufacturerProductType"
+        source: https://github.com/admin-shell-io/submodel-templates/blob/e45fb10d744289a4655b8203f9c2a005bebff4b9/published/Digital%20nameplate/3/0/IDTA%2002006-3-0_Template_Digital%20Nameplate.json#L1832
+    slot_uri: schema:productID
+    range: string
+  product_version:
+    name: product_version
+    description: Some products might have different versions under the same product
+      ID. The product version helps differentiating the different versions of a product,
+      if multiple exist.
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-product-information.yaml
+    structured_aliases:
+      0112/2///61987#ABA926#008:
+        literal_form: 0112/2///61987#ABA926#008
+        categories:
+        - urn:iso:std:iso-iec:11179:-6:ed-3:en
+        - https://www.iso.org/standard/78916.html
+        description: IEC CDD IRDI for Digital Nameplate v3.0 "HardwareVersion"
+        source: https://github.com/admin-shell-io/submodel-templates/blob/e45fb10d744289a4655b8203f9c2a005bebff4b9/published/Digital%20nameplate/3/0/IDTA%2002006-3-0_Template_Digital%20Nameplate.json#L2036
+      0173-1#02-AAN270#004:
+        literal_form: 0173-1#02-AAN270#004
+        categories:
+        - urn:iso:std:iso-iec:11179:-6:ed-3:en
+        - https://www.iso.org/standard/78916.html
+        description: ECLASS IRDI for Digital Nameplate v3.0 for "HardwareVersion"
+        source: https://github.com/admin-shell-io/submodel-templates/blob/5cf33804147c204c538515d4e53bcf7d40ba2c8c/published/Digital%20nameplate/3/0/IDTA%2002006-3-0_Template_Digital%20Nameplate.json#L631
+    range: string
+  connection_points:
+    name: connection_points
+    description: An asset might have a connection point that can be used to connect
+      with the asset. In the case of devices, at least one connection point is required.
+      It might be a connection point needed for AssetManagement for interaction with
+      the asset, or for other connections of the asset related to the asset function
+      but not to device management.
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-connection-points.yaml
+    range: ConnectionPoint
+    multivalued: true
+    inlined: true
+    inlined_as_list: true
+  related_connection_points:
+    name: related_connection_points
+    description: 'A connection point might rely on another connection point to work.
+
+      Examples: a TCP/IP connection can only work if there is some kind of connection
+      point at physical level (e.g. Ethernet Port, Bluetooth Port), a container might
+      be connected over a virtual ethernet to a software bridge, a software bridge
+      might be directly connected to an ethernet port.
+
+      This attribute enables modeling these kind of dependencies in a limited way.
+      Other modeling mechanisms might be needed to model complex networking setups.'
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-connection-points.yaml
+    range: RelatedConnectionPoint
+    multivalued: true
+    inlined: false
+  connection_point_type:
+    name: connection_point_type
+    description: Type designator that provides support for polymorphism using connection
+      points.
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-connection-points.yaml
+    designates_type: true
+    range: string
+    required: true
+  ipv4_address:
+    name: ipv4_address
+    description: The IP v4 address of a device port.
+    title: IPv4 address
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-connection-points.yaml
+    range: string
+    pattern: ^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$
+  router_ipv4_address:
+    name: router_ipv4_address
+    description: The IPv4 address of the router (AKA gateway) corresponding to a IPv4
+      address.
+    title: IPv4 router address
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-connection-points.yaml
+    is_a: ipv4_address
+    recommended: true
+  ipv6_address:
+    name: ipv6_address
+    conforms_to: https://www.rfc-editor.org/rfc/rfc4291#section-2.2 (except compressed
+      form)
+    description: The IP v6 address of a device port.
+    title: IPv6 address
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-connection-points.yaml
+    range: string
+    pattern: ^(?:[a-fA-F0-9]{1,4}:){7}[a-fA-F0-9]{1,4}$
+  router_ipv6_address:
+    name: router_ipv6_address
+    conforms_to: https://www.rfc-editor.org/rfc/rfc4291#section-2.2 (except compressed
+      form)
+    description: The IP v6 address of the default IP v6 router (AKA gateway).
+    title: router IPv6 address
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-connection-points.yaml
+    is_a: ipv6_address
+    recommended: true
+    pattern: ^(?:[a-fA-F0-9]{0,4}:){1,7}[a-fA-F0-9]{1,4}$
+  mac_address:
+    name: mac_address
+    description: 'The MAC address of the port. It is expected to be fixed, but in
+      some ethernet ports it can be changed.
+
+      An asset instance must provide for each ethernet port the default MAC address.'
+    title: MAC address
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-connection-points.yaml
+    range: string
+    pattern: ^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$
+  identifier_type:
+    name: identifier_type
+    description: Type of an items identifier.
+    title: identifier type
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-asset-identifiers.yaml
+    range: IdentifierType
+  identifier_uncertainty:
+    name: identifier_uncertainty
+    description: 'Number that indicates how uncertain an identifier is compared to
+      other identifiers provided by an Asset Link. The higher the number, the more
+      uncertain the identification must be considered. This number must be considered
+      relative to the other identifiers for the same element. The default value is
+      0, meaning no uncertainty.
+
+      This index helps to decide which identifiers are better suited for deduplication
+      across Asset Links. The identifier provided by two different Asset Links with
+      the lowest uncertainty should be chosen for deduplication purposes.'
+    title: identifier uncertainty
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-asset-identifiers.yaml
+    range: integer
+  asset_identifier_type:
+    name: asset_identifier_type
+    description: Type designator that supports polymorphism using asset identifiers.
+    title: asset identifier type
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-asset-identifiers.yaml
+    designates_type: true
+    range: string
+    required: true
+  asset_identifiers:
+    name: asset_identifiers
+    description: 'An asset identifier is an asset attribute that provides enough information
+      to unequivocally identify the represented object.
+
+      In some cases the ID attribute acts simultaneously as a reference for the asset
+      instance and as identifier for the represented object. Otherwise at least one
+      asset identifier is needed.
+
+      There can be multiple asset_identifiers with different goals. For example, the
+      information of a metal nameplate can be used by a human-being to identify a
+      device represented by an asset instance, but a software certificate provided
+      by a device might help a software component identify the device in the network,...
+
+      An asset identifier might have an identifier_type, that defines its format and
+      possibly even semantics.'
+    title: asset identifiers
+    examples:
+    - value: '''Nameplate'': { ''vendor id'': ''siemens'', ''product id'': ''1FN3050-1ND00-0EA3'',
+        ''serial number'': ''0011223344'' }'
+      description: Object that provides a set of values that unequivocally identify
+        a Siemens device.
+    - value: '''Product ID'': { ''Vendor'': ''Rexroth'', ''Type Code'': ''VDP16.3DBN-D1-NN-NN'',
+        ''Type Name'': ''IndraControl VPB 40.4, Control Cabinet PC''}, ''Instance
+        ID'': { ''Serial Number'': ''SN:008595411'' }'
+      description: Object that provides a set of values that unequivocally identify
+        a Rexroth device.
+    - value: 123e4567-e89b-12d3-a456-426655440000
+      description: Universal Unique ID (UUID AKA GUID) that identifies an asset instance.
+    - value: 'MAC-Address: 00:11:22:33:44'
+      description: Identify a device by its MAC-Address, assuming that it cannot be
+        changed.
+    - value: '''Device Certificate'': { ''Certificate ID'': ''1wlkq3'', ''Certificate
+        PubKey'': ''xxxxxxxxxxxx'' }'
+      description: Information needed to challenge the certificate of a device with
+        its public key.
+    - value: '''ID Link'': ''https://example.com/idlink/12345'''
+      description: Identify a device by a vendor-provided ID Link URL that follows
+        the ID Link convention.
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-asset-identifiers.yaml
+    range: AssetIdentifier
+    required: true
+    multivalued: true
+    inlined: true
+    inlined_as_list: true
+  version:
+    name: version
+    description: Version of a software artifact.
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-asset-identifiers.yaml
+    close_mappings:
+    - schema:softwareVersion
+    range: string
+  certificate_id:
+    name: certificate_id
+    description: Base64 encoded version of certificate subject key identifier
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-asset-identifiers.yaml
+    range: string
+  id_link:
+    name: id_link
+    description: A vendor-supplied URL that uniquely identifies a product instance
+      following the ID Link convention (IEC 61406 / DIN SPEC 91406). The URL must
+      be absolute (i.e. include a scheme and host). For comparison and deduplication
+      purposes, the scheme and host are case-insensitive, while path and query are
+      treated as case-sensitive.
+    title: ID Link URL
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-asset-identifiers.yaml
+    range: uri
+    pattern: ^https?://(?:www\.)?[a-z0-9.-]+(?:\.[a-z]+)?/[^\s#]*$
+  asset_operations:
+    name: asset_operations
+    description: List of device management operations supported by an asset. Each
+      operation type might appear only once.
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-asset-operations.yaml
+    range: AssetOperation
+    multivalued: true
+    inlined: true
+    inlined_as_list: true
+  operation_name:
+    name: operation_name
+    description: Name of a device management operation.
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-asset-operations.yaml
+    range: string
+    required: true
+  activation_flag:
+    name: activation_flag
+    description: Attribute for specifying if the operation is available in terms of
+      true or false
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-asset-operations.yaml
+    range: boolean
+    required: true
+  software_components:
+    name: software_components
+    description: An asset can host software artifacts that might want to be tracked.
+      This can be used simply to keep track of the firmware version or to keep a full-blown
+      Software Bill of Material (SBOM).
+    title: Software Components
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-software-components.yaml
+    range: SoftwareComponent
+    multivalued: true
+    inlined: true
+    inlined_as_list: true
+  software_component_type:
+    name: software_component_type
+    description: Type designator that supports polymorphism using software components.
+      This type is used for validation of the provided software components.
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-software-components.yaml
+    designates_type: true
+    range: string
+    required: true
+  artifact:
+    name: artifact
+    description: 'Reference to the software artifact asset.
+
+      As of now the combination of multiple software artifacts into a running software
+      (for example with plug-ins) is not supported and cannot be natively modeled.'
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-software-components.yaml
+    range: SoftwareArtifact
+    inlined: true
+  location:
+    name: location
+    description: Possible ways to know where an asset is located.
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-location.yaml
+    range: AssetLocation
+    multivalued: true
+  location_type:
+    name: location_type
+    description: Type designator that provides support for polymorphism using location.
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-location.yaml
+    designates_type: true
+    range: string
+  operating_mode:
+    name: operating_mode
+    description: The current operating mode of the asset.
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-operating-mode.yaml
+    range: OperatingMode
+    inlined: true
+  mode_name:
+    name: mode_name
+    description: Name of the operating mode.
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-operating-mode.yaml
+    range: string
+    required: true
+classes:
+  Asset:
+    name: Asset
+    description: 'An asset is the representation of a functional object with a technical
+      function that is known to Industrial Asset Hub (IAH). Industrial Asset Hub (IAH)
+      might want to manage the asset, model its relationships with other assets, or
+      it might know the asset and ignore it,...
+
+      An asset instance might represent a physical object (like a Raspberry Pi or
+      an application running on a system) or a virtual object (like a router in a
+      network topology, no matter which physical device it is). In both cases an identifier
+      for the object being represented is needed.'
+    examples:
+    - value: Device
+    - value: PCI-card
+    - value: USB-stick
+    - value: Production line
+    - value: Factory
+    in_subset:
+    - MostRelevant
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base.yaml
+    close_mappings:
+    - sietechas:TechnicalAsset
+    is_a: FunctionalObject
+    slots:
+    - connection_points
+    - asset_operations
+    - asset_identifiers
+    - product_instance_information
+    - software_components
+    - location
+    - operating_mode
+    slot_usage:
+      functional_object_type:
+        name: functional_object_type
+        equals_string: Asset
+  Device:
+    name: Device
+    description: A device is a special type of asset that can be managed with some
+      asset management system. In order to be manageable, it requires at least one
+      connection point for the asset management to communicate with the device and
+      software capable of interacting with the asset management.
+    examples:
+    - value: Industrial PC
+    - value: PLC
+    - value: Virtual Machine
+    in_subset:
+    - MostRelevant
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base.yaml
+    close_mappings:
+    - sietechas:Device
+    is_a: Asset
+    slot_usage:
+      functional_object_type:
+        name: functional_object_type
+        equals_string: Device
+  FunctionalObject:
+    name: FunctionalObject
+    description: A part of a system, and has a function whose realization contributes
+      to the performance of the system as a whole.
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-functional-object.yaml
+    abstract: true
+    slots:
+    - name
+    - description
+    - instance_annotations
+    - functional_object_type
+    - functional_object_schema_url
+    class_uri: lis:FunctionalObject
+  InstanceAnnotation:
+    name: InstanceAnnotation
+    description: Key/value pair that can be used to add metadata to an object.
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-functional-object.yaml
+    attributes:
+      key:
+        name: key
+        description: The identifier of a key/value pair.
+        from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-functional-object.yaml
+        range: string
+      value:
+        name: value
+        description: The real metadata of a key/value pair.
+        from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-functional-object.yaml
+        range: string
+  ProductInstanceInformation:
+    name: ProductInstanceInformation
+    title: Product Instance Information
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-product-information.yaml
+    close_mappings:
+    - schema:IndividualProduct
+    - base:IdLink
+    slots:
+    - serial_number
+    - manufacturer_product
+  SchemaOrgProduct:
+    name: SchemaOrgProduct
+    description: 'Any offered product or service. For example: a pair of shoes; a
+      concert ticket; the rental of a car; a haircut; or an episode of a TV show streamed
+      online.'
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-product-information.yaml
+    slots:
+    - manufacturer
+    - product_id
+    class_uri: schema:Product
+  Product:
+    name: Product
+    description: Any offered product or service that might have different versions
+      for the same product ID.
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-product-information.yaml
+    is_a: SchemaOrgProduct
+    slots:
+    - product_version
+    slot_usage:
+      name:
+        name: name
+        structured_aliases:
+          0173-1#02-AAW338#003:
+            literal_form: 0173-1#02-AAW338#003
+            categories:
+            - urn:iso:std:iso-iec:11179:-6:ed-3:en
+            - https://www.iso.org/standard/78916.html
+            description: ECLASS IRDI for Digital Nameplate v3.0 "ManufacturerProductDesignation"
+            source: https://github.com/admin-shell-io/submodel-templates/blob/e45fb10d744289a4655b8203f9c2a005bebff4b9/published/Digital%20nameplate/3/0/IDTA%2002006-3-0_Template_Digital%20Nameplate.json#L158
+          0112/2///61987#ABA567#009:
+            literal_form: 0112/2///61987#ABA567#009
+            categories:
+            - urn:iso:std:iso-iec:11179:-6:ed-3:en
+            - https://www.iso.org/standard/78916.html
+            description: IEC CDD IRDI for Digital Nameplate v3.0 "ManufacturerProductDesignation"
+            source: https://github.com/admin-shell-io/submodel-templates/blob/e45fb10d744289a4655b8203f9c2a005bebff4b9/published/Digital%20nameplate/3/0/IDTA%2002006-3-0_Template_Digital%20Nameplate.json#L1730
+    attributes:
+      product_link:
+        name: product_link
+        description: Link to identify a product. It can also provide additional information
+          about the product.
+        from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-product-information.yaml
+        structured_aliases:
+          0112/2///61987#ABN590#002:
+            literal_form: 0112/2///61987#ABN590#002
+            categories:
+            - urn:iso:std:iso-iec:11179:-6:ed-3:en
+            - https://www.iso.org/standard/78916.html
+            description: IEC CDD IRDI for Digital Nameplate v3.0 "URIOfTheProduct"
+            source: https://github.com/admin-shell-io/submodel-templates/blob/e45fb10d744289a4655b8203f9c2a005bebff4b9/published/Digital%20nameplate/3/0/IDTA%2002006-3-0_Template_Digital%20Nameplate.json#L1656
+          0173-1#02-ABH173#003:
+            literal_form: 0173-1#02-ABH173#003
+            categories:
+            - urn:iso:std:iso-iec:11179:-6:ed-3:en
+            - https://www.iso.org/standard/78916.html
+            description: ECLASS IRDI for Digital Nameplate v3.0 "URIOfTheProduct"
+            source: https://github.com/admin-shell-io/submodel-templates/blob/e45fb10d744289a4655b8203f9c2a005bebff4b9/published/Digital%20nameplate/3/0/IDTA%2002006-3-0_Template_Digital%20Nameplate.json#L68
+        range: uri
+      product_family:
+        name: product_family
+        description: The product family represents a group of related products that
+          share common characteristics, design principles, manufacturing processes,
+          or functional purposes, while differing in specific features, sizes, or
+          performance parameters. This attribute establishes the hierarchical classification
+          and inheritance relationship between a specific product instance and its
+          broader product category.
+        from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-product-information.yaml
+        structured_aliases:
+          0112/2///61987#ABP464#002:
+            literal_form: 0112/2///61987#ABP464#002
+            categories:
+            - urn:iso:std:iso-iec:11179:-6:ed-3:en
+            - https://www.iso.org/standard/78916.html
+            description: IEC CDD IRDI for Digital Nameplate v3.0 "ManufacturerProductType"
+            source: https://github.com/admin-shell-io/submodel-templates/blob/e45fb10d744289a4655b8203f9c2a005bebff4b9/published/Digital%20nameplate/3/0/IDTA%2002006-3-0_Template_Digital%20Nameplate.json#L310
+          0173-1#02-AAU731#003:
+            literal_form: 0173-1#02-AAU731#003
+            categories:
+            - urn:iso:std:iso-iec:11179:-6:ed-3:en
+            - https://www.iso.org/standard/78916.html
+            description: ECLASS IRDI for Digital Nameplate v3.0 "ManufacturerProductFamily"
+            source: https://github.com/admin-shell-io/submodel-templates/blob/e45fb10d744289a4655b8203f9c2a005bebff4b9/published/Digital%20nameplate/3/0/IDTA%2002006-3-0_Template_Digital%20Nameplate.json#L310
+        close_mappings:
+        - schema:ProductGroup
+        range: string
+  Organization:
+    name: Organization
+    description: An organization such as a school, NGO, corporation, club, etc.
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-product-information.yaml
+    attributes:
+      name:
+        name: name
+        description: The name of the item.
+        from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-product-information.yaml
+        slot_uri: schema:name
+        range: string
+    class_uri: schema:Organization
+  ConnectionPoint:
+    name: ConnectionPoint
+    description: 'A connection point is a hardware or software interface that enables
+      an asset to communicate with other assets.
+
+      As of now, this schema doesn''t specify the structure of common connection points
+      like Ethernet ports. However, it will probably be added in future versions of
+      this schema. Otherwise, details will be provided on specialized schemas.'
+    title: Connection Point
+    examples:
+    - value: Ethernet port
+    - value: SNMP protocol
+    - value: API
+    - value: Bluetooth port
+    - value: Unix Domain Socket (UDS)
+    - value: Wireless port
+    - value: File
+    - value: Serial port
+    - value: WebUI
+    - value: USB port
+    - value: shared memory
+    in_subset:
+    - MostRelevant
+    - Connectivity
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-connection-points.yaml
+    aliases:
+    - Port
+    close_mappings:
+    - sietechas:Port
+    abstract: true
+    slots:
+    - related_connection_points
+    - connection_point_type
+    attributes:
+      id:
+        name: id
+        description: The identifier is used to identify the connection point within
+          the asset. It shall be generated by the asset link. Setting this identifier
+          is only needed if the connection point needs to be referenced by an other
+          connection point as RelatedConnectionPoint.
+        from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-connection-points.yaml
+        slot_uri: schema:identifier
+        range: string
+      name:
+        name: name
+        description: Name of the connection point. The name is provided by the Asset
+          Link during the discovery process. Usually, the name is provided by the
+          operating system of the asset or may be labeled on the asset itself.
+        examples:
+        - value: eth0
+        from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-connection-points.yaml
+        range: string
+  RelatedConnectionPoint:
+    name: RelatedConnectionPoint
+    description: Relationship of a ConnectionPoint with another one. This relationship
+      could be of the type "ConnectionPoint A relies on the connectivity of ConnectionPoint
+      B to work".
+    title: Related ConnectionPoint
+    in_subset:
+    - Connectivity
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-connection-points.yaml
+    attributes:
+      connection_point_id:
+        name: connection_point_id
+        description: Reference to the related ConnectionPoint by providing its identifier.
+        from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-connection-points.yaml
+        range: string
+        required: true
+      custom_relationship:
+        name: custom_relationship
+        description: Type of relationship in an unstructured format.
+        from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-connection-points.yaml
+        range: string
+        required: true
+  Ipv4Connectivity:
+    name: Ipv4Connectivity
+    description: Configuration of an IP port. Please note that the configuration of
+      an IP address is independent of the Ethernet port configuration.
+    title: IPv4 Connectivity
+    in_subset:
+    - DeviceInteraction
+    - Connectivity
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-connection-points.yaml
+    is_a: ConnectionPoint
+    slots:
+    - ipv4_address
+    - router_ipv4_address
+    slot_usage:
+      connection_point_type:
+        name: connection_point_type
+        equals_string: Ipv4Connectivity
+      ipv4_address:
+        name: ipv4_address
+        required: true
+    attributes:
+      network_mask:
+        name: network_mask
+        description: The mask that segregates IPs v4 belonging to the same sub-network
+          from the rest.
+        title: network mask
+        from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-connection-points.yaml
+        range: string
+        pattern: ^(255)\.(0|128|192|224|240|248|252|254|255)\.(0|128|192|224|240|248|252|254|255)\.(0|128|192|224|240|248|252|254|255)$
+    defining_slots:
+    - ipv4_address
+  Ipv6Connectivity:
+    name: Ipv6Connectivity
+    description: Configuration of an IP port. Please note that the configuration of
+      an IP address is independent of the Ethernet port configuration.
+    title: IPv6 Connectivity
+    in_subset:
+    - DeviceInteraction
+    - Connectivity
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-connection-points.yaml
+    is_a: ConnectionPoint
+    slots:
+    - ipv6_address
+    - router_ipv6_address
+    slot_usage:
+      connection_point_type:
+        name: connection_point_type
+        equals_string: Ipv6Connectivity
+      ipv6_address:
+        name: ipv6_address
+        required: true
+    attributes:
+      ipv6_network_prefix:
+        name: ipv6_network_prefix
+        conforms_to: https://www.rfc-editor.org/rfc/rfc4291#section-2.3 (only compressed
+          form)
+        description: Prefix of the subnetwork in which the IP address is located.
+        title: network prefix
+        from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-connection-points.yaml
+        range: string
+        pattern: ^[a-fA-F0-9]{1,4}:(?:[a-fA-F0-9]{0,4}:){1,7}/([0-9]{1,2}|1[01][0-9]|12[0-8])$
+    defining_slots:
+    - ipv6_address
+  EthernetPort:
+    name: EthernetPort
+    description: A hardware ConnectionPoint that supports one of the Ethernet networking
+      protocols as defined in the standard [IEEE 802.3](https://en.wikipedia.org/wiki/IEEE_802.3).
+    title: Ethernet Port
+    in_subset:
+    - Connectivity
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-connection-points.yaml
+    is_a: ConnectionPoint
+    slots:
+    - mac_address
+    slot_usage:
+      connection_point_type:
+        name: connection_point_type
+        equals_string: EthernetPort
+      mac_address:
+        name: mac_address
+        required: true
+    defining_slots:
+    - mac_address
+  IdentifierType:
+    name: IdentifierType
+    description: 'Provides the context needed to interpret an identifier based on
+      standards, code tables,...
+
+      Creating an Identifier subclass provides a more powerful mechanism to specify
+      an identifier type, as it supports the addition of further slots and patterns
+      for the Identifiers.'
+    title: Identifier Type
+    examples:
+    - value: ECLASS IRDIs
+      description: https://eclass.eu/
+    - value: IEC 61987 CDD IRDIs
+      description: Common Data Dictionary, https://cdd.iec.ch/
+    - value: ISO/IEC 6523-1:1998 (subset of ECLASS IRDIs)
+      description: 'Information technology — Structure for the identification of organizations
+        and organization parts — Part 1: Identification of organization identification
+        schemes, https://www.iso.org/standard/25773.html'
+    - value: ISO/TS 29002-5:2009 (subset of ECLASS IRDIs)
+      description: 'Industrial automation systems and integration — Exchange of characteristic
+        data — Part 5: Identification scheme, https://www.iso.org/standard/50773.html'
+    - value: ISO/IEC 11179-6 (subset of ECLASS IRDIs)
+      description: 'Information technology — Metadata registries (MDR) — Part 6: Registration,
+        https://www.iso.org/standard/78916.html'
+    - value: IEC 61406 Digital Nameplate
+      description: https://www.vde-verlag.de/standards/1800736/e-din-en-iec-61406-vde-0810-406-2022-08.html
+    - value: IEC 63365 Digital Nameplate
+      description: https://www.vde-verlag.de/standards/1100703/e-din-en-iec-63365-vde-0170-100-2022-06.html
+    - value: OPC-UA Vendor Nameplate
+      description: https://reference.opcfoundation.org/v104/DI/v102/docs/5.5.2/
+    - value: DIN SPEC 91406:2019-12
+      description: https://www.beuth.de/de/technische-regel/din-spec-91406/314564057
+    - value: ISO 5598:2020
+      description: Fluid power systems and components — Vocabulary, https://www.iso.org/standard/67985.html
+    - value: Tax-Id
+    - value: SAP-Id
+    - value: Profibus Manufacturer list
+      description: https://www.profibus.com/IM/Man_ID_Table.xml
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-asset-identifiers.yaml
+    abstract: true
+    attributes:
+      id:
+        name: id
+        description: The identifier property represents any kind of identifier for
+          any kind of Thing, such as ISBNs, GTIN codes, UUIDs etc. Schema.org provides
+          dedicated properties for representing many of these, either as textual strings
+          or as URL (URI) links.
+        from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-asset-identifiers.yaml
+        slot_uri: schema:identifier
+        identifier: true
+  Identifier:
+    name: Identifier
+    description: 'An element that provides an unambiguous identification of an item.
+
+      It can be an object, in which case the combination of the attributes specified
+      as "unique keys" must be unique.'
+    examples:
+    - value: The combination of the 'manufacturer' 'Siemens' and the 'order ID' '6DR5513-0NG00-0AA0'.
+    - value: a combination of the values "vendor", "product ID" and "serial number"
+    - value: a MAC-address (can be modified on some systems, but might be considered
+        static on certain environments)
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-asset-identifiers.yaml
+    close_mappings:
+    - sieiot:ThingIdentifier
+    abstract: true
+    slots:
+    - identifier_type
+    - identifier_uncertainty
+  AssetIdentifier:
+    name: AssetIdentifier
+    description: An Identifier that provides an unambiguous identification of an asset
+      instance.
+    title: Asset Identifier
+    examples:
+    - value: a combination of the values "vendor", "product ID" and "serial number"
+    - value: a MAC-address (can be modified on some systems, but might be considered
+        static on certain environments)
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-asset-identifiers.yaml
+    close_mappings:
+    - sieiot:DeviceIdentifier
+    is_a: Identifier
+    abstract: true
+    slots:
+    - asset_identifier_type
+  MacIdentifier:
+    name: MacIdentifier
+    description: Identifier for an Asset instance using the mac address.
+    title: MAC Address Identifier
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-asset-identifiers.yaml
+    is_a: AssetIdentifier
+    slots:
+    - mac_address
+    slot_usage:
+      asset_identifier_type:
+        name: asset_identifier_type
+        equals_string: MacIdentifier
+      identifier_uncertainty:
+        name: identifier_uncertainty
+        ifabsent: int(1002)
+      mac_address:
+        name: mac_address
+        required: true
+  SoftwareIdentifier:
+    name: SoftwareIdentifier
+    description: Identifier especially for software artifacts.
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-asset-identifiers.yaml
+    is_a: AssetIdentifier
+    slots:
+    - name
+    - version
+    slot_usage:
+      asset_identifier_type:
+        name: asset_identifier_type
+        equals_string: SoftwareIdentifier
+      identifier_uncertainty:
+        name: identifier_uncertainty
+        ifabsent: int(1004)
+      name:
+        name: name
+        required: true
+      version:
+        name: version
+        required: true
+  CertificateIdentifier:
+    name: CertificateIdentifier
+    description: Base64 encoded version of certificate subject key identifier will
+      be the identifier.
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-asset-identifiers.yaml
+    is_a: AssetIdentifier
+    slots:
+    - certificate_id
+    slot_usage:
+      asset_identifier_type:
+        name: asset_identifier_type
+        equals_string: CertificateIdentifier
+      identifier_uncertainty:
+        name: identifier_uncertainty
+        ifabsent: int(1005)
+      certificate_id:
+        name: certificate_id
+        required: true
+  CustomIdentifier:
+    name: CustomIdentifier
+    description: Identifier especially for assets that are imported from external
+      sources and do not provide a native identifier. The 'name' is used to specify
+      the external source or type of the identifier. The 'value' is used to provide
+      the actual identifier value within that context.
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-asset-identifiers.yaml
+    is_a: AssetIdentifier
+    slots:
+    - name
+    slot_usage:
+      asset_identifier_type:
+        name: asset_identifier_type
+        equals_string: CustomIdentifier
+      identifier_uncertainty:
+        name: identifier_uncertainty
+        ifabsent: int(1006)
+      name:
+        name: name
+        required: true
+    attributes:
+      value:
+        name: value
+        description: 'The value of the custom identifier. '
+        title: identifier value
+        from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-asset-identifiers.yaml
+        range: string
+        required: true
+        pattern: ^[A-Za-z0-9._~!$&'()*+,;=:/?@%-]{1,256}$
+  IdLinkIdentifier:
+    name: IdLinkIdentifier
+    description: Identifier for an asset instance using a vendor-provided ID Link
+      URL. The URL must be absolute (i.e. include a scheme and host) and follow the
+      ID Link convention (IEC 61406 / DIN SPEC 91406).
+    title: IDLink Identifier
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-asset-identifiers.yaml
+    is_a: AssetIdentifier
+    slots:
+    - id_link
+    slot_usage:
+      asset_identifier_type:
+        name: asset_identifier_type
+        equals_string: IdLinkIdentifier
+      identifier_uncertainty:
+        name: identifier_uncertainty
+        ifabsent: int(1000)
+      id_link:
+        name: id_link
+        required: true
+  AssetOperation:
+    name: AssetOperation
+    description: Operations that can be performed on the asset
+    title: Asset Operation
+    examples:
+    - value: Firmware Update
+    - value: Factory Reset
+    - value: Backup
+    - value: Memory Reset
+    - value: Program Update
+    in_subset:
+    - MostRelevant
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-asset-operations.yaml
+    slots:
+    - operation_name
+    - activation_flag
+  FirmwareUpdateOperation:
+    name: FirmwareUpdateOperation
+    description: Firmware update operation can be performed on the asset
+    title: Firmware Update Operation
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-asset-operations.yaml
+    is_a: AssetOperation
+    slot_usage:
+      operation_name:
+        name: operation_name
+        equals_string: FirmwareUpdate
+  TwoStepFirmwareUpdateOperation:
+    name: TwoStepFirmwareUpdateOperation
+    description: Two step firmware update operation can be performed on the asset
+    title: Two Step Firmware Update Operation
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-asset-operations.yaml
+    is_a: AssetOperation
+    slot_usage:
+      operation_name:
+        name: operation_name
+        equals_string: TwoStepFirmwareUpdate
+  FactoryResetOperation:
+    name: FactoryResetOperation
+    description: Factory reset operation can be performed on the asset
+    title: Factory Reset Operation
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-asset-operations.yaml
+    is_a: AssetOperation
+    slot_usage:
+      operation_name:
+        name: operation_name
+        equals_string: FactoryReset
+  ResetCommunicationParameterOperation:
+    name: ResetCommunicationParameterOperation
+    description: Reset communication parameter operation can be performed on the asset
+    title: Reset Communication Parameter Operation
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-asset-operations.yaml
+    is_a: AssetOperation
+    slot_usage:
+      operation_name:
+        name: operation_name
+        equals_string: ResetCommunicationParameter
+  BackupOperation:
+    name: BackupOperation
+    description: Backup operation can be performed on the asset
+    title: Backup Operation
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-asset-operations.yaml
+    is_a: AssetOperation
+    slot_usage:
+      operation_name:
+        name: operation_name
+        equals_string: Backup
+  MemoryResetOperation:
+    name: MemoryResetOperation
+    description: Memory reset operation can be performed on the asset
+    title: Memory Reset Operation
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-asset-operations.yaml
+    is_a: AssetOperation
+    slot_usage:
+      operation_name:
+        name: operation_name
+        equals_string: MemoryReset
+  ProgramUpdateOperation:
+    name: ProgramUpdateOperation
+    description: Program update operation can be performed on the asset
+    title: Program Update Operation
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-asset-operations.yaml
+    is_a: AssetOperation
+    slot_usage:
+      operation_name:
+        name: operation_name
+        equals_string: ProgramUpdate
+  ChangeModeOperation:
+    name: ChangeModeOperation
+    description: Change mode operation can be performed on the asset
+    title: Change Mode Operation
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-asset-operations.yaml
+    is_a: AssetOperation
+    slot_usage:
+      operation_name:
+        name: operation_name
+        equals_string: ChangeMode
+  RestoreOperation:
+    name: RestoreOperation
+    description: Restore operation can be performed on the asset
+    title: Restore Operation
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-asset-operations.yaml
+    is_a: AssetOperation
+    slot_usage:
+      operation_name:
+        name: operation_name
+        equals_string: Restore
+  SoftwareComponent:
+    name: SoftwareComponent
+    description: Any kind of software element that needs to be considered. From artifacts
+      (executables, libraries, archives,...) to running software (process, container,
+      virtual machine,...).
+    title: Software Component
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-software-components.yaml
+    abstract: true
+    slots:
+    - software_component_type
+    - artifact
+  RunningSoftwareComponent:
+    name: RunningSoftwareComponent
+    description: 'Software component representing running software.
+
+      Multiple running software components can be instantiated from a single artifact.
+      For example, multiple containers can be instantiated from a single container
+      image.'
+    title: Running Software Component
+    examples:
+    - value: Asset gateway
+      description: Software hosting the Field Agent.
+    - value: firmware
+    - value: OS
+    - value: program
+    - value: service
+    - value: container
+    - value: virtual machine
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-software-components.yaml
+    is_a: SoftwareComponent
+    slot_usage:
+      software_component_type:
+        name: software_component_type
+        equals_string: RunningSoftwareComponent
+    attributes:
+      running_software_id:
+        name: running_software_id
+        description: Identifier for a running software instance.
+        title: Running Software ID
+        from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-software-components.yaml
+        range: string
+  SoftwareArtifactComponent:
+    name: SoftwareArtifactComponent
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-software-components.yaml
+    is_a: SoftwareComponent
+    slot_usage:
+      software_component_type:
+        name: software_component_type
+        equals_string: SoftwareArtifactComponent
+  SoftwareArtifact:
+    name: SoftwareArtifact
+    description: Software asset
+    examples:
+    - value: executable
+    - value: script
+    - value: container image
+    - value: firmware image
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-software-components.yaml
+    close_mappings:
+    - sietechas:SoftwareAsset
+    is_a: Asset
+    slot_usage:
+      functional_object_type:
+        name: functional_object_type
+        equals_string: SoftwareArtifact
+    attributes:
+      is_firmware:
+        name: is_firmware
+        description: 'Flag indicating that the software artifact is provided by a
+          hardware manufacturer for one or more of its devices.
+
+          Unlike other software artifacts, updating the firmware requires contacting
+          the source specified by the device manufacturer.
+
+          Due to this definition, firmware in IAH has a much wider scope than in some
+          domains, where firmware is only meant to be close-to-the-silicon software.'
+        from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-software-components.yaml
+        range: boolean
+  Gateway:
+    name: Gateway
+    description: Gateway as a software asset can be mapped using the class. It represents
+      the container bundle that is deployed on a device or virtual machine and provides
+      connectivity between assets in the shopfloor and the IAH backend.
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-gateway.yaml
+    is_a: Asset
+    slot_usage:
+      functional_object_type:
+        name: functional_object_type
+        equals_string: Gateway
+    attributes:
+      asset_links:
+        name: asset_links
+        description: List of asset links that are connected to the asset gateway.
+        from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-gateway.yaml
+        range: AssetLink
+        multivalued: true
+        inlined: true
+        inlined_as_list: true
+  AssetLink:
+    name: AssetLink
+    description: Asset Link that can be used to interact with assets and can be reached
+      by the gateway.
+    title: Asset Link
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-gateway.yaml
+    slots:
+    - artifact
+  AssetLocation:
+    name: AssetLocation
+    description: Attributes that help locate where an asset can be physically found.
+    title: Asset Location
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-location.yaml
+    close_mappings:
+    - btlo:Location
+    - s4ehaw:PhysicalLocation
+    slots:
+    - location_type
+  GeoLocation:
+    name: GeoLocation
+    description: Geographic coordinates in which an asset can be found.
+    title: Asset geographic coordinates
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-location.yaml
+    close_mappings:
+    - schema:GeoCoordinates
+    is_a: AssetLocation
+    slot_usage:
+      location_type:
+        name: location_type
+        equals_string: GeoLocation
+    attributes:
+      elevation:
+        name: elevation
+        conforms_to: WGS 84
+        description: The elevation of a location in meters (WGS 84).
+        from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-location.yaml
+        slot_uri: schema:elevation
+        range: float
+      latitude:
+        name: latitude
+        conforms_to: WGS 84
+        description: The latitude of a location. For example 37.42242 (WGS 84).
+        from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-location.yaml
+        slot_uri: schema:latitude
+        range: float
+      longitude:
+        name: longitude
+        conforms_to: WGS 84
+        description: The longitude of a location. For example -122.08585 (WGS 84).
+        from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-location.yaml
+        slot_uri: schema:longitude
+        range: float
+  Okz:
+    name: Okz
+    description: Plant Labeling System that is well-established in Germany and helps
+      locate a device in a plant based on references and coordinates in the plant.
+      The acronym originates from the German word "Ortskennzeichnung" (something like
+      "location coding system").
+    title: OKZ
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-location.yaml
+    is_a: AssetLocation
+    slot_usage:
+      location_type:
+        name: location_type
+        equals_string: Okz
+    attributes:
+      location_identifier:
+        name: location_identifier
+        description: String that provides the location of the plant. This string is
+          built-up by concatenating different information items with separators. Some
+          of these systems are standardized, some others are company-specific.
+        from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-location.yaml
+        aliases:
+        - Ortskennzeichnung
+        - OKZ
+        range: string
+        required: true
+  Akz:
+    name: Akz
+    description: Plant Labeling System very well-established in Germany which helps
+      locating a device in a plant based on its function in the plant. The acronym
+      originates from the German word "Anlagekennzeichnung" (something like "plant
+      coding system").
+    title: AKZ
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-location.yaml
+    is_a: AssetLocation
+    slot_usage:
+      location_type:
+        name: location_type
+        equals_string: Akz
+    attributes:
+      plant_designation:
+        name: plant_designation
+        description: String that provides the location of the device in the plant.
+          This string is built-up concatenating different information items with separators.
+          Some of these systems are standardized, some others are company-specific.
+        from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-location.yaml
+        aliases:
+        - Anlagekennzeichnungssystem
+        - AKS
+        - Anlagekennzeichnung
+        - AKZ
+        range: string
+        required: true
+  MountingLocation:
+    name: MountingLocation
+    description: Representation of the location of an asset in an automation environment,
+      where the information about the place where the device is mounted is used.
+    title: Mounting Location
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-location.yaml
+    is_a: AssetLocation
+    slot_usage:
+      location_type:
+        name: location_type
+        equals_string: MountingLocation
+    attributes:
+      station_number:
+        name: station_number
+        description: Identification of the rack where the asset can be found.
+        from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-location.yaml
+        range: integer
+      slot_name:
+        name: slot_name
+        description: User-assigned name of the slot, within the specified rack, where
+          the asset can be found.
+        title: Slot Name
+        from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-location.yaml
+        range: string
+      slot_number:
+        name: slot_number
+        description: Identification of the slot, within the specified rack, where
+          the asset can be found.
+        title: Slot Number
+        from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-location.yaml
+        aliases:
+        - Steckplatz
+        range: integer
+      subslot_number:
+        name: subslot_number
+        description: Identification of the subslot, within the specified slot, where
+          the asset can be found.
+        title: Subslot Number
+        from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-location.yaml
+        aliases:
+        - Substeckplatz
+        range: integer
+  OperatingMode:
+    name: OperatingMode
+    description: 'Operating mode of an asset. Known modes are based on SAT terminology.
+
+      Relevant SAT online documentation:  - https://cache.industry.siemens.com/dl/dl-media/801/109801801/att_1079538/v1/SAT_UserGuide_V4_0_SP3_html5_en-US/en-US/index.html#treeId=c79345b269fec83819077e2bbecdf4a4
+      - https://cache.industry.siemens.com/dl/dl-media/801/109801801/att_1079538/v1/SAT_UserGuide_V4_0_SP3_html5_en-US/en-US/index.html#treeId=2f2825bd45212943f998eee7caeb6fe1'
+    title: Operating Mode
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-operating-mode.yaml
+    slots:
+    - mode_name
+  NotSupportedOperatingMode:
+    name: NotSupportedOperatingMode
+    description: Asset is in a not supported operating mode.
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-operating-mode.yaml
+    is_a: OperatingMode
+    slot_usage:
+      mode_name:
+        name: mode_name
+        equals_string: not_supported
+  StopFwUpdateOperatingMode:
+    name: StopFwUpdateOperatingMode
+    description: Asset is stopped due to a firmware update.
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-operating-mode.yaml
+    is_a: OperatingMode
+    slot_usage:
+      mode_name:
+        name: mode_name
+        equals_string: stop_fw_update
+  StopSelfInitializationOperatingMode:
+    name: StopSelfInitializationOperatingMode
+    description: Asset is stopped during self-initialization.
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-operating-mode.yaml
+    is_a: OperatingMode
+    slot_usage:
+      mode_name:
+        name: mode_name
+        equals_string: stop_self_initialization
+  StopOperatingMode:
+    name: StopOperatingMode
+    description: Asset is stopped.
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-operating-mode.yaml
+    is_a: OperatingMode
+    slot_usage:
+      mode_name:
+        name: mode_name
+        equals_string: stop
+  StartupOperatingMode:
+    name: StartupOperatingMode
+    description: Asset is starting up.
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-operating-mode.yaml
+    is_a: OperatingMode
+    slot_usage:
+      mode_name:
+        name: mode_name
+        equals_string: startup
+  RunOperatingMode:
+    name: RunOperatingMode
+    description: Asset is running.
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-operating-mode.yaml
+    is_a: OperatingMode
+    slot_usage:
+      mode_name:
+        name: mode_name
+        equals_string: run
+  RunRedundantOperatingMode:
+    name: RunRedundantOperatingMode
+    description: Asset is running in redundant mode.
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-operating-mode.yaml
+    is_a: OperatingMode
+    slot_usage:
+      mode_name:
+        name: mode_name
+        equals_string: run_redundant
+  HaltOperatingMode:
+    name: HaltOperatingMode
+    description: Asset is halted.
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-operating-mode.yaml
+    is_a: OperatingMode
+    slot_usage:
+      mode_name:
+        name: mode_name
+        equals_string: halt
+  LinkUpOperatingMode:
+    name: LinkUpOperatingMode
+    description: Asset has an active network link.
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-operating-mode.yaml
+    is_a: OperatingMode
+    slot_usage:
+      mode_name:
+        name: mode_name
+        equals_string: link_up
+  UpdateOperatingMode:
+    name: UpdateOperatingMode
+    description: Asset is performing an update.
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-operating-mode.yaml
+    is_a: OperatingMode
+    slot_usage:
+      mode_name:
+        name: mode_name
+        equals_string: update
+  DefectiveOperatingMode:
+    name: DefectiveOperatingMode
+    description: Asset is defective.
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-operating-mode.yaml
+    is_a: OperatingMode
+    slot_usage:
+      mode_name:
+        name: mode_name
+        equals_string: defective
+  ErrorSearchOperatingMode:
+    name: ErrorSearchOperatingMode
+    description: Asset is in error search mode.
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-operating-mode.yaml
+    is_a: OperatingMode
+    slot_usage:
+      mode_name:
+        name: mode_name
+        equals_string: error_search
+  NoPowerOperatingMode:
+    name: NoPowerOperatingMode
+    description: Asset has no power.
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-operating-mode.yaml
+    is_a: OperatingMode
+    slot_usage:
+      mode_name:
+        name: mode_name
+        equals_string: no_power
+  CirOperatingMode:
+    name: CirOperatingMode
+    description: Asset is in CIR (Configuration In Run) mode.
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-operating-mode.yaml
+    is_a: OperatingMode
+    slot_usage:
+      mode_name:
+        name: mode_name
+        equals_string: cir
+  StopWithoutOdisOperatingMode:
+    name: StopWithoutOdisOperatingMode
+    description: Asset is stopped without ODIS.
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-operating-mode.yaml
+    is_a: OperatingMode
+    slot_usage:
+      mode_name:
+        name: mode_name
+        equals_string: stop_without_odis
+  RunOdisOperatingMode:
+    name: RunOdisOperatingMode
+    description: Asset is running with ODIS.
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-operating-mode.yaml
+    is_a: OperatingMode
+    slot_usage:
+      mode_name:
+        name: mode_name
+        equals_string: run_odis
+source_file: /builds/common-device-management/inventory/base-schema/iah-base/schema/iah-base.yaml

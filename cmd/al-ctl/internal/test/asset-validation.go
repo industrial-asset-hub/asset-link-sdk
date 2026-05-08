@@ -9,31 +9,45 @@ package test
 
 import (
 	"fmt"
-	"github.com/rs/zerolog/log"
-	"gopkg.in/yaml.v3"
 	"os"
 	"os/exec"
 	"path/filepath"
+
+	"github.com/rs/zerolog/log"
+	"gopkg.in/yaml.v3"
 )
 
 const (
 	linkmlValidateImage           = "linkml/linkml"
 	extendedSchemaFileName        = "schema.yaml"
 	assetFileName                 = "asset.json"
+	linkmlConfigFileName          = "linkml-validation-config.yaml"
+	linkmlConfigContainerFilePath = "/app/src/cdm/" + linkmlConfigFileName
+	linkmlValidationConfigContent = "include_range_class_descendants: true\n"
 	defaultValueForExtendedSchema = "path/to/schema"
 )
 
 func ValidateAsset(assetValidationParams AssetValidationParams, linkmlSupported bool) error {
 	var cmd *exec.Cmd
+	linkmlConfigPath, err := createLinkMLValidationConfigFile()
+	if err != nil {
+		return err
+	}
+	defer os.Remove(linkmlConfigPath)
+
 	if linkmlSupported {
 		if assetValidationParams.ExtendedSchemaPath == "" {
 			assetValidationParams.ExtendedSchemaPath = assetValidationParams.BaseSchemaPath
 		}
-		cmd = exec.Command("linkml-validate", assetValidationParams.AssetJsonPath, "--include-range-class-descendants",
-			"--target-class="+assetValidationParams.TargetClass, "-s", assetValidationParams.ExtendedSchemaPath)
+		cmd = exec.Command(
+			"linkml-validate",
+			"--config", linkmlConfigPath,
+			assetValidationParams.AssetJsonPath,
+			"--target-class="+assetValidationParams.TargetClass,
+			"-s", assetValidationParams.ExtendedSchemaPath,
+		)
 	} else {
-		var err error
-		cmd, err = getDockerCommand(assetValidationParams)
+		cmd, err = getDockerCommand(assetValidationParams, linkmlConfigPath)
 		if err != nil {
 			log.Err(err).Msg("failed to get docker command")
 			return err
@@ -42,21 +56,37 @@ func ValidateAsset(assetValidationParams AssetValidationParams, linkmlSupported 
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	log.Info().Msgf("Running command: %s", cmd.Args)
-	err := cmd.Run()
+	err = cmd.Run()
 	return err
 }
 
-func GetServiceDefinition(assetValidationParams AssetValidationParams) (service *Service, err error) {
+func createLinkMLValidationConfigFile() (string, error) {
+	configFile, err := os.CreateTemp("", "linkml-validation-config-*.yaml")
+	if err != nil {
+		return "", err
+	}
+	defer configFile.Close()
+
+	if _, err := configFile.WriteString(linkmlValidationConfigContent); err != nil {
+		return "", err
+	}
+
+	return configFile.Name(), nil
+}
+
+func GetServiceDefinition(assetValidationParams AssetValidationParams, linkmlConfigPath string) (service *Service, err error) {
 	currentDir, _ := os.Getwd()
 	Service := Service{
 		Image: linkmlValidateImage,
 		Volumes: []string{
-			filepath.Join(currentDir, assetValidationParams.AssetJsonPath) + ":/app/src/cdm/asset.json",
+			getHostPath(currentDir, assetValidationParams.AssetJsonPath) + ":/app/src/cdm/asset.json",
+			getHostPath(currentDir, linkmlConfigPath) + ":" + linkmlConfigContainerFilePath,
 		},
 		Entrypoint: []string{
 			"linkml-validate",
-			"--include-range-class-descendants",
 			"-D",
+			"--config",
+			linkmlConfigContainerFilePath,
 			fmt.Sprintf("--target-class=%s", assetValidationParams.TargetClass),
 		},
 	}
@@ -108,8 +138,15 @@ func getBaseSchemaVersionFromExtendedSchema(extendedSchemaPath string) (string, 
 }
 
 func addVolumeInService(service *Service, currentDir string, pathInHost string, volume string) {
-	volume = filepath.Join(currentDir, pathInHost) + fmt.Sprintf(":/app/src/cdm/%s", volume)
+	volume = getHostPath(currentDir, pathInHost) + fmt.Sprintf(":/app/src/cdm/%s", volume)
 	service.Volumes = append(service.Volumes, volume)
+}
+
+func getHostPath(currentDir string, pathInHost string) string {
+	if filepath.IsAbs(pathInHost) {
+		return pathInHost
+	}
+	return filepath.Join(currentDir, pathInHost)
 }
 
 func addSchemaEntrypointInService(service *Service, schemaFileName string) {
@@ -120,8 +157,8 @@ func addAssetEntrypointInService(service *Service, assetFileName string) {
 	service.Entrypoint = append(service.Entrypoint, "/app/src/cdm/"+assetFileName)
 }
 
-func getDockerCommand(assetValidationParams AssetValidationParams) (cmd *exec.Cmd, err error) {
-	serviceDef, err := GetServiceDefinition(assetValidationParams)
+func getDockerCommand(assetValidationParams AssetValidationParams, linkmlConfigPath string) (cmd *exec.Cmd, err error) {
+	serviceDef, err := GetServiceDefinition(assetValidationParams, linkmlConfigPath)
 	if err != nil {
 		return nil, err
 	}

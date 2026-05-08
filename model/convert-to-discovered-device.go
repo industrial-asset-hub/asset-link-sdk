@@ -29,12 +29,25 @@ func ConvertFromDerivedSchemaToDiscoveredDevice[T interface{}](d *T, schemaUri s
 }
 
 func (d *DeviceInfo) ConvertToDiscoveredDevice() *generated.DiscoveredDevice {
+	deviceClass := resolveDeviceClassFromFunctionalObjectType(d.FunctionalObjectType)
 	device := generated.DiscoveredDevice{
-		Identifiers:            convertDeviceInfoToDeviceIdentifiers(d, baseSchemaPrefix, "Asset"),
+		Identifiers:            convertDeviceInfoToDeviceIdentifiers(d, baseSchemaPrefix, deviceClass),
 		ConnectionParameterSet: nil,
 		Timestamp:              19347439483904,
 	}
 	return &device
+}
+
+func resolveDeviceClassFromFunctionalObjectType(functionalObjectType any) string {
+	switch v := functionalObjectType.(type) {
+	case string:
+		return v
+	case *string:
+		if v != nil {
+			return *v
+		}
+	}
+	return ""
 }
 
 func convertDeviceInfoToDeviceIdentifiers[T interface{}](d *T, uri string, deviceClass string) []*generated.DeviceIdentifier {
