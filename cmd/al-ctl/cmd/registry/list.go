@@ -8,8 +8,8 @@
 package registry
 
 import (
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/registry"
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/shared"
+	"github.com/industrial-asset-hub/asset-link-sdk/v4/cmd/al-ctl/internal/registry"
+	"github.com/industrial-asset-hub/asset-link-sdk/v4/cmd/al-ctl/internal/shared"
 	"github.com/spf13/cobra"
 )
 

@@ -10,7 +10,7 @@ package publish
 import (
 	"sync"
 
-	generated "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
+	generated "github.com/industrial-asset-hub/asset-link-sdk/v4/generated/iah-discovery"
 )
 
 type DevicePublisherMock struct {

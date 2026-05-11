@@ -8,11 +8,12 @@ package test
 
 import (
 	"encoding/json"
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/cmd/al-ctl/internal/shared"
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/generated/conn_suite_registry"
-	"github.com/rs/zerolog/log"
 	"os"
 	"strconv"
+
+	"github.com/industrial-asset-hub/asset-link-sdk/v4/cmd/al-ctl/internal/shared"
+	"github.com/industrial-asset-hub/asset-link-sdk/v4/generated/conn_suite_registry"
+	"github.com/rs/zerolog/log"
 )
 
 func RunRegistrationTests(grpcEndpoint, registryJsonPath string) {

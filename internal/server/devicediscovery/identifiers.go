@@ -9,9 +9,10 @@ package devicediscovery
 
 import (
 	"context"
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/config"
-	generated "github.com/industrial-asset-hub/asset-link-sdk/v3/generated/iah-discovery"
-	"github.com/industrial-asset-hub/asset-link-sdk/v3/internal/features"
+
+	"github.com/industrial-asset-hub/asset-link-sdk/v4/config"
+	generated "github.com/industrial-asset-hub/asset-link-sdk/v4/generated/iah-discovery"
+	"github.com/industrial-asset-hub/asset-link-sdk/v4/internal/features"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
