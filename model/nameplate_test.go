@@ -49,6 +49,9 @@ func TestNameplate(t *testing.T) {
 				if assert.NotNil(t, manufacturerProduct.ProductId) {
 					assert.Equal(t, "MyOrderNumber", *manufacturerProduct.ProductId)
 				}
+				if assert.NotNil(t, manufacturerProduct.ProductFamily) {
+					assert.Equal(t, "ProductFamily", *manufacturerProduct.ProductFamily)
+				}
 			}
 
 			if assert.NotNil(t, productInfo.SerialNumber) {

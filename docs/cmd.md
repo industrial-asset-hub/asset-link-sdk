@@ -152,8 +152,10 @@ Note: LinkML is used to validate assets against the schema.
 
 - If LinkML is already installed and available in the testing environment, use the `-l` flag for validation.
 - Otherwise, the validation will be performed using Docker to run the `linkml-validator`.
-- The `iah_base_v1.9.0.yaml` file is used as the base schema for validation, which can be found in the [model](https://github.com/industrial-asset-hub/asset-link-sdk/tree/main/model) directory
-- For backward compatibility, use older versions of the base schema when the Asset Link is implemented against an earlier base schema version; this also applies to extended-schema use cases for base schema versions up to v0.12.0
+- The `iah_base_v1.9.0.yaml` file is used as the base schema for validation, which can be found in the [model](https://github.com/industrial-asset-hub/asset-link-sdk/tree/main/model) directory.
+- For backward compatibility, use older versions of the base schema when the Asset Link is implemented against an earlier base schema version; this also applies to extended-schema use cases for base schema versions up to v0.12.0.
+
+
 ```bash
 # To validate the registration of asset-link created via asset-link-SDK
 # grpc-registry should be running in order to execute below command

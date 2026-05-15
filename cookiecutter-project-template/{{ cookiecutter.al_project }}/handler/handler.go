@@ -71,7 +71,7 @@ func (m *AssetLinkImplementation) Discover(discoveryConfig config.DiscoveryConfi
 	// Fillup the device information
 	assetName := "Dummy Device 1"
 	vendorName := "{{ cookiecutter.company }}"
-	productName := "Dummy Product"
+	productFamily := "Dummy Product"
 	orderNumber := "AN0123456789"
 	serialNumber := "SN00012345678900001"
 	hardwareVersion := "3"
@@ -93,7 +93,7 @@ func (m *AssetLinkImplementation) Discover(discoveryConfig config.DiscoveryConfi
 		log.Warn().Err(err).Msg("Could not create device info")
 		return nil
 	}
-	if err = deviceInfo.AddNameplate(vendorName, productUri, orderNumber, productName, hardwareVersion, serialNumber); err != nil {
+	if err = deviceInfo.AddNameplate(vendorName, productUri, orderNumber, productFamily, hardwareVersion, serialNumber); err != nil {
 		if errors.Is(err, model.ErrEmpty) {
 			log.Warn().Err(err).Msg("One or more nameplate fields are empty, cannot add nameplate information to device info")
 			return nil
