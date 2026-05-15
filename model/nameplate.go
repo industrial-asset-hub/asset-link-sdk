@@ -17,19 +17,19 @@ import (
 // manufacturerName: legally valid designation of the natural or judicial person
 // URIOfTheProduct: unique global identification of the product using an universal resource identifier (URI
 // productArticleNumberOfManufacturer: unique product identifier of the manufacturer
-// manufacturerProductDesignation: short description of the product (short text)
+// productFamily: family of products the device belongs to
 // hardwareVersion: version of the hardware supplied with the device
 // serialNumber: unique combination of numbers and letters used to identify
 // the device once it has been manufactured
 func (d *DeviceInfo) AddNameplate(manufacturerName string,
 	uriOfTheProduct string,
 	productArticleNumberOfManufacturer string,
-	manufacturerProductDesignation string,
+	productFamily string,
 	hardwareVersion string,
 	serialNumber string,
 ) error {
 	if !isNonEmptyValues(manufacturerName, uriOfTheProduct, productArticleNumberOfManufacturer,
-		manufacturerProductDesignation, hardwareVersion, serialNumber) {
+		productFamily, hardwareVersion, serialNumber) {
 		err := &EmptyError{
 			Field:   "ProductInstanceInformation",
 			Message: "All fields for ProductInstanceInformation are empty",
@@ -59,6 +59,7 @@ func (d *DeviceInfo) AddNameplate(manufacturerName string,
 		Manufacturer:   &organisation,
 		ProductId:      &productArticleNumberOfManufacturer,
 		ProductVersion: &hardwareVersion,
+		ProductFamily:  &productFamily,
 	}
 
 	d.ProductInstanceInformation = &ProductInstanceInformation{
