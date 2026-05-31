@@ -129,41 +129,19 @@ nfpms:
       postinstall: "contrib/postinstall.bash"
       postremove: "contrib/postremove.bash"
 
-dockers:
-  - id: cdm-al-reference-image-linux-amd64
+dockers_v2:
+  - id: cdm-al-reference-image
     ids:
       - cdm-al-reference
-    image_templates:
-      - "ghcr.io/industrial-asset-hub/asset-link-sdk/reference-asset-link:{{ .Tag }}-linux-amd64"
-      - "ghcr.io/industrial-asset-hub/asset-link-sdk/reference-asset-link:latest-linux-amd64"
+    images:
+      - "ghcr.io/industrial-asset-hub/asset-link-sdk/reference-asset-link"
+    tags:
+      - "{{ .Tag }}"
+      - "latest"
     dockerfile: cdm-al-reference/Dockerfile
-    use: buildx
-    goos: linux
-    goarch: amd64
-    build_flag_templates:
-      - "--platform=linux/amd64"
-  - id: cdm-al-reference-image-linux-arm64
-    ids:
-      - cdm-al-reference
-    image_templates:
-      - "ghcr.io/industrial-asset-hub/asset-link-sdk/reference-asset-link:{{ .Tag }}-linux-arm64"
-      - "ghcr.io/industrial-asset-hub/asset-link-sdk/reference-asset-link:latest-linux-arm64"
-    dockerfile: cdm-al-reference/Dockerfile
-    use: buildx
-    goos: linux
-    goarch: arm64
-    build_flag_templates:
-      - "--platform=linux/arm64"
-
-docker_manifests:
-  - name_template: "ghcr.io/industrial-asset-hub/asset-link-sdk/reference-asset-link:{{ .Tag }}"
-    image_templates:
-      - "ghcr.io/industrial-asset-hub/asset-link-sdk/reference-asset-link:{{ .Tag }}-linux-amd64"
-      - "ghcr.io/industrial-asset-hub/asset-link-sdk/reference-asset-link:{{ .Tag }}-linux-arm64"
-  - name_template: "ghcr.io/industrial-asset-hub/asset-link-sdk/reference-asset-link:latest"
-    image_templates:
-      - "ghcr.io/industrial-asset-hub/asset-link-sdk/reference-asset-link:latest-linux-amd64"
-      - "ghcr.io/industrial-asset-hub/asset-link-sdk/reference-asset-link:latest-linux-arm64"
+    platforms:
+      - linux/amd64
+      - linux/arm64
 
 checksum:
   name_template: "{{.ProjectName}}_{{.Version}}.sha256"
