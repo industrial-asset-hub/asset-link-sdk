@@ -25,20 +25,18 @@ func (d *DeviceInfo) addMacIdentifier(macAddress string) {
 }
 
 func (d *DeviceInfo) addIdLinkIdentifier(uriOfTheProduct string) {
-	if isNonEmptyValues(uriOfTheProduct) && ValidateByPattern(uriOfTheProduct, IdLinkPattern) {
-		idLinkIdentifier := IdLinkIdentifier{
-			AssetIdentifierType:   IdLinkIdentifierAssetIdentifierTypeIdLinkIdentifier,
-			IdLink:                uriOfTheProduct,
-			IdentifierType:        nil,
-			IdentifierUncertainty: nil,
-		}
-		d.AssetIdentifiers = append(d.AssetIdentifiers, idLinkIdentifier)
+	idLinkIdentifier := IdLinkIdentifier{
+		AssetIdentifierType:   IdLinkIdentifierAssetIdentifierTypeIdLinkIdentifier,
+		IdLink:                uriOfTheProduct,
+		IdentifierType:        nil,
+		IdentifierUncertainty: nil,
 	}
+	d.AssetIdentifiers = append(d.AssetIdentifiers, idLinkIdentifier)
 }
 
 // AddCustomIdentifier appends a CustomIdentifier only when provided values are valid.
 func (d *DeviceInfo) AddCustomIdentifier(name, value string) {
-	if strings.TrimSpace(name) != "" && strings.TrimSpace(value) != "" && ValidateByPattern(value, CustomIdentifierValuePattern) {
+	if strings.TrimSpace(name) != "" && strings.TrimSpace(value) != "" && validateByPattern(value, CustomIdentifierValuePattern) {
 		identifier := CustomIdentifier{
 			AssetIdentifierType:   CustomIdentifierAssetIdentifierTypeCustomIdentifier,
 			IdentifierType:        nil,

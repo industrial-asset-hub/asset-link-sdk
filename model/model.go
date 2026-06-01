@@ -42,7 +42,7 @@ func NewDevice(functionalObjectType string, assetName string) (*DeviceInfo, erro
 		return &d, err
 	}
 
-	if err := ValidateField(
+	if err := validateField(
 		FunctionalObjectSchemaUrl,
 		"FunctionalObjectSchemaUrl",
 		"Functional object schema URL is empty",

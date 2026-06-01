@@ -16,13 +16,8 @@ import (
 // The function returns an UUID, which can be used to add an IP address to the NIC
 // No validation of is currently done
 func (d *DeviceInfo) AddNic(name, macAddress string) (string, error) {
-	err := ValidateField(macAddress, "MacAddress", "MAC address is empty", MacAddressPattern,
+	err := validateField(macAddress, "MacAddress", "MAC address is empty", MacAddressPattern,
 		"MAC address format is invalid. Please refer to the base schema for the supported pattern.")
-	if err != nil {
-		return "", err
-	}
-
-	err = ValidateField(name, "Name", "Name is empty", "", "")
 	if err != nil {
 		return "", err
 	}
@@ -50,17 +45,17 @@ func (d *DeviceInfo) AddNic(name, macAddress string) (string, error) {
 //
 // No validation of is currently done
 func (d *DeviceInfo) AddIPv4(nicId string, ipv4Address string, networkMask string, routerAddress string) (id string, err error) {
-	err = ValidateField(ipv4Address, "IPv4Address", "IPv4 address is empty", IPv4AddressPattern,
+	err = validateField(ipv4Address, "IPv4Address", "IPv4 address is empty", IPv4AddressPattern,
 		"IPv4 address format is invalid. Please refer to the base schema for the supported pattern.")
 	if err != nil {
 		return "", err
 	}
-	err = ValidateField(networkMask, "NetworkMask", "Network mask is empty", NetworkMaskPattern,
+	err = validateField(networkMask, "NetworkMask", "Network mask is empty", NetworkMaskPattern,
 		"Network mask format is invalid. Please refer to the base schema for the supported pattern.")
 	if err != nil {
 		return "", err
 	}
-	err = ValidateField(routerAddress, "RouterIPv4Address", "Router IPv4 address is empty", RouterIPv4AddressPattern,
+	err = validateField(routerAddress, "RouterIPv4Address", "Router IPv4 address is empty", RouterIPv4AddressPattern,
 		"Router IPv4 address format is invalid. Please refer to the base schema for the supported pattern.")
 	if err != nil {
 		return "", err
@@ -90,15 +85,15 @@ func (d *DeviceInfo) AddIPv4(nicId string, ipv4Address string, networkMask strin
 //
 // No validation of is currently done
 func (d *DeviceInfo) AddIPv6(nicId string, ipv6Address string, networkPrefix string, routerAddress string) (id string, err error) {
-	err = ValidateField(ipv6Address, "IPv6Address", "IPv6 address is empty", IPv6AddressPattern, "IPv6 address format is invalid. Please refer to the base schema for the supported pattern.")
+	err = validateField(ipv6Address, "IPv6Address", "IPv6 address is empty", IPv6AddressPattern, "IPv6 address format is invalid. Please refer to the base schema for the supported pattern.")
 	if err != nil {
 		return "", err
 	}
-	err = ValidateField(networkPrefix, "IPv6NetworkPrefix", "IPv6 network prefix is empty", IPv6NetworkPrefixPattern, "IPv6 network prefix format is invalid. Please refer to the base schema for the supported pattern.")
+	err = validateField(networkPrefix, "IPv6NetworkPrefix", "IPv6 network prefix is empty", IPv6NetworkPrefixPattern, "IPv6 network prefix format is invalid. Please refer to the base schema for the supported pattern.")
 	if err != nil {
 		return "", err
 	}
-	err = ValidateField(routerAddress, "RouterIPv6Address", "Router IPv6 address is empty", RouterIPv6AddressPattern, "Router IPv6 address format is invalid. Please refer to the base schema for the supported pattern.")
+	err = validateField(routerAddress, "RouterIPv6Address", "Router IPv6 address is empty", RouterIPv6AddressPattern, "Router IPv6 address format is invalid. Please refer to the base schema for the supported pattern.")
 	if err != nil {
 		return "", err
 	}

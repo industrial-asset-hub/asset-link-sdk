@@ -137,11 +137,14 @@ func TestNetwork(t *testing.T) {
 		assert.Equal(t, 1, found)
 	})
 
-	t.Run("AddNic returns an error when the NIC name is empty", func(t *testing.T) {
+	t.Run("AddNic do not return error when the NIC name is empty", func(t *testing.T) {
 		m, err := NewDevice("Asset", "MyDevice")
 		assert.NoError(t, err)
 		_, err = m.AddNic("", "AA:BB:CC:DD:EE:FF")
-		assert.Error(t, err) // AddNic with empty name should return an error based on network.go validation
+		assert.NoError(t, err)
+		nics := m.getNics()
+		assert.NotNil(t, nics[0].Name)
+		assert.Equal(t, "", *nics[0].Name)
 	})
 
 	t.Run("AddNic stores the provided NIC name on EthernetPort.Name", func(t *testing.T) {
@@ -250,6 +253,35 @@ func TestAddIPv6_Validation(t *testing.T) {
 			assert.Equal(t, "Router IPv6 address format is invalid. Please refer to the base schema for the supported pattern.", ve.Message)
 			assert.Equal(t, "invalid-router", ve.Value)
 		}
+	})
+}
+
+func TestAddIPv4_ZeroAddressValues(t *testing.T) {
+	m, err := NewDevice("Asset", "TestDevice")
+	assert.NoError(t, err)
+
+	t.Run("IPv4 address 0.0.0.0 should succeed", func(t *testing.T) {
+		id, err := m.AddIPv4("nic0", "0.0.0.0", "255.255.255.0", "10.0.0.254")
+		assert.NoError(t, err)
+		assert.NotEmpty(t, id)
+	})
+
+	t.Run("Network mask 0.0.0.0 should return ValidationError", func(t *testing.T) {
+		id, err := m.AddIPv4("nic0", "10.0.0.1", "0.0.0.0", "10.0.0.254")
+		assert.Empty(t, id)
+		assert.Error(t, err)
+		var ve *ValidationError
+		if errors.As(err, &ve) {
+			assert.Equal(t, "NetworkMask", ve.Field)
+			assert.Equal(t, "Network mask format is invalid. Please refer to the base schema for the supported pattern.", ve.Message)
+			assert.Equal(t, "0.0.0.0", ve.Value)
+		}
+	})
+
+	t.Run("Gateway router 0.0.0.0 should succeed", func(t *testing.T) {
+		id, err := m.AddIPv4("nic0", "10.0.0.1", "255.255.255.0", "0.0.0.0")
+		assert.NoError(t, err)
+		assert.NotEmpty(t, id)
 	})
 }
 
