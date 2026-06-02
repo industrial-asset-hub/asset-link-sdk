@@ -53,8 +53,8 @@ func (e *PermissibleValuesError) Error() string {
 	return fmt.Sprintf("field '%s' has value '%v' which is not in permissible values %v", e.Field, e.Value, e.Allowed)
 }
 
-// ValidateField checks if a value is non-empty and matches a pattern, returning the appropriate error or nil.
-func ValidateField(value string, fieldName, emptyMsg, pattern, patternMsg string) error {
+// validateField checks if a value is non-empty and matches a pattern, returning the appropriate error or nil.
+func validateField(value string, fieldName, emptyMsg, pattern, patternMsg string) error {
 	if !isNonEmptyValues(value) {
 		return &EmptyError{
 			Field:   fieldName,
@@ -62,7 +62,7 @@ func ValidateField(value string, fieldName, emptyMsg, pattern, patternMsg string
 			Value:   value,
 		}
 	}
-	if pattern != "" && !ValidateByPattern(value, pattern) {
+	if pattern != "" && !validateByPattern(value, pattern) {
 		return &ValidationError{
 			Field:   fieldName,
 			Message: patternMsg,
@@ -73,6 +73,6 @@ func ValidateField(value string, fieldName, emptyMsg, pattern, patternMsg string
 	return nil
 }
 
-func ValidateByPattern(value, pattern string) bool {
+func validateByPattern(value, pattern string) bool {
 	return regexp.MustCompile(pattern).MatchString(value)
 }

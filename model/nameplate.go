@@ -37,14 +37,15 @@ func (d *DeviceInfo) AddNameplate(manufacturerName string,
 		return err
 	}
 
-	if err := ValidateField(
-		uriOfTheProduct,
-		"ProductLink",
-		"Product link is empty",
-		IdLinkPattern,
-		"Product link format is invalid. Please refer to the base schema for the supported pattern.",
-	); err != nil {
-		return err
+	if isNonEmptyValues(uriOfTheProduct) {
+		if !validateByPattern(uriOfTheProduct, IdLinkPattern) {
+			return &ValidationError{
+				Field:   "ProductLink",
+				Message: "Product link format is invalid. Please refer to the base schema for the supported pattern.",
+				Value:   uriOfTheProduct,
+				Details: uriOfTheProduct,
+			}
+		}
 	}
 
 	// We hash the manufacturer to get a unique identifier
@@ -67,19 +68,21 @@ func (d *DeviceInfo) AddNameplate(manufacturerName string,
 		SerialNumber:        &serialNumber,
 	}
 
-	d.addIdLinkIdentifier(uriOfTheProduct)
+	if isNonEmptyValues(uriOfTheProduct) {
+		d.addIdLinkIdentifier(uriOfTheProduct)
+	}
 	return nil
 }
 
 // AddSoftwareArtifactComponent Add software artifact component information to an asset
 func (d *DeviceInfo) AddSoftwareArtifactComponent(name string, version string, isFirmware bool) error {
-	if err := ValidateField(name, "SoftwareName", "Software name is empty", "", ""); err != nil {
+	if err := validateField(name, "SoftwareName", "Software name is empty", "", ""); err != nil {
 		return err
 	}
-	if err := ValidateField(version, "SoftwareVersion", "Software version is empty", "", ""); err != nil {
+	if err := validateField(version, "SoftwareVersion", "Software version is empty", "", ""); err != nil {
 		return err
 	}
-	if err := ValidateField(
+	if err := validateField(
 		FunctionalObjectSchemaUrl,
 		"FunctionalObjectSchemaUrl",
 		"Functional object schema URL is empty",
@@ -117,13 +120,16 @@ func (d *DeviceInfo) AddSoftwareArtifactComponent(name string, version string, i
 
 // AddRunningSoftwareComponent Add running software component information to an asset
 func (d *DeviceInfo) AddRunningSoftwareComponent(name string, version string, isFirmware bool, runningSoftwareId string) error {
-	if err := ValidateField(name, "SoftwareName", "Software name is empty", "", ""); err != nil {
+	if err := validateField(name, "SoftwareName", "Software name is empty", "", ""); err != nil {
 		return err
 	}
-	if err := ValidateField(version, "SoftwareVersion", "Software version is empty", "", ""); err != nil {
+	if err := validateField(version, "SoftwareVersion", "Software version is empty", "", ""); err != nil {
 		return err
 	}
-	if err := ValidateField(
+	if err := validateField(runningSoftwareId, "RunningSoftwareId", "Running software ID is empty", "", ""); err != nil {
+		return err
+	}
+	if err := validateField(
 		FunctionalObjectSchemaUrl,
 		"FunctionalObjectSchemaUrl",
 		"Functional object schema URL is empty",

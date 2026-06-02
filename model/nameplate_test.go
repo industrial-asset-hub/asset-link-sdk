@@ -96,6 +96,34 @@ func TestNameplate(t *testing.T) {
 		assert.Nil(t, m.ProductInstanceInformation)
 		assert.Empty(t, m.getIdLink())
 	})
+
+	t.Run("AddNameplate_EmptyIdLink", func(t *testing.T) {
+		m, err := NewDevice("Asset", "device")
+		assert.NoError(t, err)
+
+		err = m.AddNameplate(
+			"ManufacturerCompany",
+			"",
+			"MyOrderNumber",
+			"ProductFamily",
+			"0.1.2",
+			"s-n-1.2.3",
+		)
+		assert.NoError(t, err)
+		assert.NotNil(t, m.ProductInstanceInformation)
+
+		productInfo, ok := m.ProductInstanceInformation.(*ProductInstanceInformation)
+		if assert.True(t, ok) {
+			manufacturerProduct, ok := productInfo.ManufacturerProduct.(*Product)
+			if assert.True(t, ok) {
+				if assert.NotNil(t, manufacturerProduct.ProductLink) {
+					assert.Equal(t, "", *manufacturerProduct.ProductLink)
+				}
+			}
+		}
+
+		assert.Empty(t, m.getIdLink())
+	})
 }
 
 func TestSoftwareNameplate(t *testing.T) {
@@ -170,7 +198,7 @@ func TestSoftwareNameplate(t *testing.T) {
 	})
 
 	t.Run("FunctionalObjectSchemaUrl_MatchesSchemaPattern", func(t *testing.T) {
-		assert.True(t, ValidateByPattern(FunctionalObjectSchemaUrl, FunctionalObjectSchemaUrlPattern))
+		assert.True(t, validateByPattern(FunctionalObjectSchemaUrl, FunctionalObjectSchemaUrlPattern))
 	})
 }
 
