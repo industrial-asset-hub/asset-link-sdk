@@ -1,18 +1,16 @@
-#   SPDX-FileCopyrightText: 2026 Siemens AG
-#   SPDX-License-Identifier: MIT
+# SPDX-FileCopyrightText: 2026 Siemens AG
+# SPDX-License-Identifier: MIT
 
 # yaml-language-server: $schema=https://linkml.io/linkml-model/linkml_model/jsonschema/meta.schema.json
 name: iah-base
-description: 'This schema defines the base classes needed for Industrial Asset Hub
-  (IAH).
-
-  The hereby defined classes provide a schema to model assets and devices (as a special
-  asset subtype) and a vocabulary valid for the whole project and all stakeholders.
-  They are very generic and abstract on purpose so that multiple different specializations
-  can be derived from it without constraining them needlessly.
-
-  The schema here is the ''write'' schema and is therefore used to send asset data
-  to the IAH inventory. It is used by inventory''s v2 POST API. '
+description: "This schema defines the base classes needed for Industrial Asset Hub\
+  \ (IAH).\nThe hereby defined classes provide a schema to model assets and devices\
+  \ (as a special asset subtype) and a vocabulary valid for the whole project and\
+  \ all stakeholders. They are very generic and abstract on purpose so that multiple\
+  \ different specializations can be derived from it without constraining them needlessly.\n\
+  The schema here is the 'write' schema and is therefore used to send asset data to\
+  \ the IAH inventory. It is used by inventory's v2 POST API. \nThe json schema document\
+  \ can be accessed at https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base.json"
 title: Industrial Asset Hub Base Schema
 id: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base.yaml
 version: v1
@@ -307,6 +305,19 @@ types:
     base: str
     uri: xsd:string
     repr: str
+enums:
+  RelationalRoleOfRelatedAssetValues:
+    name: RelationalRoleOfRelatedAssetValues
+    description: Possible roles of the related asset in an asset relation.
+    title: Relational Role Of Related Asset Values
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-relations.yaml
+    permissible_values:
+      subject:
+        text: subject
+        description: The related asset is the subject of the relation.
+      object:
+        text: object
+        description: The related asset is the object of the relation.
 slots:
   name:
     name: name
@@ -604,6 +615,54 @@ slots:
     from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-asset-identifiers.yaml
     range: uri
     pattern: ^https?://(?:www\.)?[a-z0-9.-]+(?:\.[a-z]+)?/[^\s#]*$
+  asset_relations:
+    name: asset_relations
+    description: Relationships between this asset and other assets.
+    title: Asset Relations
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-relations.yaml
+    range: AssetRelation
+    multivalued: true
+    inlined: true
+    inlined_as_list: true
+  predicate:
+    name: predicate
+    description: The nature of the relationship between the subject and object assets.
+      The predicate should be a concise, lowercase string that describes the relationship
+      (e.g., "is_part_of", "is_module_of", "is_connected_to"). It should follow a
+      consistent naming convention, such as using underscores to separate words and
+      avoiding special characters. The maximum length of the predicate string should
+      be reasonable (256 characters) to ensure clarity and maintainability. An asset
+      management system should check that the length constraint is not violated and
+      that the predicate follows the specified naming convention.
+    title: Predicate
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-relations.yaml
+    range: string
+    required: true
+    pattern: ^[a-z][a-z0-9]*(_[a-z0-9]+)*$
+  related_asset:
+    name: related_asset
+    description: The other asset participating in the relation, identified by one
+      or more asset identifiers.
+    title: Related Asset
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-relations.yaml
+    range: RelatedAsset
+    required: true
+    inlined: true
+  relational_role_of_related_asset:
+    name: relational_role_of_related_asset
+    description: Specifies whether the related asset is the subject or object in the
+      relation expressed by the predicate.
+    title: Relational Role Of Related Asset
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-relations.yaml
+    range: RelationalRoleOfRelatedAssetValues
+    required: true
+  is_bidirectional:
+    name: is_bidirectional
+    description: Indicates whether the relation can be interpreted in both directions.
+    title: Is Bidirectional
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-relations.yaml
+    ifabsent: 'False'
+    range: boolean
   asset_operations:
     name: asset_operations
     description: List of device management operations supported by an asset. Each
@@ -654,6 +713,14 @@ slots:
     from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-software-components.yaml
     range: SoftwareArtifact
     inlined: true
+  asset_links:
+    name: asset_links
+    description: List of asset links that are connected to the asset gateway.
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-gateway.yaml
+    range: AssetLink
+    multivalued: true
+    inlined: true
+    inlined_as_list: true
   location:
     name: location
     description: Possible ways to know where an asset is located.
@@ -706,6 +773,7 @@ classes:
     - connection_points
     - asset_operations
     - asset_identifiers
+    - asset_relations
     - product_instance_information
     - software_components
     - location
@@ -717,9 +785,9 @@ classes:
   Device:
     name: Device
     description: A device is a special type of asset that can be managed with some
-      asset management system. In order to be manageable, it requires at least one
-      connection point for the asset management to communicate with the device and
-      software capable of interacting with the asset management.
+      asset management system. It usually is a physical device, but it can also be
+      a virtual device as long as it has the same properties and capabilities as a
+      physical device.
     examples:
     - value: Industrial PC
     - value: PLC
@@ -1216,6 +1284,26 @@ classes:
       id_link:
         name: id_link
         required: true
+  AssetRelation:
+    name: AssetRelation
+    description: An AssetRelation represents a relationship between two assets in
+      the context of an asset management system. It captures the nature (predicate)
+      of the relationship and the assets (subject and object) involved.
+    title: Asset Relation
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-relations.yaml
+    slots:
+    - predicate
+    - related_asset
+    - relational_role_of_related_asset
+    - is_bidirectional
+  RelatedAsset:
+    name: RelatedAsset
+    description: Reference to an asset participating in a relation by using its asset
+      identifiers.
+    title: Related Asset
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-relations.yaml
+    slots:
+    - asset_identifiers
   AssetOperation:
     name: AssetOperation
     description: Operations that can be performed on the asset
@@ -1407,19 +1495,12 @@ classes:
       connectivity between assets in the shopfloor and the IAH backend.
     from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-gateway.yaml
     is_a: Asset
+    slots:
+    - asset_links
     slot_usage:
       functional_object_type:
         name: functional_object_type
         equals_string: Gateway
-    attributes:
-      asset_links:
-        name: asset_links
-        description: List of asset links that are connected to the asset gateway.
-        from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-gateway.yaml
-        range: AssetLink
-        multivalued: true
-        inlined: true
-        inlined_as_list: true
   AssetLink:
     name: AssetLink
     description: Asset Link that can be used to interact with assets and can be reached
@@ -1568,10 +1649,18 @@ classes:
         range: integer
   OperatingMode:
     name: OperatingMode
-    description: 'Operating mode of an asset. Known modes are based on SAT terminology.
+    description: 'Operating mode of an asset.
 
-      Relevant SAT online documentation:  - https://cache.industry.siemens.com/dl/dl-media/801/109801801/att_1079538/v1/SAT_UserGuide_V4_0_SP3_html5_en-US/en-US/index.html#treeId=c79345b269fec83819077e2bbecdf4a4
-      - https://cache.industry.siemens.com/dl/dl-media/801/109801801/att_1079538/v1/SAT_UserGuide_V4_0_SP3_html5_en-US/en-US/index.html#treeId=2f2825bd45212943f998eee7caeb6fe1'
+      Known modes are based on SAT terminology.
+
+
+      Relevant SAT online documentation:
+
+      - [ICPU properties](https://cache.industry.siemens.com/dl/dl-media/801/109801801/att_1079538/v1/SAT_UserGuide_V4_0_SP3_html5_en-US/en-US/index.html#treeId=c79345b269fec83819077e2bbecdf4a4)
+
+      - [OperatingState](https://cache.industry.siemens.com/dl/dl-media/801/109801801/att_1079538/v1/SAT_UserGuide_V4_0_SP3_html5_en-US/en-US/index.html#treeId=2f2825bd45212943f998eee7caeb6fe1)
+
+      '
     title: Operating Mode
     from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-operating-mode.yaml
     slots:

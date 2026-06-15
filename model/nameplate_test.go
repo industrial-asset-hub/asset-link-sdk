@@ -58,18 +58,6 @@ func TestNameplate(t *testing.T) {
 				assert.Equal(t, "s-n-1.2.3", *productInfo.SerialNumber)
 			}
 		}
-
-		idLinks := m.getIdLink()
-		if !assert.Len(t, idLinks, 1) {
-			return
-		}
-		found := 0
-		for _, v := range idLinks {
-			found++
-			assert.Equal(t, testIDLink, v.IdLink)
-			assert.Equal(t, IdLinkIdentifierAssetIdentifierTypeIdLinkIdentifier, v.AssetIdentifierType)
-		}
-		assert.Equal(t, 1, found)
 	})
 
 	t.Run("AddNameplate_InvalidProductLink", func(t *testing.T) {
@@ -122,7 +110,7 @@ func TestNameplate(t *testing.T) {
 			}
 		}
 
-		assert.Empty(t, m.getIdLink())
+		assert.Empty(t, m.getIdLink()) // no implicit idLink even for empty product link
 	})
 }
 

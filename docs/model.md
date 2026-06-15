@@ -44,5 +44,30 @@ err = device.AddCapabilities("firmware_update", true)
 if err != nil{
     // handle error
 }
-jsonMap, _ := device.ConvertToJson()
 ```
+
+### Asset Relations
+
+Use `AddAssetRelation()` to establish relationships between assets (e.g., module hierarchies, connectivity).
+
+```go
+// Add a module relation
+err := device.AddAssetRelation(
+    "is_module_of",
+    model.RelatedAsset{
+        AssetIdentifiers: []interface{}{
+            model.MacIdentifier{
+                AssetIdentifierType: model.MacIdentifierAssetIdentifierTypeMacIdentifier,
+                MacAddress:          "AA:BB:CC:DD:EE:FF",
+            },
+        },
+    },
+    model.RelationalRoleOfRelatedAssetValuesObject,
+    false, // isBidirectional
+)
+if err != nil {
+    // handle error
+}
+```
+
+For asset relations, refer to the base schema for validation constraints on predicates and identifier types.

@@ -92,6 +92,9 @@ type Asset struct {
 	// might appear only once.
 	AssetOperations []AssetOperation `json:"asset_operations,omitempty" yaml:"asset_operations,omitempty" mapstructure:"asset_operations,omitempty"`
 
+	// Relationships between this asset and other assets.
+	AssetRelations []AssetRelation `json:"asset_relations,omitempty" yaml:"asset_relations,omitempty" mapstructure:"asset_relations,omitempty"`
+
 	// An asset might have a connection point that can be used to connect with the
 	// asset. In the case of devices, at least one connection point is required. It
 	// might be a connection point needed for AssetManagement for interaction with the
@@ -233,6 +236,56 @@ func (j *AssetOperation) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+// An AssetRelation represents a relationship between two assets in the context of
+// an asset management system. It captures the nature (predicate) of the
+// relationship and the assets (subject and object) involved.
+type AssetRelation struct {
+	// Indicates whether the relation can be interpreted in both directions.
+	IsBidirectional *bool `json:"is_bidirectional,omitempty" yaml:"is_bidirectional,omitempty" mapstructure:"is_bidirectional,omitempty"`
+
+	// The nature of the relationship between the subject and object assets. The
+	// predicate should be a concise, lowercase string that describes the relationship
+	// (e.g., "is_part_of", "is_module_of", "is_connected_to"). It should follow a
+	// consistent naming convention, such as using underscores to separate words and
+	// avoiding special characters. The maximum length of the predicate string should
+	// be reasonable (256 characters) to ensure clarity and maintainability. An asset
+	// management system should check that the length constraint is not violated and
+	// that the predicate follows the specified naming convention.
+	Predicate string `json:"predicate" yaml:"predicate" mapstructure:"predicate"`
+
+	// The other asset participating in the relation, identified by one or more asset
+	// identifiers.
+	RelatedAsset RelatedAsset `json:"related_asset" yaml:"related_asset" mapstructure:"related_asset"`
+
+	// Specifies whether the related asset is the subject or object in the relation
+	// expressed by the predicate.
+	RelationalRoleOfRelatedAsset RelationalRoleOfRelatedAssetValues `json:"relational_role_of_related_asset" yaml:"relational_role_of_related_asset" mapstructure:"relational_role_of_related_asset"`
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *AssetRelation) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if _, ok := raw["predicate"]; raw != nil && !ok {
+		return fmt.Errorf("field predicate in AssetRelation: required")
+	}
+	if _, ok := raw["related_asset"]; raw != nil && !ok {
+		return fmt.Errorf("field related_asset in AssetRelation: required")
+	}
+	if _, ok := raw["relational_role_of_related_asset"]; raw != nil && !ok {
+		return fmt.Errorf("field relational_role_of_related_asset in AssetRelation: required")
+	}
+	type Plain AssetRelation
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = AssetRelation(plain)
+	return nil
+}
+
 // UnmarshalJSON implements json.Unmarshaler.
 func (j *Asset) UnmarshalJSON(b []byte) error {
 	var raw map[string]interface{}
@@ -288,7 +341,7 @@ func (j *BackupOperation) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-type CdmBaseSchemaV190Json map[string]interface{}
+type CdmBaseSchemaV1110Json map[string]interface{}
 
 // Base64 encoded version of certificate subject key identifier will be the
 // identifier.
@@ -524,9 +577,9 @@ func (j *DefectiveOperatingMode) UnmarshalJSON(b []byte) error {
 }
 
 // A device is a special type of asset that can be managed with some asset
-// management system. In order to be manageable, it requires at least one
-// connection point for the asset management to communicate with the device and
-// software capable of interacting with the asset management.
+// management system. It usually is a physical device, but it can also be a virtual
+// device as long as it has the same properties and capabilities as a physical
+// device.
 type Device struct {
 	// An asset identifier is an asset attribute that provides enough information to
 	// unequivocally identify the represented object.
@@ -544,6 +597,9 @@ type Device struct {
 	// List of device management operations supported by an asset. Each operation type
 	// might appear only once.
 	AssetOperations []AssetOperation `json:"asset_operations,omitempty" yaml:"asset_operations,omitempty" mapstructure:"asset_operations,omitempty"`
+
+	// Relationships between this asset and other assets.
+	AssetRelations []AssetRelation `json:"asset_relations,omitempty" yaml:"asset_relations,omitempty" mapstructure:"asset_relations,omitempty"`
 
 	// An asset might have a connection point that can be used to connect with the
 	// asset. In the case of devices, at least one connection point is required. It
@@ -826,6 +882,9 @@ type Gateway struct {
 	// List of device management operations supported by an asset. Each operation type
 	// might appear only once.
 	AssetOperations []AssetOperation `json:"asset_operations,omitempty" yaml:"asset_operations,omitempty" mapstructure:"asset_operations,omitempty"`
+
+	// Relationships between this asset and other assets.
+	AssetRelations []AssetRelation `json:"asset_relations,omitempty" yaml:"asset_relations,omitempty" mapstructure:"asset_relations,omitempty"`
 
 	// An asset might have a connection point that can be used to connect with the
 	// asset. In the case of devices, at least one connection point is required. It
@@ -1529,11 +1588,14 @@ func (j *Okz) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-// Operating mode of an asset. Known modes are based on SAT terminology.
-// Relevant SAT online documentation:  -
-// https://cache.industry.siemens.com/dl/dl-media/801/109801801/att_1079538/v1/SAT_UserGuide_V4_0_SP3_html5_en-US/en-US/index.html#treeId=c79345b269fec83819077e2bbecdf4a4
+// Operating mode of an asset.
+// Known modes are based on SAT terminology.
+//
+// Relevant SAT online documentation:
+// - [ICPU
+// properties](https://cache.industry.siemens.com/dl/dl-media/801/109801801/att_1079538/v1/SAT_UserGuide_V4_0_SP3_html5_en-US/en-US/index.html#treeId=c79345b269fec83819077e2bbecdf4a4)
 // -
-// https://cache.industry.siemens.com/dl/dl-media/801/109801801/att_1079538/v1/SAT_UserGuide_V4_0_SP3_html5_en-US/en-US/index.html#treeId=2f2825bd45212943f998eee7caeb6fe1
+// [OperatingState](https://cache.industry.siemens.com/dl/dl-media/801/109801801/att_1079538/v1/SAT_UserGuide_V4_0_SP3_html5_en-US/en-US/index.html#treeId=2f2825bd45212943f998eee7caeb6fe1)
 type OperatingMode struct {
 	// Name of the operating mode.
 	ModeName string `json:"mode_name" yaml:"mode_name" mapstructure:"mode_name"`
@@ -1632,6 +1694,41 @@ func (j *ProgramUpdateOperation) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+// Reference to an asset participating in a relation by using its asset
+// identifiers.
+type RelatedAsset struct {
+	// An asset identifier is an asset attribute that provides enough information to
+	// unequivocally identify the represented object.
+	// In some cases the ID attribute acts simultaneously as a reference for the asset
+	// instance and as identifier for the represented object. Otherwise at least one
+	// asset identifier is needed.
+	// There can be multiple asset_identifiers with different goals. For example, the
+	// information of a metal nameplate can be used by a human-being to identify a
+	// device represented by an asset instance, but a software certificate provided by
+	// a device might help a software component identify the device in the network,...
+	// An asset identifier might have an identifier_type, that defines its format and
+	// possibly even semantics.
+	AssetIdentifiers []interface{} `json:"asset_identifiers" yaml:"asset_identifiers" mapstructure:"asset_identifiers"`
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *RelatedAsset) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if _, ok := raw["asset_identifiers"]; raw != nil && !ok {
+		return fmt.Errorf("field asset_identifiers in RelatedAsset: required")
+	}
+	type Plain RelatedAsset
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = RelatedAsset(plain)
+	return nil
+}
+
 // Relationship of a ConnectionPoint with another one. This relationship could be
 // of the type "ConnectionPoint A relies on the connectivity of ConnectionPoint B
 // to work".
@@ -1661,6 +1758,36 @@ func (j *RelatedConnectionPoint) UnmarshalJSON(b []byte) error {
 		return err
 	}
 	*j = RelatedConnectionPoint(plain)
+	return nil
+}
+
+type RelationalRoleOfRelatedAssetValues string
+
+const RelationalRoleOfRelatedAssetValuesObject RelationalRoleOfRelatedAssetValues = "object"
+const RelationalRoleOfRelatedAssetValuesSubject RelationalRoleOfRelatedAssetValues = "subject"
+
+var enumValues_RelationalRoleOfRelatedAssetValues = []interface{}{
+	"subject",
+	"object",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *RelationalRoleOfRelatedAssetValues) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_RelationalRoleOfRelatedAssetValues {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_RelationalRoleOfRelatedAssetValues, v)
+	}
+	*j = RelationalRoleOfRelatedAssetValues(v)
 	return nil
 }
 
@@ -1891,6 +2018,9 @@ type SoftwareArtifact struct {
 	// List of device management operations supported by an asset. Each operation type
 	// might appear only once.
 	AssetOperations []AssetOperation `json:"asset_operations,omitempty" yaml:"asset_operations,omitempty" mapstructure:"asset_operations,omitempty"`
+
+	// Relationships between this asset and other assets.
+	AssetRelations []AssetRelation `json:"asset_relations,omitempty" yaml:"asset_relations,omitempty" mapstructure:"asset_relations,omitempty"`
 
 	// An asset might have a connection point that can be used to connect with the
 	// asset. In the case of devices, at least one connection point is required. It

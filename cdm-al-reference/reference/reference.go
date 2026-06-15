@@ -207,6 +207,35 @@ func createDeviceInfo(device simdevices.SimulatedDeviceInfo) (*model.DeviceInfo,
 			return deviceInfo, nil
 		}
 	}
+	// Add asset relations for meaningful architectural relationships
+	// For sub-devices, establish the module relationship to the parent device
+	if device.GetSubDeviceID() >= 0 {
+		parentDevice := device.GetParentDevice()
+		err := deviceInfo.AddAssetRelation(
+			"is_module_of",
+			model.RelatedAsset{
+				AssetIdentifiers: []interface{}{
+					model.MacIdentifier{
+						AssetIdentifierType: model.MacIdentifierAssetIdentifierTypeMacIdentifier,
+						MacAddress:          parentDevice.GetMacAddress(),
+					},
+				},
+			},
+			model.RelationalRoleOfRelatedAssetValuesObject,
+			false,
+		)
+		if err != nil {
+			if errors.Is(err, model.ErrValidation) {
+				log.Warn().Err(err).Msg("Asset relation format is invalid, cannot add asset relation to device info")
+				return deviceInfo, nil
+			} else if errors.Is(err, model.ErrEmpty) {
+				log.Warn().Err(err).Msg("Asset relation identifier is empty, cannot add asset relation to device info")
+				return deviceInfo, nil
+			}
+			log.Warn().Err(err).Msg("Cannot add asset relation to device info")
+			return deviceInfo, nil
+		}
+	}
 
 	nicID, err := deviceInfo.AddNic(device.GetDeviceNIC(), device.GetMacAddress())
 	if err != nil {

@@ -63,6 +63,16 @@
                         "null"
                     ]
                 },
+                "asset_relations": {
+                    "description": "Relationships between this asset and other assets.",
+                    "items": {
+                        "$ref": "#/$defs/AssetRelation"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
                 "connection_points": {
                     "description": "An asset might have a connection point that can be used to connect with the asset. In the case of devices, at least one connection point is required. It might be a connection point needed for AssetManagement for interaction with the asset, or for other connections of the asset related to the asset function but not to device management.",
                     "items": {
@@ -251,6 +261,39 @@
             "title": "AssetOperation",
             "type": "object"
         },
+        "AssetRelation": {
+            "additionalProperties": false,
+            "description": "An AssetRelation represents a relationship between two assets in the context of an asset management system. It captures the nature (predicate) of the relationship and the assets (subject and object) involved.",
+            "properties": {
+                "is_bidirectional": {
+                    "description": "Indicates whether the relation can be interpreted in both directions.",
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "predicate": {
+                    "description": "The nature of the relationship between the subject and object assets. The predicate should be a concise, lowercase string that describes the relationship (e.g., \"is_part_of\", \"is_module_of\", \"is_connected_to\"). It should follow a consistent naming convention, such as using underscores to separate words and avoiding special characters. The maximum length of the predicate string should be reasonable (256 characters) to ensure clarity and maintainability. An asset management system should check that the length constraint is not violated and that the predicate follows the specified naming convention.",
+                    "pattern": "^[a-z][a-z0-9]*(_[a-z0-9]+)*$",
+                    "type": "string"
+                },
+                "related_asset": {
+                    "$ref": "#/$defs/RelatedAsset",
+                    "description": "The other asset participating in the relation, identified by one or more asset identifiers."
+                },
+                "relational_role_of_related_asset": {
+                    "$ref": "#/$defs/RelationalRoleOfRelatedAssetValues",
+                    "description": "Specifies whether the related asset is the subject or object in the relation expressed by the predicate."
+                }
+            },
+            "required": [
+                "predicate",
+                "related_asset",
+                "relational_role_of_related_asset"
+            ],
+            "title": "AssetRelation",
+            "type": "object"
+        },
         "BackupOperation": {
             "additionalProperties": false,
             "description": "Backup operation can be performed on the asset",
@@ -409,7 +452,7 @@
         },
         "Device": {
             "additionalProperties": false,
-            "description": "A device is a special type of asset that can be managed with some asset management system. In order to be manageable, it requires at least one connection point for the asset management to communicate with the device and software capable of interacting with the asset management.",
+            "description": "A device is a special type of asset that can be managed with some asset management system. It usually is a physical device, but it can also be a virtual device as long as it has the same properties and capabilities as a physical device.",
             "properties": {
                 "asset_identifiers": {
                     "description": "An asset identifier is an asset attribute that provides enough information to unequivocally identify the represented object.\nIn some cases the ID attribute acts simultaneously as a reference for the asset instance and as identifier for the represented object. Otherwise at least one asset identifier is needed.\nThere can be multiple asset_identifiers with different goals. For example, the information of a metal nameplate can be used by a human-being to identify a device represented by an asset instance, but a software certificate provided by a device might help a software component identify the device in the network,...\nAn asset identifier might have an identifier_type, that defines its format and possibly even semantics.",
@@ -438,6 +481,16 @@
                     "description": "List of device management operations supported by an asset. Each operation type might appear only once.",
                     "items": {
                         "$ref": "#/$defs/AssetOperation"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "asset_relations": {
+                    "description": "Relationships between this asset and other assets.",
+                    "items": {
+                        "$ref": "#/$defs/AssetRelation"
                     },
                     "type": [
                         "array",
@@ -723,6 +776,16 @@
                     "description": "List of device management operations supported by an asset. Each operation type might appear only once.",
                     "items": {
                         "$ref": "#/$defs/AssetOperation"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "asset_relations": {
+                    "description": "Relationships between this asset and other assets.",
+                    "items": {
+                        "$ref": "#/$defs/AssetRelation"
                     },
                     "type": [
                         "array",
@@ -1290,7 +1353,7 @@
         },
         "OperatingMode": {
             "additionalProperties": false,
-            "description": "Operating mode of an asset. Known modes are based on SAT terminology.\nRelevant SAT online documentation:  - https://cache.industry.siemens.com/dl/dl-media/801/109801801/att_1079538/v1/SAT_UserGuide_V4_0_SP3_html5_en-US/en-US/index.html#treeId=c79345b269fec83819077e2bbecdf4a4 - https://cache.industry.siemens.com/dl/dl-media/801/109801801/att_1079538/v1/SAT_UserGuide_V4_0_SP3_html5_en-US/en-US/index.html#treeId=2f2825bd45212943f998eee7caeb6fe1",
+            "description": "Operating mode of an asset.\nKnown modes are based on SAT terminology.\n\nRelevant SAT online documentation:\n- [ICPU properties](https://cache.industry.siemens.com/dl/dl-media/801/109801801/att_1079538/v1/SAT_UserGuide_V4_0_SP3_html5_en-US/en-US/index.html#treeId=c79345b269fec83819077e2bbecdf4a4)\n- [OperatingState](https://cache.industry.siemens.com/dl/dl-media/801/109801801/att_1079538/v1/SAT_UserGuide_V4_0_SP3_html5_en-US/en-US/index.html#treeId=2f2825bd45212943f998eee7caeb6fe1)",
             "properties": {
                 "mode_name": {
                     "description": "Name of the operating mode.",
@@ -1412,6 +1475,40 @@
             "title": "ProgramUpdateOperation",
             "type": "object"
         },
+        "RelatedAsset": {
+            "additionalProperties": false,
+            "description": "Reference to an asset participating in a relation by using its asset identifiers.",
+            "properties": {
+                "asset_identifiers": {
+                    "description": "An asset identifier is an asset attribute that provides enough information to unequivocally identify the represented object.\nIn some cases the ID attribute acts simultaneously as a reference for the asset instance and as identifier for the represented object. Otherwise at least one asset identifier is needed.\nThere can be multiple asset_identifiers with different goals. For example, the information of a metal nameplate can be used by a human-being to identify a device represented by an asset instance, but a software certificate provided by a device might help a software component identify the device in the network,...\nAn asset identifier might have an identifier_type, that defines its format and possibly even semantics.",
+                    "items": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/$defs/MacIdentifier"
+                            },
+                            {
+                                "$ref": "#/$defs/SoftwareIdentifier"
+                            },
+                            {
+                                "$ref": "#/$defs/CertificateIdentifier"
+                            },
+                            {
+                                "$ref": "#/$defs/CustomIdentifier"
+                            },
+                            {
+                                "$ref": "#/$defs/IdLinkIdentifier"
+                            }
+                        ]
+                    },
+                    "type": "array"
+                }
+            },
+            "required": [
+                "asset_identifiers"
+            ],
+            "title": "RelatedAsset",
+            "type": "object"
+        },
         "RelatedConnectionPoint": {
             "additionalProperties": false,
             "description": "Relationship of a ConnectionPoint with another one. This relationship could be of the type \"ConnectionPoint A relies on the connectivity of ConnectionPoint B to work\".",
@@ -1431,6 +1528,15 @@
             ],
             "title": "RelatedConnectionPoint",
             "type": "object"
+        },
+        "RelationalRoleOfRelatedAssetValues": {
+            "description": "Possible roles of the related asset in an asset relation.",
+            "enum": [
+                "subject",
+                "object"
+            ],
+            "title": "RelationalRoleOfRelatedAssetValues",
+            "type": "string"
         },
         "ResetCommunicationParameterOperation": {
             "additionalProperties": false,
@@ -1616,6 +1722,16 @@
                     "description": "List of device management operations supported by an asset. Each operation type might appear only once.",
                     "items": {
                         "$ref": "#/$defs/AssetOperation"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "asset_relations": {
+                    "description": "Relationships between this asset and other assets.",
+                    "items": {
+                        "$ref": "#/$defs/AssetRelation"
                     },
                     "type": [
                         "array",
