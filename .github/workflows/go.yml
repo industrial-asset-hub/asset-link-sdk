@@ -25,14 +25,14 @@ jobs:
   reuse:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: REUSE Compliance Check
         uses: fsfe/reuse-action@v6
 
   generate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Prepare Environment
         uses: ./.github/actions/prepare
       - name: Generate Code
@@ -43,7 +43,7 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Prepare Environment
         uses: ./.github/actions/prepare
       - name: Lint
@@ -58,7 +58,7 @@ jobs:
       matrix:
         feature: ["discover", "identifiers"]
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Prepare Environment
         uses: ./.github/actions/prepare
       - name: Install jq
@@ -69,7 +69,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Prepare Environment
         uses: ./.github/actions/prepare
       - name: Test
@@ -80,7 +80,7 @@ jobs:
   shellcheck:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Prepare Environment
         uses: ./.github/actions/prepare
       - name: Install ShellCheck
@@ -95,7 +95,7 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Vulnerability Check
         uses: golang/govulncheck-action@v1
         with:
@@ -105,7 +105,7 @@ jobs:
   build-sdk:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Prepare Environment
         uses: ./.github/actions/prepare
       - name: Build
@@ -118,7 +118,7 @@ jobs:
       matrix:
         go-version: ["1.25.7", "1.26", "stable"]
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Prepare Environment
         with:
           go-version: ${{ matrix.go-version }}
@@ -194,7 +194,7 @@ jobs:
   generate-sbom:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Prepare Environment
         uses: ./.github/actions/prepare
       - name: Generate SBOM
@@ -220,7 +220,7 @@ jobs:
       - autotest
     if: github.event_name != 'pull_request' && github.ref_type == 'tag'
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Prepare Environment
         uses: ./.github/actions/prepare
       - name: Set up QEMU
@@ -255,7 +255,7 @@ jobs:
       - autotest
     if: github.event_name == 'pull_request' || github.ref_type != 'tag'
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Prepare Environment
         uses: ./.github/actions/prepare
       - name: Set up QEMU
