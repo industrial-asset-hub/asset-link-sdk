@@ -72,11 +72,12 @@ Once the interfaces are implemented, the specific Asset Link uses the `assetLink
 the implemented features.
 On `AssetLink.Start()`, the Asset Link will start the grpc server, allowing device management to interact with it.
 
-**Identifiers Interface** (enables getting identifiers of a device and consists of one function):
+**DeviceInfo Interface** (enables property retrieval for a device and consists of two functions):
 
-1. `GetIdentifiers`: This interface retrieves identifiers for a specific device based on paramater_json using credentials, performs logic to obtain the identifiers, and returns them in a structured format.
+1. `GetPropertyValues`: This interface retrieves device properties for a specific target based on the provided request and returns the values in the shared property variant format.
+2. `GetSupportedProperties`: This interface returns the property keys and datatypes supported by the Asset Link for the requested device.
 
-You can customize functions such as `Discover`, `GetIdentifiers`, `GetSupportedOptions` and `GetSupportedFilters` to fit your specific requirements for actual device discovery and to retrieve information about the discovery parameters that are supported by the specific Asset Link. 
+You can customize functions such as `Discover`, `GetPropertyValues`, `GetSupportedProperties`, `GetSupportedOptions` and `GetSupportedFilters` to fit your specific requirements for actual device discovery and property retrieval, and to describe the parameters supported by the specific Asset Link.
 
 ## Distribution and Deployment
 

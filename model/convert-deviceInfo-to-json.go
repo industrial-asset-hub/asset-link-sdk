@@ -8,6 +8,7 @@
 package model
 
 import (
+	"encoding/json"
 	"fmt"
 	"reflect"
 	"strings"
@@ -32,6 +33,15 @@ func (d *DeviceInfo) ConvertToJson() (map[string]interface{}, error) {
 	default:
 		return map[string]interface{}{}, nil
 	}
+}
+
+// MarshalJSON converts DeviceInfo into nested JSON using the existing reflection-based mapper.
+func (d *DeviceInfo) MarshalJSON() ([]byte, error) {
+	deviceInfoMap, err := d.ConvertToJson()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(deviceInfoMap)
 }
 
 func convertDeviceInfoToMap(deviceInfoValue reflect.Value) (map[string]interface{}, error) {
@@ -63,6 +73,9 @@ func convertDeviceInfoToMap(deviceInfoValue reflect.Value) (map[string]interface
 		if name == "Asset" {
 			if assetMap, ok := propertyValue.(map[string]interface{}); ok {
 				for key, value := range assetMap {
+					if _, exists := deviceInfoMap[key]; exists {
+						continue
+					}
 					deviceInfoMap[key] = value
 				}
 				continue

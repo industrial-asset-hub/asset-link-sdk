@@ -34,7 +34,7 @@ runs:
       shell: bash
       run: |
           # change the version as needed (potentially requires adjustments to the al-ctl calls in the tests script)
-          export ALCTLVERSION=v3.4.3
+          export ALCTLVERSION=v4.0.0
           export OS_NAME=${{'{{'}} runner.os {{'}}'}}
           if [ "${{'{{'}} runner.arch {{'}}'}}" == "X64" ]; then
             export ARCH_NAME=x86_64

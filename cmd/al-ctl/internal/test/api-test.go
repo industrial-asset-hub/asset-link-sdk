@@ -46,9 +46,13 @@ func RunApiTests(serviceName string, cancelValidationRequired bool, testConfig T
 				{"TestCancelDiscovery", TestCancelDiscovery},
 			}
 		}
-	case "identifiers":
+	case "properties", "deviceinfo":
 		allTests = []Test{
-			{"TestGetIdentifiers", TestGetIdentifiers},
+			{"TestGetDeviceInfoProperties", TestGetDeviceInfoProperties},
+		}
+	case "supported-properties":
+		allTests = []Test{
+			{"TestGetSupportedDeviceInfoProperties", TestGetSupportedDeviceInfoProperties},
 		}
 	default:
 		log.Fatal().Msgf("Service \"%s\"is not supported", serviceName)

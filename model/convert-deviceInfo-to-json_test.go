@@ -8,6 +8,7 @@
 package model
 
 import (
+	"encoding/json"
 	"testing"
 )
 
@@ -68,5 +69,34 @@ func TestConvertToJsonWithNilDevice(t *testing.T) {
 	}
 	if jsonMap != nil {
 		t.Errorf("Expected nil map for nil DeviceInfo, but got: %v", jsonMap)
+	}
+}
+
+func TestMarshalJSON(t *testing.T) {
+	device, err := NewDevice("Asset", "Dummy Asset")
+	if err != nil {
+		t.Fatalf("NewDevice failed: %v", err)
+	}
+
+	err = device.AddDescription("Remote I/O module for distributed field device integration")
+	if err != nil {
+		t.Fatalf("AddDescription failed: %v", err)
+	}
+
+	jsonBytes, err := json.Marshal(device)
+	if err != nil {
+		t.Fatalf("json.Marshal failed: %v", err)
+	}
+
+	var payload map[string]interface{}
+	if err := json.Unmarshal(jsonBytes, &payload); err != nil {
+		t.Fatalf("json.Unmarshal failed: %v", err)
+	}
+
+	if payload["name"] != "Dummy Asset" {
+		t.Fatalf("expected name to be marshaled, got: %v", payload["name"])
+	}
+	if payload["description"] != "Remote I/O module for distributed field device integration" {
+		t.Fatalf("expected description to be marshaled, got: %v", payload["description"])
 	}
 }
