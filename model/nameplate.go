@@ -68,9 +68,6 @@ func (d *DeviceInfo) AddNameplate(manufacturerName string,
 		SerialNumber:        &serialNumber,
 	}
 
-	if isNonEmptyValues(uriOfTheProduct) {
-		d.addIdLinkIdentifier(uriOfTheProduct)
-	}
 	return nil
 }
 

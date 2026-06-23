@@ -13,6 +13,7 @@ import (
 	"github.com/industrial-asset-hub/asset-link-sdk/v4/cdm-al-reference/simdevices"
 	"github.com/industrial-asset-hub/asset-link-sdk/v4/config"
 	generated "github.com/industrial-asset-hub/asset-link-sdk/v4/generated/iah-discovery"
+	"github.com/industrial-asset-hub/asset-link-sdk/v4/model"
 	"github.com/industrial-asset-hub/asset-link-sdk/v4/publish"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc/codes"
@@ -119,5 +120,63 @@ func TestGetIdentifiers(t *testing.T) {
 		identifiers, err := driver.GetIdentifiers(identifiersReq)
 		assert.NoError(t, err)
 		assert.NotEmpty(t, identifiers)
+	})
+}
+
+func TestCreateDeviceInfoAssetRelations(t *testing.T) {
+	simdevices.StartSimulatedDevices("") // start without visualization web server
+
+	t.Run("adds gateway relation for top-level device", func(t *testing.T) {
+		address := simdevices.SimulatedDeviceAddress{
+			AssetLinkNIC: "eth0",
+			DeviceIP:     "192.168.0.10",
+			SubDeviceID:  -1,
+		}
+
+		device, err := simdevices.RetrieveDeviceDetails(address, nil)
+		assert.NoError(t, err)
+		if !assert.NotNil(t, device) {
+			return
+		}
+
+		deviceInfo, err := createDeviceInfo(device)
+		assert.NoError(t, err)
+		if !assert.NotNil(t, deviceInfo) {
+			return
+		}
+
+	})
+
+	t.Run("adds module relation for sub-device", func(t *testing.T) {
+		address := simdevices.SimulatedDeviceAddress{
+			AssetLinkNIC: "eth1",
+			DeviceIP:     "192.168.1.10",
+			SubDeviceID:  0,
+		}
+
+		device, err := simdevices.RetrieveDeviceDetails(address, nil)
+		assert.NoError(t, err)
+		if !assert.NotNil(t, device) {
+			return
+		}
+
+		deviceInfo, err := createDeviceInfo(device)
+		assert.NoError(t, err)
+		if !assert.NotNil(t, deviceInfo) {
+			return
+		}
+
+		if assert.Len(t, deviceInfo.AssetRelations, 1) {
+			moduleRelation := deviceInfo.AssetRelations[0]
+			assert.Equal(t, "is_module_of", moduleRelation.Predicate)
+			assert.Equal(t, model.RelationalRoleOfRelatedAssetValuesObject, moduleRelation.RelationalRoleOfRelatedAsset)
+			if assert.Len(t, moduleRelation.RelatedAsset.AssetIdentifiers, 1) {
+				identifier, ok := moduleRelation.RelatedAsset.AssetIdentifiers[0].(model.MacIdentifier)
+				if assert.True(t, ok) {
+					assert.Equal(t, model.MacIdentifierAssetIdentifierTypeMacIdentifier, identifier.AssetIdentifierType)
+					assert.Equal(t, "00:16:3e:01:00:00", identifier.MacAddress)
+				}
+			}
+		}
 	})
 }

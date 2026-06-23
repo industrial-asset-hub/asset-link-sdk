@@ -75,7 +75,7 @@ type DeviceInfo struct {
 	ConnectionPoints []any `json:"connection_points,omitempty"`
 	Asset
 	AssetIdentifiers []any `json:"asset_identifiers"`
-	// To Be clarified
+	// SoftwareComponents
 	SoftwareComponents []any `json:"software_components,omitempty"`
 }
 
