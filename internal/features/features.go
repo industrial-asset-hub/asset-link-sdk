@@ -9,6 +9,7 @@ package features
 
 import (
 	"github.com/industrial-asset-hub/asset-link-sdk/v4/config"
+	deviceinfo "github.com/industrial-asset-hub/asset-link-sdk/v4/generated/conn_suite_device_info"
 	generated "github.com/industrial-asset-hub/asset-link-sdk/v4/generated/iah-discovery"
 	"github.com/industrial-asset-hub/asset-link-sdk/v4/publish"
 )
@@ -22,7 +23,8 @@ type Discovery interface {
 	GetSupportedOptions() []*generated.SupportedOption
 }
 
-// Interface Identifiers provides the methods used the identifiers feature
-type Identifiers interface {
-	GetIdentifiers(identifiersRequest config.IdentifiersRequest) ([]*generated.DeviceIdentifier, error)
+// Interface DeviceInfo provides the methods used by the DeviceInfo feature
+type DeviceInfo interface {
+	GetPropertyValues(request *deviceinfo.GetPropertyValuesRequest) (*deviceinfo.GetPropertyValuesResponse, error)
+	GetSupportedProperties(request *deviceinfo.GetSupportedPropertiesRequest) (*deviceinfo.GetSupportedPropertiesResponse, error)
 }

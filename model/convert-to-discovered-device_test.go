@@ -103,6 +103,7 @@ func generateDevice(typeOfAsset string, assetName string) *DeviceInfo {
 	randomMacAddress := "12:12:12:12:12:12"
 	identifierUncertainty := 1
 	device.AssetIdentifiers = append(device.AssetIdentifiers, MacIdentifier{
+		AssetIdentifierType:   MacIdentifierAssetIdentifierTypeMacIdentifier,
 		MacAddress:            randomMacAddress,
 		IdentifierUncertainty: &identifierUncertainty,
 	})

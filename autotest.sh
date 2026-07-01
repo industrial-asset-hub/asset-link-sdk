@@ -41,7 +41,7 @@ readonly ASSET_LINK_ENDPOINT=${ASSET_LINK_ENDPOINT:-"localhost:50051"}
 # asset link test files
 readonly ASSET_LINK_LOG_FILE=${ASSET_LINK_LOG_FILE:-"$SCRIPT_PATH/asset_link.log"}
 readonly DISCOVERY_CONFIG_FILE=${DISCOVERY_CONFIG_FILE:-"$PROJECT_PATH/misc/discovery.json"}
-readonly IDENTIFIERS_REQUEST_FILE=${IDENTIFIERS_REQUEST_FILE:-"$PROJECT_PATH/misc/identifier_request.json"}
+readonly PROPERTY_VALUES_REQUEST_FILE=${PROPERTY_VALUES_REQUEST_FILE:-"$PROJECT_PATH/misc/property_values_request.json"}
 readonly DEVICE_ADDRESS_FILE=${DEVICE_ADDRESS_FILE:-"$PROJECT_PATH/misc/device_address.json"}
 readonly FIRMWARE_FILE_V1=${FIRMWARE_FILE_V1:-"$PROJECT_PATH/misc/simulated_device_firmware_1.0.0.fwu"}
 readonly FIRMWARE_FILE_V2=${FIRMWARE_FILE_V2:-"$PROJECT_PATH/misc/simulated_device_firmware_2.0.0.fwu"}
@@ -140,8 +140,10 @@ cleanup(){
 
     if [[ -n "$ASSET_LINK_PID" ]]; then
         testcase_ok "Cleanup" "Stopping asset link"
-        kill "$ASSET_LINK_PID" || DONE=false; true
-        wait "$ASSET_LINK_PID" || true
+        if kill -0 "$ASSET_LINK_PID" 2>/dev/null; then
+            kill "$ASSET_LINK_PID" || DONE=false
+            wait "$ASSET_LINK_PID" || true
+        fi
     fi
 
     testcase_ok "Cleanup" "Performing cleanup"
@@ -177,6 +179,30 @@ json_array_len(){
     return 1
 }
 
+# Usage: json_field_array_len <json_file> <json_field> <expected_length>
+json_field_array_len(){
+    local ARRAY_LEN
+    # shellcheck disable=SC2002
+    ARRAY_LEN=$(cat "$1" | jq "$2 | length")
+    if [[ $? -eq 0 && "$ARRAY_LEN" -eq "$3" ]]; then
+        return 0
+    fi
+
+    return 1
+}
+
+# Usage: json_field_array_non_empty <json_file> <json_field>
+json_field_array_non_empty(){
+    local IS_NON_EMPTY
+    # shellcheck disable=SC2002
+    IS_NON_EMPTY=$(cat "$1" | jq "$2 | length > 0")
+    if [[ $? -eq 0 && "$IS_NON_EMPTY" == "true" ]]; then
+        return 0
+    fi
+
+    return 1
+}
+
 prepare_invalid_address_file(){
     # shellcheck disable=SC2002
     cat "$DEVICE_ADDRESS_FILE" | jq '.ipAddress = "192.168.0.153"' > "$INVALID_DEVICE_ADDRESS_FILE"
@@ -200,16 +226,16 @@ test_discover(){
     DONE=true
 }
 
-test_identifiers(){
-    header "Running autotest (identifiers)"
+test_properties(){
+    header "Running autotest (properties)"
     prepare
 
-    testcase_error "Discover" "Get identifiers with invalid request file"
-    test_error alctl assets identifier -p "$AUTOTEST_PATH/non_existing_file.json"
+    testcase_error "Discover" "Get properties with invalid request file"
+    test_error alctl assets properties -p "$AUTOTEST_PATH/non_existing_file.json"
 
-    testcase_ok "Discover" "Get identifiers of a specific asset that requires credentials"
-    test_ok alctl assets identifier -p "$IDENTIFIERS_REQUEST_FILE" | alctl assets convert -o "$AUTOTEST_PATH/specific_asset.json"
-    test_ok json_array_len "$AUTOTEST_PATH/specific_asset.json" 1
+    testcase_ok "Discover" "Get properties of a specific asset that requires credentials"
+    test_ok alctl assets properties -p "$PROPERTY_VALUES_REQUEST_FILE" -o "$AUTOTEST_PATH/specific_asset_properties.json"
+    test_ok json_field_array_non_empty "$AUTOTEST_PATH/specific_asset_properties.json" '.propertyResults'
 
     DONE=true
 }
@@ -217,7 +243,7 @@ test_identifiers(){
 print_usage(){
     echo "Usage: $0 <FEATURE>"
     echo ""
-    echo "Available Features: discover, identifiers"
+    echo "Available Features: discover, properties"
 }
 
 if [[ $# -ne 1 ]]; then
@@ -229,8 +255,8 @@ fi
 
 if [[ "$1" == "discover" ]]; then
     test_discover
-elif [[ "$1" == "identifiers" ]]; then
-    test_identifiers
+elif [[ "$1" == "properties" ]]; then
+    test_properties
 else
     error "Unknown feature: $1"
     echo ""

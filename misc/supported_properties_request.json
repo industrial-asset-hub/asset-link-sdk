@@ -1,0 +1,13 @@
+{
+  "device": {
+    "connection_parameter_set": {
+      "schema_uri": "https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base.json",
+      "parameter_json": "{\"asset_identifiers\":[{\"asset_identifier_type\":\"IdLinkIdentifier\",\"id_link\":\"https://industrial-assets.io/?1P=AN0123456789&S=SN123450002\"},{\"asset_identifier_type\":\"MacIdentifier\",\"mac_address\":\"00:16:3e:00:02:00\",\"identifier_uncertainty\":0},{\"asset_identifier_type\":\"SoftwareIdentifier\",\"name\":\"Firmware\",\"version\":\"1.0.0\"}]}",
+      "credentials": [
+        {
+          "credentials": "{\"username\":\"user\",\"password\":\"user_password\"}"
+        }
+      ]
+    }
+  }
+}
