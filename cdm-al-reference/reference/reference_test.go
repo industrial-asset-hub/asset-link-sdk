@@ -8,10 +8,12 @@
 package reference
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/industrial-asset-hub/asset-link-sdk/v4/cdm-al-reference/simdevices"
 	"github.com/industrial-asset-hub/asset-link-sdk/v4/config"
+	generatedDeviceInfo "github.com/industrial-asset-hub/asset-link-sdk/v4/generated/conn_suite_device_info"
 	generated "github.com/industrial-asset-hub/asset-link-sdk/v4/generated/iah-discovery"
 	"github.com/industrial-asset-hub/asset-link-sdk/v4/model"
 	"github.com/industrial-asset-hub/asset-link-sdk/v4/publish"
@@ -97,30 +99,126 @@ func TestConfig(t *testing.T) {
 		driver.GetSupportedOptions()
 	})
 }
-func TestGetIdentifiers(t *testing.T) {
+func TestGetPropertyValues(t *testing.T) {
 	simdevices.StartSimulatedDevices("") // start without visualization web server
-	t.Run("getIdentifiersSucceeds", func(t *testing.T) {
-		driver := &ReferenceAssetLink{}
-		credential := `{"username":"user","password":"user_password"}`
-		credentials := []*generated.ConnectionCredential{
-			{Credentials: credential},
+
+	driver := &ReferenceAssetLink{}
+	credential := `{"username":"user","password":"user_password"}`
+	credentials := []*generated.ConnectionCredential{{Credentials: credential}}
+	parameters := `{"alNic":"eth0","ipAddress":"192.168.0.12","subDeviceID":-1}`
+	target := &generated.Destination{Target: &generated.Destination_ConnectionParameterSet{ConnectionParameterSet: &generated.ConnectionParameterSet{Credentials: credentials, ParameterJson: parameters}}}
+
+	propertyResp, err := driver.GetPropertyValues(&generatedDeviceInfo.GetPropertyValuesRequest{Device: target})
+	assert.NoError(t, err)
+	assert.NotNil(t, propertyResp)
+	assert.NotEmpty(t, propertyResp.GetPropertyResults())
+
+	resultsByKey := make(map[string]*generated.Variant, len(propertyResp.GetPropertyResults()))
+	for _, result := range propertyResp.GetPropertyResults() {
+		property := result.GetProperty()
+		if property == nil {
+			continue
 		}
-		parameters := `{"alNic":"eth0","ipAddress":"192.168.0.12","subDeviceID":-1}`
-		getIdentifiersReq := &generated.GetIdentifiersRequest{
-			Target: &generated.Destination{
-				Target: &generated.Destination_ConnectionParameterSet{
-					ConnectionParameterSet: &generated.ConnectionParameterSet{
-						Credentials:   credentials,
-						ParameterJson: parameters,
-					},
-				},
-			},
+		resultsByKey[property.GetKey()] = property.GetValue()
+	}
+
+	connectionPoints := resultsByKey["connection_points"]
+	if assert.NotNil(t, connectionPoints) {
+		arrayValue := connectionPoints.GetArrayValue()
+		if assert.NotNil(t, arrayValue) && assert.NotEmpty(t, arrayValue.GetValues()) {
+			assert.NotNil(t, arrayValue.GetValues()[0].GetStructValue())
 		}
-		identifiersReq := config.NewIdentifiersRequestFromGetIdentifiersReq(getIdentifiersReq)
-		identifiers, err := driver.GetIdentifiers(identifiersReq)
-		assert.NoError(t, err)
-		assert.NotEmpty(t, identifiers)
+	}
+
+	productInfo := resultsByKey["product_instance_information"]
+	if assert.NotNil(t, productInfo) {
+		assert.NotNil(t, productInfo.GetStructValue())
+	}
+
+	for _, result := range propertyResp.GetPropertyResults() {
+		property := result.GetProperty()
+		if property == nil {
+			continue
+		}
+		assert.NotContains(t, property.GetKey(), ".", fmt.Sprintf("unexpected flattened property key %q", property.GetKey()))
+		assert.NotContains(t, property.GetKey(), "[", fmt.Sprintf("unexpected flattened property key %q", property.GetKey()))
+	}
+}
+
+func TestGetPropertyValuesWithAssetIdentifiers(t *testing.T) {
+	simdevices.StartSimulatedDevices("") // start without visualization web server
+
+	driver := &ReferenceAssetLink{}
+	identifierParameters := `{"asset_identifiers":[{"asset_identifier_type":"IdLinkIdentifier","id_link":"https://industrial-assets.io/?1P=AN0123456789&S=SN123450000"},{"asset_identifier_type":"MacIdentifier","mac_address":"00:16:3e:00:00:00"},{"asset_identifier_type":"SoftwareIdentifier","name":"Firmware","version":"1.0.0"}]}`
+	target := &generated.Destination{Target: &generated.Destination_ConnectionParameterSet{ConnectionParameterSet: &generated.ConnectionParameterSet{ParameterJson: identifierParameters}}}
+
+	propertyResp, err := driver.GetPropertyValues(&generatedDeviceInfo.GetPropertyValuesRequest{Device: target, Keys: []string{"name", "asset_identifiers"}})
+	assert.NoError(t, err)
+	assert.NotNil(t, propertyResp)
+	assert.NotEmpty(t, propertyResp.GetPropertyResults())
+}
+
+func TestGetPropertyValuesIncludesMandatoryFunctionalFields(t *testing.T) {
+	simdevices.StartSimulatedDevices("") // start without visualization web server
+
+	driver := &ReferenceAssetLink{}
+	parameters := `{"alNic":"eth0","ipAddress":"192.168.0.10","subDeviceID":-1}`
+	target := &generated.Destination{Target: &generated.Destination_ConnectionParameterSet{ConnectionParameterSet: &generated.ConnectionParameterSet{ParameterJson: parameters}}}
+
+	propertyResp, err := driver.GetPropertyValues(&generatedDeviceInfo.GetPropertyValuesRequest{
+		Device: target,
+		Keys:   []string{"functional_object_type", "functional_object_schema_url"},
 	})
+	assert.NoError(t, err)
+	assert.NotNil(t, propertyResp)
+
+	resultsByKey := make(map[string]*generated.Variant, len(propertyResp.GetPropertyResults()))
+	for _, result := range propertyResp.GetPropertyResults() {
+		property := result.GetProperty()
+		if property == nil {
+			continue
+		}
+		resultsByKey[property.GetKey()] = property.GetValue()
+	}
+
+	if assert.Contains(t, resultsByKey, "functional_object_type") {
+		assert.NotEmpty(t, resultsByKey["functional_object_type"].GetText())
+		assert.Equal(t, "Device", resultsByKey["functional_object_type"].GetText())
+	}
+
+	if assert.Contains(t, resultsByKey, "functional_object_schema_url") {
+		assert.NotEmpty(t, resultsByKey["functional_object_schema_url"].GetText())
+		assert.Equal(t, model.FunctionalObjectSchemaUrl, resultsByKey["functional_object_schema_url"].GetText())
+	}
+}
+
+func TestGetSupportedProperties(t *testing.T) {
+	simdevices.StartSimulatedDevices("") // start without visualization web server
+
+	driver := &ReferenceAssetLink{}
+	credential := `{"username":"user","password":"user_password"}`
+	credentials := []*generated.ConnectionCredential{{Credentials: credential}}
+	parameters := `{"alNic":"eth0","ipAddress":"192.168.0.12","subDeviceID":-1}`
+	target := &generated.Destination{Target: &generated.Destination_ConnectionParameterSet{ConnectionParameterSet: &generated.ConnectionParameterSet{Credentials: credentials, ParameterJson: parameters}}}
+
+	propertyResp, err := driver.GetSupportedProperties(&generatedDeviceInfo.GetSupportedPropertiesRequest{Device: target})
+	assert.NoError(t, err)
+	assert.NotNil(t, propertyResp)
+	assert.NotEmpty(t, propertyResp.GetProperties())
+
+	propertiesByKey := make(map[string]*generatedDeviceInfo.SupportedProperty, len(propertyResp.GetProperties()))
+	for _, property := range propertyResp.GetProperties() {
+		propertiesByKey[property.GetKey()] = property
+		assert.NotContains(t, property.GetKey(), ".")
+		assert.NotContains(t, property.GetKey(), "[")
+	}
+
+	if assert.Contains(t, propertiesByKey, "connection_points") {
+		assert.Equal(t, generated.VariantType_VT_ARRAY, propertiesByKey["connection_points"].GetDatatype())
+	}
+	if assert.Contains(t, propertiesByKey, "product_instance_information") {
+		assert.Equal(t, generated.VariantType_VT_STRUCT, propertiesByKey["product_instance_information"].GetDatatype())
+	}
 }
 
 func TestCreateDeviceInfoAssetRelations(t *testing.T) {
@@ -179,4 +277,57 @@ func TestCreateDeviceInfoAssetRelations(t *testing.T) {
 			}
 		}
 	})
+}
+
+func TestGetSupportedPropertiesWithAssetIdentifiers(t *testing.T) {
+	simdevices.StartSimulatedDevices("") // start without visualization web server
+
+	driver := &ReferenceAssetLink{}
+	identifierParameters := `{"asset_identifiers":[{"asset_identifier_type":"MacIdentifier","mac_address":"00:16:3e:00:00:00"}]}`
+	target := &generated.Destination{Target: &generated.Destination_ConnectionParameterSet{ConnectionParameterSet: &generated.ConnectionParameterSet{ParameterJson: identifierParameters}}}
+
+	propertyResp, err := driver.GetSupportedProperties(&generatedDeviceInfo.GetSupportedPropertiesRequest{Device: target})
+	assert.NoError(t, err)
+	assert.NotNil(t, propertyResp)
+	assert.NotEmpty(t, propertyResp.GetProperties())
+}
+
+func TestGetPropertyValuesWithSoftwareIdentifierOnly(t *testing.T) {
+	simdevices.StartSimulatedDevices("") // start without visualization web server
+
+	driver := &ReferenceAssetLink{}
+	identifierParameters := `{"asset_identifiers":[{"asset_identifier_type":"SoftwareIdentifier","name":"Firmware","version":"1.0.0"}]}`
+	target := &generated.Destination{Target: &generated.Destination_ConnectionParameterSet{ConnectionParameterSet: &generated.ConnectionParameterSet{ParameterJson: identifierParameters}}}
+
+	propertyResp, err := driver.GetPropertyValues(&generatedDeviceInfo.GetPropertyValuesRequest{Device: target, Keys: []string{"name", "software_components"}})
+	assert.NoError(t, err)
+	assert.NotNil(t, propertyResp)
+	assert.NotEmpty(t, propertyResp.GetPropertyResults())
+}
+
+func TestGetPropertyValuesWithCustomIdentifierIP(t *testing.T) {
+	simdevices.StartSimulatedDevices("") // start without visualization web server
+
+	driver := &ReferenceAssetLink{}
+	// CustomIdentifier with name=ip_address lets callers identify a device by IP without knowing its NIC
+	identifierParameters := `{"asset_identifiers":[{"asset_identifier_type":"CustomIdentifier","name":"ip_address","value":"192.168.0.10"}]}`
+	target := &generated.Destination{Target: &generated.Destination_ConnectionParameterSet{ConnectionParameterSet: &generated.ConnectionParameterSet{ParameterJson: identifierParameters}}}
+
+	propertyResp, err := driver.GetPropertyValues(&generatedDeviceInfo.GetPropertyValuesRequest{Device: target, Keys: []string{"name"}})
+	assert.NoError(t, err)
+	assert.NotNil(t, propertyResp)
+	assert.NotEmpty(t, propertyResp.GetPropertyResults())
+}
+
+func TestGetPropertyValuesWithCustomIdentifierSerialNumber(t *testing.T) {
+	simdevices.StartSimulatedDevices("") // start without visualization web server
+
+	driver := &ReferenceAssetLink{}
+	identifierParameters := `{"asset_identifiers":[{"asset_identifier_type":"CustomIdentifier","name":"serial_number","value":"SN123450000"}]}`
+	target := &generated.Destination{Target: &generated.Destination_ConnectionParameterSet{ConnectionParameterSet: &generated.ConnectionParameterSet{ParameterJson: identifierParameters}}}
+
+	propertyResp, err := driver.GetPropertyValues(&generatedDeviceInfo.GetPropertyValuesRequest{Device: target, Keys: []string{"name"}})
+	assert.NoError(t, err)
+	assert.NotNil(t, propertyResp)
+	assert.NotEmpty(t, propertyResp.GetPropertyResults())
 }

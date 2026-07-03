@@ -16,7 +16,7 @@ The SDK is designed to create a new Asset Link, you need to implement the interf
 Currently, two interfaces are supported:
 
 **Discovery Interface** (enables device discovery and consists of three functions: Discover, GetSupportedOptions, GetSupportedFilters)
-**Identifiers Interface** (enables getting identifiers of a device and consists of one function: GetIdentifiers)
+**DeviceInfo Interface** (enables property retrieval for a device and consists of two functions: GetPropertyValues, GetSupportedProperties)
 
 ### Pre-requisites
 
@@ -31,11 +31,11 @@ Gateway:
 Have a gateway stack running to connect the Asset Link to. The gateway needs to
 implement a server for the [grpcRegistry](https://github.com/industrial-asset-hub/asset-link-sdk/tree/main/specs/conn_suite_registry.proto) and implement the
 necessary clients for the specific Asset Link capabilities.
-For discovery, these clients need to be implemented:
+For discovery and device property retrieval, these clients need to be implemented:
 
 - [DriverInfo](https://github.com/industrial-asset-hub/asset-link-sdk/tree/main/specs/conn_suite_drv_info.proto)
 - [Discovery](https://github.com/industrial-asset-hub/asset-link-sdk/tree/main/specs/iah_discover.proto)
-- [Identifiers](https://github.com/industrial-asset-hub/asset-link-sdk/blob/main/specs/common_identifiers.proto)
+- [DeviceInfo](https://github.com/industrial-asset-hub/asset-link-sdk/blob/main/specs/conn_suite_device_info.proto)
 
 > You can download and use the [Asset Gateway](https://github.com/industrial-asset-hub/asset-gateway) from the
 > Siemens Industrial Asset Hub (IAH) for that purpose.

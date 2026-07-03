@@ -15,6 +15,7 @@ import (
 	"github.com/industrial-asset-hub/asset-link-sdk/v4/internal/server/webserver"
 	"github.com/industrial-asset-hub/asset-link-sdk/v4/metadata"
 
+	generatedDeviceInfoServer "github.com/industrial-asset-hub/asset-link-sdk/v4/generated/conn_suite_device_info"
 	generatedDriverInfoServer "github.com/industrial-asset-hub/asset-link-sdk/v4/generated/conn_suite_drv_info"
 	generatedDiscoveryServer "github.com/industrial-asset-hub/asset-link-sdk/v4/generated/iah-discovery"
 	"github.com/industrial-asset-hub/asset-link-sdk/v4/internal/features"
@@ -30,10 +31,9 @@ import (
 type alFeatureBuilder struct {
 	metadata metadata.Metadata
 
-	discovery   features.Discovery
-	identifiers features.Identifiers
+	discovery  features.Discovery
+	deviceInfo features.DeviceInfo
 	generatedDiscoveryServer.DeviceDiscoverApiServer
-	generatedDiscoveryServer.IdentifiersApiServer
 }
 
 // Methods to register new features
@@ -42,8 +42,8 @@ func (cb *alFeatureBuilder) Discovery(f features.Discovery) *alFeatureBuilder {
 	return cb
 }
 
-func (cb *alFeatureBuilder) Identifiers(f features.Identifiers) *alFeatureBuilder {
-	cb.identifiers = f
+func (cb *alFeatureBuilder) DeviceInfo(f features.DeviceInfo) *alFeatureBuilder {
+	cb.deviceInfo = f
 	return cb
 }
 
@@ -55,7 +55,7 @@ func New(metadata metadata.Metadata) *alFeatureBuilder {
 func (cb *alFeatureBuilder) Build() *AssetLink {
 	return &AssetLink{
 		discoveryImpl:         cb.discovery,
-		identifiersImpl:       cb.identifiers,
+		deviceInfoImpl:        cb.deviceInfo,
 		customDiscoveryServer: cb.DeviceDiscoverApiServer,
 		metadata:              cb.metadata,
 	}
@@ -65,7 +65,7 @@ func (cb *alFeatureBuilder) Build() *AssetLink {
 type AssetLink struct {
 	metadata              metadata.Metadata
 	discoveryImpl         features.Discovery
-	identifiersImpl       features.Identifiers
+	deviceInfoImpl        features.DeviceInfo
 	customDiscoveryServer generatedDiscoveryServer.DeviceDiscoverApiServer
 	grpcServer            *grpc.Server
 	registryClient        *registryclient.GrpcServerRegistry
@@ -147,15 +147,16 @@ func (d *AssetLink) Start(grpcServerAddress, registrationAddress, grpcRegistryAd
 		log.Info().
 			Msg("Discovery feature implementation not found")
 	}
-	if d.identifiersImpl != nil {
+	if d.deviceInfoImpl != nil {
 		log.Info().
-			Msg("Registered Identifiers feature implementation")
-		registryclient.AddCsInterface(registryclient.INTERFACE_COMMON_IDENTIFIERS_V1)
-		identifiersServer := &devicediscovery.IdentifiersServerEntity{
-			UnimplementedIdentifiersApiServer: generatedDiscoveryServer.UnimplementedIdentifiersApiServer{},
-			Identifiers:                       d.identifiersImpl,
+			Msg("Registered DeviceInfo feature implementation")
+		registryclient.AddCsInterface(registryclient.INTERFACE_CONN_SUITE_DEVICEINFO_V1)
+
+		deviceInfoServer := &devicediscovery.DeviceInfoServerEntity{
+			UnimplementedDeviceInfoApiServer: generatedDeviceInfoServer.UnimplementedDeviceInfoApiServer{},
+			DeviceInfo:                       d.deviceInfoImpl,
 		}
-		generatedDiscoveryServer.RegisterIdentifiersApiServer(d.grpcServer, identifiersServer)
+		generatedDeviceInfoServer.RegisterDeviceInfoApiServer(d.grpcServer, deviceInfoServer)
 	}
 	log.Info().
 		Str("address", grpcServerAddress).

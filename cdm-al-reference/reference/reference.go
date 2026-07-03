@@ -10,10 +10,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
 	"sync"
 
 	"github.com/industrial-asset-hub/asset-link-sdk/v4/cdm-al-reference/simdevices"
 	"github.com/industrial-asset-hub/asset-link-sdk/v4/config"
+	generatedDeviceInfo "github.com/industrial-asset-hub/asset-link-sdk/v4/generated/conn_suite_device_info"
 	generated "github.com/industrial-asset-hub/asset-link-sdk/v4/generated/iah-discovery"
 	"github.com/industrial-asset-hub/asset-link-sdk/v4/model"
 	"github.com/industrial-asset-hub/asset-link-sdk/v4/publish"
@@ -22,10 +24,52 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// Implements both the Discovery and the Identifiers interface/feature
+// Implements both the Discovery and DeviceInfo interface/feature
 
 type ReferenceAssetLink struct {
 	discoveryLock sync.Mutex
+}
+
+type parameterQuery struct {
+	AssetLinkNIC     string            `json:"alNic"`
+	DeviceIP         string            `json:"ipAddress"`
+	SubDeviceID      int               `json:"subDeviceID"`
+	AssetIdentifiers []assetIdentifier `json:"asset_identifiers"`
+}
+
+type assetIdentifier struct {
+	AssetIdentifierType string `json:"asset_identifier_type"`
+	IdLink              string `json:"id_link"`
+	MacAddress          string `json:"mac_address"`
+	Name                string `json:"name"`
+	Version             string `json:"version"`
+	Value               string `json:"value"`
+}
+
+const (
+	identifierTypeIDLink   = "idlinkidentifier"
+	identifierTypeMAC      = "macidentifier"
+	identifierTypeSoftware = "softwareidentifier"
+	identifierTypeCustom   = "customidentifier"
+
+	customIdentifierIPAddress    = "ip_address"
+	customIdentifierSerialNumber = "serial_number"
+	customIdentifierArticle      = "article_number"
+	customIdentifierDeviceName   = "device_name"
+)
+
+// referenceSupportedProperties is treated as immutable.
+var referenceSupportedProperties = []*generatedDeviceInfo.SupportedProperty{
+	{Key: "name", Type: &generatedDeviceInfo.SupportedProperty_Datatype{Datatype: generated.VariantType_VT_STRING}},
+	{Key: "description", Type: &generatedDeviceInfo.SupportedProperty_Datatype{Datatype: generated.VariantType_VT_STRING}},
+	{Key: "functional_object_type", Type: &generatedDeviceInfo.SupportedProperty_Datatype{Datatype: generated.VariantType_VT_STRING}},
+	{Key: "functional_object_schema_url", Type: &generatedDeviceInfo.SupportedProperty_Datatype{Datatype: generated.VariantType_VT_STRING}},
+	{Key: "asset_identifiers", Type: &generatedDeviceInfo.SupportedProperty_Datatype{Datatype: generated.VariantType_VT_ARRAY}},
+	{Key: "asset_relations", Type: &generatedDeviceInfo.SupportedProperty_Datatype{Datatype: generated.VariantType_VT_ARRAY}},
+	{Key: "connection_points", Type: &generatedDeviceInfo.SupportedProperty_Datatype{Datatype: generated.VariantType_VT_ARRAY}},
+	{Key: "software_components", Type: &generatedDeviceInfo.SupportedProperty_Datatype{Datatype: generated.VariantType_VT_ARRAY}},
+	{Key: "asset_operations", Type: &generatedDeviceInfo.SupportedProperty_Datatype{Datatype: generated.VariantType_VT_ARRAY}},
+	{Key: "product_instance_information", Type: &generatedDeviceInfo.SupportedProperty_Datatype{Datatype: generated.VariantType_VT_STRUCT}},
 }
 
 func (m *ReferenceAssetLink) Discover(discoveryConfig config.DiscoveryConfig, devicePublisher publish.DevicePublisher) error {
@@ -104,60 +148,197 @@ func (m *ReferenceAssetLink) GetSupportedFilters() []*generated.SupportedFilter 
 	return supportedFilters
 }
 
-func (m *ReferenceAssetLink) GetIdentifiers(identifiersRequest config.IdentifiersRequest) ([]*generated.DeviceIdentifier, error) {
-	log.Info().Msg("Handle GetIdentifiers Request")
-	parameterJson := identifiersRequest.GetParameterJson()
-	var deviceAddress simdevices.SimulatedDeviceAddress
-	err := json.Unmarshal([]byte(parameterJson), &deviceAddress)
+func (m *ReferenceAssetLink) GetPropertyValues(request *generatedDeviceInfo.GetPropertyValuesRequest) (*generatedDeviceInfo.GetPropertyValuesResponse, error) {
+	log.Info().Msg("Handle GetPropertyValues Request")
+	deviceInfo, err := m.loadDeviceInfo(request.GetDevice())
 	if err != nil {
-		log.Error().Err(err).Msg("Could not parse parameterJson")
-		return nil, status.Errorf(codes.InvalidArgument, "Could not parse parameterJson: %v", err)
+		return nil, err
 	}
-	var deviceCredentials simdevices.SimulatedDeviceCredentials
-	credentials := identifiersRequest.GetCredentials()
-	for _, credential := range credentials {
-		credMap := credential.GetCredentials()
-		err = json.Unmarshal([]byte(credMap), &deviceCredentials)
-		if err != nil {
-			log.Error().Err(err).Msg("Could not parse credentials")
-			return nil, status.Errorf(codes.InvalidArgument, "Could not parse credentials: %v", err)
-		}
-		deviceDetails, err := simdevices.RetrieveDeviceDetails(deviceAddress, &deviceCredentials)
-		if err != nil {
-			log.Warn().Err(err).Msgf("Could not retrieve device details with provided credentials for device at IP address %s and NIC %s",
-				deviceAddress.DeviceIP, deviceAddress.AssetLinkNIC)
-			continue // try next credentials
-		}
-		// if device can be reached with provided credentials, return its identifiers
-		// otherwise try next credentials
-		deviceInfo, err := createDeviceInfo(deviceDetails)
-		if err != nil {
-			log.Error().Err(err).Msg("Could not create device info")
-			return nil, status.Errorf(codes.Internal, "Could not create device info: %v", err)
-		}
-		discoveredDevice := deviceInfo.ConvertToDiscoveredDevice()
-		if discoveredDevice != nil {
-			return discoveredDevice.GetIdentifiers(), nil
-		}
+	propertyResults, err := deviceInfo.ConvertToPropertyValueResults()
+	if err != nil {
+		return nil, err
 	}
-	// if device can not be reached with any provided credentials, try without credentials
-	deviceDetails, err := simdevices.RetrieveDeviceDetails(deviceAddress, nil)
+	return &generatedDeviceInfo.GetPropertyValuesResponse{PropertyResults: propertyResults}, nil
+}
+
+func (m *ReferenceAssetLink) GetSupportedProperties(_ *generatedDeviceInfo.GetSupportedPropertiesRequest) (*generatedDeviceInfo.GetSupportedPropertiesResponse, error) {
+	log.Info().Msg("Handle GetSupportedProperties Request")
+
+	return &generatedDeviceInfo.GetSupportedPropertiesResponse{Properties: referenceSupportedProperties}, nil
+}
+
+func (m *ReferenceAssetLink) loadDeviceInfo(device *generated.Destination) (*model.DeviceInfo, error) {
+	if device == nil {
+		return nil, status.Errorf(codes.InvalidArgument, "missing device target")
+	}
+
+	connectionParameterSet := device.GetConnectionParameterSet()
+	if connectionParameterSet == nil {
+		return nil, status.Errorf(codes.InvalidArgument, "missing connection parameter set")
+	}
+
+	credentials, err := parseCredentials(connectionParameterSet.GetCredentials())
+	if err != nil {
+		log.Error().Err(err).Msg("Could not parse credentials")
+		return nil, status.Errorf(codes.InvalidArgument, "Could not parse credentials: %v", err)
+	}
+
+	deviceDetails, deviceAddress, err := resolveDeviceDetails(connectionParameterSet.GetParameterJson(), credentials)
 	if err != nil {
 		log.Error().Err(err).Msgf("Could not retrieve device details for device at IP address %s and NIC %s", deviceAddress.DeviceIP,
 			deviceAddress.AssetLinkNIC)
 		return nil, status.Errorf(codes.Unavailable, "Could not retrieve device details: %v", err)
 	}
+
+	return wrapDeviceInfo(deviceDetails)
+}
+
+func parseCredentials(credentials []*generated.ConnectionCredential) ([]*simdevices.SimulatedDeviceCredentials, error) {
+	parsedCredentials := make([]*simdevices.SimulatedDeviceCredentials, 0, len(credentials))
+
+	for _, credential := range credentials {
+		parsedCredential := &simdevices.SimulatedDeviceCredentials{}
+		if err := json.Unmarshal([]byte(credential.GetCredentials()), parsedCredential); err != nil {
+			return nil, err
+		}
+
+		if parsedCredential.Username == "" && parsedCredential.Password == "" {
+			continue
+		}
+
+		parsedCredentials = append(parsedCredentials, parsedCredential)
+	}
+
+	return parsedCredentials, nil
+}
+
+func resolveDeviceDetails(parameterJSON string, credentials []*simdevices.SimulatedDeviceCredentials) (simdevices.SimulatedDeviceInfo, simdevices.SimulatedDeviceAddress, error) {
+	query := parameterQuery{}
+	if err := json.Unmarshal([]byte(parameterJSON), &query); err != nil {
+		return nil, simdevices.SimulatedDeviceAddress{}, status.Errorf(codes.InvalidArgument, "Could not parse parameterJson: %v", err)
+	}
+
+	deviceAddress := simdevices.SimulatedDeviceAddress{
+		AssetLinkNIC: query.AssetLinkNIC,
+		DeviceIP:     query.DeviceIP,
+		SubDeviceID:  query.SubDeviceID,
+	}
+
+	if deviceAddress.AssetLinkNIC != "" && deviceAddress.DeviceIP != "" {
+		deviceDetails, err := retrieveDeviceDetailsWithCredentials(deviceAddress, credentials)
+		return deviceDetails, deviceAddress, err
+	}
+
+	if len(query.AssetIdentifiers) == 0 {
+		return nil, simdevices.SimulatedDeviceAddress{}, status.Errorf(codes.InvalidArgument, "parameterJson must contain either alNic/ipAddress or asset_identifiers")
+	}
+
+	for _, address := range simdevices.ScanForDevices("", "") {
+		if details, err := retrieveDeviceDetailsWithCredentials(address, credentials); err == nil {
+			if matchesAssetIdentifiers(details, query.AssetIdentifiers) {
+				return details, address, nil
+			}
+		}
+	}
+
+	return nil, simdevices.SimulatedDeviceAddress{}, simdevices.ErrDeviceNotFound
+}
+
+func retrieveDeviceDetailsWithCredentials(deviceAddress simdevices.SimulatedDeviceAddress, credentials []*simdevices.SimulatedDeviceCredentials) (simdevices.SimulatedDeviceInfo, error) {
+	for _, credential := range credentials {
+		deviceDetails, err := simdevices.RetrieveDeviceDetails(deviceAddress, credential)
+		if err != nil {
+			log.Warn().Err(err).Msgf("Could not retrieve device details with provided credentials for device at IP address %s and NIC %s",
+				deviceAddress.DeviceIP, deviceAddress.AssetLinkNIC)
+			continue
+		}
+
+		return deviceDetails, nil
+	}
+
+	return simdevices.RetrieveDeviceDetails(deviceAddress, nil)
+}
+
+func matchesAssetIdentifiers(device simdevices.SimulatedDeviceInfo, identifiers []assetIdentifier) bool {
+	recognizedIdentifiers := 0
+
+	for _, identifier := range identifiers {
+		switch normalizeIdentifierType(identifier.AssetIdentifierType) {
+		case identifierTypeIDLink:
+			if identifier.IdLink == "" {
+				continue
+			}
+			recognizedIdentifiers++
+			if !strings.EqualFold(device.GetIDLink(), identifier.IdLink) {
+				return false
+			}
+		case identifierTypeMAC:
+			if identifier.MacAddress == "" {
+				continue
+			}
+			recognizedIdentifiers++
+			if !strings.EqualFold(device.GetMacAddress(), identifier.MacAddress) {
+				return false
+			}
+		case identifierTypeSoftware:
+			if identifier.Name == "" || identifier.Version == "" {
+				continue
+			}
+			recognizedIdentifiers++
+			if !strings.EqualFold(identifier.Name, "Firmware") {
+				return false
+			}
+			if !strings.EqualFold(device.GetActiveFirmwareVersion(), identifier.Version) {
+				return false
+			}
+		case identifierTypeCustom:
+			if identifier.Name == "" || identifier.Value == "" {
+				continue
+			}
+			recognizedIdentifiers++
+			if !matchesCustomIdentifier(device, identifier.Name, identifier.Value) {
+				return false
+			}
+		}
+	}
+
+	return recognizedIdentifiers > 0
+}
+
+// matchesCustomIdentifier maps well-known custom identifier names to the
+// corresponding simulated-device property. Callers can use any of these names
+// to identify a device without knowing its internal NIC/IP address:
+//
+//	"ip_address"     - device IP address
+//	"serial_number"  - device serial number
+//	"article_number" - device article number
+//	"device_name"    - device name
+func matchesCustomIdentifier(device simdevices.SimulatedDeviceInfo, name, value string) bool {
+	switch strings.ToLower(strings.TrimSpace(name)) {
+	case customIdentifierIPAddress:
+		return strings.EqualFold(device.GetIpDevice(), value)
+	case customIdentifierSerialNumber:
+		return strings.EqualFold(device.GetSerialNumber(), value)
+	case customIdentifierArticle:
+		return strings.EqualFold(device.GetArticleNumber(), value)
+	case customIdentifierDeviceName:
+		return strings.EqualFold(device.GetDeviceName(), value)
+	}
+	return false
+}
+
+func normalizeIdentifierType(identifierType string) string {
+	return strings.ToLower(strings.TrimSpace(identifierType))
+}
+
+// wrapDeviceInfo calls createDeviceInfo and wraps any error with an Internal gRPC status.
+func wrapDeviceInfo(deviceDetails simdevices.SimulatedDeviceInfo) (*model.DeviceInfo, error) {
 	deviceInfo, err := createDeviceInfo(deviceDetails)
 	if err != nil {
 		log.Error().Err(err).Msg("Could not create device info")
 		return nil, status.Errorf(codes.Internal, "Could not create device info: %v", err)
 	}
-	discoveredDevice := deviceInfo.ConvertToDiscoveredDevice()
-	if discoveredDevice != nil {
-		return discoveredDevice.GetIdentifiers(), nil
-	}
-	return nil, status.Errorf(codes.NotFound, "Could not retrieve device details for device at IP address %s and NIC %s", deviceAddress.DeviceIP,
-		deviceAddress.AssetLinkNIC)
+	return deviceInfo, nil
 }
 
 func createDiscoverError(sdError error, sdAddress simdevices.SimulatedDeviceAddress) *generated.DiscoverError {
@@ -189,7 +370,7 @@ func createDiscoverError(sdError error, sdAddress simdevices.SimulatedDeviceAddr
 }
 
 func createDeviceInfo(device simdevices.SimulatedDeviceInfo) (*model.DeviceInfo, error) {
-	deviceInfo, err := model.NewDevice("Asset", device.GetDeviceName())
+	deviceInfo, err := model.NewDevice("Device", device.GetDeviceName())
 	if err != nil {
 		if errors.Is(err, model.ErrEmpty) {
 			log.Warn().Err(err).Msg("one or more required fields for creating device info are empty, cannot create device info for discovered device")
@@ -197,6 +378,17 @@ func createDeviceInfo(device simdevices.SimulatedDeviceInfo) (*model.DeviceInfo,
 		}
 		log.Warn().Err(err).Msg("Could not create device info")
 		return deviceInfo, nil
+	}
+
+	// Keep mandatory base fields non-empty for GetPropertyValues/GetSupportedProperties.
+	functionalObjectType, typeOk := deviceInfo.FunctionalObjectType.(string)
+	if !typeOk || strings.TrimSpace(functionalObjectType) == "" {
+		deviceInfo.FunctionalObjectType = string(model.DeviceFunctionalObjectTypeDevice)
+	}
+
+	functionalObjectSchemaURL, schemaURLOk := deviceInfo.FunctionalObjectSchemaUrl.(string)
+	if !schemaURLOk || strings.TrimSpace(functionalObjectSchemaURL) == "" {
+		deviceInfo.FunctionalObjectSchemaUrl = model.FunctionalObjectSchemaUrl
 	}
 
 	err = deviceInfo.AddNameplate(device.GetManufacturer(), device.GetIDLink(), device.GetArticleNumber(),

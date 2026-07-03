@@ -456,7 +456,7 @@ The gRPC interfaces are defined in the `specs/` directory:
 - `conn_suite_registry.proto` - Registry service interface
 - `conn_suite_drv_info.proto` - Driver information interface
 - `iah_discover.proto` - Discovery service interface
-- `common_identifiers.proto` - Identifiers service interface
+- `conn_suite_device_info.proto` - DeviceInfo property service interface
 
 ---
 

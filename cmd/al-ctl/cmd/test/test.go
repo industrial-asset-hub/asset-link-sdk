@@ -72,10 +72,10 @@ func init() {
 		"should be true if linkml is already supported in the test environment")
 	apiCmd.Flags().StringVarP(&baseSchemaPath, "base-schema-path", "b", "", "Path to the base schema YAML file")
 	apiCmd.Flags().StringVarP(&extendedSchemaPath, "extended-schema-path", "s", "", "Path to the extended schema YAML file")
-	apiCmd.Flags().StringVarP(&credentialPath, "credential-path", "p", "", "Path to the credential file")
+	apiCmd.Flags().StringVarP(&credentialPath, "credential-path", "p", "", "Path to the credential file (discovery) or GetPropertyValues request file (properties)")
 	apiCmd.Flags().StringVarP(&targetClass, "target-class", "t", "", "Target class for validation")
 	apiCmd.Flags().StringVarP(&serviceName, "service-name", "u", "",
-		"Service to be validated (supported services: discovery, identifiers)")
+		"Service to be validated (supported services: discovery, properties, supported-properties)")
 	apiCmd.Flags().BoolVarP(&cancelValidationRequired, "cancel", "c", false, "Check cancellation of the service request")
 	registerCmd.Flags().StringVarP(&registryJsonPath, "registry-json-path", "f", "", "Registration param file path")
 }

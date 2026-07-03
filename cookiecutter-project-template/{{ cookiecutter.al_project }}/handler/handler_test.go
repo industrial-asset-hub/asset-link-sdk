@@ -8,6 +8,7 @@
 package handler
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/industrial-asset-hub/asset-link-sdk/v4/config"
@@ -15,6 +16,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/encoding/protojson"
 )
 
 func TestDiscovery(t *testing.T) {
@@ -27,7 +29,13 @@ func TestDiscovery(t *testing.T) {
 		driver := &AssetLinkImplementation{}
 
 		assert.NoError(t, driver.Discover(discoveryConfig, devicePublisher))
-		assert.NotEmpty(t, devicePublisher.GetDevices())
+
+		devices := devicePublisher.GetDevices()
+		assert.Len(t, devices, 1)
+
+		devicePayload, err := protojson.Marshal(devices[0])
+		assert.NoError(t, err)
+		assert.True(t, strings.Contains(string(devicePayload), "00:16:3e:01:02:03"), "discovered device should contain MAC-based identifier")
 	})
 
 	t.Run("discoveryFails", func(t *testing.T) {

@@ -39,7 +39,8 @@ Below are the detailed description of some important commands:
 $ al-ctl assets --help
 $ al-ctl assets discover --help
 $ al-ctl assets convert --help
-$ al-ctl assets identifier --help
+$ al-ctl assets properties --help
+$ al-ctl assets getsupportedproperties --help
 ```
 
 Examples of these commands are described below:
@@ -75,10 +76,24 @@ $ al-ctl assets convert -e localhost:8081 -i <input-file> -o <output-file>
 ```
 
 ```bash
-# To run get identifiers on the Asset Link
-$ al-ctl assets identifier -e localhost:8081 -p <identifiers-request-file-path> -o <output-file>
+# To get device properties from the Asset Link
+$ al-ctl assets properties -e localhost:8081 -p <property-request-file-path> [-o <output-file>]
 
-# Example: al-ctl assets identifier -e localhost:8081 -p misc/identifier_request.json -o test-asset.json
+# Example: al-ctl assets properties -e localhost:8081 -p misc/property_values_request.json -o properties-output.json
+```
+
+```bash
+# To get supported device properties from the Asset Link
+$ al-ctl assets getsupportedproperties -e localhost:8081 -p <property-request-file-path> [-o <output-file>]
+
+# Example: al-ctl assets getsupportedproperties -e localhost:8081 -p misc/supported_properties_request.json -o supported-properties-output.json
+```
+
+```bash
+# To convert a GetPropertyValues response payload to actual assets
+$ al-ctl assets convert -e localhost:8081 -i <property-response-file> -o <output-file>
+
+# Example: al-ctl assets convert -e localhost:8081 -i examples/GetPropertyValuesResponse.json -o converted-property-asset.json
 ```
 
 ## Command: 'test'
@@ -88,6 +103,7 @@ $ al-ctl assets identifier -e localhost:8081 -p <identifiers-request-file-path> 
 $ al-ctl test --help
 $ al-ctl test api --help
 $ al-ctl test assets --help
+$ al-ctl test properties --help
 $ al-ctl test registration --help
 ```
 
@@ -115,21 +131,27 @@ $ al-ctl test api -e localhost:8081 --service-name discovery [-d <discovery-conf
 ```
 
 ```bash
-# To test the get-identifiers grpc api
-$ al-ctl test api -e localhost:8081 --service-name identifiers -p <identifiers-request-file-path>
-# The Asset Link must be running on the provided address, for example here: localhost:8081 and the Asset Link must implement Get Identifiers API. Also provide the identifier request file path, default is empty.
+# To test the GetPropertyValues grpc api
+$ al-ctl test api -e localhost:8081 --service-name properties -p <property-request-file-path>
+# The Asset Link must be running on the provided address, for example here: localhost:8081 and the Asset Link must implement GetPropertyValues API. Also provide the property request file path.
 
-# Example: al-ctl test api -e localhost:8081 --service-name identifiers -p misc/identifier_request.json
+# Example: al-ctl test api -e localhost:8081 --service-name properties -p misc/property_values_request.json
 ```
 
 ```bash
-# To validate the response from get-identifiers grpc api with base-schema
-$ al-ctl test api -e localhost:8081 --service-name identifiers -p <identifiers-request-file-path> -v --base-schema-path <base-schema> --target-class Asset
-# The Asset Link must be running on the provided address. Provide the identifier request file path and base schema path.
+# To also validate the discovered assets with properties against the schema use -v flag
+$ al-ctl test api -l -e localhost:8081 --service-name properties  -p <property-request-file-path> -v --base-schema-path <base-schema> --target-class Asset
+# The Asset Link must be running on the provided address, for example here: localhost:8081
 
-# SPECIAL NOTE: Depending on the asset link implementation of Get Identifiers, the asset returned may be incomplete. Hence, the validation may fail.
+# Example: al-ctl test api -l -e localhost:8081 --service-name properties -p misc/property_values_request.json -v --base-schema-path model/iah_base_v1.11.0.yaml --target-class Asset
+```
 
-# Example: al-ctl test api -e localhost:8081 --service-name identifiers -p misc/identifier_request.json -v --base-schema-path model/iah_base_v1.11.0.yaml --target-class Asset
+```bash
+# To test the GetSupportedProperties grpc api
+$ al-ctl test api -e localhost:8081 --service-name supported-properties -p <supported-properties-request-file-path>
+# The Asset Link must be running on the provided address, for example here: localhost:8081 and the Asset Link must implement GetSupportedProperties API.
+
+# Example: al-ctl test api -e localhost:8081 --service-name supported-properties -p misc/supported_properties_request.json
 ```
 
 ```bash
