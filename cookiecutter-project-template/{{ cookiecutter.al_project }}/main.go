@@ -68,10 +68,13 @@ func main() {
 	// Register AL implementation
 	alImpl := new(handler.AssetLinkImplementation)
 	alInstance := assetlink.New(metadata.Metadata{
-		Version: metadata.Version{Version: version, Commit: commit, Date: date},
-		AlId:    alId,
-		AlName:  alName,
-		Vendor:  vendor,
+		Version:     metadata.Version{Version: version, Commit: commit, Date: date},
+		AlId:        alId,
+		AlName:      alName,
+		Vendor:      vendor,
+		Description: "This Asset Link is a reference implementation for development and testing purposes.",
+		DocUrl:      "",
+		FeedbackUrl: "",
 	}).
 		Discovery(alImpl).
 		DeviceInfo(alImpl).

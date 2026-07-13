@@ -8,10 +8,13 @@
 package metadata
 
 type Metadata struct {
-	AlId    string
-	AlName  string
-	Version Version
-	Vendor  string
+	AlId        string
+	AlName      string
+	Version     Version
+	Vendor      string
+	Description string
+	DocUrl      string
+	FeedbackUrl string
 }
 
 // Version for observability

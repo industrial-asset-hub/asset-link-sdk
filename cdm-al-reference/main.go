@@ -65,10 +65,13 @@ func main() {
 	// Register al implementation
 	myAssetLinkImplementation := new(reference.ReferenceAssetLink)
 	alImpl := assetlink.New(metadata.Metadata{
-		Version: metadata.Version{Version: version, Commit: commit, Date: date},
-		AlId:    "siemens.cdm.al.reference",
-		AlName:  "Reference Asset Link",
-		Vendor:  "Siemens AG",
+		Version:     metadata.Version{Version: version, Commit: commit, Date: date},
+		AlId:        "siemens.cdm.al.reference",
+		AlName:      "Reference Asset Link",
+		Vendor:      "Siemens AG",
+		Description: "Reference implementation of an Asset Link with simulated devices for development and testing purposes.",
+		DocUrl:      "",
+		FeedbackUrl: "",
 	}).
 		Discovery(myAssetLinkImplementation).
 		DeviceInfo(myAssetLinkImplementation).
