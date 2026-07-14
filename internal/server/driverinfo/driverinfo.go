@@ -42,16 +42,19 @@ func (o *DriverInfoServerEntity) GetVersionInfo(c context.Context, request *gene
 
 	var product = o.Metadata.AlName
 	var vendor = o.Metadata.Vendor
-	// Currently not used.
-	var docu = ""
+	var description = o.Metadata.Description
+	var docu = o.Metadata.DocUrl
+	var feedback = o.Metadata.FeedbackUrl
 
 	return &generated.GetVersionInfoResponse{Version: &generated.VersionInfo{
-		Major:       major,
-		Minor:       minor,
-		Patch:       patch,
-		Suffix:      suffix,
-		VendorName:  vendor,
-		ProductName: product,
-		DocuUrl:     docu,
+		Major:              major,
+		Minor:              minor,
+		Patch:              patch,
+		Suffix:             suffix,
+		VendorName:         vendor,
+		ProductName:        product,
+		ProductDescription: description,
+		DocuUrl:            docu,
+		FeedbackUrl:        feedback,
 	}}, nil
 }

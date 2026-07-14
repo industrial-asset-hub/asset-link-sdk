@@ -44,7 +44,7 @@ func printDriverInfo(conn *grpc.ClientConn) {
 
 	println("Asset Link:")
 	printVersionInfo("ProductName", version.GetProductName())
-	printVersionInfo("ProdcutDescription", version.GetProductDescription())
+	printVersionInfo("ProductDescription", version.GetProductDescription())
 	printVersionInfo("Version", versionNumber)
 	printVersionInfo("VendorName", version.GetVendorName())
 	printVersionInfo("Suffix", version.GetSuffix())
