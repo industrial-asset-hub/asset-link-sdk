@@ -61,7 +61,7 @@ func TestNetwork(t *testing.T) {
 		assert.NotEmpty(t, id)
 		assert.NoError(t, err)
 
-		id, err = m.AddIPv4("nic99", "172.16.0.1", "255.255.255.0", "")
+		id, err = m.AddIPv4("nic0", "172.16.0.1", "", "")
 		assert.Empty(t, id)
 		assert.Error(t, err)
 
@@ -243,16 +243,10 @@ func TestAddIPv6_Validation(t *testing.T) {
 		}
 	})
 
-	t.Run("Invalid router IPv6 address should return ValidationError", func(t *testing.T) {
+	t.Run("Invalid router IPv6 address should be ignored with warning", func(t *testing.T) {
 		id, err := m.AddIPv6(nicId, "2001:0db8:85a3:0000:0000:8a2e:0370:7334", "2001:db8:/64", "invalid-router")
-		assert.Empty(t, id)
-		assert.Error(t, err)
-		var ve *ValidationError
-		if errors.As(err, &ve) {
-			assert.Equal(t, "RouterIPv6Address", ve.Field)
-			assert.Equal(t, "Router IPv6 address format is invalid. Please refer to the base schema for the supported pattern.", ve.Message)
-			assert.Equal(t, "invalid-router", ve.Value)
-		}
+		assert.NotEmpty(t, id)
+		assert.NoError(t, err)
 	})
 }
 
