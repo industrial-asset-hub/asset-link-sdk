@@ -46,15 +46,8 @@ func (d *DeviceInfo) AddNic(name, macAddress string) (string, error) {
 //
 // No validation of is currently done
 func (d *DeviceInfo) AddIPv4(nicId string, ipv4Address string, networkMask string, routerAddress string) (id string, err error) {
-	err = validateField(ipv4Address, "IPv4Address", "IPv4 address is empty", IPv4AddressPattern,
-		"IPv4 address format is invalid. Please refer to the base schema for the supported pattern.")
-	if err != nil {
-		return "", err
-	}
-	err = validateField(networkMask, "NetworkMask", "Network mask is empty", NetworkMaskPattern,
-		"Network mask format is invalid. Please refer to the base schema for the supported pattern.")
-	if err != nil {
-		return "", err
+	if !isNonEmptyValues(ipv4Address, networkMask, routerAddress) {
+		return "", nil
 	}
 
 	id = uuid.New().String()
@@ -67,10 +60,25 @@ func (d *DeviceInfo) AddIPv4(nicId string, ipv4Address string, networkMask strin
 	ipv4 := Ipv4Connectivity{
 		ConnectionPointType:     connectionPointType,
 		Id:                      &id,
-		Ipv4Address:             ipv4Address,
 		RelatedConnectionPoints: []RelatedConnectionPoint{relationship},
 	}
-	ipv4.NetworkMask = &networkMask
+
+	err = validateField(ipv4Address, "IPv4Address", "IPv4 address is empty", IPv4AddressPattern,
+		"IPv4 address format is invalid. Please refer to the base schema for the supported pattern.")
+	if err != nil {
+		log.Warn().Err(err).Str("field", "IPv4Address").Msg("Ignoring IPv4 address")
+	} else {
+		ipv4.Ipv4Address = ipv4Address
+	}
+
+	err = validateField(networkMask, "NetworkMask", "Network mask is empty", NetworkMaskPattern,
+		"Network mask format is invalid. Please refer to the base schema for the supported pattern.")
+	if err != nil {
+		log.Warn().Err(err).Str("field", "NetworkMask").Msg("Ignoring network mask")
+	} else {
+		ipv4.NetworkMask = &networkMask
+	}
+
 	err = validateField(routerAddress, "RouterIPv4Address", "Router IPv4 address is empty", RouterIPv4AddressPattern,
 		"Router IPv4 address format is invalid. Please refer to the base schema for the supported pattern.")
 	if err != nil {
@@ -87,13 +95,8 @@ func (d *DeviceInfo) AddIPv4(nicId string, ipv4Address string, networkMask strin
 //
 // No validation of is currently done
 func (d *DeviceInfo) AddIPv6(nicId string, ipv6Address string, networkPrefix string, routerAddress string) (id string, err error) {
-	err = validateField(ipv6Address, "IPv6Address", "IPv6 address is empty", IPv6AddressPattern, "IPv6 address format is invalid. Please refer to the base schema for the supported pattern.")
-	if err != nil {
-		return "", err
-	}
-	err = validateField(networkPrefix, "IPv6NetworkPrefix", "IPv6 network prefix is empty", IPv6NetworkPrefixPattern, "IPv6 network prefix format is invalid. Please refer to the base schema for the supported pattern.")
-	if err != nil {
-		return "", err
+	if !isNonEmptyValues(ipv6Address, networkPrefix, routerAddress) {
+		return "", nil
 	}
 
 	id = uuid.New().String()
@@ -106,10 +109,23 @@ func (d *DeviceInfo) AddIPv6(nicId string, ipv6Address string, networkPrefix str
 	ipv6 := Ipv6Connectivity{
 		ConnectionPointType:     connectionPointType,
 		Id:                      &id,
-		Ipv6Address:             ipv6Address,
 		RelatedConnectionPoints: []RelatedConnectionPoint{relationship},
 	}
-	ipv6.Ipv6NetworkPrefix = &networkPrefix
+
+	err = validateField(ipv6Address, "IPv6Address", "IPv6 address is empty", IPv6AddressPattern, "IPv6 address format is invalid. Please refer to the base schema for the supported pattern.")
+	if err != nil {
+		log.Warn().Err(err).Str("field", "IPv6Address").Msg("Ignoring IPv6 address")
+	} else {
+		ipv6.Ipv6Address = ipv6Address
+	}
+
+	err = validateField(networkPrefix, "IPv6NetworkPrefix", "IPv6 network prefix is empty", IPv6NetworkPrefixPattern, "IPv6 network prefix format is invalid. Please refer to the base schema for the supported pattern.")
+	if err != nil {
+		log.Warn().Err(err).Str("field", "IPv6NetworkPrefix").Msg("Ignoring IPv6 network prefix")
+	} else {
+		ipv6.Ipv6NetworkPrefix = &networkPrefix
+	}
+
 	err = validateField(routerAddress, "RouterIPv6Address", "Router IPv6 address is empty", RouterIPv6AddressPattern, "Router IPv6 address format is invalid. Please refer to the base schema for the supported pattern.")
 	if err != nil {
 		log.Warn().Err(err).Str("field", "RouterIPv6Address").Msg("Ignoring router IPv6 address")
