@@ -252,7 +252,7 @@ func TestRegisterFunc(t *testing.T) {
 		r.appInstanceId = CDM_DEVICE_CLASS_DRIVER.String() + "-" + "test-al"
 
 		register := &pb.RegisterServiceRequest{Info: &pb.ServiceInfo{
-			AppTypes:         getCsInterfaces(),
+			AppTypes:         getCsAppTypes(),
 			Interfaces:       getCsInterfaces(),
 			AppInstanceId:    r.appInstanceId,
 			DriverSchemaUris: []string{r.alId},

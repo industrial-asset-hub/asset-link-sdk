@@ -126,6 +126,8 @@ func (d *AssetLink) Start(grpcServerAddress, registrationAddress, grpcRegistryAd
 	// if a custom discovery server is provided, register it
 	case d.customDiscoveryServer != nil:
 		log.Info().Msg("Registered existing discovery server")
+
+		registryclient.AddCsAppType(registryclient.APPTYPE_IAH_DISCOVER)
 		registryclient.AddCsInterface(registryclient.INTERFACE_IAH_DISCOVER_V1)
 
 		generatedDiscoveryServer.RegisterDeviceDiscoverApiServer(d.grpcServer, d.customDiscoveryServer)
@@ -134,6 +136,8 @@ func (d *AssetLink) Start(grpcServerAddress, registrationAddress, grpcRegistryAd
 	case d.discoveryImpl != nil:
 		log.Info().
 			Msg("Registered Discovery feature implementation")
+
+		registryclient.AddCsAppType(registryclient.APPTYPE_IAH_DISCOVER)
 		registryclient.AddCsInterface(registryclient.INTERFACE_IAH_DISCOVER_V1)
 
 		discoveryServer := &devicediscovery.DiscoverServerEntity{
