@@ -72,7 +72,12 @@ func TestNetwork(t *testing.T) {
 
 		id, err = m.AddIPv4("nic101", "", "", "")
 		assert.Empty(t, id)
-		assert.NoError(t, err)
+		assert.Error(t, err)
+		var ee *EmptyError
+		if errors.As(err, &ee) {
+			assert.Equal(t, "Ipv4Connectivity", ee.Field)
+			assert.Equal(t, "All fields for Ipv4Connectivity are empty", ee.Message)
+		}
 
 		id, err = m.AddIPv4("nic102", "999.999.999.999", "255.255.255.0", "10.0.0.254")
 		assert.NotEmpty(t, id)
@@ -114,6 +119,15 @@ func TestNetwork(t *testing.T) {
 		assert.Equal(t, "2001:0db8:85a3:0000:0000:8a2e:0370:7334", cp.Ipv6Address)
 		assert.Nil(t, cp.Ipv6NetworkPrefix)
 		assert.Nil(t, cp.RouterIpv6Address)
+
+		id3, err3 := m.AddIPv6("nic101", "", "", "")
+		assert.Empty(t, id3)
+		assert.Error(t, err3)
+		var ee *EmptyError
+		if errors.As(err3, &ee) {
+			assert.Equal(t, "Ipv6Connectivity", ee.Field)
+			assert.Equal(t, "All fields for Ipv6Connectivity are empty", ee.Message)
+		}
 
 		found := 0
 		for _, v := range m.getIPv6() {

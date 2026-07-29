@@ -47,7 +47,11 @@ func (d *DeviceInfo) AddNic(name, macAddress string) (string, error) {
 // No validation of is currently done
 func (d *DeviceInfo) AddIPv4(nicId string, ipv4Address string, networkMask string, routerAddress string) (id string, err error) {
 	if !isNonEmptyValues(ipv4Address, networkMask, routerAddress) {
-		return "", nil
+		err := &EmptyError{
+			Field:   "Ipv4Connectivity",
+			Message: "All fields for Ipv4Connectivity are empty",
+		}
+		return "", err
 	}
 
 	id = uuid.New().String()
@@ -96,7 +100,11 @@ func (d *DeviceInfo) AddIPv4(nicId string, ipv4Address string, networkMask strin
 // No validation of is currently done
 func (d *DeviceInfo) AddIPv6(nicId string, ipv6Address string, networkPrefix string, routerAddress string) (id string, err error) {
 	if !isNonEmptyValues(ipv6Address, networkPrefix, routerAddress) {
-		return "", nil
+		err := &EmptyError{
+			Field:   "Ipv6Connectivity",
+			Message: "All fields for Ipv6Connectivity are empty",
+		}
+		return "", err
 	}
 
 	id = uuid.New().String()
