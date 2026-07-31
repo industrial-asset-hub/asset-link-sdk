@@ -104,9 +104,7 @@ func TestNameplate(t *testing.T) {
 		if assert.True(t, ok) {
 			manufacturerProduct, ok := productInfo.ManufacturerProduct.(*Product)
 			if assert.True(t, ok) {
-				if assert.NotNil(t, manufacturerProduct.ProductLink) {
-					assert.Equal(t, "", *manufacturerProduct.ProductLink)
-				}
+				assert.Nil(t, manufacturerProduct.ProductLink) // no product link set when idLink is empty
 			}
 		}
 
