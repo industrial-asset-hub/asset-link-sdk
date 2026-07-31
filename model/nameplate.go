@@ -37,6 +37,20 @@ func (d *DeviceInfo) AddNameplate(manufacturerName string,
 		return err
 	}
 
+	// We hash the manufacturer to get a unique identifier
+	h := sha1.New()
+	h.Write([]byte(manufacturerName))
+
+	organisation := Organization{
+		Name: &manufacturerName,
+	}
+	mp := Product{
+		Manufacturer:   &organisation,
+		ProductId:      &productArticleNumberOfManufacturer,
+		ProductVersion: &hardwareVersion,
+		ProductFamily:  &productFamily,
+	}
+
 	if isNonEmptyValues(uriOfTheProduct) {
 		if !validateByPattern(uriOfTheProduct, IdLinkPattern) {
 			return &ValidationError{
@@ -46,21 +60,7 @@ func (d *DeviceInfo) AddNameplate(manufacturerName string,
 				Details: uriOfTheProduct,
 			}
 		}
-	}
-
-	// We hash the manufacturer to get a unique identifier
-	h := sha1.New()
-	h.Write([]byte(manufacturerName))
-
-	organisation := Organization{
-		Name: &manufacturerName,
-	}
-	mp := Product{
-		ProductLink:    &uriOfTheProduct,
-		Manufacturer:   &organisation,
-		ProductId:      &productArticleNumberOfManufacturer,
-		ProductVersion: &hardwareVersion,
-		ProductFamily:  &productFamily,
+		mp.ProductLink = &uriOfTheProduct
 	}
 
 	d.ProductInstanceInformation = &ProductInstanceInformation{
