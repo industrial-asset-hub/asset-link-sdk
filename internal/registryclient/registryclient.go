@@ -25,19 +25,23 @@ type appTypes int
 const (
 	CDM_AGENT               appTypes = 0
 	CDM_DEVICE_CLASS_DRIVER appTypes = 1
-	IAH_DISCOVER            appTypes = 2
+	// Uncomment for app-type changes 
+	// IAH_DISCOVER            appTypes = 2
 )
 
 func (apptypes appTypes) String() string {
-	return []string{APPTYPE_CDM_AGENT, APPTYPE_CDM_DEVICE_CLASS_DRIVER, APPTYPE_IAH_DISCOVER}[apptypes]
+	return []string{"cdm-agent", "cdm-device-class-driver"}[apptypes]
+	// Uncomment for app-type changes 
+	// return []string{APPTYPE_CDM_AGENT, APPTYPE_CDM_DEVICE_CLASS_DRIVER, APPTYPE_IAH_DISCOVER}[apptypes]
 }
 
+// Uncomment for app-type changes
 // CS registry registered AppTypes which are served by the AL
-const (
-	APPTYPE_CDM_AGENT               = "cdm-agent"
-	APPTYPE_CDM_DEVICE_CLASS_DRIVER = "cdm-device-class-driver"
-	APPTYPE_IAH_DISCOVER            = "iah-discover"
-)
+// const (
+// 	APPTYPE_CDM_AGENT               = "cdm-agent"
+// 	APPTYPE_CDM_DEVICE_CLASS_DRIVER = "cdm-device-class-driver"
+// 	APPTYPE_IAH_DISCOVER            = "iah-discover"
+// )
 
 // CS registry registered interfaces (former AppType) which are served by the AL
 const (
@@ -46,21 +50,29 @@ const (
 	INTERFACE_CONN_SUITE_DEVICEINFO_V1 = "siemens.connectivitysuite.deviceinfo.v1"
 )
 
-// Global list of available CS app types and interfaces
-var availableCSAppTypes []string
+// Uncomment for app-type changes
+// var availableCSAppTypes []string
+
+// Global list of available CS interfaces
 var availableCSInterfaces []string
 
-func AddCsAppType(appType string) {
-	availableCSAppTypes = append(availableCSAppTypes, appType)
+// Remove function AddCsInterface for app-type changes
+func AddCsInterface(appType string) {
+	availableCSInterfaces = append(availableCSInterfaces, appType)
 }
 
-func AddCsInterface(csInterface string) {
-	availableCSInterfaces = append(availableCSInterfaces, csInterface)
-}
+// Uncomment for app-type changes
+// func AddCsAppType(appType string) {
+// 	availableCSAppTypes = append(availableCSAppTypes, appType)
+// }
 
-func getCsAppTypes() []string {
-	return availableCSAppTypes
-}
+// func AddCsInterface(csInterface string) {
+// 	availableCSInterfaces = append(availableCSInterfaces, csInterface)
+// }
+
+// func getCsAppTypes() []string {
+// 	return availableCSAppTypes
+// }
 
 func getCsInterfaces() []string {
 	return availableCSInterfaces
@@ -212,7 +224,10 @@ func (r *GrpcServerRegistry) register() (uint32, error) {
 		return retryRegistrationInterval, err
 	}
 	register := pb.RegisterServiceRequest{Info: &pb.ServiceInfo{
-		AppTypes:         getCsAppTypes(),
+		// remove AppTypes: getCsInterfaces(), for app-type changes
+		AppTypes:         getCsInterfaces(),
+		// Uncomment for app-type changes
+		// AppTypes:         getCsAppTypes(),
 		Interfaces:       getCsInterfaces(),
 		AppInstanceId:    r.appInstanceId,
 		DriverSchemaUris: []string{r.alId},
