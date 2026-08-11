@@ -281,6 +281,75 @@ func TestAddIPv4_ZeroAddressValues(t *testing.T) {
 	})
 }
 
+func TestAddNicWithoutMacIdentifier(t *testing.T) {
+	t.Run("adds NIC without creating a MAC identifier", func(t *testing.T) {
+		m, err := NewDevice("Asset", "MyDevice")
+		assert.NoError(t, err)
+
+		nicId, err := m.AddNicWithoutMacIdentifier("nic0", "AA:BB:CC:DD:EE:FF")
+		assert.NoError(t, err)
+		assert.NotEmpty(t, nicId)
+
+		nics := m.getNics()
+		assert.Len(t, nics, 1)
+		assert.Equal(t, "nic0", *nics[0].Name)
+		assert.Equal(t, "AA:BB:CC:DD:EE:FF", nics[0].MacAddress)
+		assert.Equal(t, &nicId, nics[0].Id)
+		assert.Empty(t, m.AssetIdentifiers)
+	})
+
+	t.Run("does not add MAC identifier unlike AddNic", func(t *testing.T) {
+		m, err := NewDevice("Asset", "MyDevice")
+		assert.NoError(t, err)
+
+		_, err = m.AddNicWithoutMacIdentifier("nic0", "AA:BB:CC:DD:EE:FF")
+		assert.NoError(t, err)
+		assert.Empty(t, m.AssetIdentifiers)
+
+		_, err = m.AddNic("nic1", "AA:BB:CC:DD:EE:FF")
+		assert.NoError(t, err)
+		assert.Len(t, m.AssetIdentifiers, 1)
+	})
+
+	t.Run("empty MAC address returns EmptyError", func(t *testing.T) {
+		m, err := NewDevice("Asset", "MyDevice")
+		assert.NoError(t, err)
+
+		_, err = m.AddNicWithoutMacIdentifier("nic0", "")
+		assert.Error(t, err)
+		var ee *EmptyError
+		if errors.As(err, &ee) {
+			assert.Equal(t, "MacAddress", ee.Field)
+			assert.Equal(t, "MAC address is empty", ee.Message)
+		}
+	})
+
+	t.Run("invalid MAC address returns ValidationError", func(t *testing.T) {
+		m, err := NewDevice("Asset", "MyDevice")
+		assert.NoError(t, err)
+
+		_, err = m.AddNicWithoutMacIdentifier("nic0", "invalid-mac")
+		assert.Error(t, err)
+		var ve *ValidationError
+		if errors.As(err, &ve) {
+			assert.Equal(t, "MacAddress", ve.Field)
+			assert.Equal(t, "MAC address format is invalid. Please refer to the base schema for the supported pattern.", ve.Message)
+			assert.Equal(t, "invalid-mac", ve.Value)
+		}
+	})
+
+	t.Run("empty NIC name is accepted", func(t *testing.T) {
+		m, err := NewDevice("Asset", "MyDevice")
+		assert.NoError(t, err)
+
+		_, err = m.AddNicWithoutMacIdentifier("", "AA:BB:CC:DD:EE:FF")
+		assert.NoError(t, err)
+		nics := m.getNics()
+		assert.NotNil(t, nics[0].Name)
+		assert.Equal(t, "", *nics[0].Name)
+	})
+}
+
 // TODO: Use templating
 // Extract ethernet ports from model
 func (d *DeviceInfo) getNics() []EthernetPort {
