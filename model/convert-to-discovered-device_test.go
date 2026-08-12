@@ -190,7 +190,7 @@ func TestConvertNumberTypeToDiscoveredDevice(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	device.addMacIdentifier("ffeffawfafwfw")
+	device.AddMacIdentifier("ffeffawfafwfw")
 
 	discoveredDevice := device.ConvertToDiscoveredDevice()
 	result := checkForIdentifierUncertainty(t, discoveredDevice.GetIdentifiers())

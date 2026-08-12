@@ -9,8 +9,8 @@ package model
 
 import "strings"
 
-// addMacIdentifier appends a MacIdentifier only when provided value is non-empty.
-func (d *DeviceInfo) addMacIdentifier(macAddress string) {
+// AddMacIdentifier appends a MacIdentifier only when provided value is non-empty.
+func (d *DeviceInfo) AddMacIdentifier(macAddress string) {
 
 	if isNonEmptyValues(macAddress) {
 		identifierUncertainty := 1

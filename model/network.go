@@ -15,7 +15,7 @@ import (
 // AddNic Add a network interface card
 //
 // The function returns an UUID, which can be used to add an IP address to the NIC
-// No validation of is currently done
+
 func (d *DeviceInfo) AddNic(name, macAddress string) (string, error) {
 	err := validateField(macAddress, "MacAddress", "MAC address is empty", MacAddressPattern,
 		"MAC address format is invalid. Please refer to the base schema for the supported pattern.")
@@ -35,8 +35,34 @@ func (d *DeviceInfo) AddNic(name, macAddress string) (string, error) {
 
 	d.ConnectionPoints = append(d.ConnectionPoints, nic)
 	// automatically an MAC identifier, as it is required currently.
-	d.addMacIdentifier(macAddress)
+	d.AddMacIdentifier(macAddress)
 
+	return nicId, nil
+}
+
+// AddNic Add a network interface card
+//
+// The function returns an UUID, which can be used to add an IP address to the NIC
+
+func (d *DeviceInfo) AddNicWithoutMacIdentifier(name, macAddress string) (string, error) {
+	err := validateField(macAddress, "MacAddress", "MAC address is empty", MacAddressPattern,
+		"MAC address format is invalid. Please refer to the base schema for the supported pattern.")
+	if err != nil {
+		return "", err
+	}
+
+	nicId := uuid.New().String()
+	connectionPointType := EthernetPortConnectionPointTypeEthernetPort
+	nic := EthernetPort{
+		ConnectionPointType:     connectionPointType,
+		Id:                      &nicId,
+		Name:                    &name,
+		MacAddress:              macAddress,
+		RelatedConnectionPoints: nil,
+	}
+
+	d.ConnectionPoints = append(d.ConnectionPoints, nic)
+	// Do not automatically add a MAC identifier
 	return nicId, nil
 }
 
@@ -44,7 +70,7 @@ func (d *DeviceInfo) AddNic(name, macAddress string) (string, error) {
 //
 // The given network mask should consist of 4 octets (aaa.bbb.ccc.ddd)
 //
-// No validation of is currently done
+
 func (d *DeviceInfo) AddIPv4(nicId string, ipv4Address string, networkMask string, routerAddress string) (id string, err error) {
 	if !isNonEmptyValues(ipv4Address, networkMask, routerAddress) {
 		err := &EmptyError{
@@ -97,7 +123,7 @@ func (d *DeviceInfo) AddIPv4(nicId string, ipv4Address string, networkMask strin
 
 // AddIPv6 Add an IPv6 address to a network card
 //
-// No validation of is currently done
+
 func (d *DeviceInfo) AddIPv6(nicId string, ipv6Address string, networkPrefix string, routerAddress string) (id string, err error) {
 	if !isNonEmptyValues(ipv6Address, networkPrefix, routerAddress) {
 		err := &EmptyError{

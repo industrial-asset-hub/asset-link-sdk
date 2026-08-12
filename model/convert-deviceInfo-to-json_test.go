@@ -61,6 +61,84 @@ func TestConvertToJson(t *testing.T) {
 	}
 }
 
+// TestConvertToJsonDeepNesting verifies that nested arrays and structs at multiple
+// levels are fully preserved (not flattened or dropped).
+func TestConvertToJsonDeepNesting(t *testing.T) {
+	device, err := NewDevice("Device", "Deep Test")
+	if err != nil {
+		t.Fatalf("NewDevice failed: %v", err)
+	}
+
+	// 3-level struct: product_instance_information → manufacturer_product → manufacturer.name
+	err = device.AddNameplate("Siemens AG", testIDLink, "S7-1500", "PLC", "2.0", "SN-42")
+	if err != nil {
+		t.Fatalf("AddNameplate failed: %v", err)
+	}
+
+	// array of structs with a nested array: connection_points → related_connection_points
+	nicID, err := device.AddNic("eth0", "AA:BB:CC:DD:EE:FF")
+	if err != nil {
+		t.Fatalf("AddNic failed: %v", err)
+	}
+	_, err = device.AddIPv4(nicID, "10.0.0.1", "255.0.0.0", "10.0.0.254")
+	if err != nil {
+		t.Fatalf("AddIPv4 failed: %v", err)
+	}
+
+	m, err := device.ConvertToJson()
+	if err != nil {
+		t.Fatalf("ConvertToJson failed: %v", err)
+	}
+
+	// --- 3-level struct depth ---
+	pii, ok := m["product_instance_information"].(map[string]interface{})
+	if !ok {
+		t.Fatalf("product_instance_information is not a map, got %T", m["product_instance_information"])
+	}
+	mp, ok := pii["manufacturer_product"].(map[string]interface{})
+	if !ok {
+		t.Fatalf("manufacturer_product is not a map, got %T", pii["manufacturer_product"])
+	}
+	mfr, ok := mp["manufacturer"].(map[string]interface{})
+	if !ok {
+		t.Fatalf("manufacturer is not a map, got %T", mp["manufacturer"])
+	}
+	if mfr["name"] != "Siemens AG" {
+		t.Errorf("manufacturer.name: want %q, got %v", "Siemens AG", mfr["name"])
+	}
+
+	// --- array → struct → nested array ---
+	cps, ok := m["connection_points"].([]interface{})
+	if !ok {
+		t.Fatalf("connection_points is not a []interface{}, got %T", m["connection_points"])
+	}
+	var ipv4 map[string]interface{}
+	for _, cp := range cps {
+		entry, ok := cp.(map[string]interface{})
+		if ok && entry["connection_point_type"] == "Ipv4Connectivity" {
+			ipv4 = entry
+			break
+		}
+	}
+	if ipv4 == nil {
+		t.Fatal("no Ipv4Connectivity found in connection_points")
+	}
+	if ipv4["ipv4_address"] != "10.0.0.1" {
+		t.Errorf("ipv4_address: want %q, got %v", "10.0.0.1", ipv4["ipv4_address"])
+	}
+	relatedRaw, ok := ipv4["related_connection_points"].([]interface{})
+	if !ok || len(relatedRaw) == 0 {
+		t.Fatalf("related_connection_points missing or empty, got %T %v", ipv4["related_connection_points"], ipv4["related_connection_points"])
+	}
+	rel, ok := relatedRaw[0].(map[string]interface{})
+	if !ok {
+		t.Fatalf("related_connection_points[0] is not a map, got %T", relatedRaw[0])
+	}
+	if rel["connection_point_id"] != nicID {
+		t.Errorf("connection_point_id: want %q, got %v", nicID, rel["connection_point_id"])
+	}
+}
+
 func TestConvertToJsonWithNilDevice(t *testing.T) {
 	var device *DeviceInfo
 	jsonMap, err := device.ConvertToJson()

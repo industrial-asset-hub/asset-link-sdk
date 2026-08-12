@@ -164,3 +164,49 @@ func boolVariant(value bool) *generated.Variant {
 func int64Variant(value int64) *generated.Variant {
 	return &generated.Variant{Value: &generated.Variant_Int64Value{Int64Value: value}}
 }
+
+// BenchmarkConvertToPropertyValueResults measures the cost of a single call.
+// ConvertToJson uses reflection on the full DeviceInfo struct, making each call expensive.
+func BenchmarkConvertToPropertyValueResults(b *testing.B) {
+	device := generateDevice("Device", "Profinet")
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, err := device.ConvertToPropertyValueResults()
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+// BenchmarkConvertToPropertyValueResultsMultipleCalls shows the linear cost of N repeated calls,
+// e.g. when polling or batching — each call re-runs the full ConvertToJson conversion.
+func BenchmarkConvertToPropertyValueResultsMultipleCalls(b *testing.B) {
+	device := generateDevice("Device", "Profinet")
+	const calls = 10
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		for j := 0; j < calls; j++ {
+			_, err := device.ConvertToPropertyValueResults()
+			if err != nil {
+				b.Fatal(err)
+			}
+		}
+	}
+}
+
+// BenchmarkConvertToPropertyValueResultsMultipleCallsOptimized shows the cost when ConvertToJson
+// is called once and PropertyValueResultsFromMap is reused — amortising the reflection overhead.
+func BenchmarkConvertToPropertyValueResultsMultipleCallsOptimized(b *testing.B) {
+	device := generateDevice("Device", "Profinet")
+	const calls = 10
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		properties, err := device.ConvertToJson()
+		if err != nil {
+			b.Fatal(err)
+		}
+		for j := 0; j < calls; j++ {
+			PropertyValueResultsFromMap(properties)
+		}
+	}
+}
