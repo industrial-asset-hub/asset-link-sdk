@@ -16,11 +16,12 @@ import (
 	"github.com/industrial-asset-hub/asset-link-sdk/v4/cmd/al-ctl/internal/fileformat"
 	"google.golang.org/protobuf/encoding/protojson"
 
+	"context"
+
 	"github.com/industrial-asset-hub/asset-link-sdk/v4/cmd/al-ctl/internal/shared"
 	"github.com/industrial-asset-hub/asset-link-sdk/v4/config"
 	generated "github.com/industrial-asset-hub/asset-link-sdk/v4/generated/iah-discovery"
 	"github.com/rs/zerolog/log"
-	"golang.org/x/net/context"
 )
 
 func Discover(endpoint string, discoveryFile string) ([]*generated.DiscoverResponse, error) {

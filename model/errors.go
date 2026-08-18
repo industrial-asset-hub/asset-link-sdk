@@ -30,6 +30,12 @@ func (e *ValidationError) Error() string {
 	return fmt.Sprintf("validation failed for field '%s': %s (value: %v)", e.Field, e.Message, e.Value)
 }
 
+// Is enables errors.Is(err, model.ErrValidation) to match any *ValidationError.
+func (e *ValidationError) Is(target error) bool {
+	_, ok := target.(*ValidationError)
+	return ok
+}
+
 // EmptyError represents an error for empty required values.
 type EmptyError struct {
 	Field   string
@@ -39,6 +45,12 @@ type EmptyError struct {
 
 func (e *EmptyError) Error() string {
 	return fmt.Sprintf("%s (field: '%s', value: %v)", e.Message, e.Field, e.Value)
+}
+
+// Is enables errors.Is(err, model.ErrEmpty) to match any *EmptyError.
+func (e *EmptyError) Is(target error) bool {
+	_, ok := target.(*EmptyError)
+	return ok
 }
 
 // PermissibleValuesError represents an error for values not in the allowed set.
@@ -51,6 +63,12 @@ type PermissibleValuesError struct {
 
 func (e *PermissibleValuesError) Error() string {
 	return fmt.Sprintf("field '%s' has value '%v' which is not in permissible values %v", e.Field, e.Value, e.Allowed)
+}
+
+// Is enables errors.Is(err, model.ErrPermissibleValues) to match any *PermissibleValuesError.
+func (e *PermissibleValuesError) Is(target error) bool {
+	_, ok := target.(*PermissibleValuesError)
+	return ok
 }
 
 // validateField checks if a value is non-empty and matches a pattern, returning the appropriate error or nil.

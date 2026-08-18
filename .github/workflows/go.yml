@@ -9,13 +9,13 @@ on:
   pull_request:
 
 permissions:
-  contents: write
-  packages: write
+  contents: read
+  packages: read
 
 env:
   GOPRIVATE: github.com/industrial-asset-hub
-  GO_MINIMAL_VERSION: 1.25.7
-  GO_LINT_VERSION: v2.9
+  GO_MINIMAL_VERSION: 1.26.7
+  GO_LINT_VERSION: v2.13.0
   TEST_PROJECT: cookiecutter-test
   TEST_PROJECT_NAME: test-asset-link
   TEMPLATE_PATH: "cookiecutter-project-template/{{ cookiecutter.al_project }}"
@@ -36,9 +36,15 @@ jobs:
       - name: Prepare Environment
         uses: ./.github/actions/prepare
       - name: Generate Code
-        run: go generate -v ./...
+        run: go generate -tags generate -v ./...
       - name: Compare Result
-        run: git diff --exit-code -w -G'(^[^\*# /])|(^#\w)|(^\s+[^\*#/])'
+        run: |
+          if ! git diff --quiet -w -G'(^[^\*# /])|(^#\w)|(^\s+[^\*#/])'; then
+            echo 'Generated files are out of date:'
+            git diff --name-only -w -G'(^[^\*# /])|(^#\w)|(^\s+[^\*#/])'
+            git diff --no-ext-diff --color=never -w -G'(^[^\*# /])|(^#\w)|(^\s+[^\*#/])'
+            exit 1
+          fi
 
   lint:
     runs-on: ubuntu-latest
@@ -116,7 +122,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        go-version: ["1.25.7", "1.26", "stable"]
+        go-version: ["1.26.7", "stable"]
     steps:
       - uses: actions/checkout@v7
       - name: Prepare Environment
@@ -207,6 +213,9 @@ jobs:
 
   release-sdk:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
     needs:
       - reuse
       - generate

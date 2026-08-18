@@ -161,16 +161,6 @@ func (j *AssetFunctionalObjectType) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-// Asset Link that can be used to interact with assets and can be reached by the
-// gateway.
-type AssetLink struct {
-	// Reference to the software artifact asset.
-	// As of now the combination of multiple software artifacts into a running
-	// software (for example with plug-ins) is not supported and cannot be natively
-	// modeled.
-	Artifact interface{} `json:"artifact,omitempty" yaml:"artifact,omitempty" mapstructure:"artifact,omitempty"`
-}
-
 // Attributes that help locate where an asset can be physically found.
 type AssetLocation struct {
 	// Type designator that provides support for polymorphism using location.
@@ -341,7 +331,7 @@ func (j *BackupOperation) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-type CdmBaseSchemaV1110Json map[string]interface{}
+type CdmBaseSchemaV1190Json map[string]interface{}
 
 // Base64 encoded version of certificate subject key identifier will be the
 // identifier.
@@ -876,9 +866,6 @@ type Gateway struct {
 	// possibly even semantics.
 	AssetIdentifiers []interface{} `json:"asset_identifiers" yaml:"asset_identifiers" mapstructure:"asset_identifiers"`
 
-	// List of asset links that are connected to the asset gateway.
-	AssetLinks []AssetLink `json:"asset_links,omitempty" yaml:"asset_links,omitempty" mapstructure:"asset_links,omitempty"`
-
 	// List of device management operations supported by an asset. Each operation type
 	// might appear only once.
 	AssetOperations []AssetOperation `json:"asset_operations,omitempty" yaml:"asset_operations,omitempty" mapstructure:"asset_operations,omitempty"`
@@ -905,6 +892,14 @@ type Gateway struct {
 
 	// Metadata associated with an object.
 	InstanceAnnotations []InstanceAnnotation `json:"instance_annotations,omitempty" yaml:"instance_annotations,omitempty" mapstructure:"instance_annotations,omitempty"`
+
+	// Flag indicating that the software artifact is provided by a hardware
+	// manufacturer for one or more of its devices.
+	// Unlike other software artifacts, updating the firmware requires contacting the
+	// source specified by the device manufacturer.
+	// Due to this definition, firmware in IAH has a much wider scope than in some
+	// domains, where firmware is only meant to be close-to-the-silicon software.
+	IsFirmware *bool `json:"is_firmware,omitempty" yaml:"is_firmware,omitempty" mapstructure:"is_firmware,omitempty"`
 
 	// Possible ways to know where an asset is located.
 	Location []interface{} `json:"location,omitempty" yaml:"location,omitempty" mapstructure:"location,omitempty"`
@@ -1040,6 +1035,105 @@ func (j *HaltOperatingMode) UnmarshalJSON(b []byte) error {
 		return err
 	}
 	*j = HaltOperatingMode(plain)
+	return nil
+}
+
+// Identifier especially to identify software artifacts based on the host they are
+// installed or running on, and the name and version of the software. As the same
+// software can be installed on different hosts, or different versions of the same
+// software can be installed on the same host, the combination of host identifier,
+// software name and version should provide a unique identification of the software
+// instance. If the same software is installed multiple times on the same host
+// (e.g. multiple instances of the same container image), the instance identifier
+// can be used to distinguish between these instances. If it is assured that the
+// same software instance cannot be installed multiple times on the same host, the
+// instance identifier can be omitted.
+type HostBasedSoftwareIdentifier struct {
+	// Type designator that supports polymorphism using asset identifiers.
+	AssetIdentifierType HostBasedSoftwareIdentifierAssetIdentifierType `json:"asset_identifier_type" yaml:"asset_identifier_type" mapstructure:"asset_identifier_type"`
+
+	// An identifier for the host on which a software artifact is installed or
+	// running.
+	HostIdentifier string `json:"host_identifier" yaml:"host_identifier" mapstructure:"host_identifier"`
+
+	// Type of an items identifier.
+	IdentifierType *string `json:"identifier_type,omitempty" yaml:"identifier_type,omitempty" mapstructure:"identifier_type,omitempty"`
+
+	// Number that indicates how uncertain an identifier is compared to other
+	// identifiers provided by an Asset Link. The higher the number, the more
+	// uncertain the identification must be considered. This number must be considered
+	// relative to the other identifiers for the same element. The default value is 0,
+	// meaning no uncertainty.
+	// This index helps to decide which identifiers are better suited for
+	// deduplication across Asset Links. The identifier provided by two different
+	// Asset Links with the lowest uncertainty should be chosen for deduplication
+	// purposes.
+	IdentifierUncertainty *int `json:"identifier_uncertainty,omitempty" yaml:"identifier_uncertainty,omitempty" mapstructure:"identifier_uncertainty,omitempty"`
+
+	// An identifier for a specific instance of a software artifact. This can be
+	// useful when multiple instances of the same software artifact are running on the
+	// same host, and need to be distinguished from each other.
+	InstanceIdentifier *string `json:"instance_identifier,omitempty" yaml:"instance_identifier,omitempty" mapstructure:"instance_identifier,omitempty"`
+
+	// The name of the item.
+	Name string `json:"name" yaml:"name" mapstructure:"name"`
+
+	// Version of a software artifact.
+	Version string `json:"version" yaml:"version" mapstructure:"version"`
+}
+
+type HostBasedSoftwareIdentifierAssetIdentifierType string
+
+const HostBasedSoftwareIdentifierAssetIdentifierTypeHostBasedSoftwareIdentifier HostBasedSoftwareIdentifierAssetIdentifierType = "HostBasedSoftwareIdentifier"
+
+var enumValues_HostBasedSoftwareIdentifierAssetIdentifierType = []interface{}{
+	"HostBasedSoftwareIdentifier",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *HostBasedSoftwareIdentifierAssetIdentifierType) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_HostBasedSoftwareIdentifierAssetIdentifierType {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_HostBasedSoftwareIdentifierAssetIdentifierType, v)
+	}
+	*j = HostBasedSoftwareIdentifierAssetIdentifierType(v)
+	return nil
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *HostBasedSoftwareIdentifier) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if _, ok := raw["asset_identifier_type"]; raw != nil && !ok {
+		return fmt.Errorf("field asset_identifier_type in HostBasedSoftwareIdentifier: required")
+	}
+	if _, ok := raw["host_identifier"]; raw != nil && !ok {
+		return fmt.Errorf("field host_identifier in HostBasedSoftwareIdentifier: required")
+	}
+	if _, ok := raw["name"]; raw != nil && !ok {
+		return fmt.Errorf("field name in HostBasedSoftwareIdentifier: required")
+	}
+	if _, ok := raw["version"]; raw != nil && !ok {
+		return fmt.Errorf("field version in HostBasedSoftwareIdentifier: required")
+	}
+	type Plain HostBasedSoftwareIdentifier
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = HostBasedSoftwareIdentifier(plain)
 	return nil
 }
 
@@ -1625,6 +1719,93 @@ type Organization struct {
 	Name *string `json:"name,omitempty" yaml:"name,omitempty" mapstructure:"name,omitempty"`
 }
 
+// Identifier for an asset based on its slot and subslot relative to a strongly
+// identified parent asset. Replacing an asset in the same slot and subslot
+// preserves this identifier, while moving it changes the identifier.
+type ParentRelativeIdentifier struct {
+	// Type designator that supports polymorphism using asset identifiers.
+	AssetIdentifierType ParentRelativeIdentifierAssetIdentifierType `json:"asset_identifier_type" yaml:"asset_identifier_type" mapstructure:"asset_identifier_type"`
+
+	// Type of an items identifier.
+	IdentifierType *string `json:"identifier_type,omitempty" yaml:"identifier_type,omitempty" mapstructure:"identifier_type,omitempty"`
+
+	// Number that indicates how uncertain an identifier is compared to other
+	// identifiers provided by an Asset Link. The higher the number, the more
+	// uncertain the identification must be considered. This number must be considered
+	// relative to the other identifiers for the same element. The default value is 0,
+	// meaning no uncertainty.
+	// This index helps to decide which identifiers are better suited for
+	// deduplication across Asset Links. The identifier provided by two different
+	// Asset Links with the lowest uncertainty should be chosen for deduplication
+	// purposes.
+	IdentifierUncertainty *int `json:"identifier_uncertainty,omitempty" yaml:"identifier_uncertainty,omitempty" mapstructure:"identifier_uncertainty,omitempty"`
+
+	// ID Link, MAC address, or product instance identifier of the direct parent
+	// asset.
+	ParentIdentifier interface{} `json:"parent_identifier" yaml:"parent_identifier" mapstructure:"parent_identifier"`
+
+	// Slot of the asset within its direct parent.
+	Slot int `json:"slot" yaml:"slot" mapstructure:"slot"`
+
+	// Subslot of the asset within its slot.
+	Subslot int `json:"subslot" yaml:"subslot" mapstructure:"subslot"`
+}
+
+type ParentRelativeIdentifierAssetIdentifierType string
+
+const ParentRelativeIdentifierAssetIdentifierTypeParentRelativeIdentifier ParentRelativeIdentifierAssetIdentifierType = "ParentRelativeIdentifier"
+
+var enumValues_ParentRelativeIdentifierAssetIdentifierType = []interface{}{
+	"ParentRelativeIdentifier",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *ParentRelativeIdentifierAssetIdentifierType) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_ParentRelativeIdentifierAssetIdentifierType {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_ParentRelativeIdentifierAssetIdentifierType, v)
+	}
+	*j = ParentRelativeIdentifierAssetIdentifierType(v)
+	return nil
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *ParentRelativeIdentifier) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if _, ok := raw["asset_identifier_type"]; raw != nil && !ok {
+		return fmt.Errorf("field asset_identifier_type in ParentRelativeIdentifier: required")
+	}
+	if _, ok := raw["parent_identifier"]; raw != nil && !ok {
+		return fmt.Errorf("field parent_identifier in ParentRelativeIdentifier: required")
+	}
+	if _, ok := raw["slot"]; raw != nil && !ok {
+		return fmt.Errorf("field slot in ParentRelativeIdentifier: required")
+	}
+	if _, ok := raw["subslot"]; raw != nil && !ok {
+		return fmt.Errorf("field subslot in ParentRelativeIdentifier: required")
+	}
+	type Plain ParentRelativeIdentifier
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = ParentRelativeIdentifier(plain)
+	return nil
+}
+
 // Any offered product or service that might have different versions for the same
 // product ID.
 type Product struct {
@@ -1650,6 +1831,93 @@ type Product struct {
 	// product version helps differentiating the different versions of a product, if
 	// multiple exist.
 	ProductVersion *string `json:"product_version,omitempty" yaml:"product_version,omitempty" mapstructure:"product_version,omitempty"`
+}
+
+// Identifier for an asset instance using the vendor-specific tuple of vendor,
+// article number, and serial number.
+type ProductInstanceIdentifier struct {
+	// Vendor-specific article number of the product instance.
+	ArticleNumber string `json:"article_number" yaml:"article_number" mapstructure:"article_number"`
+
+	// Type designator that supports polymorphism using asset identifiers.
+	AssetIdentifierType ProductInstanceIdentifierAssetIdentifierType `json:"asset_identifier_type" yaml:"asset_identifier_type" mapstructure:"asset_identifier_type"`
+
+	// Type of an items identifier.
+	IdentifierType *string `json:"identifier_type,omitempty" yaml:"identifier_type,omitempty" mapstructure:"identifier_type,omitempty"`
+
+	// Number that indicates how uncertain an identifier is compared to other
+	// identifiers provided by an Asset Link. The higher the number, the more
+	// uncertain the identification must be considered. This number must be considered
+	// relative to the other identifiers for the same element. The default value is 0,
+	// meaning no uncertainty.
+	// This index helps to decide which identifiers are better suited for
+	// deduplication across Asset Links. The identifier provided by two different
+	// Asset Links with the lowest uncertainty should be chosen for deduplication
+	// purposes.
+	IdentifierUncertainty *int `json:"identifier_uncertainty,omitempty" yaml:"identifier_uncertainty,omitempty" mapstructure:"identifier_uncertainty,omitempty"`
+
+	// The serial number or any alphanumeric identifier of a particular product. When
+	// attached to an offer, it is a shortcut for the serial number of the product
+	// included in the offer.
+	SerialNumber string `json:"serial_number" yaml:"serial_number" mapstructure:"serial_number"`
+
+	// Vendor of the product instance.
+	Vendor string `json:"vendor" yaml:"vendor" mapstructure:"vendor"`
+}
+
+type ProductInstanceIdentifierAssetIdentifierType string
+
+const ProductInstanceIdentifierAssetIdentifierTypeProductInstanceIdentifier ProductInstanceIdentifierAssetIdentifierType = "ProductInstanceIdentifier"
+
+var enumValues_ProductInstanceIdentifierAssetIdentifierType = []interface{}{
+	"ProductInstanceIdentifier",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *ProductInstanceIdentifierAssetIdentifierType) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_ProductInstanceIdentifierAssetIdentifierType {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_ProductInstanceIdentifierAssetIdentifierType, v)
+	}
+	*j = ProductInstanceIdentifierAssetIdentifierType(v)
+	return nil
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *ProductInstanceIdentifier) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if _, ok := raw["article_number"]; raw != nil && !ok {
+		return fmt.Errorf("field article_number in ProductInstanceIdentifier: required")
+	}
+	if _, ok := raw["asset_identifier_type"]; raw != nil && !ok {
+		return fmt.Errorf("field asset_identifier_type in ProductInstanceIdentifier: required")
+	}
+	if _, ok := raw["serial_number"]; raw != nil && !ok {
+		return fmt.Errorf("field serial_number in ProductInstanceIdentifier: required")
+	}
+	if _, ok := raw["vendor"]; raw != nil && !ok {
+		return fmt.Errorf("field vendor in ProductInstanceIdentifier: required")
+	}
+	type Plain ProductInstanceIdentifier
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = ProductInstanceIdentifier(plain)
+	return nil
 }
 
 type ProductInstanceInformation struct {

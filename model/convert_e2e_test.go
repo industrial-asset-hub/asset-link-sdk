@@ -85,6 +85,8 @@ func getTestDevice() *DeviceInfo {
 	}
 	macAddress := "00:00:00:00:00:00"
 	deviceNIC := "enp0"
-	_, _ = deviceInfo.AddNic(deviceNIC, macAddress)
+	if _, err = deviceInfo.AddNic(deviceNIC, macAddress); err != nil {
+		panic(err)
+	}
 	return deviceInfo
 }

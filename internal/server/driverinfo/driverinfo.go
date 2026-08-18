@@ -8,11 +8,12 @@
 package driverinfo
 
 import (
+	"context"
+
 	semver "github.com/Masterminds/semver/v3"
 	generated "github.com/industrial-asset-hub/asset-link-sdk/v4/generated/conn_suite_drv_info"
 	"github.com/industrial-asset-hub/asset-link-sdk/v4/metadata"
 	"github.com/rs/zerolog/log"
-	"golang.org/x/net/context"
 )
 
 type DriverInfoServerEntity struct {
