@@ -21,16 +21,19 @@ func (d *DeviceInfo) ConvertToPropertyValueResults() ([]*generatedDeviceInfo.Pro
 	if err != nil {
 		return nil, err
 	}
-	return PropertyValueResultsFromMap(properties), nil
+	return propertyValueResultsFromMap(properties), nil
 }
 
-// PropertyValueResultsFromMap builds PropertyValueResults from a pre-computed map.
+// propertyValueResultsFromMap builds PropertyValueResults from a pre-computed map.
 // Use together with ConvertToJson to avoid repeating the reflection-based conversion.
-func PropertyValueResultsFromMap(properties map[string]interface{}) []*generatedDeviceInfo.PropertyValueResult {
+func propertyValueResultsFromMap(properties map[string]interface{}) []*generatedDeviceInfo.PropertyValueResult {
 	keys := sortedKeysOf(properties)
 	results := make([]*generatedDeviceInfo.PropertyValueResult, 0, len(keys))
 	for _, key := range keys {
 		value := properties[key]
+		if value == nil {
+			continue
+		}
 		results = append(results, &generatedDeviceInfo.PropertyValueResult{
 			Result: &generatedDeviceInfo.PropertyValueResult_Property{
 				Property: &generatedDeviceInfo.PropertyKeyValuePair{
@@ -64,6 +67,9 @@ func interfaceToPropertyVariant(value interface{}) *generated.Variant {
 	case map[string]interface{}:
 		fields := make(map[string]*generated.Variant, len(typed))
 		for key, item := range typed {
+			if item == nil {
+				continue
+			}
 			fields[key] = interfaceToPropertyVariant(item)
 		}
 		return &generated.Variant{Value: &generated.Variant_StructValue{StructValue: &generated.VariantStruct{Fields: fields}}}

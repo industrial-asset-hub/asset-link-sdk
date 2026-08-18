@@ -8,6 +8,8 @@
 package model
 
 import (
+	"encoding/json"
+	"strings"
 	"testing"
 
 	generatedDeviceInfo "github.com/industrial-asset-hub/asset-link-sdk/v4/generated/conn_suite_device_info"
@@ -165,6 +167,79 @@ func int64Variant(value int64) *generated.Variant {
 	return &generated.Variant{Value: &generated.Variant_Int64Value{Int64Value: value}}
 }
 
+func TestConvertToPropertyValueResultsNullAssetIdentifiers(t *testing.T) {
+	const raw = `{
+  "asset_identifiers": null,
+  "connection_points": [
+    {
+      "connection_point_type": "EthernetPort",
+      "id": "f5e686d0-9e76-4fa5-b91f-501f790d77e4",
+      "mac_address": "38:4b:24:26:89:be",
+      "name": ""
+    },
+    {
+      "connection_point_type": "Ipv4Connectivity",
+      "id": "c365f497-c2fa-44d9-af3c-4017e138de76",
+      "ipv4_address": "192.168.2.3",
+      "related_connection_points": [
+        {
+          "connection_point_id": "f5e686d0-9e76-4fa5-b91f-501f790d77e4",
+          "custom_relationship": "Relies on"
+        }
+      ]
+    }
+  ],
+  "functional_object_schema_url": "https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base.json",
+  "functional_object_type": "Asset",
+  "name": "hostname",
+  "product_instance_information": {
+    "manufacturer_product": {
+      "manufacturer": {
+        "name": "Siemens AG"
+      },
+      "product_family": "",
+      "product_id": "",
+      "product_version": ""
+    },
+    "serial_number": null
+  }
+}`
+
+	dec := json.NewDecoder(strings.NewReader(raw))
+	dec.UseNumber()
+	var props map[string]interface{}
+	require.NoError(t, dec.Decode(&props))
+
+	results := propertyValueResultsFromMap(props)
+	resultsByKey := propertyValuesByKey(results)
+	require.NotContains(t, resultsByKey, "asset_identifiers")
+	require.Contains(t, resultsByKey, "connection_points")
+	require.Contains(t, resultsByKey, "name")
+
+	pii := resultsByKey["product_instance_information"].GetStructValue().GetFields()
+	require.NotContains(t, pii, "serial_number")
+}
+
+func TestConvertToPropertyValueResultsNullFunctionalObjectFields(t *testing.T) {
+	const raw = `{
+  "asset_identifiers": [],
+  "functional_object_type": null,
+  "functional_object_schema_url": null,
+  "name": "hostname"
+}`
+
+	dec := json.NewDecoder(strings.NewReader(raw))
+	dec.UseNumber()
+	var props map[string]interface{}
+	require.NoError(t, dec.Decode(&props))
+
+	results := propertyValueResultsFromMap(props)
+	resultsByKey := propertyValuesByKey(results)
+	require.NotContains(t, resultsByKey, "functional_object_type")
+	require.NotContains(t, resultsByKey, "functional_object_schema_url")
+	require.Contains(t, resultsByKey, "name")
+}
+
 // BenchmarkConvertToPropertyValueResults measures the cost of a single call.
 // ConvertToJson uses reflection on the full DeviceInfo struct, making each call expensive.
 func BenchmarkConvertToPropertyValueResults(b *testing.B) {
@@ -195,7 +270,7 @@ func BenchmarkConvertToPropertyValueResultsMultipleCalls(b *testing.B) {
 }
 
 // BenchmarkConvertToPropertyValueResultsMultipleCallsOptimized shows the cost when ConvertToJson
-// is called once and PropertyValueResultsFromMap is reused — amortising the reflection overhead.
+// is called once and propertyValueResultsFromMap is reused — amortising the reflection overhead.
 func BenchmarkConvertToPropertyValueResultsMultipleCallsOptimized(b *testing.B) {
 	device := generateDevice("Device", "Profinet")
 	const calls = 10
@@ -206,7 +281,7 @@ func BenchmarkConvertToPropertyValueResultsMultipleCallsOptimized(b *testing.B) 
 			b.Fatal(err)
 		}
 		for j := 0; j < calls; j++ {
-			PropertyValueResultsFromMap(properties)
+			propertyValueResultsFromMap(properties)
 		}
 	}
 }
