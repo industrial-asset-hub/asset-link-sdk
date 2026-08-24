@@ -141,6 +141,7 @@ func buildTemplateDeviceInfo() (*model.DeviceInfo, error) {
 	orderNumber := "AN0123456789"
 	serialNumber := "SN00012345678900001"
 	hardwareVersion := "3"
+	productType := "Dummy Product Type"
 
 	productUri := fmt.Sprintf(
 		"%s/?1P=%s&S=%s",
@@ -154,7 +155,7 @@ func buildTemplateDeviceInfo() (*model.DeviceInfo, error) {
 		return nil, err
 	}
 
-	if err = deviceInfo.AddNameplate(vendorName, productUri, orderNumber, productFamily, hardwareVersion, serialNumber); err != nil {
+	if err = deviceInfo.AddNameplate(vendorName, productUri, orderNumber, productFamily, hardwareVersion, serialNumber, productType); err != nil {
 		return nil, err
 	}
 

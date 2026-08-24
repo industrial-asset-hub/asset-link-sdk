@@ -13,7 +13,7 @@ This guide covers all breaking changes and required code updates when migrating 
 
 1. [Module path change (v3 → v4)](#1-module-path-change-v3--v4)
 2. [Identifiers API replaced by DeviceInfo API](#2-identifiers-api-replaced-by-deviceinfo-api)
-3. [Asset data model changes (base schema v0.12.0 → v1.19.0)](#3-asset-data-model-changes-base-schema-v0120--v1180)
+3. [Asset data model changes (base schema v0.12.0 → v1.20.0)](#3-asset-data-model-changes-base-schema-v0120--v1200)
 4. [Builder API changes](#4-builder-api-changes)
 5. [Metadata struct: new optional fields](#5-metadata-struct-new-optional-fields)
 6. [Model helper method signature changes (errors are now returned)](#6-model-helper-method-signature-changes-errors-are-now-returned)
@@ -192,9 +192,9 @@ If your Asset Link does not implement the DeviceInfo interface, simply omit `"si
 
 ---
 
-## 3. Asset data model changes (base schema v0.12.0 → v1.19.0)
+## 3. Asset data model changes (base schema v0.12.0 → v1.20.0)
 
-The base schema has been updated from `v0.12.0` to `v1.19.0`. This is a significant restructuring of the asset model.
+The base schema has been updated from `v0.12.0` to `v1.20.0`. This is a significant restructuring of the asset model.
 
 ### 3.1 Schema URL
 
@@ -332,14 +332,19 @@ deviceInfo.AddNameplate(vendorName, productUri, orderNumber, productName, hardwa
 
 **After:**
 ```go
-// parameter renamed: productFamily (was manufacturerProductDesignation)
-err := deviceInfo.AddNameplate(vendorName, productUri, orderNumber, productFamily, hardwareVersion, serialNumber)
+// parameters renamed/extended:
+// manufacturerProductDesignation -> productFamily
+// new optional argument: productType
+err := deviceInfo.AddNameplate(vendorName, productUri, orderNumber, productFamily, hardwareVersion, serialNumber, productType)
 if err != nil {
     // handle error
 }
 ```
 
-Note the parameter rename: `manufacturerProductDesignation` → `productFamily`.
+Note the parameter changes:
+- `manufacturerProductDesignation` was renamed to `productFamily`.
+- `productType` was added as a new argument and maps to `product_instance_information.manufacturer_product.product_type`.
+- `productType` is optional for validation: empty values do not trigger an error and the field is omitted from output.
 
 ### `AddDescription`
 
@@ -595,7 +600,7 @@ The proto definitions are in `specs/conn_suite_device_info.proto` and `specs/com
   - Call `deviceInfo.ConvertToPropertyValueResults()` to produce the response
 - [ ] Update `registry.json`: replace `"siemens.common.identifiers.v1"` with `"siemens.connectivitysuite.deviceinfo.v1"` in the `app_types` array
 - [ ] Update `model.NewDevice(...)` call sites to handle the returned `error`
-- [ ] Update `AddNameplate(...)`: rename `manufacturerProductDesignation` argument to `productFamily`, handle returned `error`
+- [ ] Update `AddNameplate(...)`: rename `manufacturerProductDesignation` argument to `productFamily`, add `productType` argument, handle returned `error`
 - [ ] Update `AddNic(...)`: handle the returned `error` (always validates MAC format)
 - [ ] Update `AddIPv4(...)`, `AddIPv6(...)`: handle the returned `error`; note that error fires only when **all** address fields are empty — passing an empty router address while IP and mask are set still succeeds
 - [ ] Update `AddSoftware(...)` to `AddSoftwareArtifactComponent(...)`, handle returned `error`

@@ -26,7 +26,8 @@ func TestNameplate(t *testing.T) {
 			"MyOrderNumber",
 			"ProductFamily",
 			"0.1.2",
-			"s-n-1.2.3")
+			"s-n-1.2.3",
+			"ProductType")
 		assert.NoError(t, err)
 
 		productInfo, ok := m.ProductInstanceInformation.(*ProductInstanceInformation)
@@ -52,6 +53,9 @@ func TestNameplate(t *testing.T) {
 				if assert.NotNil(t, manufacturerProduct.ProductFamily) {
 					assert.Equal(t, "ProductFamily", *manufacturerProduct.ProductFamily)
 				}
+				if assert.NotNil(t, manufacturerProduct.ProductType) {
+					assert.Equal(t, "ProductType", *manufacturerProduct.ProductType)
+				}
 			}
 
 			if assert.NotNil(t, productInfo.SerialNumber) {
@@ -71,6 +75,7 @@ func TestNameplate(t *testing.T) {
 			"ProductFamily",
 			"0.1.2",
 			"s-n-1.2.3",
+			"ProductType",
 		)
 		assert.Error(t, err)
 
@@ -96,6 +101,7 @@ func TestNameplate(t *testing.T) {
 			"ProductFamily",
 			"0.1.2",
 			"s-n-1.2.3",
+			"ProductType",
 		)
 		assert.NoError(t, err)
 		assert.NotNil(t, m.ProductInstanceInformation)

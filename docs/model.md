@@ -24,7 +24,7 @@ if err != nil{
 }
 
 err = device.AddNameplate("Dummy Manufacturer", "http://example.com/idlink", "12345",
-    "Dummy Product", "v1.0", "SN123456")
+    "Dummy Product", "v1.0", "SN123456", "product-type")
 if err != nil{
     // handle error
 }

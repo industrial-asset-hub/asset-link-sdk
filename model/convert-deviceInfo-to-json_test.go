@@ -19,7 +19,7 @@ func TestConvertToJson(t *testing.T) {
 	}
 
 	err = device.AddNameplate("Dummy Manufacturer", testIDLink, "12345",
-		"Dummy Product", "v1.0", "SN123456")
+		"Dummy Product", "v1.0", "SN123456", "Dummy Product Type")
 	if err != nil {
 		t.Fatalf("AddNameplate failed: %v", err)
 	}
@@ -70,7 +70,7 @@ func TestConvertToJsonDeepNesting(t *testing.T) {
 	}
 
 	// 3-level struct: product_instance_information → manufacturer_product → manufacturer.name
-	err = device.AddNameplate("Siemens AG", testIDLink, "S7-1500", "PLC", "2.0", "SN-42")
+	err = device.AddNameplate("Siemens AG", testIDLink, "S7-1500", "PLC", "2.0", "SN-42", "Controller")
 	if err != nil {
 		t.Fatalf("AddNameplate failed: %v", err)
 	}

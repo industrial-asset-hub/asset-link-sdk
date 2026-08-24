@@ -392,7 +392,7 @@ func createDeviceInfo(device simdevices.SimulatedDeviceInfo) (*model.DeviceInfo,
 	}
 
 	err = deviceInfo.AddNameplate(device.GetManufacturer(), device.GetIDLink(), device.GetArticleNumber(),
-		device.GetProductDesignation(), device.GetHardwareVersion(), device.GetSerialNumber())
+		device.GetProductDesignation(), device.GetHardwareVersion(), device.GetSerialNumber(), "")
 	if err != nil {
 		if errors.Is(err, model.ErrEmpty) {
 			log.Warn().Err(err).Msg("One or more nameplate fields are empty, cannot add nameplate information to device info")

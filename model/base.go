@@ -296,6 +296,9 @@ func (j *Asset) UnmarshalJSON(b []byte) error {
 	if err := json.Unmarshal(b, &plain); err != nil {
 		return err
 	}
+	if plain.AssetIdentifiers != nil && len(plain.AssetIdentifiers) < 1 {
+		return fmt.Errorf("field %s length: must be >= %d", "asset_identifiers", 1)
+	}
 	*j = Asset(plain)
 	return nil
 }
@@ -331,7 +334,7 @@ func (j *BackupOperation) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-type CdmBaseSchemaV1190Json map[string]interface{}
+type CdmBaseSchemaV1200Json map[string]interface{}
 
 // Base64 encoded version of certificate subject key identifier will be the
 // identifier.
@@ -677,6 +680,9 @@ func (j *Device) UnmarshalJSON(b []byte) error {
 	if err := json.Unmarshal(b, &plain); err != nil {
 		return err
 	}
+	if plain.AssetIdentifiers != nil && len(plain.AssetIdentifiers) < 1 {
+		return fmt.Errorf("field %s length: must be >= %d", "asset_identifiers", 1)
+	}
 	*j = Device(plain)
 	return nil
 }
@@ -966,6 +972,9 @@ func (j *Gateway) UnmarshalJSON(b []byte) error {
 	var plain Plain
 	if err := json.Unmarshal(b, &plain); err != nil {
 		return err
+	}
+	if plain.AssetIdentifiers != nil && len(plain.AssetIdentifiers) < 1 {
+		return fmt.Errorf("field %s length: must be >= %d", "asset_identifiers", 1)
 	}
 	*j = Gateway(plain)
 	return nil
@@ -1820,12 +1829,15 @@ type Product struct {
 	// product category.
 	ProductFamily *string `json:"product_family,omitempty" yaml:"product_family,omitempty" mapstructure:"product_family,omitempty"`
 
-	// The product identifiers, such as ISBN.
+	// The unique product identifier of the manufacturer.
 	ProductId *string `json:"product_id,omitempty" yaml:"product_id,omitempty" mapstructure:"product_id,omitempty"`
 
 	// Link to identify a product. It can also provide additional information about
 	// the product.
 	ProductLink *string `json:"product_link,omitempty" yaml:"product_link,omitempty" mapstructure:"product_link,omitempty"`
+
+	// The product type identifies the specific type or designation of a product.
+	ProductType *string `json:"product_type,omitempty" yaml:"product_type,omitempty" mapstructure:"product_type,omitempty"`
 
 	// Some products might have different versions under the same product ID. The
 	// product version helps differentiating the different versions of a product, if
@@ -1992,6 +2004,9 @@ func (j *RelatedAsset) UnmarshalJSON(b []byte) error {
 	var plain Plain
 	if err := json.Unmarshal(b, &plain); err != nil {
 		return err
+	}
+	if plain.AssetIdentifiers != nil && len(plain.AssetIdentifiers) < 1 {
+		return fmt.Errorf("field %s length: must be >= %d", "asset_identifiers", 1)
 	}
 	*j = RelatedAsset(plain)
 	return nil
@@ -2264,7 +2279,7 @@ type SchemaOrgProduct struct {
 	// The manufacturer of the product.
 	Manufacturer interface{} `json:"manufacturer,omitempty" yaml:"manufacturer,omitempty" mapstructure:"manufacturer,omitempty"`
 
-	// The product identifiers, such as ISBN.
+	// The unique product identifier of the manufacturer.
 	ProductId *string `json:"product_id,omitempty" yaml:"product_id,omitempty" mapstructure:"product_id,omitempty"`
 }
 
@@ -2441,6 +2456,9 @@ func (j *SoftwareArtifact) UnmarshalJSON(b []byte) error {
 	var plain Plain
 	if err := json.Unmarshal(b, &plain); err != nil {
 		return err
+	}
+	if plain.AssetIdentifiers != nil && len(plain.AssetIdentifiers) < 1 {
+		return fmt.Errorf("field %s length: must be >= %d", "asset_identifiers", 1)
 	}
 	*j = SoftwareArtifact(plain)
 	return nil

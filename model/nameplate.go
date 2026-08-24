@@ -21,12 +21,14 @@ import (
 // hardwareVersion: version of the hardware supplied with the device
 // serialNumber: unique combination of numbers and letters used to identify
 // the device once it has been manufactured
+// productType: specific type or designation of the product
 func (d *DeviceInfo) AddNameplate(manufacturerName string,
 	uriOfTheProduct string,
 	productArticleNumberOfManufacturer string,
 	productFamily string,
 	hardwareVersion string,
 	serialNumber string,
+	productType string,
 ) error {
 	if !isNonEmptyValues(manufacturerName, uriOfTheProduct, productArticleNumberOfManufacturer,
 		productFamily, hardwareVersion, serialNumber) {
@@ -49,6 +51,10 @@ func (d *DeviceInfo) AddNameplate(manufacturerName string,
 		ProductId:      &productArticleNumberOfManufacturer,
 		ProductVersion: &hardwareVersion,
 		ProductFamily:  &productFamily,
+	}
+
+	if isNonEmptyValues(productType) {
+		mp.ProductType = &productType
 	}
 
 	if isNonEmptyValues(uriOfTheProduct) {
