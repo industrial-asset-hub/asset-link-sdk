@@ -1,7 +1,6 @@
 # SPDX-FileCopyrightText: 2026 Siemens AG
 # SPDX-License-Identifier: MIT
 
-# yaml-language-server: $schema=https://linkml.io/linkml-model/linkml_model/jsonschema/meta.schema.json
 name: iah-base
 description: "This schema defines the base classes needed for Industrial Asset Hub\
   \ (IAH).\nThe hereby defined classes provide a schema to model assets and devices\
@@ -547,6 +546,18 @@ slots:
     designates_type: true
     range: string
     required: true
+  vendor:
+    name: vendor
+    description: Vendor of the product instance.
+    title: vendor
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-asset-identifiers.yaml
+    range: string
+  article_number:
+    name: article_number
+    description: Vendor-specific article number of the product instance.
+    title: article number
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-asset-identifiers.yaml
+    range: string
   asset_identifiers:
     name: asset_identifiers
     description: 'An asset identifier is an asset attribute that provides enough information
@@ -615,6 +626,19 @@ slots:
     from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-asset-identifiers.yaml
     range: uri
     pattern: ^https?://(?:www\.)?[a-z0-9.-]+(?:\.[a-z]+)?/[^\s#]*$
+  host_identifier:
+    name: host_identifier
+    description: An identifier for the host on which a software artifact is installed
+      or running.
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-asset-identifiers.yaml
+    range: string
+  instance_identifier:
+    name: instance_identifier
+    description: An identifier for a specific instance of a software artifact. This
+      can be useful when multiple instances of the same software artifact are running
+      on the same host, and need to be distinguished from each other.
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-asset-identifiers.yaml
+    range: string
   asset_relations:
     name: asset_relations
     description: Relationships between this asset and other assets.
@@ -713,14 +737,6 @@ slots:
     from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-software-components.yaml
     range: SoftwareArtifact
     inlined: true
-  asset_links:
-    name: asset_links
-    description: List of asset links that are connected to the asset gateway.
-    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-gateway.yaml
-    range: AssetLink
-    multivalued: true
-    inlined: true
-    inlined_as_list: true
   location:
     name: location
     description: Possible ways to know where an asset is located.
@@ -1178,6 +1194,26 @@ classes:
     abstract: true
     slots:
     - asset_identifier_type
+  IdLinkIdentifier:
+    name: IdLinkIdentifier
+    description: Identifier for an asset instance using a vendor-provided ID Link
+      URL. The URL must be absolute (i.e. include a scheme and host) and follow the
+      ID Link convention (IEC 61406 / DIN SPEC 91406).
+    title: IDLink Identifier
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-asset-identifiers.yaml
+    is_a: AssetIdentifier
+    slots:
+    - id_link
+    slot_usage:
+      asset_identifier_type:
+        name: asset_identifier_type
+        equals_string: IdLinkIdentifier
+      identifier_uncertainty:
+        name: identifier_uncertainty
+        ifabsent: int(1000)
+      id_link:
+        name: id_link
+        required: true
   MacIdentifier:
     name: MacIdentifier
     description: Identifier for an Asset instance using the mac address.
@@ -1195,6 +1231,33 @@ classes:
         ifabsent: int(1002)
       mac_address:
         name: mac_address
+        required: true
+  ProductInstanceIdentifier:
+    name: ProductInstanceIdentifier
+    description: Identifier for an asset instance using the vendor-specific tuple
+      of vendor, article number, and serial number.
+    title: Product Instance Identifier
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-asset-identifiers.yaml
+    is_a: AssetIdentifier
+    slots:
+    - vendor
+    - article_number
+    - serial_number
+    slot_usage:
+      asset_identifier_type:
+        name: asset_identifier_type
+        equals_string: ProductInstanceIdentifier
+      identifier_uncertainty:
+        name: identifier_uncertainty
+        ifabsent: int(1001)
+      vendor:
+        name: vendor
+        required: true
+      article_number:
+        name: article_number
+        required: true
+      serial_number:
+        name: serial_number
         required: true
   SoftwareIdentifier:
     name: SoftwareIdentifier
@@ -1258,31 +1321,85 @@ classes:
     attributes:
       value:
         name: value
-        description: 'The value of the custom identifier. '
+        description: The value of the custom identifier.
         title: identifier value
         from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-asset-identifiers.yaml
         range: string
         required: true
         pattern: ^[A-Za-z0-9._~!$&'()*+,;=:/?@%-]{1,256}$
-  IdLinkIdentifier:
-    name: IdLinkIdentifier
-    description: Identifier for an asset instance using a vendor-provided ID Link
-      URL. The URL must be absolute (i.e. include a scheme and host) and follow the
-      ID Link convention (IEC 61406 / DIN SPEC 91406).
-    title: IDLink Identifier
+  HostBasedSoftwareIdentifier:
+    name: HostBasedSoftwareIdentifier
+    description: Identifier especially to identify software artifacts based on the
+      host they are installed or running on, and the name and version of the software.
+      As the same software can be installed on different hosts, or different versions
+      of the same software can be installed on the same host, the combination of host
+      identifier, software name and version should provide a unique identification
+      of the software instance. If the same software is installed multiple times on
+      the same host (e.g. multiple instances of the same container image), the instance
+      identifier can be used to distinguish between these instances. If it is assured
+      that the same software instance cannot be installed multiple times on the same
+      host, the instance identifier can be omitted.
     from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-asset-identifiers.yaml
     is_a: AssetIdentifier
     slots:
-    - id_link
+    - host_identifier
+    - instance_identifier
+    - name
+    - version
     slot_usage:
       asset_identifier_type:
         name: asset_identifier_type
-        equals_string: IdLinkIdentifier
+        equals_string: HostBasedSoftwareIdentifier
       identifier_uncertainty:
         name: identifier_uncertainty
-        ifabsent: int(1000)
-      id_link:
-        name: id_link
+        ifabsent: int(1007)
+      host_identifier:
+        name: host_identifier
+        required: true
+      name:
+        name: name
+        required: true
+      version:
+        name: version
+        required: true
+  ParentRelativeIdentifier:
+    name: ParentRelativeIdentifier
+    description: Identifier for an asset based on its slot and subslot relative to
+      a strongly identified parent asset. Replacing an asset in the same slot and
+      subslot preserves this identifier, while moving it changes the identifier.
+    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-asset-identifiers.yaml
+    is_a: AssetIdentifier
+    slot_usage:
+      asset_identifier_type:
+        name: asset_identifier_type
+        equals_string: ParentRelativeIdentifier
+      identifier_uncertainty:
+        name: identifier_uncertainty
+        ifabsent: int(1100)
+    attributes:
+      parent_identifier:
+        name: parent_identifier
+        description: ID Link, MAC address, or product instance identifier of the direct
+          parent asset.
+        from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-asset-identifiers.yaml
+        range: AssetIdentifier
+        required: true
+        inlined: true
+        any_of:
+        - range: IdLinkIdentifier
+        - range: MacIdentifier
+        - range: ProductInstanceIdentifier
+      slot:
+        name: slot
+        description: Slot of the asset within its direct parent.
+        from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-asset-identifiers.yaml
+        range: integer
+        required: true
+      subslot:
+        name: subslot
+        description: Subslot of the asset within its slot.
+        from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-asset-identifiers.yaml
+        range: integer
         required: true
   AssetRelation:
     name: AssetRelation
@@ -1494,21 +1611,11 @@ classes:
       the container bundle that is deployed on a device or virtual machine and provides
       connectivity between assets in the shopfloor and the IAH backend.
     from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-gateway.yaml
-    is_a: Asset
-    slots:
-    - asset_links
+    is_a: SoftwareArtifact
     slot_usage:
       functional_object_type:
         name: functional_object_type
         equals_string: Gateway
-  AssetLink:
-    name: AssetLink
-    description: Asset Link that can be used to interact with assets and can be reached
-      by the gateway.
-    title: Asset Link
-    from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-gateway.yaml
-    slots:
-    - artifact
   AssetLocation:
     name: AssetLocation
     description: Attributes that help locate where an asset can be physically found.

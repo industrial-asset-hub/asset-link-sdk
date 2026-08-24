@@ -70,6 +70,167 @@ func TestAddCertificateIdentifier(t *testing.T) {
 	})
 }
 
+func TestAddHostBasedSoftwareIdentifier(t *testing.T) {
+	t.Run("success", func(t *testing.T) {
+		device, err := NewDevice("Asset", "TestDevice")
+		assert.NoError(t, err)
+
+		device.AddHostBasedSoftwareIdentifier("MyApp", "1.2.3", "host-001")
+		if assert.Len(t, device.AssetIdentifiers, 1) {
+			id, ok := device.AssetIdentifiers[0].(HostBasedSoftwareIdentifier)
+			if assert.True(t, ok) {
+				assert.Equal(t, HostBasedSoftwareIdentifierAssetIdentifierTypeHostBasedSoftwareIdentifier, id.AssetIdentifierType)
+				assert.Equal(t, "MyApp", id.Name)
+				assert.Equal(t, "1.2.3", id.Version)
+				assert.Equal(t, "host-001", id.HostIdentifier)
+			}
+		}
+	})
+
+	t.Run("empty name is ignored", func(t *testing.T) {
+		device, err := NewDevice("Asset", "TestDevice")
+		assert.NoError(t, err)
+
+		device.AddHostBasedSoftwareIdentifier("", "1.2.3", "host-001")
+		assert.Empty(t, device.AssetIdentifiers)
+	})
+
+	t.Run("empty version is ignored", func(t *testing.T) {
+		device, err := NewDevice("Asset", "TestDevice")
+		assert.NoError(t, err)
+
+		device.AddHostBasedSoftwareIdentifier("MyApp", "", "host-001")
+		assert.Empty(t, device.AssetIdentifiers)
+	})
+
+	t.Run("empty host identifier is ignored", func(t *testing.T) {
+		device, err := NewDevice("Asset", "TestDevice")
+		assert.NoError(t, err)
+
+		device.AddHostBasedSoftwareIdentifier("MyApp", "1.2.3", "")
+		assert.Empty(t, device.AssetIdentifiers)
+	})
+}
+
+func TestAddProductInstanceIdentifier(t *testing.T) {
+	t.Run("success with all fields", func(t *testing.T) {
+		device, err := NewDevice("Asset", "TestDevice")
+		assert.NoError(t, err)
+
+		device.AddProductInstanceIdentifier("Siemens AG", "6GK5208-0HA00-2AS6", "SN-12345")
+		if assert.Len(t, device.AssetIdentifiers, 1) {
+			id, ok := device.AssetIdentifiers[0].(ProductInstanceIdentifier)
+			if assert.True(t, ok) {
+				assert.Equal(t, ProductInstanceIdentifierAssetIdentifierTypeProductInstanceIdentifier, id.AssetIdentifierType)
+				assert.Equal(t, "Siemens AG", id.Vendor)
+				assert.Equal(t, "6GK5208-0HA00-2AS6", id.ArticleNumber)
+				assert.Equal(t, "SN-12345", id.SerialNumber)
+			}
+		}
+	})
+
+	t.Run("empty vendor is accepted", func(t *testing.T) {
+		device, err := NewDevice("Asset", "TestDevice")
+		assert.NoError(t, err)
+
+		device.AddProductInstanceIdentifier("", "6GK5208-0HA00-2AS6", "SN-12345")
+		assert.Len(t, device.AssetIdentifiers, 1)
+	})
+
+	t.Run("empty article number is accepted", func(t *testing.T) {
+		device, err := NewDevice("Asset", "TestDevice")
+		assert.NoError(t, err)
+
+		device.AddProductInstanceIdentifier("Siemens AG", "", "SN-12345")
+		assert.Len(t, device.AssetIdentifiers, 1)
+	})
+
+	t.Run("empty serial number is accepted", func(t *testing.T) {
+		device, err := NewDevice("Asset", "TestDevice")
+		assert.NoError(t, err)
+
+		device.AddProductInstanceIdentifier("Siemens AG", "6GK5208-0HA00-2AS6", "")
+		assert.Len(t, device.AssetIdentifiers, 1)
+	})
+
+	t.Run("all empty is ignored", func(t *testing.T) {
+		device, err := NewDevice("Asset", "TestDevice")
+		assert.NoError(t, err)
+
+		device.AddProductInstanceIdentifier("", "", "")
+		assert.Empty(t, device.AssetIdentifiers)
+	})
+}
+
+func intPtr(v int) *int { return &v }
+
+func TestAddParentRelativeIdentifier(t *testing.T) {
+	t.Run("success with MacIdentifier parent", func(t *testing.T) {
+		device, err := NewDevice("Asset", "TestDevice")
+		assert.NoError(t, err)
+
+		parent := MacIdentifier{
+			AssetIdentifierType: MacIdentifierAssetIdentifierTypeMacIdentifier,
+			MacAddress:          "AA:BB:CC:DD:EE:FF",
+		}
+		device.AddParentRelativeIdentifier(parent, intPtr(1), intPtr(2))
+		if assert.Len(t, device.AssetIdentifiers, 1) {
+			id, ok := device.AssetIdentifiers[0].(ParentRelativeIdentifier)
+			if assert.True(t, ok) {
+				assert.Equal(t, ParentRelativeIdentifierAssetIdentifierTypeParentRelativeIdentifier, id.AssetIdentifierType)
+				assert.Equal(t, parent, id.ParentIdentifier)
+				assert.Equal(t, 1, id.Slot)
+				assert.Equal(t, 2, id.Subslot)
+			}
+		}
+	})
+
+	t.Run("success with IdLinkIdentifier parent", func(t *testing.T) {
+		device, err := NewDevice("Asset", "TestDevice")
+		assert.NoError(t, err)
+
+		parent := IdLinkIdentifier{
+			AssetIdentifierType: IdLinkIdentifierAssetIdentifierTypeIdLinkIdentifier,
+			IdLink:              "https://example.com/product/123",
+		}
+		device.AddParentRelativeIdentifier(parent, intPtr(0), intPtr(0))
+		if assert.Len(t, device.AssetIdentifiers, 1) {
+			id, ok := device.AssetIdentifiers[0].(ParentRelativeIdentifier)
+			if assert.True(t, ok) {
+				assert.Equal(t, parent, id.ParentIdentifier)
+				assert.Equal(t, 0, id.Slot)
+				assert.Equal(t, 0, id.Subslot)
+			}
+		}
+	})
+
+	t.Run("nil slot and subslot default to 0", func(t *testing.T) {
+		device, err := NewDevice("Asset", "TestDevice")
+		assert.NoError(t, err)
+
+		parent := MacIdentifier{
+			AssetIdentifierType: MacIdentifierAssetIdentifierTypeMacIdentifier,
+			MacAddress:          "AA:BB:CC:DD:EE:FF",
+		}
+		device.AddParentRelativeIdentifier(parent, nil, nil)
+		if assert.Len(t, device.AssetIdentifiers, 1) {
+			id, ok := device.AssetIdentifiers[0].(ParentRelativeIdentifier)
+			if assert.True(t, ok) {
+				assert.Equal(t, 0, id.Slot)
+				assert.Equal(t, 0, id.Subslot)
+			}
+		}
+	})
+
+	t.Run("nil parent is ignored", func(t *testing.T) {
+		device, err := NewDevice("Asset", "TestDevice")
+		assert.NoError(t, err)
+
+		device.AddParentRelativeIdentifier(nil, intPtr(1), intPtr(2))
+		assert.Empty(t, device.AssetIdentifiers)
+	})
+}
+
 func TestDeviceInfoAddAssetRelation(t *testing.T) {
 	for _, functionalType := range []string{"Asset", "Device", "Gateway", "SoftwareArtifact"} {
 		functionalType := functionalType

@@ -7,7 +7,7 @@
 
 package model
 
-// Pattern constants for validation - sourced from cdm_base.schema_v1.11.0.json
+// Pattern constants for validation - sourced from cdm_base.schema_v1.19.0.json
 const (
 	// MacAddressPattern validates MAC addresses (e.g. AC:64:17:01:1E:52 or AC-64-17-01-1E-52).
 	MacAddressPattern = "^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$"

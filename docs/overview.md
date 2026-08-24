@@ -22,7 +22,7 @@ Currently, two interfaces are supported:
 
 Tooling:
 
-- [Go](https://go.dev/) Version >=1.25.7 is required
+- [Go](https://go.dev/) Version >=1.25.13 is required
 - [cookiecutter](https://github.com/cookiecutter/cookiecutter)
 - [GoReleaser](https://goreleaser.com/)
 
@@ -36,6 +36,13 @@ For discovery and device property retrieval, these clients need to be implemente
 - [DriverInfo](https://github.com/industrial-asset-hub/asset-link-sdk/tree/main/specs/conn_suite_drv_info.proto)
 - [Discovery](https://github.com/industrial-asset-hub/asset-link-sdk/tree/main/specs/iah_discover.proto)
 - [DeviceInfo](https://github.com/industrial-asset-hub/asset-link-sdk/blob/main/specs/conn_suite_device_info.proto)
+
+**Compatibility Matrix:**
+
+| Asset Link SDK | [Asset Gateway](https://github.com/industrial-asset-hub/asset-gateway) |
+|----------------|------------------------------------------------------------------------|
+| v4.1.x         | >= v1.7.x                                                              |
+| v3.x.x         | < v1.6.x                                                               |
 
 > You can download and use the [Asset Gateway](https://github.com/industrial-asset-hub/asset-gateway) from the
 > Siemens Industrial Asset Hub (IAH) for that purpose.

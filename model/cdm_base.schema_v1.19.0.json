@@ -35,7 +35,13 @@
                     "items": {
                         "anyOf": [
                             {
+                                "$ref": "#/$defs/IdLinkIdentifier"
+                            },
+                            {
                                 "$ref": "#/$defs/MacIdentifier"
+                            },
+                            {
+                                "$ref": "#/$defs/ProductInstanceIdentifier"
                             },
                             {
                                 "$ref": "#/$defs/SoftwareIdentifier"
@@ -47,7 +53,10 @@
                                 "$ref": "#/$defs/CustomIdentifier"
                             },
                             {
-                                "$ref": "#/$defs/IdLinkIdentifier"
+                                "$ref": "#/$defs/HostBasedSoftwareIdentifier"
+                            },
+                            {
+                                "$ref": "#/$defs/ParentRelativeIdentifier"
                             }
                         ]
                     },
@@ -202,25 +211,6 @@
                 "functional_object_schema_url"
             ],
             "title": "Asset",
-            "type": "object"
-        },
-        "AssetLink": {
-            "additionalProperties": false,
-            "description": "Asset Link that can be used to interact with assets and can be reached by the gateway.",
-            "properties": {
-                "artifact": {
-                    "anyOf": [
-                        {
-                            "$ref": "#/$defs/SoftwareArtifact"
-                        },
-                        {
-                            "type": "null"
-                        }
-                    ],
-                    "description": "Reference to the software artifact asset.\nAs of now the combination of multiple software artifacts into a running software (for example with plug-ins) is not supported and cannot be natively modeled."
-                }
-            },
-            "title": "AssetLink",
             "type": "object"
         },
         "AssetLocation": {
@@ -421,7 +411,7 @@
                     "type": "string"
                 },
                 "value": {
-                    "description": "The value of the custom identifier. ",
+                    "description": "The value of the custom identifier.",
                     "pattern": "^[A-Za-z0-9._~!$&'()*+,;=:/?@%-]{1,256}$",
                     "type": "string"
                 }
@@ -459,7 +449,13 @@
                     "items": {
                         "anyOf": [
                             {
+                                "$ref": "#/$defs/IdLinkIdentifier"
+                            },
+                            {
                                 "$ref": "#/$defs/MacIdentifier"
+                            },
+                            {
+                                "$ref": "#/$defs/ProductInstanceIdentifier"
                             },
                             {
                                 "$ref": "#/$defs/SoftwareIdentifier"
@@ -471,7 +467,10 @@
                                 "$ref": "#/$defs/CustomIdentifier"
                             },
                             {
-                                "$ref": "#/$defs/IdLinkIdentifier"
+                                "$ref": "#/$defs/HostBasedSoftwareIdentifier"
+                            },
+                            {
+                                "$ref": "#/$defs/ParentRelativeIdentifier"
                             }
                         ]
                     },
@@ -744,7 +743,13 @@
                     "items": {
                         "anyOf": [
                             {
+                                "$ref": "#/$defs/IdLinkIdentifier"
+                            },
+                            {
                                 "$ref": "#/$defs/MacIdentifier"
+                            },
+                            {
+                                "$ref": "#/$defs/ProductInstanceIdentifier"
                             },
                             {
                                 "$ref": "#/$defs/SoftwareIdentifier"
@@ -756,21 +761,14 @@
                                 "$ref": "#/$defs/CustomIdentifier"
                             },
                             {
-                                "$ref": "#/$defs/IdLinkIdentifier"
+                                "$ref": "#/$defs/HostBasedSoftwareIdentifier"
+                            },
+                            {
+                                "$ref": "#/$defs/ParentRelativeIdentifier"
                             }
                         ]
                     },
                     "type": "array"
-                },
-                "asset_links": {
-                    "description": "List of asset links that are connected to the asset gateway.",
-                    "items": {
-                        "$ref": "#/$defs/AssetLink"
-                    },
-                    "type": [
-                        "array",
-                        "null"
-                    ]
                 },
                 "asset_operations": {
                     "description": "List of device management operations supported by an asset. Each operation type might appear only once.",
@@ -839,6 +837,13 @@
                     },
                     "type": [
                         "array",
+                        "null"
+                    ]
+                },
+                "is_firmware": {
+                    "description": "Flag indicating that the software artifact is provided by a hardware manufacturer for one or more of its devices.\nUnlike other software artifacts, updating the firmware requires contacting the source specified by the device manufacturer.\nDue to this definition, firmware in IAH has a much wider scope than in some domains, where firmware is only meant to be close-to-the-silicon software.",
+                    "type": [
+                        "boolean",
                         "null"
                     ]
                 },
@@ -977,6 +982,61 @@
                 "mode_name"
             ],
             "title": "HaltOperatingMode",
+            "type": "object"
+        },
+        "HostBasedSoftwareIdentifier": {
+            "additionalProperties": false,
+            "description": "Identifier especially to identify software artifacts based on the host they are installed or running on, and the name and version of the software. As the same software can be installed on different hosts, or different versions of the same software can be installed on the same host, the combination of host identifier, software name and version should provide a unique identification of the software instance. If the same software is installed multiple times on the same host (e.g. multiple instances of the same container image), the instance identifier can be used to distinguish between these instances. If it is assured that the same software instance cannot be installed multiple times on the same host, the instance identifier can be omitted.",
+            "properties": {
+                "asset_identifier_type": {
+                    "const": "HostBasedSoftwareIdentifier",
+                    "description": "Type designator that supports polymorphism using asset identifiers.",
+                    "enum": [
+                        "HostBasedSoftwareIdentifier"
+                    ],
+                    "type": "string"
+                },
+                "host_identifier": {
+                    "description": "An identifier for the host on which a software artifact is installed or running.",
+                    "type": "string"
+                },
+                "identifier_type": {
+                    "description": "Type of an items identifier.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "identifier_uncertainty": {
+                    "description": "Number that indicates how uncertain an identifier is compared to other identifiers provided by an Asset Link. The higher the number, the more uncertain the identification must be considered. This number must be considered relative to the other identifiers for the same element. The default value is 0, meaning no uncertainty.\nThis index helps to decide which identifiers are better suited for deduplication across Asset Links. The identifier provided by two different Asset Links with the lowest uncertainty should be chosen for deduplication purposes.",
+                    "type": [
+                        "integer",
+                        "null"
+                    ]
+                },
+                "instance_identifier": {
+                    "description": "An identifier for a specific instance of a software artifact. This can be useful when multiple instances of the same software artifact are running on the same host, and need to be distinguished from each other.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "name": {
+                    "description": "The name of the item.",
+                    "type": "string"
+                },
+                "version": {
+                    "description": "Version of a software artifact.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "host_identifier",
+                "name",
+                "version",
+                "asset_identifier_type"
+            ],
+            "title": "HostBasedSoftwareIdentifier",
             "type": "object"
         },
         "IdLinkIdentifier": {
@@ -1381,6 +1441,64 @@
             "title": "Organization",
             "type": "object"
         },
+        "ParentRelativeIdentifier": {
+            "additionalProperties": false,
+            "description": "Identifier for an asset based on its slot and subslot relative to a strongly identified parent asset. Replacing an asset in the same slot and subslot preserves this identifier, while moving it changes the identifier.",
+            "properties": {
+                "asset_identifier_type": {
+                    "const": "ParentRelativeIdentifier",
+                    "description": "Type designator that supports polymorphism using asset identifiers.",
+                    "enum": [
+                        "ParentRelativeIdentifier"
+                    ],
+                    "type": "string"
+                },
+                "identifier_type": {
+                    "description": "Type of an items identifier.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "identifier_uncertainty": {
+                    "description": "Number that indicates how uncertain an identifier is compared to other identifiers provided by an Asset Link. The higher the number, the more uncertain the identification must be considered. This number must be considered relative to the other identifiers for the same element. The default value is 0, meaning no uncertainty.\nThis index helps to decide which identifiers are better suited for deduplication across Asset Links. The identifier provided by two different Asset Links with the lowest uncertainty should be chosen for deduplication purposes.",
+                    "type": [
+                        "integer",
+                        "null"
+                    ]
+                },
+                "parent_identifier": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/IdLinkIdentifier"
+                        },
+                        {
+                            "$ref": "#/$defs/MacIdentifier"
+                        },
+                        {
+                            "$ref": "#/$defs/ProductInstanceIdentifier"
+                        }
+                    ],
+                    "description": "ID Link, MAC address, or product instance identifier of the direct parent asset."
+                },
+                "slot": {
+                    "description": "Slot of the asset within its direct parent.",
+                    "type": "integer"
+                },
+                "subslot": {
+                    "description": "Subslot of the asset within its slot.",
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "parent_identifier",
+                "slot",
+                "subslot",
+                "asset_identifier_type"
+            ],
+            "title": "ParentRelativeIdentifier",
+            "type": "object"
+        },
         "Product": {
             "additionalProperties": false,
             "description": "Any offered product or service that might have different versions for the same product ID.",
@@ -1426,6 +1544,54 @@
                 }
             },
             "title": "Product",
+            "type": "object"
+        },
+        "ProductInstanceIdentifier": {
+            "additionalProperties": false,
+            "description": "Identifier for an asset instance using the vendor-specific tuple of vendor, article number, and serial number.",
+            "properties": {
+                "article_number": {
+                    "description": "Vendor-specific article number of the product instance.",
+                    "type": "string"
+                },
+                "asset_identifier_type": {
+                    "const": "ProductInstanceIdentifier",
+                    "description": "Type designator that supports polymorphism using asset identifiers.",
+                    "enum": [
+                        "ProductInstanceIdentifier"
+                    ],
+                    "type": "string"
+                },
+                "identifier_type": {
+                    "description": "Type of an items identifier.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "identifier_uncertainty": {
+                    "description": "Number that indicates how uncertain an identifier is compared to other identifiers provided by an Asset Link. The higher the number, the more uncertain the identification must be considered. This number must be considered relative to the other identifiers for the same element. The default value is 0, meaning no uncertainty.\nThis index helps to decide which identifiers are better suited for deduplication across Asset Links. The identifier provided by two different Asset Links with the lowest uncertainty should be chosen for deduplication purposes.",
+                    "type": [
+                        "integer",
+                        "null"
+                    ]
+                },
+                "serial_number": {
+                    "description": "The serial number or any alphanumeric identifier of a particular product. When attached to an offer, it is a shortcut for the serial number of the product included in the offer.",
+                    "type": "string"
+                },
+                "vendor": {
+                    "description": "Vendor of the product instance.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "vendor",
+                "article_number",
+                "serial_number",
+                "asset_identifier_type"
+            ],
+            "title": "ProductInstanceIdentifier",
             "type": "object"
         },
         "ProductInstanceInformation": {
@@ -1484,7 +1650,13 @@
                     "items": {
                         "anyOf": [
                             {
+                                "$ref": "#/$defs/IdLinkIdentifier"
+                            },
+                            {
                                 "$ref": "#/$defs/MacIdentifier"
+                            },
+                            {
+                                "$ref": "#/$defs/ProductInstanceIdentifier"
                             },
                             {
                                 "$ref": "#/$defs/SoftwareIdentifier"
@@ -1496,7 +1668,10 @@
                                 "$ref": "#/$defs/CustomIdentifier"
                             },
                             {
-                                "$ref": "#/$defs/IdLinkIdentifier"
+                                "$ref": "#/$defs/HostBasedSoftwareIdentifier"
+                            },
+                            {
+                                "$ref": "#/$defs/ParentRelativeIdentifier"
                             }
                         ]
                     },
@@ -1638,6 +1813,9 @@
                             "$ref": "#/$defs/SoftwareArtifact"
                         },
                         {
+                            "$ref": "#/$defs/Gateway"
+                        },
+                        {
                             "type": "null"
                         }
                     ],
@@ -1700,7 +1878,13 @@
                     "items": {
                         "anyOf": [
                             {
+                                "$ref": "#/$defs/IdLinkIdentifier"
+                            },
+                            {
                                 "$ref": "#/$defs/MacIdentifier"
+                            },
+                            {
+                                "$ref": "#/$defs/ProductInstanceIdentifier"
                             },
                             {
                                 "$ref": "#/$defs/SoftwareIdentifier"
@@ -1712,7 +1896,10 @@
                                 "$ref": "#/$defs/CustomIdentifier"
                             },
                             {
-                                "$ref": "#/$defs/IdLinkIdentifier"
+                                "$ref": "#/$defs/HostBasedSoftwareIdentifier"
+                            },
+                            {
+                                "$ref": "#/$defs/ParentRelativeIdentifier"
                             }
                         ]
                     },
@@ -1884,6 +2071,9 @@
                     "anyOf": [
                         {
                             "$ref": "#/$defs/SoftwareArtifact"
+                        },
+                        {
+                            "$ref": "#/$defs/Gateway"
                         },
                         {
                             "type": "null"

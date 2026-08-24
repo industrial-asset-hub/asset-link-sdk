@@ -10,4 +10,4 @@
 
 package model
 
-//go:generate go-jsonschema -p model cdm_base.schema_v1.11.0.json -o base.go -v
+//go:generate go-jsonschema -p model cdm_base.schema_v1.19.0.json -o base.go -v

@@ -12,4 +12,5 @@ nav_order: 1
 - [Command line tool](cmd.md)
 - [Observability Webserver](observability.md)
 - [Working with the Asset Model](model.md)
+- [Migration to v4.1.x](migration-v3.7.4-to-v4.1.x.md)
 - [Troubleshooting](troubleshooting.md)

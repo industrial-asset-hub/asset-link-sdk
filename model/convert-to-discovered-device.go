@@ -59,7 +59,7 @@ func convertDeviceInfoToDeviceIdentifiers[T interface{}](d *T, uri string, devic
 func convertToDeviceIdentifiers(valueToConvert reflect.Value, prefixUri string, level int) []*generated.DeviceIdentifier {
 	identifiers := []*generated.DeviceIdentifier{}
 	switch valueToConvert.Kind() {
-	case reflect.Ptr:
+	case reflect.Pointer:
 		if valueToConvert.IsNil() {
 			return identifiers
 		}

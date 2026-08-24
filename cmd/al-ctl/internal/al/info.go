@@ -10,11 +10,12 @@ package al
 import (
 	"fmt"
 
+	"context"
+
 	"github.com/industrial-asset-hub/asset-link-sdk/v4/cmd/al-ctl/internal/shared"
 	driverinfo "github.com/industrial-asset-hub/asset-link-sdk/v4/generated/conn_suite_drv_info"
 	discovery "github.com/industrial-asset-hub/asset-link-sdk/v4/generated/iah-discovery"
 	"github.com/rs/zerolog/log"
-	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 )
 

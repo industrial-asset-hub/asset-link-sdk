@@ -61,6 +61,55 @@ func (d *DeviceInfo) AddCertificateIdentifier(certificateID string) {
 	}
 }
 
+// AddHostBasedSoftwareIdentifier appends a HostBasedSoftwareIdentifier only when all required fields are non-empty.
+func (d *DeviceInfo) AddHostBasedSoftwareIdentifier(name, version, hostIdentifier string) {
+	if strings.TrimSpace(name) != "" && strings.TrimSpace(version) != "" && strings.TrimSpace(hostIdentifier) != "" {
+		identifier := HostBasedSoftwareIdentifier{
+			AssetIdentifierType: HostBasedSoftwareIdentifierAssetIdentifierTypeHostBasedSoftwareIdentifier,
+			Name:                name,
+			Version:             version,
+			HostIdentifier:      hostIdentifier,
+		}
+		d.AssetIdentifiers = append(d.AssetIdentifiers, identifier)
+	}
+}
+
+// AddProductInstanceIdentifier appends a ProductInstanceIdentifier; skipped only when all three fields are empty.
+func (d *DeviceInfo) AddProductInstanceIdentifier(vendor, articleNumber, serialNumber string) {
+	if !isNonEmptyValues(vendor, articleNumber, serialNumber) {
+		return
+	}
+	identifier := ProductInstanceIdentifier{
+		AssetIdentifierType: ProductInstanceIdentifierAssetIdentifierTypeProductInstanceIdentifier,
+		Vendor:              vendor,
+		ArticleNumber:       articleNumber,
+		SerialNumber:        serialNumber,
+	}
+	d.AssetIdentifiers = append(d.AssetIdentifiers, identifier)
+}
+
+// AddParentRelativeIdentifier appends a ParentRelativeIdentifier; parentIdentifier must be a MacIdentifier or IdLinkIdentifier.
+// Nil slot or subslot defaults to 0.
+func (d *DeviceInfo) AddParentRelativeIdentifier(parentIdentifier interface{}, slot, subslot *int) {
+	if parentIdentifier == nil {
+		return
+	}
+	slotVal, subslotVal := 0, 0
+	if slot != nil {
+		slotVal = *slot
+	}
+	if subslot != nil {
+		subslotVal = *subslot
+	}
+	identifier := ParentRelativeIdentifier{
+		AssetIdentifierType: ParentRelativeIdentifierAssetIdentifierTypeParentRelativeIdentifier,
+		ParentIdentifier:    parentIdentifier,
+		Slot:                slotVal,
+		Subslot:             subslotVal,
+	}
+	d.AssetIdentifiers = append(d.AssetIdentifiers, identifier)
+}
+
 // AddAssetRelation appends an AssetRelation when provided values are valid.
 // Set isBidirectional to true if the relation can be interpreted in both directions.
 func (d *DeviceInfo) AddAssetRelation(predicate string, relatedAsset RelatedAsset, role RelationalRoleOfRelatedAssetValues, isBidirectional bool) error {

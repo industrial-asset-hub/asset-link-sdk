@@ -20,3 +20,4 @@ include:
   - cmd.md
   - observability.md
   - model.md
+  - migration-v3.7.4-to-v4.1.x.md
