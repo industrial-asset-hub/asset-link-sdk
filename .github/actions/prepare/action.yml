@@ -26,8 +26,10 @@ runs:
         export GOPATH=$HOME/go
         export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
         PROTOC_VERSION=35.1
-        curl -LO https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOC_VERSION}/protoc-${PROTOC_VERSION}-linux-x86_64.zip
-        sudo unzip -o protoc-${PROTOC_VERSION}-linux-x86_64.zip -d /usr/local
+        TMP_DIR=$(mktemp -d)
+        curl -L -o "$TMP_DIR/protoc.zip" https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOC_VERSION}/protoc-${PROTOC_VERSION}-linux-x86_64.zip
+        sudo unzip -o "$TMP_DIR/protoc.zip" -d /usr/local
+        rm -rf "$TMP_DIR"
         go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.11
         go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.6.2
         go install github.com/atombender/go-jsonschema@v0.16.0
