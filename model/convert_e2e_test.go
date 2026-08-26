@@ -38,6 +38,7 @@ func TestBackAndForthConversion(t *testing.T) {
 	assert.Equal(t, testIDLink, manufacturerProduct["product_link"])
 	assert.Equal(t, "TestDevice", manufacturerProduct["product_id"])
 	assert.Equal(t, "product-family", manufacturerProduct["product_family"])
+	assert.Equal(t, "product-type", manufacturerProduct["product_type"])
 	assert.Equal(t, "1.0.0", manufacturerProduct["product_version"])
 
 	softwareArtifact := softwareComponent["artifact"].(map[string]interface{})
@@ -75,7 +76,7 @@ func getTestDevice() *DeviceInfo {
 	}
 
 	uriOfTheProduct := testIDLink
-	err = deviceInfo.AddNameplate(manufacturer, uriOfTheProduct, product, "product-family", "1.0.0", serialNumber)
+	err = deviceInfo.AddNameplate(manufacturer, uriOfTheProduct, product, "product-family", "1.0.0", serialNumber, "product-type")
 	if err != nil {
 		panic(err)
 	}

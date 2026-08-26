@@ -60,6 +60,7 @@
                             }
                         ]
                     },
+                    "minItems": 1,
                     "type": "array"
                 },
                 "asset_operations": {
@@ -474,6 +475,7 @@
                             }
                         ]
                     },
+                    "minItems": 1,
                     "type": "array"
                 },
                 "asset_operations": {
@@ -768,6 +770,7 @@
                             }
                         ]
                     },
+                    "minItems": 1,
                     "type": "array"
                 },
                 "asset_operations": {
@@ -1522,7 +1525,7 @@
                     ]
                 },
                 "product_id": {
-                    "description": "The product identifiers, such as ISBN.",
+                    "description": "The unique product identifier of the manufacturer.",
                     "type": [
                         "string",
                         "null"
@@ -1530,6 +1533,13 @@
                 },
                 "product_link": {
                     "description": "Link to identify a product. It can also provide additional information about the product.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "product_type": {
+                    "description": "The product type identifies the specific type or designation of a product.",
                     "type": [
                         "string",
                         "null"
@@ -1675,6 +1685,7 @@
                             }
                         ]
                     },
+                    "minItems": 1,
                     "type": "array"
                 }
             },
@@ -1859,7 +1870,7 @@
                     "description": "The manufacturer of the product."
                 },
                 "product_id": {
-                    "description": "The product identifiers, such as ISBN.",
+                    "description": "The unique product identifier of the manufacturer.",
                     "type": [
                         "string",
                         "null"
@@ -1903,6 +1914,7 @@
                             }
                         ]
                     },
+                    "minItems": 1,
                     "type": "array"
                 },
                 "asset_operations": {

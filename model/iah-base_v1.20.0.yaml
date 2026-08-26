@@ -398,22 +398,22 @@ slots:
     range: Organization
   product_id:
     name: product_id
-    description: The product identifiers, such as ISBN.
+    description: The unique product identifier of the manufacturer.
     from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-product-information.yaml
     structured_aliases:
-      0173-1#02-AAO057#004:
-        literal_form: 0173-1#02-AAO057#004
+      0173-1#02-AAO676#005:
+        literal_form: 0173-1#02-AAO676#005
         categories:
         - urn:iso:std:iso-iec:11179:-6:ed-3:en
         - https://www.iso.org/standard/78916.html
-        description: ECLASS IRDI for Digital Nameplate v3.0 "ManufacturerProductType"
+        description: ECLASS IRDI for Digital Nameplate v3.0 "ProductArticleNumberOfManufacturer"
         source: https://github.com/admin-shell-io/submodel-templates/blob/e45fb10d744289a4655b8203f9c2a005bebff4b9/published/Digital%20nameplate/3/0/IDTA%2002006-3-0_Template_Digital%20Nameplate.json#L373
-      0112/2///61987#ABA300#008:
-        literal_form: 0112/2///61987#ABA300#008
+      0112/2///61987#ABA581#007:
+        literal_form: 0112/2///61987#ABA581#007
         categories:
         - urn:iso:std:iso-iec:11179:-6:ed-3:en
         - https://www.iso.org/standard/78916.html
-        description: IEC CDD IRDI for Digital Nameplate v3.0 "ManufacturerProductType"
+        description: IEC CDD IRDI for Digital Nameplate v3.0 "ProductArticleNumberOfManufacturer"
         source: https://github.com/admin-shell-io/submodel-templates/blob/e45fb10d744289a4655b8203f9c2a005bebff4b9/published/Digital%20nameplate/3/0/IDTA%2002006-3-0_Template_Digital%20Nameplate.json#L1832
     slot_uri: schema:productID
     range: string
@@ -603,6 +603,7 @@ slots:
     multivalued: true
     inlined: true
     inlined_as_list: true
+    minimum_cardinality: 1
   version:
     name: version
     description: Version of a software artifact.
@@ -929,7 +930,7 @@ classes:
             categories:
             - urn:iso:std:iso-iec:11179:-6:ed-3:en
             - https://www.iso.org/standard/78916.html
-            description: IEC CDD IRDI for Digital Nameplate v3.0 "ManufacturerProductType"
+            description: IEC CDD IRDI for Digital Nameplate v3.0 "ManufacturerProductFamily"
             source: https://github.com/admin-shell-io/submodel-templates/blob/e45fb10d744289a4655b8203f9c2a005bebff4b9/published/Digital%20nameplate/3/0/IDTA%2002006-3-0_Template_Digital%20Nameplate.json#L310
           0173-1#02-AAU731#003:
             literal_form: 0173-1#02-AAU731#003
@@ -940,6 +941,27 @@ classes:
             source: https://github.com/admin-shell-io/submodel-templates/blob/e45fb10d744289a4655b8203f9c2a005bebff4b9/published/Digital%20nameplate/3/0/IDTA%2002006-3-0_Template_Digital%20Nameplate.json#L310
         close_mappings:
         - schema:ProductGroup
+        range: string
+      product_type:
+        name: product_type
+        description: The product type identifies the specific type or designation
+          of a product.
+        from_schema: https://industrial-assets.io/schemas/iah/base-schema/released/v1/iah-base-product-information.yaml
+        structured_aliases:
+          0112/2///61987#ABA300#008:
+            literal_form: 0112/2///61987#ABA300#008
+            categories:
+            - urn:iso:std:iso-iec:11179:-6:ed-3:en
+            - https://www.iso.org/standard/78916.html
+            description: IEC CDD IRDI for Digital Nameplate v3.0 "ManufacturerProductType"
+            source: https://github.com/admin-shell-io/submodel-templates/blob/e45fb10d744289a4655b8203f9c2a005bebff4b9/published/Digital%20nameplate/3/0/IDTA%2002006-3-0_Template_Digital%20Nameplate.json#L357
+          0173-1#02-AAO057#004:
+            literal_form: 0173-1#02-AAO057#004
+            categories:
+            - urn:iso:std:iso-iec:11179:-6:ed-3:en
+            - https://www.iso.org/standard/78916.html
+            description: ECLASS IRDI for Digital Nameplate v3.0 "ManufacturerProductType"
+            source: https://github.com/admin-shell-io/submodel-templates/blob/e45fb10d744289a4655b8203f9c2a005bebff4b9/published/Digital%20nameplate/3/0/IDTA%2002006-3-0_Template_Digital%20Nameplate.json#L357
         range: string
   Organization:
     name: Organization
