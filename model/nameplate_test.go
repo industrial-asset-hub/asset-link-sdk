@@ -171,6 +171,15 @@ func TestSoftwareNameplate(t *testing.T) {
 				}
 			}
 
+			productInfo, ok := v.ProductInstanceInformation.(*ProductInstanceInformation)
+			if assert.True(t, ok) {
+				manufacturerProduct, ok := productInfo.ManufacturerProduct.(*Product)
+				if assert.True(t, ok) && assert.NotNil(t, manufacturerProduct.ProductVersion) {
+					softwareIdentifier := v.AssetIdentifiers[0].(SoftwareIdentifier)
+					assert.Equal(t, softwareIdentifier.Version, *manufacturerProduct.ProductVersion)
+				}
+			}
+
 			assert.Equal(t, FunctionalObjectSchemaUrl, v.FunctionalObjectSchemaUrl)
 			assert.NotNil(t, v.IsFirmware)
 		}
