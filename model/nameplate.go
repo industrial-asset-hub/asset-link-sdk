@@ -101,7 +101,11 @@ func (d *DeviceInfo) AddSoftwareArtifactComponent(name string, version string, i
 		FunctionalObjectType:       SoftwareArtifactFunctionalObjectTypeSoftwareArtifact,
 		InstanceAnnotations:        nil,
 		Name:                       nil,
-		ProductInstanceInformation: nil,
+		ProductInstanceInformation: &ProductInstanceInformation{
+			ManufacturerProduct: &Product{
+				ProductVersion: &version,
+			},
+		},
 		SoftwareComponents:         nil,
 		IsFirmware:                 &isFirmware,
 		FunctionalObjectSchemaUrl:  FunctionalObjectSchemaUrl,
@@ -148,7 +152,11 @@ func (d *DeviceInfo) AddRunningSoftwareComponent(name string, version string, is
 		FunctionalObjectType:       SoftwareArtifactFunctionalObjectTypeSoftwareArtifact,
 		InstanceAnnotations:        nil,
 		Name:                       nil,
-		ProductInstanceInformation: nil,
+		ProductInstanceInformation: &ProductInstanceInformation{
+			ManufacturerProduct: &Product{
+				ProductVersion: &version,
+			},
+		},
 		SoftwareComponents:         nil,
 		IsFirmware:                 &isFirmware,
 		FunctionalObjectSchemaUrl:  FunctionalObjectSchemaUrl,
