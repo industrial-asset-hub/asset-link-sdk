@@ -4,6 +4,8 @@
 
 FROM scratch
 
-COPY --chmod=0755 {{ cookiecutter.al_project }} /al
+ARG TARGETPLATFORM
+
+COPY --chmod=0755 $TARGETPLATFORM/{{ cookiecutter.al_project }} /al
 
 ENTRYPOINT ["/al"]
