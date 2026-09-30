@@ -89,41 +89,19 @@ snapshot:
   version_template: "{{ incpatch .Version }}-next"
   {% endraw %}
 
-dockers:
-  - id: {{ cookiecutter.al_project }}-linux-amd64
+dockers_v2:
+  - id: {{ cookiecutter.al_project }}-image
     ids:
-      - {{ cookiecutter.al_project }}
-    image_templates:
-      - "{{ cookiecutter.al_project }}{% raw %}:{{ .Tag }}-linux-amd64{% endraw %}"
-      - "{{ cookiecutter.al_project }}:latest-linux-amd64"
+      - "{{ cookiecutter.al_project }}"
+    images:
+      - "{{ cookiecutter.al_project }}"
+    tags:
+      - "{% raw %}{{ .Tag }}{% endraw %}"
+      - "latest"
     dockerfile: Dockerfile
-    use: buildx
-    goos: linux
-    goarch: amd64
-    build_flag_templates:
-      - "--platform=linux/amd64"
-  - id: {{ cookiecutter.al_project }}-arm64
-    ids:
-      - {{ cookiecutter.al_project }}
-    image_templates:
-      - "{{ cookiecutter.al_project }}{% raw %}:{{ .Tag }}-linux-arm64{% endraw %}"
-      - "{{ cookiecutter.al_project }}:latest-linux-arm64"
-    dockerfile: Dockerfile
-    use: buildx
-    goos: linux
-    goarch: arm64
-    build_flag_templates:
-      - --platform=linux/arm64
-
-docker_manifests:
-  - name_template: "{{ cookiecutter.al_project }}{% raw %}:{{ .Tag }}{% endraw %}"
-    image_templates:
-      - "{{ cookiecutter.al_project }}{% raw %}:{{ .Tag }}-linux-amd64{% endraw %}"
-      - "{{ cookiecutter.al_project }}{% raw %}:{{ .Tag }}-linux-arm64{% endraw %}"
-  - name_template: "{{ cookiecutter.al_project }}:latest"
-    image_templates:
-      - "{{ cookiecutter.al_project }}:latest-linux-amd64"
-      - "{{ cookiecutter.al_project }}:latest-linux-arm64"
+    platforms:
+      - linux/amd64
+      - linux/arm64
 
 changelog:
   sort: asc

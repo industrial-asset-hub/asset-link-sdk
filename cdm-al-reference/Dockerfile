@@ -4,6 +4,8 @@
 
 FROM scratch
 
-COPY --chmod=0755 cdm-al-reference /al
+ARG TARGETPLATFORM
+
+COPY --chmod=0755 $TARGETPLATFORM/cdm-al-reference /al
 
 ENTRYPOINT ["/al"]
