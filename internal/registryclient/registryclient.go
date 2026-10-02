@@ -25,13 +25,13 @@ type appTypes int
 const (
 	CDM_AGENT               appTypes = 0
 	CDM_DEVICE_CLASS_DRIVER appTypes = 1
-	// Uncomment for app-type changes 
+	// Uncomment for app-type changes
 	// IAH_DISCOVER            appTypes = 2
 )
 
 func (apptypes appTypes) String() string {
 	return []string{"cdm-agent", "cdm-device-class-driver"}[apptypes]
-	// Uncomment for app-type changes 
+	// Uncomment for app-type changes
 	// return []string{APPTYPE_CDM_AGENT, APPTYPE_CDM_DEVICE_CLASS_DRIVER, APPTYPE_IAH_DISCOVER}[apptypes]
 }
 
@@ -48,6 +48,7 @@ const (
 	INTERFACE_DRVINFO_V1               = "siemens.connectivitysuite.drvinfo.v1"
 	INTERFACE_IAH_DISCOVER_V1          = "siemens.industrialassethub.discover.v1"
 	INTERFACE_CONN_SUITE_DEVICEINFO_V1 = "siemens.connectivitysuite.deviceinfo.v1"
+	INTERFACE_IAH_ARTEFACT_UPDATE_V1   = "siemens.industrialassethub.artefact_update.v1"
 )
 
 // Uncomment for app-type changes
@@ -225,7 +226,7 @@ func (r *GrpcServerRegistry) register() (uint32, error) {
 	}
 	register := pb.RegisterServiceRequest{Info: &pb.ServiceInfo{
 		// remove AppTypes: getCsInterfaces(), for app-type changes
-		AppTypes:         getCsInterfaces(),
+		AppTypes: getCsInterfaces(),
 		// Uncomment for app-type changes
 		// AppTypes:         getCsAppTypes(),
 		Interfaces:       getCsInterfaces(),

@@ -78,7 +78,8 @@ func main() {
 	}).
 		Discovery(alImpl).
 		DeviceInfo(alImpl).
-		Build()
+{% if cookiecutter.enable_firmware_update == "yes" %}		Update(alImpl).
+{% endif %}		Build()
 
 	// Signal handler for a proper shutdown
 	c := make(chan os.Signal, 1)

@@ -12,6 +12,8 @@ import (
 	"net"
 	"os"
 
+	generatedArtefactUpdateServer "github.com/industrial-asset-hub/asset-link-sdk/v4/generated/artefact-update"
+	"github.com/industrial-asset-hub/asset-link-sdk/v4/internal/server/artefactupdate"
 	"github.com/industrial-asset-hub/asset-link-sdk/v4/internal/server/webserver"
 	"github.com/industrial-asset-hub/asset-link-sdk/v4/metadata"
 
@@ -33,7 +35,9 @@ type alFeatureBuilder struct {
 
 	discovery  features.Discovery
 	deviceInfo features.DeviceInfo
+	update     features.Update
 	generatedDiscoveryServer.DeviceDiscoverApiServer
+	generatedArtefactUpdateServer.ArtefactUpdateApiServer
 }
 
 // Methods to register new features
@@ -47,6 +51,12 @@ func (cb *alFeatureBuilder) DeviceInfo(f features.DeviceInfo) *alFeatureBuilder 
 	return cb
 }
 
+// Update registers handlers for PrepareUpdate, ActivateUpdate, and CancelUpdate.
+func (cb *alFeatureBuilder) Update(f features.Update) *alFeatureBuilder {
+	cb.update = f
+	return cb
+}
+
 // Builder
 func New(metadata metadata.Metadata) *alFeatureBuilder {
 	return &alFeatureBuilder{metadata: metadata}
@@ -56,6 +66,8 @@ func (cb *alFeatureBuilder) Build() *AssetLink {
 	return &AssetLink{
 		discoveryImpl:         cb.discovery,
 		deviceInfoImpl:        cb.deviceInfo,
+		updateImpl:            cb.update,
+		customUpdateServer:    cb.ArtefactUpdateApiServer,
 		customDiscoveryServer: cb.DeviceDiscoverApiServer,
 		metadata:              cb.metadata,
 	}
@@ -66,6 +78,8 @@ type AssetLink struct {
 	metadata              metadata.Metadata
 	discoveryImpl         features.Discovery
 	deviceInfoImpl        features.DeviceInfo
+	updateImpl            features.Update
+	customUpdateServer    generatedArtefactUpdateServer.ArtefactUpdateApiServer
 	customDiscoveryServer generatedDiscoveryServer.DeviceDiscoverApiServer
 	grpcServer            *grpc.Server
 	registryClient        *registryclient.GrpcServerRegistry
@@ -138,7 +152,7 @@ func (d *AssetLink) Start(grpcServerAddress, registrationAddress, grpcRegistryAd
 		log.Info().
 			Msg("Registered Discovery feature implementation")
 
-		// uncomment for app-type changes	
+		// uncomment for app-type changes
 		// registryclient.AddCsAppType(registryclient.APPTYPE_IAH_DISCOVER)
 		registryclient.AddCsInterface(registryclient.INTERFACE_IAH_DISCOVER_V1)
 
@@ -164,6 +178,7 @@ func (d *AssetLink) Start(grpcServerAddress, registrationAddress, grpcRegistryAd
 		}
 		generatedDeviceInfoServer.RegisterDeviceInfoApiServer(d.grpcServer, deviceInfoServer)
 	}
+	d.registerUpdateServer()
 	log.Info().
 		Str("address", grpcServerAddress).
 		Msg("Serving gPRC Server")
@@ -178,6 +193,21 @@ func (d *AssetLink) Stop() {
 	d.stop(false)
 
 	os.Exit(0)
+}
+
+func (d *AssetLink) registerUpdateServer() {
+	var server generatedArtefactUpdateServer.ArtefactUpdateApiServer
+	switch {
+	case d.customUpdateServer != nil:
+		server = d.customUpdateServer
+	case d.updateImpl != nil:
+		server = &artefactupdate.ArtefactUpdateServerEntity{Update: d.updateImpl}
+	default:
+		return
+	}
+	generatedArtefactUpdateServer.RegisterArtefactUpdateApiServer(d.grpcServer, server)
+	registryclient.AddCsInterface(registryclient.INTERFACE_IAH_ARTEFACT_UPDATE_V1)
+	log.Info().Msg("Registered Update feature implementation")
 }
 
 func (d *AssetLink) GracefulStop() {

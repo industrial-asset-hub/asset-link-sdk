@@ -8,6 +8,7 @@
 package features
 
 import (
+	"github.com/industrial-asset-hub/asset-link-sdk/v4/artefact"
 	"github.com/industrial-asset-hub/asset-link-sdk/v4/config"
 	deviceinfo "github.com/industrial-asset-hub/asset-link-sdk/v4/generated/conn_suite_device_info"
 	generated "github.com/industrial-asset-hub/asset-link-sdk/v4/generated/iah-discovery"
@@ -27,4 +28,12 @@ type Discovery interface {
 type DeviceInfo interface {
 	GetPropertyValues(request *deviceinfo.GetPropertyValuesRequest) (*deviceinfo.GetPropertyValuesResponse, error)
 	GetSupportedProperties(request *deviceinfo.GetSupportedPropertiesRequest) (*deviceinfo.GetSupportedPropertiesResponse, error)
+}
+
+// Update provides two-stage software update management. Implementations own
+// device-specific job state, activation, and cancellation behavior.
+type Update interface {
+	HandlePrepareUpdate(metadata artefact.ArtefactMetaData, receiver artefact.ArtefactReceiver) error
+	HandleActivateUpdate(metadata artefact.ArtefactMetaData, receiver artefact.ArtefactReceiver) error
+	HandleCancelUpdate(metadata artefact.ArtefactMetaData, transmitter artefact.StatusTransmitter) error
 }

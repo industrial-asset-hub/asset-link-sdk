@@ -10,6 +10,10 @@
 
 package main
 
+// Artefact Update Interface
+//go:generate protoc --proto_path=specs --go_out ./generated --go_opt=Martefact_update.proto=./artefact-update artefact_update.proto
+//go:generate protoc --proto_path=specs --go-grpc_out ./generated --go-grpc_opt=Martefact_update.proto=./artefact-update artefact_update.proto
+
 //go:generate protoc --proto_path=specs --go_out ./generated      --go_opt=Mconn_suite_registry.proto=./conn_suite_registry      specs/conn_suite_registry.proto
 //go:generate protoc --proto_path=specs --go-grpc_out ./generated --go-grpc_opt=Mconn_suite_registry.proto=./conn_suite_registry specs/conn_suite_registry.proto
 

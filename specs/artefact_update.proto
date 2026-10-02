@@ -1,0 +1,93 @@
+// SPDX-FileCopyrightText: 2026 Siemens AG
+// SPDX-License-Identifier: MIT
+
+syntax = "proto3";
+
+package siemens.industrialassethub.artefact_update.v1;
+
+service ArtefactUpdateApi {
+  // Metadata must be the first chunk. File content is sent only on request.
+  rpc PrepareUpdate(stream ArtefactChunk) returns (stream ArtefactMessage) {}
+  rpc ActivateUpdate(stream ArtefactChunk) returns (stream ArtefactMessage) {}
+  rpc CancelUpdate(ArtefactMetaData) returns (stream ArtefactOperationStatus) {}
+}
+
+message ArtefactChunk {
+  oneof data {
+    ArtefactMetaData metadata = 1;
+    bytes file_content = 2;
+    ArtefactOperationStatus status = 3;
+  }
+}
+
+message ArtefactMetaData {
+  JobIdentifier job_identifier = 1;
+  ArtefactIdentifier artefact_identifier = 2;
+  ArtefactCredentials artefact_credentials = 3;
+  DeviceIdentifier device_identifier = 4;
+  DeviceCredentials device_credentials = 5;
+}
+
+message JobIdentifier { string job_id = 1; }
+
+enum ArtefactType {
+  AT_FIRMWARE = 0;
+  AT_SOFTWARE = 1;
+  AT_BACKUP = 2;
+  AT_CONFIGURATION = 3;
+  AT_LOGFILE = 4;
+}
+
+message ArtefactIdentifier { ArtefactType type = 1; }
+
+message ArtefactCredentials {
+  string credential_type = 1;
+  bytes credentials = 2;
+  string username = 3;
+  string password = 4;
+}
+
+message DeviceIdentifier { bytes blob = 1; }
+
+message DeviceCredentials {
+  string credential_type = 1;
+  bytes credentials = 2;
+  string username = 3;
+  string password = 4;
+}
+
+enum ArtefactOperationState {
+  AOS_OK = 0;
+  AOS_ERROR_FAIL = 1;
+  AOS_ERROR_IDENTITY_CHECK_FAIL = 2;
+  AOS_ERROR_INCOMPATIBLE = 3;
+  AOS_ERROR_NOT_SUPPORTED = 4;
+}
+
+enum ArtefactOperationPhase {
+  AOP_UNSPECIFIED = 0;
+  AOP_PREPARE = 1;
+  AOP_DOWNLOAD = 2;
+  AOP_INSTALLATION = 3;
+  AOP_ACTIVATION = 4;
+  AOP_ARCHIVE = 5;
+  AOP_UPLOAD = 6;
+  AOP_CANCELLATION = 7;
+}
+
+message ArtefactOperationStatus {
+  ArtefactOperationPhase phase = 1;
+  ArtefactOperationState state = 2;
+  string message = 3;
+  uint32 progress = 4; // in percent (0-100)
+}
+
+enum ArtefactOperationRequestType { AORT_ARTEFACT_TRANSMISSION = 0; }
+message ArtefactOperationRequest { ArtefactOperationRequestType type = 1; }
+
+message ArtefactMessage {
+  oneof message {
+    ArtefactOperationStatus status = 1;
+    ArtefactOperationRequest request = 2;
+  }
+}

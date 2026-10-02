@@ -31,6 +31,12 @@ There should now be a directory called **custom-asset-link**.
 The directory contains a number of files. The Asset Link is ready to run out of the box.
 There is no fancy logic inside.
 
+The `enable_firmware_update` prompt defaults to `no`. Select `yes` to generate
+`handler/update.go` with prepare, activate, and cancel handler stubs and register
+them through `.Update(alImpl)` in `main.go`. The stubs return `Unimplemented`
+until you add device-specific logic. See [Software Update](software-update.md)
+for the streaming protocol and handler interfaces.
+
 To start the Asset Link, execute inside the generated directory:
 
 ```bash

@@ -7,5 +7,6 @@
   "company": "Machine Builder AG",
   "company_url": "https://www.device-builder.local",
   "year": "2026",
+  "enable_firmware_update": ["no", "yes"],
   "_copy_without_render": ["*vendor", "cdm-al-sdk"]
 }
