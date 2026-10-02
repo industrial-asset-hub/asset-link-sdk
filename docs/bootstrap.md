@@ -13,14 +13,18 @@ Run the following command, which provides a text-based questionnaire to set up a
 ```bash
 $ cookiecutter https://github.com/industrial-asset-hub/asset-link-sdk.git
 --directory cookiecutter-project-template [optional -c "branch"]
-[1/8] al_name (Dummy Asset Link): Custom Asset Link
-[2/8] al_id (machinebuilder.cdm.al.dummy): machinebuilder.cdm.al.custom
-[3/8] al_project (dummy-asset-link): custom-asset-link
-[4/8] author_name (David Device Builder): Device Builder
-[5/8] author_email (david@david-builder.local): me@device-builder.local
-[6/8] company (Machine Builder AG): Machine Builder AG
-[7/8] company_url (https://www.device-builder.local): https://www.device-builder.local
-[8/8] year (2024): 2024
+[1/9] al_name (Dummy Asset Link): Custom Asset Link
+[2/9] al_id (machinebuilder.cdm.al.dummy): machinebuilder.cdm.al.custom
+[3/9] al_project (dummy-asset-link): custom-asset-link
+[4/9] author_name (David Device Builder): Device Builder
+[5/9] author_email (david@david-builder.local): me@device-builder.local
+[6/9] company (Machine Builder AG): Machine Builder AG
+[7/9] company_url (https://www.device-builder.local): https://www.device-builder.local
+[8/9] year (2026): 2026
+[9/9] Select artifact_update
+    1 - no
+    2 - yes
+    Choose from [1/2] (1): 1
 ```
 
 ![](images/bootstrap-steps.gif)
@@ -30,6 +34,12 @@ $ cookiecutter https://github.com/industrial-asset-hub/asset-link-sdk.git
 There should now be a directory called **custom-asset-link**.
 The directory contains a number of files. The Asset Link is ready to run out of the box.
 There is no fancy logic inside.
+
+The `artifact_update` prompt defaults to `no`. Select `yes` to generate
+`handler/update.go` with prepare, activate, and cancel handler stubs and register
+them through `.Update(alImpl)` in `main.go`. The stubs return a not-supported
+result until you add device-specific logic. See [Artifact Management](artifact-management.md)
+for the metadata request, status stream and handler interfaces.
 
 To start the Asset Link, execute inside the generated directory:
 

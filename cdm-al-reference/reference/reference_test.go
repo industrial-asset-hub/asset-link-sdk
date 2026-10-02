@@ -279,6 +279,27 @@ func TestCreateDeviceInfoAssetRelations(t *testing.T) {
 	})
 }
 
+func TestCreateDeviceInfoFirmwareUpdateCapability(t *testing.T) {
+	simdevices.StartSimulatedDevices("") // start without visualization web server
+
+	device, err := simdevices.RetrieveDeviceDetails(simdevices.SimulatedDeviceAddress{
+		AssetLinkNIC: "eth0",
+		DeviceIP:     "192.168.0.10",
+		SubDeviceID:  -1,
+	}, nil)
+	if !assert.NoError(t, err) || !assert.NotNil(t, device) {
+		return
+	}
+
+	deviceInfo, err := createDeviceInfo(device)
+	if assert.NoError(t, err) && assert.NotNil(t, deviceInfo) {
+		assert.Contains(t, deviceInfo.AssetOperations, model.AssetOperation{
+			OperationName:  "firmware_update",
+			ActivationFlag: device.IsUpdateSupported(),
+		})
+	}
+}
+
 func TestGetSupportedPropertiesWithAssetIdentifiers(t *testing.T) {
 	simdevices.StartSimulatedDevices("") // start without visualization web server
 
