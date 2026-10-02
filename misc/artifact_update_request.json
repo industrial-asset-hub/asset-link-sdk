@@ -1,0 +1,12 @@
+{
+  "job_id": "JOB_ID",
+  "connection_parameter_set": {
+    "schema_uri": "urn:siemens:cdm:al:reference:simulated-address:v1",
+    "parameter_json": "{\"alNic\":\"eth0\",\"ipAddress\":\"192.168.0.10\",\"subDeviceID\":-1}"
+  },
+  "oci_reference": {
+    "registry_url": "http://localhost:5000",
+    "repository": "reference-firmware",
+    "manifest_digest": "MANIFEST_DIGEST"
+  }
+}

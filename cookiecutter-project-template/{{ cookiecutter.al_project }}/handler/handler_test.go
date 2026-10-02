@@ -36,7 +36,11 @@ func TestDiscovery(t *testing.T) {
 		devicePayload, err := protojson.Marshal(devices[0])
 		assert.NoError(t, err)
 		assert.True(t, strings.Contains(string(devicePayload), "00:16:3e:01:02:03"), "discovered device should contain MAC-based identifier")
-	})
+{% if cookiecutter.artifact_update == "yes" %}
+		parameters := devices[0].GetConnectionParameterSet()
+		assert.Equal(t, "urn:example:asset-link:mac-address:v1", parameters.GetSchemaUri())
+		assert.JSONEq(t, `{"macAddress":"00:16:3e:01:02:03"}`, parameters.GetParameterJson())
+{% endif %}	})
 
 	t.Run("discoveryFails", func(t *testing.T) {
 		devicePublisher := &publish.DevicePublisherMock{}

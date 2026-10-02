@@ -63,13 +63,13 @@ func (m *AssetLinkImplementation) Discover(discoveryConfig config.DiscoveryConfi
 
 	optionSetting, optionErr := discoveryConfig.GetOptionSettingBool("option", false)
 	if optionErr != nil {
-		log.Error().Err(optionErr)
+		log.Error().Err(optionErr).Msg("Invalid discovery option")
 		return optionErr
 	}
 
 	filterSetting, filterErr := discoveryConfig.GetFilterSettingString("filter", "default")
 	if filterErr != nil {
-		log.Error().Err(filterErr)
+		log.Error().Err(filterErr).Msg("Invalid discovery filter")
 		return filterErr
 	}
 
@@ -109,9 +109,7 @@ func (m *AssetLinkImplementation) GetSupportedFilters() []*generated.SupportedFi
 	return supportedFilters
 }
 
-// if your asset link implements the DeviceInfo interface,
-// uncomment the DeviceInfo line in main.go to register the interface/feature and
-// add "siemens.connectivitysuite.deviceinfo.v1" to the app_types in the registry.json file
+// GetPropertyValues implements the DeviceInfo interface, registered in main.go.
 func (m *AssetLinkImplementation) GetPropertyValues(request *generatedDeviceInfo.GetPropertyValuesRequest) (*generatedDeviceInfo.GetPropertyValuesResponse, error) {
 	log.Info().Msg("Handle GetPropertyValues Request")
 	_ = request
@@ -213,8 +211,15 @@ func createAndPublishMinimalDevice(devicePublisher publish.DevicePublisher) erro
 		return err
 	}
 
-	if err = devicePublisher.PublishDevice(deviceInfo.ConvertToDiscoveredDevice()); err != nil {
-		log.Error().Msgf("Publishing Error: %v", err)
+{% if cookiecutter.artifact_update == "yes" %}	discoveredDevice := deviceInfo.ConvertToDiscoveredDevice()
+	// Artifact updates use these connection parameters to find the device.
+	discoveredDevice.ConnectionParameterSet = &generated.ConnectionParameterSet{
+		SchemaUri:     "urn:example:asset-link:mac-address:v1",
+		ParameterJson: `{"macAddress":"00:16:3e:01:02:03"}`,
+	}
+	if err = devicePublisher.PublishDevice(discoveredDevice); err != nil {
+{% else %}	if err = devicePublisher.PublishDevice(deviceInfo.ConvertToDiscoveredDevice()); err != nil {
+{% endif %}		log.Error().Msgf("Publishing Error: %v", err)
 		return err
 	}
 

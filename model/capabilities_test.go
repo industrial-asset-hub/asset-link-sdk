@@ -48,6 +48,7 @@ func TestCapabilities(t *testing.T) {
 		assert.NoError(t, err)
 		err = m.AddCapabilities("firmware_update", true)
 		assert.NoError(t, err)
+		assert.Equal(t, []AssetOperation{{OperationName: "firmware_update", ActivationFlag: true}}, m.AssetOperations)
 	})
 
 	t.Run("AddCapabilities_EmptyName", func(t *testing.T) {

@@ -1,5 +1,5 @@
 {
 "app_instance_id": "cdm-device-class-driver-{{cookiecutter.al_id}}",
-"app_types": ["siemens.connectivitysuite.drvinfo.v1", "siemens.industrialassethub.discover.v1", "siemens.connectivitysuite.deviceinfo.v1"],
+"app_types": ["siemens.connectivitysuite.drvinfo.v1", "siemens.industrialassethub.discover.v1", "siemens.connectivitysuite.deviceinfo.v1"{% if cookiecutter.artifact_update == "yes" %}, "siemens.industrialassethub.artifact_update.v1"{% endif %}],
 "driver_schema_uris": ["{{cookiecutter.al_id}}"]
 }
