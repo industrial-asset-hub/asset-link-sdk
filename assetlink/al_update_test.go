@@ -52,7 +52,7 @@ func TestRegisterUpdateServerWithImplementation(t *testing.T) {
 	services := al.grpcServer.GetServiceInfo()
 	require.Contains(t, services, artefactUpdateApiName)
 	service := services[artefactUpdateApiName]
-	require.Len(t, service.Methods, 3)
+	require.Len(t, service.Methods, 4)
 }
 
 func TestRegisterUpdateServerWithCustomServer(t *testing.T) {
@@ -67,7 +67,7 @@ func TestRegisterUpdateServerWithCustomServer(t *testing.T) {
 	services := al.grpcServer.GetServiceInfo()
 	require.Contains(t, services, artefactUpdateApiName)
 	service := services[artefactUpdateApiName]
-	require.Len(t, service.Methods, 3)
+	require.Len(t, service.Methods, 4)
 }
 
 func TestRegisterUpdateServerWithBothImplementationAndCustomServer(t *testing.T) {
@@ -82,5 +82,5 @@ func TestRegisterUpdateServerWithBothImplementationAndCustomServer(t *testing.T)
 	services := al.grpcServer.GetServiceInfo()
 	require.Contains(t, services, artefactUpdateApiName)
 	service := services[artefactUpdateApiName]
-	require.Len(t, service.Methods, 3)
+	require.Len(t, service.Methods, 4)
 }

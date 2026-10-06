@@ -22,9 +22,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ArtefactUpdateApi_PrepareUpdate_FullMethodName  = "/siemens.industrialassethub.artefact_update.v1.ArtefactUpdateApi/PrepareUpdate"
-	ArtefactUpdateApi_ActivateUpdate_FullMethodName = "/siemens.industrialassethub.artefact_update.v1.ArtefactUpdateApi/ActivateUpdate"
-	ArtefactUpdateApi_CancelUpdate_FullMethodName   = "/siemens.industrialassethub.artefact_update.v1.ArtefactUpdateApi/CancelUpdate"
+	ArtefactUpdateApi_PrepareUpdate_FullMethodName               = "/siemens.industrialassethub.artefact_update.v1.ArtefactUpdateApi/PrepareUpdate"
+	ArtefactUpdateApi_ActivateUpdate_FullMethodName              = "/siemens.industrialassethub.artefact_update.v1.ArtefactUpdateApi/ActivateUpdate"
+	ArtefactUpdateApi_CancelUpdate_FullMethodName                = "/siemens.industrialassethub.artefact_update.v1.ArtefactUpdateApi/CancelUpdate"
+	ArtefactUpdateApi_GetUpdateTargetRequirements_FullMethodName = "/siemens.industrialassethub.artefact_update.v1.ArtefactUpdateApi/GetUpdateTargetRequirements"
 )
 
 // ArtefactUpdateApiClient is the client API for ArtefactUpdateApi service.
@@ -35,6 +36,9 @@ type ArtefactUpdateApiClient interface {
 	PrepareUpdate(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[ArtefactChunk, ArtefactMessage], error)
 	ActivateUpdate(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[ArtefactChunk, ArtefactMessage], error)
 	CancelUpdate(ctx context.Context, in *ArtefactMetaData, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ArtefactOperationStatus], error)
+	// Describes the inventory fields needed to identify an update target.
+	// This call does not access a device or return device-specific values.
+	GetUpdateTargetRequirements(ctx context.Context, in *GetUpdateTargetRequirementsRequest, opts ...grpc.CallOption) (*GetUpdateTargetRequirementsResponse, error)
 }
 
 type artefactUpdateApiClient struct {
@@ -90,6 +94,16 @@ func (c *artefactUpdateApiClient) CancelUpdate(ctx context.Context, in *Artefact
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type ArtefactUpdateApi_CancelUpdateClient = grpc.ServerStreamingClient[ArtefactOperationStatus]
 
+func (c *artefactUpdateApiClient) GetUpdateTargetRequirements(ctx context.Context, in *GetUpdateTargetRequirementsRequest, opts ...grpc.CallOption) (*GetUpdateTargetRequirementsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetUpdateTargetRequirementsResponse)
+	err := c.cc.Invoke(ctx, ArtefactUpdateApi_GetUpdateTargetRequirements_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ArtefactUpdateApiServer is the server API for ArtefactUpdateApi service.
 // All implementations must embed UnimplementedArtefactUpdateApiServer
 // for forward compatibility.
@@ -98,6 +112,9 @@ type ArtefactUpdateApiServer interface {
 	PrepareUpdate(grpc.BidiStreamingServer[ArtefactChunk, ArtefactMessage]) error
 	ActivateUpdate(grpc.BidiStreamingServer[ArtefactChunk, ArtefactMessage]) error
 	CancelUpdate(*ArtefactMetaData, grpc.ServerStreamingServer[ArtefactOperationStatus]) error
+	// Describes the inventory fields needed to identify an update target.
+	// This call does not access a device or return device-specific values.
+	GetUpdateTargetRequirements(context.Context, *GetUpdateTargetRequirementsRequest) (*GetUpdateTargetRequirementsResponse, error)
 	mustEmbedUnimplementedArtefactUpdateApiServer()
 }
 
@@ -116,6 +133,9 @@ func (UnimplementedArtefactUpdateApiServer) ActivateUpdate(grpc.BidiStreamingSer
 }
 func (UnimplementedArtefactUpdateApiServer) CancelUpdate(*ArtefactMetaData, grpc.ServerStreamingServer[ArtefactOperationStatus]) error {
 	return status.Errorf(codes.Unimplemented, "method CancelUpdate not implemented")
+}
+func (UnimplementedArtefactUpdateApiServer) GetUpdateTargetRequirements(context.Context, *GetUpdateTargetRequirementsRequest) (*GetUpdateTargetRequirementsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUpdateTargetRequirements not implemented")
 }
 func (UnimplementedArtefactUpdateApiServer) mustEmbedUnimplementedArtefactUpdateApiServer() {}
 func (UnimplementedArtefactUpdateApiServer) testEmbeddedByValue()                           {}
@@ -163,13 +183,36 @@ func _ArtefactUpdateApi_CancelUpdate_Handler(srv interface{}, stream grpc.Server
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type ArtefactUpdateApi_CancelUpdateServer = grpc.ServerStreamingServer[ArtefactOperationStatus]
 
+func _ArtefactUpdateApi_GetUpdateTargetRequirements_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUpdateTargetRequirementsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ArtefactUpdateApiServer).GetUpdateTargetRequirements(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ArtefactUpdateApi_GetUpdateTargetRequirements_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ArtefactUpdateApiServer).GetUpdateTargetRequirements(ctx, req.(*GetUpdateTargetRequirementsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ArtefactUpdateApi_ServiceDesc is the grpc.ServiceDesc for ArtefactUpdateApi service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var ArtefactUpdateApi_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "siemens.industrialassethub.artefact_update.v1.ArtefactUpdateApi",
 	HandlerType: (*ArtefactUpdateApiServer)(nil),
-	Methods:     []grpc.MethodDesc{},
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "GetUpdateTargetRequirements",
+			Handler:    _ArtefactUpdateApi_GetUpdateTargetRequirements_Handler,
+		},
+	},
 	Streams: []grpc.StreamDesc{
 		{
 			StreamName:    "PrepareUpdate",

@@ -21,6 +21,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/status"
 	"google.golang.org/grpc/test/bufconn"
+	"google.golang.org/protobuf/proto"
 )
 
 type updateHandler struct {
@@ -37,6 +38,15 @@ func (h *updateHandler) HandleActivateUpdate(m artefact.ArtefactMetaData, r arte
 }
 func (h *updateHandler) HandleCancelUpdate(m artefact.ArtefactMetaData, s artefact.StatusTransmitter) error {
 	return h.cancel(m, s)
+}
+
+type updateRequirementsHandler struct {
+	*updateHandler
+	requirements func(context.Context, *generated.GetUpdateTargetRequirementsRequest) (*generated.GetUpdateTargetRequirementsResponse, error)
+}
+
+func (h *updateRequirementsHandler) GetUpdateTargetRequirements(ctx context.Context, request *generated.GetUpdateTargetRequirementsRequest) (*generated.GetUpdateTargetRequirementsResponse, error) {
+	return h.requirements(ctx, request)
 }
 
 func updateClient(t *testing.T, server *ArtefactUpdateServerEntity) (generated.ArtefactUpdateApiClient, context.Context) {
@@ -195,4 +205,73 @@ func TestUnimplementedUpdate(t *testing.T) {
 	require.NoError(t, err)
 	_, err = cancel.Recv()
 	require.Equal(t, codes.Unimplemented, status.Code(err))
+}
+
+func TestGetUpdateTargetRequirements(t *testing.T) {
+	expected := &generated.GetUpdateTargetRequirementsResponse{
+		IdentifierFormatUri: "urn:siemens:iah:sat-driver:update-target:v1",
+		Fields: []*generated.UpdateTargetField{
+			{Name: "article_number", AssetJsonPointer: "/product_instance_information/manufacturer_product/product_id"},
+			{Name: "serial_number", AssetJsonPointer: "/product_instance_information/serial_number"},
+		},
+	}
+	client, ctx := updateClient(t, &ArtefactUpdateServerEntity{Update: &updateRequirementsHandler{
+		updateHandler: &updateHandler{},
+		requirements: func(_ context.Context, request *generated.GetUpdateTargetRequirementsRequest) (*generated.GetUpdateTargetRequirementsResponse, error) {
+			require.Equal(t, generated.ArtefactType_AT_FIRMWARE, request.ArtefactIdentifier.Type)
+			return expected, nil
+		},
+	}})
+	response, err := client.GetUpdateTargetRequirements(ctx, &generated.GetUpdateTargetRequirementsRequest{
+		ArtefactIdentifier: &generated.ArtefactIdentifier{Type: generated.ArtefactType_AT_FIRMWARE},
+	})
+	require.NoError(t, err)
+	require.True(t, proto.Equal(expected, response))
+}
+
+func TestGetUpdateTargetRequirementsUnavailable(t *testing.T) {
+	for _, update := range []struct {
+		name    string
+		handler *ArtefactUpdateServerEntity
+	}{
+		{"no update", &ArtefactUpdateServerEntity{}},
+		{"legacy update", &ArtefactUpdateServerEntity{Update: &updateHandler{}}},
+	} {
+		t.Run(update.name, func(t *testing.T) {
+			client, ctx := updateClient(t, update.handler)
+			_, err := client.GetUpdateTargetRequirements(ctx, &generated.GetUpdateTargetRequirementsRequest{
+				ArtefactIdentifier: &generated.ArtefactIdentifier{Type: generated.ArtefactType_AT_FIRMWARE},
+			})
+			require.Equal(t, codes.Unimplemented, status.Code(err))
+		})
+	}
+}
+
+func TestGetUpdateTargetRequirementsRejectsInvalidType(t *testing.T) {
+	client, ctx := updateClient(t, &ArtefactUpdateServerEntity{Update: &updateRequirementsHandler{
+		updateHandler: &updateHandler{},
+		requirements: func(context.Context, *generated.GetUpdateTargetRequirementsRequest) (*generated.GetUpdateTargetRequirementsResponse, error) {
+			return nil, status.Error(codes.Internal, "unexpected call")
+		},
+	}})
+	for _, request := range []*generated.GetUpdateTargetRequirementsRequest{
+		{},
+		{ArtefactIdentifier: &generated.ArtefactIdentifier{Type: 999}},
+	} {
+		_, err := client.GetUpdateTargetRequirements(ctx, request)
+		require.Equal(t, codes.InvalidArgument, status.Code(err))
+	}
+}
+
+func TestGetUpdateTargetRequirementsPropagatesHandlerError(t *testing.T) {
+	client, ctx := updateClient(t, &ArtefactUpdateServerEntity{Update: &updateRequirementsHandler{
+		updateHandler: &updateHandler{},
+		requirements: func(context.Context, *generated.GetUpdateTargetRequirementsRequest) (*generated.GetUpdateTargetRequirementsResponse, error) {
+			return nil, status.Error(codes.FailedPrecondition, "no identity available")
+		},
+	}})
+	_, err := client.GetUpdateTargetRequirements(ctx, &generated.GetUpdateTargetRequirementsRequest{
+		ArtefactIdentifier: &generated.ArtefactIdentifier{Type: generated.ArtefactType_AT_FIRMWARE},
+	})
+	require.Equal(t, codes.FailedPrecondition, status.Code(err))
 }

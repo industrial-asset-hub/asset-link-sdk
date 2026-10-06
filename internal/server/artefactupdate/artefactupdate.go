@@ -6,6 +6,8 @@
 package artefactupdate
 
 import (
+	"context"
+
 	"github.com/industrial-asset-hub/asset-link-sdk/v4/artefact"
 	generated "github.com/industrial-asset-hub/asset-link-sdk/v4/generated/artefact-update"
 	"github.com/industrial-asset-hub/asset-link-sdk/v4/internal/features"
@@ -17,6 +19,22 @@ import (
 type ArtefactUpdateServerEntity struct {
 	generated.UnimplementedArtefactUpdateApiServer
 	features.Update
+}
+
+// GetUpdateTargetRequirements delegates only when the update implementation
+// explicitly provides this optional capability.
+func (d *ArtefactUpdateServerEntity) GetUpdateTargetRequirements(ctx context.Context, request *generated.GetUpdateTargetRequirementsRequest) (*generated.GetUpdateTargetRequirementsResponse, error) {
+	provider, ok := d.Update.(artefact.UpdateTargetRequirementsProvider)
+	if !ok {
+		return nil, status.Error(codes.Unimplemented, "update target requirements are not implemented")
+	}
+	if request == nil || request.ArtefactIdentifier == nil {
+		return nil, status.Error(codes.InvalidArgument, "artefact identifier is required")
+	}
+	if _, ok := generated.ArtefactType_name[int32(request.ArtefactIdentifier.Type)]; !ok {
+		return nil, status.Error(codes.InvalidArgument, "unknown artefact type")
+	}
+	return provider.GetUpdateTargetRequirements(ctx, request)
 }
 
 func (d *ArtefactUpdateServerEntity) PrepareUpdate(stream generated.ArtefactUpdateApi_PrepareUpdateServer) error {
