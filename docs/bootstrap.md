@@ -35,7 +35,7 @@ The `enable_firmware_update` prompt defaults to `no`. Select `yes` to generate
 `handler/update.go` with prepare, activate, and cancel handler stubs and register
 them through `.Update(alImpl)` in `main.go`. The stubs return `Unimplemented`
 until you add device-specific logic. See [Software Update](software-update.md)
-for the streaming protocol and handler interfaces.
+for the metadata request, status stream and handler interfaces.
 
 To start the Asset Link, execute inside the generated directory:
 

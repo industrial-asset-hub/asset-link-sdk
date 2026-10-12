@@ -33,7 +33,7 @@ type DeviceInfo interface {
 // Update provides two-stage software update management. Implementations own
 // device-specific job state, activation, and cancellation behavior.
 type Update interface {
-	HandlePrepareUpdate(metadata artefact.ArtefactMetaData, receiver artefact.ArtefactReceiver) error
-	HandleActivateUpdate(metadata artefact.ArtefactMetaData, receiver artefact.ArtefactReceiver) error
-	HandleCancelUpdate(metadata artefact.ArtefactMetaData, transmitter artefact.StatusTransmitter) error
+	HandlePrepareUpdate(metadata *artefact.ArtefactMetaData, transmitter artefact.StatusTransmitter) error
+	HandleActivateUpdate(metadata *artefact.ArtefactMetaData, transmitter artefact.StatusTransmitter) error
+	HandleCancelUpdate(metadata *artefact.ArtefactMetaData, transmitter artefact.StatusTransmitter) error
 }

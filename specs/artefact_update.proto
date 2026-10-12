@@ -5,33 +5,25 @@ syntax = "proto3";
 
 package siemens.industrialassethub.artefact_update.v1;
 
-service ArtefactUpdateApi {
-  // Metadata must be the first chunk. File content is sent only on request.
-  rpc PrepareUpdate(stream ArtefactChunk) returns (stream ArtefactMessage) {}
-  rpc ActivateUpdate(stream ArtefactChunk) returns (stream ArtefactMessage) {}
-  rpc CancelUpdate(ArtefactMetaData) returns (stream ArtefactOperationStatus) {}
-  // Describes the inventory fields needed to identify an update target.
-  // This call does not access a device or return device-specific values.
-  rpc GetUpdateTargetRequirements(GetUpdateTargetRequirementsRequest) returns (GetUpdateTargetRequirementsResponse) {}
-}
+import "common_address.proto";
 
-message ArtefactChunk {
-  oneof data {
-    ArtefactMetaData metadata = 1;
-    bytes file_content = 2;
-    ArtefactOperationStatus status = 3;
-  }
+service ArtefactUpdateApi {
+  // One control request, followed by progress/results. Artifact bytes use OCI/HTTP.
+  rpc PrepareUpdate(ArtefactMetaData) returns (stream ArtefactOperationStatus) {}
+  rpc ActivateUpdate(ArtefactMetaData) returns (stream ArtefactOperationStatus) {}
+  rpc CancelUpdate(ArtefactMetaData) returns (stream ArtefactOperationStatus) {}
 }
 
 message ArtefactMetaData {
-  JobIdentifier job_identifier = 1;
-  ArtefactIdentifier artefact_identifier = 2;
-  ArtefactCredentials artefact_credentials = 3;
-  DeviceIdentifier device_identifier = 4;
-  DeviceCredentials device_credentials = 5;
+  string job_id = 1;
+  // Optional Inventory context for traceability.
+  string asset_id = 2;
+  string view_id = 3;
+  // Includes device credentials when required by the connector.
+  siemens.common.address.v1.ConnectionParameterSet connection_parameter_set = 4;
+  ArtefactType artefact_type = 5;
+  OciArtefactReference oci_reference = 6;
 }
-
-message JobIdentifier { string job_id = 1; }
 
 enum ArtefactType {
   AT_FIRMWARE = 0;
@@ -41,22 +33,11 @@ enum ArtefactType {
   AT_LOGFILE = 4;
 }
 
-message ArtefactIdentifier { ArtefactType type = 1; }
-
-message ArtefactCredentials {
-  string credential_type = 1;
-  bytes credentials = 2;
-  string username = 3;
-  string password = 4;
-}
-
-message DeviceIdentifier { bytes blob = 1; }
-
-message DeviceCredentials {
-  string credential_type = 1;
-  bytes credentials = 2;
-  string username = 3;
-  string password = 4;
+message OciArtefactReference {
+  string registry_url = 1;
+  string repository = 2;
+  // Immutable manifest digest, including the sha256: prefix.
+  string manifest_digest = 3;
 }
 
 enum ArtefactOperationState {
@@ -83,32 +64,4 @@ message ArtefactOperationStatus {
   ArtefactOperationState state = 2;
   string message = 3;
   uint32 progress = 4; // in percent (0-100)
-}
-
-enum ArtefactOperationRequestType { AORT_ARTEFACT_TRANSMISSION = 0; }
-message ArtefactOperationRequest { ArtefactOperationRequestType type = 1; }
-
-message ArtefactMessage {
-  oneof message {
-    ArtefactOperationStatus status = 1;
-    ArtefactOperationRequest request = 2;
-  }
-}
-
-message GetUpdateTargetRequirementsRequest {
-  ArtefactIdentifier artefact_identifier = 1;
-}
-
-message GetUpdateTargetRequirementsResponse {
-  // Identifies the Asset Link's expected format for DeviceIdentifier.blob.
-  string identifier_format_uri = 1;
-  // Every field is required and must resolve to a non-empty string.
-  repeated UpdateTargetField fields = 2;
-}
-
-message UpdateTargetField {
-  // Name of the value in the populated identifier payload.
-  string name = 1;
-  // RFC 6901 JSON Pointer relative to GET /v2/assets/{id} response.data.
-  string asset_json_pointer = 2;
 }

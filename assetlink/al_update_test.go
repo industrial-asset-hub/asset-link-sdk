@@ -19,13 +19,13 @@ const artefactUpdateApiName = "siemens.industrialassethub.artefact_update.v1.Art
 
 type updateImplementation struct{}
 
-func (*updateImplementation) HandlePrepareUpdate(artefact.ArtefactMetaData, artefact.ArtefactReceiver) error {
+func (*updateImplementation) HandlePrepareUpdate(*artefact.ArtefactMetaData, artefact.StatusTransmitter) error {
 	return nil
 }
-func (*updateImplementation) HandleActivateUpdate(artefact.ArtefactMetaData, artefact.ArtefactReceiver) error {
+func (*updateImplementation) HandleActivateUpdate(*artefact.ArtefactMetaData, artefact.StatusTransmitter) error {
 	return nil
 }
-func (*updateImplementation) HandleCancelUpdate(artefact.ArtefactMetaData, artefact.StatusTransmitter) error {
+func (*updateImplementation) HandleCancelUpdate(*artefact.ArtefactMetaData, artefact.StatusTransmitter) error {
 	return nil
 }
 
@@ -52,7 +52,7 @@ func TestRegisterUpdateServerWithImplementation(t *testing.T) {
 	services := al.grpcServer.GetServiceInfo()
 	require.Contains(t, services, artefactUpdateApiName)
 	service := services[artefactUpdateApiName]
-	require.Len(t, service.Methods, 4)
+	require.Len(t, service.Methods, 3)
 }
 
 func TestRegisterUpdateServerWithCustomServer(t *testing.T) {
@@ -67,7 +67,7 @@ func TestRegisterUpdateServerWithCustomServer(t *testing.T) {
 	services := al.grpcServer.GetServiceInfo()
 	require.Contains(t, services, artefactUpdateApiName)
 	service := services[artefactUpdateApiName]
-	require.Len(t, service.Methods, 4)
+	require.Len(t, service.Methods, 3)
 }
 
 func TestRegisterUpdateServerWithBothImplementationAndCustomServer(t *testing.T) {
@@ -82,5 +82,5 @@ func TestRegisterUpdateServerWithBothImplementationAndCustomServer(t *testing.T)
 	services := al.grpcServer.GetServiceInfo()
 	require.Contains(t, services, artefactUpdateApiName)
 	service := services[artefactUpdateApiName]
-	require.Len(t, service.Methods, 4)
+	require.Len(t, service.Methods, 3)
 }

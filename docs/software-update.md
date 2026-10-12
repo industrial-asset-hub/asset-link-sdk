@@ -8,12 +8,10 @@ nav_order: 7
 Asset links can implement the update RPCs of
 `siemens.industrialassethub.artefact_update.v1.ArtefactUpdateApi`:
 
-- **PrepareUpdate** prepares or installs software for later activation.
+- **PrepareUpdate** performs non-disruptive preparation for later activation.
 - **ActivateUpdate** activates a prepared update. Devices without two-stage
   updates can request the software here and perform installation at this point.
 - **CancelUpdate** cleans up a prepared update.
-- **GetUpdateTargetRequirements** optionally describes which fields of an
-  Inventory v2 asset are needed to identify the update target.
 
 Register an implementation with the builder:
 
@@ -27,9 +25,9 @@ al := assetlink.New(metadata).
 The handler implements these methods using the public `artefact` package:
 
 ```go
-HandlePrepareUpdate(artefact.ArtefactMetaData, artefact.ArtefactReceiver) error
-HandleActivateUpdate(artefact.ArtefactMetaData, artefact.ArtefactReceiver) error
-HandleCancelUpdate(artefact.ArtefactMetaData, artefact.StatusTransmitter) error
+HandlePrepareUpdate(*artefact.ArtefactMetaData, artefact.StatusTransmitter) error
+HandleActivateUpdate(*artefact.ArtefactMetaData, artefact.StatusTransmitter) error
+HandleCancelUpdate(*artefact.ArtefactMetaData, artefact.StatusTransmitter) error
 ```
 
 The service is registered and advertised to the registry only when an update
@@ -37,71 +35,51 @@ implementation is supplied. As with discovery, a custom generated
 `ArtefactUpdateApiServer` can be assigned to the builder instead; it takes
 precedence over the SDK adapter.
 
-## Update target requirements (optional)
+## Control API
 
-An Asset Link can additionally implement
-`artefact.UpdateTargetRequirementsProvider` on its update handler. The existing
-three update-handler methods remain unchanged. When the optional interface is
-absent, `GetUpdateTargetRequirements` returns gRPC `Unimplemented`. Its request
-contains the artefact type (e.g. `AT_FIRMWARE`), not a device identifier.
+All three RPCs take **one `ArtefactMetaData` request** and return a server stream
+of `ArtefactOperationStatus`. There is no client stream or file-transfer protocol.
 
-The response declares an `identifier_format_uri` and a list of required fields.
-Each `asset_json_pointer` is an RFC 6901 JSON Pointer relative to the `data`
-object returned by Inventory `GET /v2/assets/{id}`. For example, SAT might
-request `article_number` from
-`/product_instance_information/manufacturer_product/product_id` and
-`serial_number` from `/product_instance_information/serial_number`.
-The cloud resolves each field to a non-empty string and constructs the
-versioned, Asset-Link-specific device identifier. For the initial contract,
-the decoded identifier bytes contain UTF-8 JSON with this envelope (the Asset
-Link interprets the values):
-
-```json
-{
-  "identifier_format_uri": "urn:siemens:iah:sat-driver:update-target:v1",
-  "values": {"article_number": "6ES7...", "serial_number": "ABC123"}
-}
+```proto
+rpc PrepareUpdate(ArtefactMetaData) returns (stream ArtefactOperationStatus);
+rpc ActivateUpdate(ArtefactMetaData) returns (stream ArtefactOperationStatus);
+rpc CancelUpdate(ArtefactMetaData) returns (stream ArtefactOperationStatus);
 ```
 
-The `values` keys correspond to the declared field names; every value is a
-non-empty string. No device values are returned by the requirements RPC.
-Properties not present in the Inventory
-asset read representation (such as `asset_identifiers`) cannot be selected
-through this contract. Do not use paths to credentials or secrets.
+Metadata has six direct fields:
 
-The agent can stage an update and publish these requirements before the cloud
-populates the identifier. Since `PrepareUpdate` still requires device
-identifier metadata, the actual device-side prepare and activate calls must
-both occur after the identifier is available. The populated identifier is
-carried in the existing `DeviceIdentifier.blob` for both calls; its payload
-format is owned by the Asset Link. The current SDK expects the wire-level
-`blob` to contain base64-encoded identifier bytes and supplies decoded bytes
-to the handler via `GetDeviceIdentifierBlob()`.
+| Field | Purpose |
+| --- | --- |
+| `job_id` | Required operation identity. |
+| `asset_id`, `view_id` | Optional Inventory context for traceability. |
+| `connection_parameter_set` | Required typed Connectivity Suite target: schema URI, parameter JSON, optional subdriver JSON and connector credentials. |
+| `artefact_type` | Firmware, software, etc. |
+| `oci_reference` | Required local registry URL, repository and immutable sha256 manifest digest. |
 
-## Streaming protocol
+Handlers receive the same typed metadata as the gRPC request, without a
+conversion layer. Connection parameters are available through
+`metadata.GetConnectionParameterSet()` and the artifact through
+`metadata.GetOciReference()`. There are no identifier blobs, base64 encoding or
+duplicate credential messages. Upstream registry credentials belong to the
+local OCI cache configuration, not the update request.
 
-Prepare and activate use bidirectional streams. The client first sends an
-`ArtefactChunk` containing `ArtefactMetaData`, including job, artifact, and device
-identifiers. Credential messages are optional.
-`DeviceIdentifier.blob` contains base64-encoded device-specific bytes;
-the SDK decodes them for `GetDeviceIdentifierBlob()`.
+All handlers report phase, state, message, and progress (0–100) using
+`transmitter.UpdateStatus`. Check its returned error and use
+`transmitter.Context()` to observe RPC cancellation and deadlines. Malformed
+metadata is rejected with `InvalidArgument` before the handler is called.
+Handler errors are returned through gRPC; use `status.Error` for an appropriate
+error code. EOF ends a successful handler's status stream; clients must still
+check the operation statuses rather than treating transport success as an update.
 
-When a handler calls `ReceiveArtefactToWriter`, `ReceiveArtefactToFile`, or
-`ReceiveArtefactToData`, the SDK sends an `AORT_ARTEFACT_TRANSMISSION` request.
-The client then sends file-content chunks and closes its send side to indicate
-the end of the file. The server can continue sending status messages until the
-handler returns. Receiving the artifact is optional in either stage. Prefer
-the writer/file helpers for large artifacts, since the data helper buffers the
-entire file in memory.
+## OCI downloads
 
-Cancel takes metadata in a single request and returns a stream of operation
-statuses. All handlers can report phase, state, message, and progress (0–100)
-using `UpdateStatus`. Check its returned error and use `Context()` to observe
-RPC cancellation and deadlines.
-
-Malformed metadata or unexpected content chunks are rejected with
-`InvalidArgument`. Handler errors are returned through gRPC, so handlers can
-use `status.Error` to choose an appropriate error code.
+**No firmware bytes are sent over gRPC.** Downloading and staging are Asset Link
+decisions. Prepare must not install firmware or disrupt the device. The
+`artefact/oci` helper resolves and verifies single OCI manifests, checks complete
+blob availability and streams payloads to files with bounded memory. Downloads
+retry up to three times from the beginning; resumable range requests, image
+indexes and archive extraction are not implemented. Use a private staging
+directory and publish it only after successful verification of all payloads.
 
 The asset-link implementation owns job persistence, device-specific validation,
 serialization of updates to the same device, and cleanup. A CancelUpdate RPC

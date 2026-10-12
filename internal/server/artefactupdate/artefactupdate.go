@@ -6,8 +6,6 @@
 package artefactupdate
 
 import (
-	"context"
-
 	"github.com/industrial-asset-hub/asset-link-sdk/v4/artefact"
 	generated "github.com/industrial-asset-hub/asset-link-sdk/v4/generated/artefact-update"
 	"github.com/industrial-asset-hub/asset-link-sdk/v4/internal/features"
@@ -21,52 +19,30 @@ type ArtefactUpdateServerEntity struct {
 	features.Update
 }
 
-// GetUpdateTargetRequirements delegates only when the update implementation
-// explicitly provides this optional capability.
-func (d *ArtefactUpdateServerEntity) GetUpdateTargetRequirements(ctx context.Context, request *generated.GetUpdateTargetRequirementsRequest) (*generated.GetUpdateTargetRequirementsResponse, error) {
-	provider, ok := d.Update.(artefact.UpdateTargetRequirementsProvider)
-	if !ok {
-		return nil, status.Error(codes.Unimplemented, "update target requirements are not implemented")
-	}
-	if request == nil || request.ArtefactIdentifier == nil {
-		return nil, status.Error(codes.InvalidArgument, "artefact identifier is required")
-	}
-	if _, ok := generated.ArtefactType_name[int32(request.ArtefactIdentifier.Type)]; !ok {
-		return nil, status.Error(codes.InvalidArgument, "unknown artefact type")
-	}
-	return provider.GetUpdateTargetRequirements(ctx, request)
-}
-
-func (d *ArtefactUpdateServerEntity) PrepareUpdate(stream generated.ArtefactUpdateApi_PrepareUpdateServer) error {
+func (d *ArtefactUpdateServerEntity) PrepareUpdate(metadata *generated.ArtefactMetaData, stream generated.ArtefactUpdateApi_PrepareUpdateServer) error {
 	if d.Update == nil {
 		return status.Error(codes.Unimplemented, "no Update implementation found")
 	}
-	return handleUpdate(stream, d.HandlePrepareUpdate)
+	return handleUpdate(metadata, stream, d.HandlePrepareUpdate)
 }
 
-func (d *ArtefactUpdateServerEntity) ActivateUpdate(stream generated.ArtefactUpdateApi_ActivateUpdateServer) error {
+func (d *ArtefactUpdateServerEntity) ActivateUpdate(metadata *generated.ArtefactMetaData, stream generated.ArtefactUpdateApi_ActivateUpdateServer) error {
 	if d.Update == nil {
 		return status.Error(codes.Unimplemented, "no Update implementation found")
 	}
-	return handleUpdate(stream, d.HandleActivateUpdate)
+	return handleUpdate(metadata, stream, d.HandleActivateUpdate)
 }
 
-func handleUpdate(stream grpc.BidiStreamingServer[generated.ArtefactChunk, generated.ArtefactMessage], handler func(artefact.ArtefactMetaData, artefact.ArtefactReceiver) error) error {
-	receiver := artefact.NewArtefactReceiver(stream)
-	metadata, err := receiver.ReceiveArtefactMetaData()
-	if err != nil {
+func handleUpdate(metadata *generated.ArtefactMetaData, stream grpc.ServerStreamingServer[generated.ArtefactOperationStatus], handler func(*artefact.ArtefactMetaData, artefact.StatusTransmitter) error) error {
+	if err := artefact.ValidateMetaData(metadata); err != nil {
 		return err
 	}
-	return handler(metadata, receiver)
+	return handler(metadata, artefact.NewStatusTransmitter(stream))
 }
 
 func (d *ArtefactUpdateServerEntity) CancelUpdate(metadata *generated.ArtefactMetaData, stream generated.ArtefactUpdateApi_CancelUpdateServer) error {
 	if d.Update == nil {
 		return status.Error(codes.Unimplemented, "no Update implementation found")
 	}
-	converted, err := artefact.NewArtefactMetaDataFromInternal(metadata)
-	if err != nil {
-		return err
-	}
-	return d.HandleCancelUpdate(converted, artefact.NewStatusTransmitter(stream))
+	return handleUpdate(metadata, stream, d.HandleCancelUpdate)
 }
