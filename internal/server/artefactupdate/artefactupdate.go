@@ -33,16 +33,19 @@ func (d *ArtefactUpdateServerEntity) ActivateUpdate(metadata *generated.Artefact
 	return handleUpdate(metadata, stream, d.HandleActivateUpdate)
 }
 
-func handleUpdate(metadata *generated.ArtefactMetaData, stream grpc.ServerStreamingServer[generated.ArtefactOperationStatus], handler func(*artefact.ArtefactMetaData, artefact.StatusTransmitter) error) error {
+func handleUpdate(metadata *generated.ArtefactMetaData, stream grpc.ServerStreamingServer[generated.UpdateEvent], handler func(*artefact.ArtefactMetaData, artefact.ProgressReporter) (*artefact.Result, error)) error {
 	if err := artefact.ValidateMetaData(metadata); err != nil {
 		return err
 	}
-	return handler(metadata, artefact.NewStatusTransmitter(stream))
+	return artefact.RunUpdate(metadata, stream, handler)
 }
 
 func (d *ArtefactUpdateServerEntity) CancelUpdate(metadata *generated.ArtefactMetaData, stream generated.ArtefactUpdateApi_CancelUpdateServer) error {
 	if d.Update == nil {
 		return status.Error(codes.Unimplemented, "no Update implementation found")
 	}
-	return handleUpdate(metadata, stream, d.HandleCancelUpdate)
+	if err := artefact.ValidateMetaData(metadata); err != nil {
+		return err
+	}
+	return d.HandleCancelUpdate(metadata, artefact.NewStatusTransmitter(stream))
 }

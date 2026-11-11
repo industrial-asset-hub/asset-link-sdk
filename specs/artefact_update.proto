@@ -9,8 +9,8 @@ import "common_address.proto";
 
 service ArtefactUpdateApi {
   // One control request, followed by progress/results. Artifact bytes use OCI/HTTP.
-  rpc PrepareUpdate(ArtefactMetaData) returns (stream ArtefactOperationStatus) {}
-  rpc ActivateUpdate(ArtefactMetaData) returns (stream ArtefactOperationStatus) {}
+  rpc PrepareUpdate(ArtefactMetaData) returns (stream UpdateEvent) {}
+  rpc ActivateUpdate(ArtefactMetaData) returns (stream UpdateEvent) {}
   rpc CancelUpdate(ArtefactMetaData) returns (stream ArtefactOperationStatus) {}
 }
 
@@ -64,4 +64,56 @@ message ArtefactOperationStatus {
   ArtefactOperationState state = 2;
   string message = 3;
   uint32 progress = 4; // in percent (0-100)
+}
+
+// Prepare/activate streams contain progress followed by exactly one final result.
+// Progress never confirms completion, even at 100 percent. No events may follow
+// the result. A result is authoritative only after normal stream completion.
+message UpdateEvent {
+  oneof event {
+    UpdateProgress progress = 1;
+    UpdateResult result = 2;
+  }
+}
+
+message UpdateProgress {
+  // Informational driver-defined step, maximum 64 bytes. Not an outcome.
+  string step = 1;
+  // Step percentage, 0..100; absent means indeterminate.
+  optional uint32 percent = 2;
+}
+
+message UpdateResult {
+  UpdateOutcome outcome = 1;
+  UpdateFailure failure = 2;
+}
+
+enum UpdateOutcome {
+  UPDATE_OUTCOME_UNSPECIFIED = 0;
+  // Success was verified for the requested operation, not the entire workflow.
+  UPDATE_OUTCOME_SUCCEEDED = 1;
+  // Rejected before the requested change started, or confirmed failed and no
+  // longer running. Partial changes may remain; this does not promise rollback.
+  UPDATE_OUTCOME_FAILED = 2;
+  // Completion and/or whether device work is still running cannot be confirmed.
+  UPDATE_OUTCOME_UNKNOWN = 3;
+}
+
+message UpdateFailure {
+  FailureReason reason = 1;
+  // Optional user-safe explanation, maximum 512 bytes. Never include credentials,
+  // stack traces or internal response bodies. Detailed diagnostics belong in logs.
+  string public_message = 2;
+}
+
+enum FailureReason {
+  FAILURE_REASON_UNSPECIFIED = 0;
+  FAILURE_REASON_INVALID_REQUEST = 1;
+  FAILURE_REASON_NOT_SUPPORTED = 2;
+  FAILURE_REASON_TARGET_NOT_FOUND = 3;
+  FAILURE_REASON_ARTIFACT_UNAVAILABLE = 4;
+  FAILURE_REASON_ARTIFACT_INVALID = 5;
+  FAILURE_REASON_DEVICE_REJECTED = 6;
+  FAILURE_REASON_OPERATION_FAILED = 7;
+  FAILURE_REASON_OUTCOME_NOT_CONFIRMED = 8;
 }

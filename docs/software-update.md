@@ -25,8 +25,8 @@ al := assetlink.New(metadata).
 The handler implements these methods using the public `artefact` package:
 
 ```go
-HandlePrepareUpdate(*artefact.ArtefactMetaData, artefact.StatusTransmitter) error
-HandleActivateUpdate(*artefact.ArtefactMetaData, artefact.StatusTransmitter) error
+HandlePrepareUpdate(*artefact.ArtefactMetaData, artefact.ProgressReporter) (*artefact.Result, error)
+HandleActivateUpdate(*artefact.ArtefactMetaData, artefact.ProgressReporter) (*artefact.Result, error)
 HandleCancelUpdate(*artefact.ArtefactMetaData, artefact.StatusTransmitter) error
 ```
 
@@ -37,12 +37,14 @@ precedence over the SDK adapter.
 
 ## Control API
 
-All three RPCs take **one `ArtefactMetaData` request** and return a server stream
-of `ArtefactOperationStatus`. There is no client stream or file-transfer protocol.
+All three RPCs take **one `ArtefactMetaData` request**. Preparation and activation
+return `UpdateEvent` streams. Cancellation retains its separate device-level status
+contract and is not invoked by the gateway's prepared-job cancellation workflow.
+There is no client stream or file-transfer protocol.
 
 ```proto
-rpc PrepareUpdate(ArtefactMetaData) returns (stream ArtefactOperationStatus);
-rpc ActivateUpdate(ArtefactMetaData) returns (stream ArtefactOperationStatus);
+rpc PrepareUpdate(ArtefactMetaData) returns (stream UpdateEvent);
+rpc ActivateUpdate(ArtefactMetaData) returns (stream UpdateEvent);
 rpc CancelUpdate(ArtefactMetaData) returns (stream ArtefactOperationStatus);
 ```
 
@@ -63,13 +65,65 @@ conversion layer. Connection parameters are available through
 duplicate credential messages. Upstream registry credentials belong to the
 local OCI cache configuration, not the update request.
 
-All handlers report phase, state, message, and progress (0–100) using
-`transmitter.UpdateStatus`. Check its returned error and use
-`transmitter.Context()` to observe RPC cancellation and deadlines. Malformed
-metadata is rejected with `InvalidArgument` before the handler is called.
-Handler errors are returned through gRPC; use `status.Error` for an appropriate
-error code. EOF ends a successful handler's status stream; clients must still
-check the operation statuses rather than treating transport success as an update.
+## Preparation and activation result contract
+
+Handlers report step progress through `reporter.ReportProgress("download", 42)`
+or `reporter.ReportIndeterminate("connecting")`. Percentages are per step and may
+reset between steps. Check reporting errors and observe `reporter.Context()` for
+deadlines. Progress at 100 percent is **not** completion.
+
+Return one typed result; the SDK owns final result emission:
+
+```go
+return artefact.Succeeded(), nil
+return artefact.Failed(artefact.ArtifactUnavailable, "Firmware could not be retrieved"), err
+return artefact.Unknown("Verify the device before another update"), err
+```
+
+| Outcome | Contract |
+| --- | --- |
+| `SUCCEEDED` | Success of the requested operation was verified. Prepare success means ready for activation, not installed. |
+| `FAILED` | The requested change did not start, or failure and the absence of ongoing device work were confirmed. Partial changes may remain; no rollback is promised. |
+| `UNKNOWN` | Completion and/or ongoing device work cannot be confirmed. No automatic replay is safe. |
+
+Nil/unspecified/invalid results, ordinary errors without a confirmed failure, and
+handler panics default to `UNKNOWN`. Diagnostic errors are logged, not copied into
+public messages. A success result accompanied by an error becomes unknown. An
+explicit failed result may include an error for diagnostic logging.
+
+The wire stream contains zero or more progress events followed by exactly one
+result and normal EOF. Empty events, invalid enums/percentages, missing or duplicate
+results and events after the result violate the contract. A result followed by a
+transport error is not authoritative. `artefact.ReadResult` validates this protocol
+for clients and custom servers; custom servers can use `artefact.RunUpdate` to get
+the same conservative wrapper. Failure to send progress/results remains a stream
+error, even if a handler ignores it. Reporters cannot send after handler completion.
+
+Step names are informational (maximum 64 bytes). Public failure messages are
+optional and limited to 512 UTF-8 bytes. Never include credentials, response bodies
+or stack traces. Failure reasons are structured codes; clients must not parse
+messages or generic gRPC errors to infer the device outcome.
+
+Malformed metadata is rejected before the handler is called. RPC cancellation
+does not prove that device work stopped and is not a device cancellation request.
+
+## Customer contract tests
+
+The reusable `artefact/contracttest.Check` harness executes a fixture-backed handler
+through the real SDK wrapper, validates its stream and checks the expected outcome:
+
+```go
+contracttest.Check(t, ctx, request, handler.HandlePrepareUpdate,
+    generated.UpdateOutcome_UPDATE_OUTCOME_FAILED)
+```
+
+Use independent success, missing-artifact/rejection and lost-response fixtures with
+a bounded context. Verify device calls in those fixtures: a protocol test cannot
+prove that a driver telling the SDK "success" actually waited for the device.
+
+This is a breaking change to the unreleased update API. Regenerate clients from
+`specs/artefact_update.proto`, migrate prepare/activate handlers and update SDK pins
+together. Discovery and DeviceInfo APIs are unchanged.
 
 ## OCI downloads
 

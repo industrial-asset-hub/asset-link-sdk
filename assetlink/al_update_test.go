@@ -19,11 +19,11 @@ const artefactUpdateApiName = "siemens.industrialassethub.artefact_update.v1.Art
 
 type updateImplementation struct{}
 
-func (*updateImplementation) HandlePrepareUpdate(*artefact.ArtefactMetaData, artefact.StatusTransmitter) error {
-	return nil
+func (*updateImplementation) HandlePrepareUpdate(*artefact.ArtefactMetaData, artefact.ProgressReporter) (*artefact.Result, error) {
+	return artefact.Succeeded(), nil
 }
-func (*updateImplementation) HandleActivateUpdate(*artefact.ArtefactMetaData, artefact.StatusTransmitter) error {
-	return nil
+func (*updateImplementation) HandleActivateUpdate(*artefact.ArtefactMetaData, artefact.ProgressReporter) (*artefact.Result, error) {
+	return artefact.Succeeded(), nil
 }
 func (*updateImplementation) HandleCancelUpdate(*artefact.ArtefactMetaData, artefact.StatusTransmitter) error {
 	return nil
