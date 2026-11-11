@@ -35,5 +35,5 @@ type DeviceInfo interface {
 type Update interface {
 	HandlePrepareUpdate(metadata *artefact.ArtefactMetaData, reporter artefact.ProgressReporter) (*artefact.Result, error)
 	HandleActivateUpdate(metadata *artefact.ArtefactMetaData, reporter artefact.ProgressReporter) (*artefact.Result, error)
-	HandleCancelUpdate(metadata *artefact.ArtefactMetaData, transmitter artefact.StatusTransmitter) error
+	HandleCancelUpdate(metadata *artefact.ArtefactMetaData, reporter artefact.ProgressReporter) (*artefact.Result, error)
 }

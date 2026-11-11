@@ -11,7 +11,7 @@ service ArtefactUpdateApi {
   // One control request, followed by progress/results. Artifact bytes use OCI/HTTP.
   rpc PrepareUpdate(ArtefactMetaData) returns (stream UpdateEvent) {}
   rpc ActivateUpdate(ArtefactMetaData) returns (stream UpdateEvent) {}
-  rpc CancelUpdate(ArtefactMetaData) returns (stream ArtefactOperationStatus) {}
+  rpc CancelUpdate(ArtefactMetaData) returns (stream UpdateEvent) {}
 }
 
 message ArtefactMetaData {
@@ -40,33 +40,7 @@ message OciArtefactReference {
   string manifest_digest = 3;
 }
 
-enum ArtefactOperationState {
-  AOS_OK = 0;
-  AOS_ERROR_FAIL = 1;
-  AOS_ERROR_IDENTITY_CHECK_FAIL = 2;
-  AOS_ERROR_INCOMPATIBLE = 3;
-  AOS_ERROR_NOT_SUPPORTED = 4;
-}
-
-enum ArtefactOperationPhase {
-  AOP_UNSPECIFIED = 0;
-  AOP_PREPARE = 1;
-  AOP_DOWNLOAD = 2;
-  AOP_INSTALLATION = 3;
-  AOP_ACTIVATION = 4;
-  AOP_ARCHIVE = 5;
-  AOP_UPLOAD = 6;
-  AOP_CANCELLATION = 7;
-}
-
-message ArtefactOperationStatus {
-  ArtefactOperationPhase phase = 1;
-  ArtefactOperationState state = 2;
-  string message = 3;
-  uint32 progress = 4; // in percent (0-100)
-}
-
-// Prepare/activate streams contain progress followed by exactly one final result.
+// All update streams contain progress followed by exactly one final result.
 // Progress never confirms completion, even at 100 percent. No events may follow
 // the result. A result is authoritative only after normal stream completion.
 message UpdateEvent {

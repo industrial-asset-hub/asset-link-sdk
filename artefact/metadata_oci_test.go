@@ -39,10 +39,6 @@ func TestUpdateContractHasNoFileTransfer(t *testing.T) {
 		require.False(t, m.IsStreamingClient())
 		require.True(t, m.IsStreamingServer())
 		require.Equal(t, metadata.FullName(), m.Input().FullName())
-		output := "UpdateEvent"
-		if m.Name() == "CancelUpdate" {
-			output = "ArtefactOperationStatus"
-		}
-		require.Equal(t, protoreflect.FullName("siemens.industrialassethub.artefact_update.v1."+output), m.Output().FullName())
+		require.Equal(t, protoreflect.FullName("siemens.industrialassethub.artefact_update.v1.UpdateEvent"), m.Output().FullName())
 	}
 }

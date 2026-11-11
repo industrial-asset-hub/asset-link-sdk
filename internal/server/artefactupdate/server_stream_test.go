@@ -32,8 +32,8 @@ func (h *updateHandler) HandlePrepareUpdate(m *artefact.ArtefactMetaData, s arte
 func (h *updateHandler) HandleActivateUpdate(m *artefact.ArtefactMetaData, s artefact.ProgressReporter) (*artefact.Result, error) {
 	return h.handle(m, s)
 }
-func (h *updateHandler) HandleCancelUpdate(_ *artefact.ArtefactMetaData, s artefact.StatusTransmitter) error {
-	return s.UpdateStatus(generated.ArtefactOperationPhase_AOP_CANCELLATION, generated.ArtefactOperationState_AOS_ERROR_NOT_SUPPORTED, "not supported", 0)
+func (h *updateHandler) HandleCancelUpdate(m *artefact.ArtefactMetaData, s artefact.ProgressReporter) (*artefact.Result, error) {
+	return h.handle(m, s)
 }
 
 func updateClient(t *testing.T, server *ArtefactUpdateServerEntity) (generated.ArtefactUpdateApiClient, context.Context) {
@@ -73,7 +73,7 @@ func TestSingleRequestStreamsStatuses(t *testing.T) {
 		return artefact.Succeeded(), nil
 	}}
 	client, ctx := updateClient(t, &ArtefactUpdateServerEntity{Update: handler})
-	for _, open := range []func(context.Context, *generated.ArtefactMetaData, ...grpc.CallOption) (grpc.ServerStreamingClient[generated.UpdateEvent], error){client.PrepareUpdate, client.ActivateUpdate} {
+	for _, open := range []func(context.Context, *generated.ArtefactMetaData, ...grpc.CallOption) (grpc.ServerStreamingClient[generated.UpdateEvent], error){client.PrepareUpdate, client.ActivateUpdate, client.CancelUpdate} {
 		stream, err := open(ctx, wireMetadata())
 		require.NoError(t, err)
 		first, err := stream.Recv()
@@ -102,7 +102,7 @@ func TestInvalidMetadataNeverCallsHandler(t *testing.T) {
 			t.Error("invalid request reached handler")
 			return nil, nil
 		}}})
-		for _, open := range []func(context.Context, *generated.ArtefactMetaData, ...grpc.CallOption) (grpc.ServerStreamingClient[generated.UpdateEvent], error){client.PrepareUpdate, client.ActivateUpdate} {
+		for _, open := range []func(context.Context, *generated.ArtefactMetaData, ...grpc.CallOption) (grpc.ServerStreamingClient[generated.UpdateEvent], error){client.PrepareUpdate, client.ActivateUpdate, client.CancelUpdate} {
 			stream, err := open(ctx, m)
 			require.NoError(t, err)
 			_, err = stream.Recv()
@@ -131,7 +131,7 @@ func TestHandlerErrorAfterProgress(t *testing.T) {
 
 func TestUnimplementedUpdate(t *testing.T) {
 	client, ctx := updateClient(t, &ArtefactUpdateServerEntity{})
-	for _, open := range []func(context.Context, *generated.ArtefactMetaData, ...grpc.CallOption) (grpc.ServerStreamingClient[generated.UpdateEvent], error){client.PrepareUpdate, client.ActivateUpdate} {
+	for _, open := range []func(context.Context, *generated.ArtefactMetaData, ...grpc.CallOption) (grpc.ServerStreamingClient[generated.UpdateEvent], error){client.PrepareUpdate, client.ActivateUpdate, client.CancelUpdate} {
 		stream, err := open(ctx, wireMetadata())
 		require.NoError(t, err)
 		_, err = stream.Recv()

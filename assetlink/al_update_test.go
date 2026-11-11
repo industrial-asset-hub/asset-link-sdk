@@ -25,8 +25,8 @@ func (*updateImplementation) HandlePrepareUpdate(*artefact.ArtefactMetaData, art
 func (*updateImplementation) HandleActivateUpdate(*artefact.ArtefactMetaData, artefact.ProgressReporter) (*artefact.Result, error) {
 	return artefact.Succeeded(), nil
 }
-func (*updateImplementation) HandleCancelUpdate(*artefact.ArtefactMetaData, artefact.StatusTransmitter) error {
-	return nil
+func (*updateImplementation) HandleCancelUpdate(*artefact.ArtefactMetaData, artefact.ProgressReporter) (*artefact.Result, error) {
+	return artefact.Succeeded(), nil
 }
 
 func TestRegisterUpdateServerWithoutImplementation(t *testing.T) {

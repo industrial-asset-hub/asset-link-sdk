@@ -27,7 +27,7 @@ The handler implements these methods using the public `artefact` package:
 ```go
 HandlePrepareUpdate(*artefact.ArtefactMetaData, artefact.ProgressReporter) (*artefact.Result, error)
 HandleActivateUpdate(*artefact.ArtefactMetaData, artefact.ProgressReporter) (*artefact.Result, error)
-HandleCancelUpdate(*artefact.ArtefactMetaData, artefact.StatusTransmitter) error
+HandleCancelUpdate(*artefact.ArtefactMetaData, artefact.ProgressReporter) (*artefact.Result, error)
 ```
 
 The service is registered and advertised to the registry only when an update
@@ -37,15 +37,15 @@ precedence over the SDK adapter.
 
 ## Control API
 
-All three RPCs take **one `ArtefactMetaData` request**. Preparation and activation
-return `UpdateEvent` streams. Cancellation retains its separate device-level status
-contract and is not invoked by the gateway's prepared-job cancellation workflow.
-There is no client stream or file-transfer protocol.
+All three RPCs take **one `ArtefactMetaData` request** and return `UpdateEvent`
+streams using the same SDK wrapper and validation rules. Device-level cancellation
+is not invoked by the gateway's prepared-job cancellation workflow. There is no
+client stream or file-transfer protocol.
 
 ```proto
 rpc PrepareUpdate(ArtefactMetaData) returns (stream UpdateEvent);
 rpc ActivateUpdate(ArtefactMetaData) returns (stream UpdateEvent);
-rpc CancelUpdate(ArtefactMetaData) returns (stream ArtefactOperationStatus);
+rpc CancelUpdate(ArtefactMetaData) returns (stream UpdateEvent);
 ```
 
 Metadata has six direct fields:
@@ -65,7 +65,7 @@ conversion layer. Connection parameters are available through
 duplicate credential messages. Upstream registry credentials belong to the
 local OCI cache configuration, not the update request.
 
-## Preparation and activation result contract
+## Shared update result contract
 
 Handlers report step progress through `reporter.ReportProgress("download", 42)`
 or `reporter.ReportIndeterminate("connecting")`. Percentages are per step and may
@@ -90,6 +90,11 @@ Nil/unspecified/invalid results, ordinary errors without a confirmed failure, an
 handler panics default to `UNKNOWN`. Diagnostic errors are logged, not copied into
 public messages. A success result accompanied by an error becomes unknown. An
 explicit failed result may include an error for diagnostic logging.
+
+Outcomes describe the requested operation. A failed/unsupported cancellation does
+not prove that a preceding activation stopped. Consumers must require a successful
+cancellation before treating it as completed device cleanup. Unsupported device
+cancellation returns `artefact.Failed(artefact.NotSupported, ...)`, not success.
 
 The wire stream contains zero or more progress events followed by exactly one
 result and normal EOF. Empty events, invalid enums/percentages, missing or duplicate
@@ -122,7 +127,7 @@ a bounded context. Verify device calls in those fixtures: a protocol test cannot
 prove that a driver telling the SDK "success" actually waited for the device.
 
 This is a breaking change to the unreleased update API. Regenerate clients from
-`specs/artefact_update.proto`, migrate prepare/activate handlers and update SDK pins
+`specs/artefact_update.proto`, migrate all three handlers and update SDK pins
 together. Discovery and DeviceInfo APIs are unchanged.
 
 ## OCI downloads

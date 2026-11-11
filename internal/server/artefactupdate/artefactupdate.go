@@ -44,8 +44,5 @@ func (d *ArtefactUpdateServerEntity) CancelUpdate(metadata *generated.ArtefactMe
 	if d.Update == nil {
 		return status.Error(codes.Unimplemented, "no Update implementation found")
 	}
-	if err := artefact.ValidateMetaData(metadata); err != nil {
-		return err
-	}
-	return d.HandleCancelUpdate(metadata, artefact.NewStatusTransmitter(stream))
+	return handleUpdate(metadata, stream, d.HandleCancelUpdate)
 }

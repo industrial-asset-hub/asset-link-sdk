@@ -9,8 +9,6 @@ package handler
 
 import (
 	"github.com/industrial-asset-hub/asset-link-sdk/v4/artefact"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 // HandlePrepareUpdate prepares firmware for later activation.
@@ -32,8 +30,8 @@ func (m *AssetLinkImplementation) HandleActivateUpdate(metadata *artefact.Artefa
 }
 
 // HandleCancelUpdate cleans up a prepared firmware update.
-func (m *AssetLinkImplementation) HandleCancelUpdate(metadata *artefact.ArtefactMetaData, transmitter artefact.StatusTransmitter) error {
+func (m *AssetLinkImplementation) HandleCancelUpdate(metadata *artefact.ArtefactMetaData, transmitter artefact.ProgressReporter) (*artefact.Result, error) {
 	// Find the prepared update using metadata.GetJobId() and the device identifier.
 	// Clean up the device and job state, reporting progress with transmitter.ReportProgress().
-	return status.Error(codes.Unimplemented, "firmware update cancellation is not implemented")
+	return artefact.Failed(artefact.NotSupported, "Firmware cancellation is not supported"), nil
 }
