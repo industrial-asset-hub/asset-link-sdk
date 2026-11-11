@@ -64,7 +64,7 @@ func RunUpdate(metadata *ArtefactMetaData, stream grpc.ServerStreamingServer[gen
 	if validationError := ValidateResult(result); validationError != nil {
 		log.Warn().Err(validationError).Str("job_id", metadata.GetJobId()).Msg("Invalid Asset Link result; reporting unknown outcome")
 		result = Unknown("The operation outcome could not be confirmed. Check the Asset Link logs.")
-	} else if err != nil && result.GetOutcome() != generated.UpdateOutcome_UPDATE_OUTCOME_FAILED {
+	} else if err != nil && result.GetOutcome() == generated.UpdateOutcome_UPDATE_OUTCOME_SUCCEEDED {
 		result = Unknown("The operation outcome could not be confirmed. Check the Asset Link logs.")
 	}
 	t.mu.Lock()

@@ -58,6 +58,9 @@ func ValidateResult(result *Result) error {
 		if result.Outcome == generated.UpdateOutcome_UPDATE_OUTCOME_FAILED && failure.Reason == OutcomeNotConfirmed {
 			return fmt.Errorf("unconfirmed outcome cannot be a confirmed failure")
 		}
+		if result.Outcome == generated.UpdateOutcome_UPDATE_OUTCOME_UNKNOWN && failure.Reason != OutcomeNotConfirmed {
+			return fmt.Errorf("unknown outcome requires OUTCOME_NOT_CONFIRMED")
+		}
 	default:
 		return fmt.Errorf("unknown or unspecified update outcome")
 	}

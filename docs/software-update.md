@@ -90,6 +90,9 @@ Nil/unspecified/invalid results, ordinary errors without a confirmed failure, an
 handler panics default to `UNKNOWN`. Diagnostic errors are logged, not copied into
 public messages. A success result accompanied by an error becomes unknown. An
 explicit failed result may include an error for diagnostic logging.
+An explicit valid unknown result may also include a diagnostic error; its public
+explanation is preserved. `UNKNOWN` requires `OUTCOME_NOT_CONFIRMED`; confirmed
+failure reasons belong only to `FAILED` results.
 
 Outcomes describe the requested operation. A failed/unsupported cancellation does
 not prove that a preceding activation stopped. Consumers must require a successful

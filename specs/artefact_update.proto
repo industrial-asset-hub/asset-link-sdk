@@ -74,6 +74,8 @@ enum UpdateOutcome {
 }
 
 message UpdateFailure {
+  // UNKNOWN requires OUTCOME_NOT_CONFIRMED. FAILED requires a confirmed failure
+  // reason and must not use OUTCOME_NOT_CONFIRMED.
   FailureReason reason = 1;
   // Optional user-safe explanation, maximum 512 bytes. Never include credentials,
   // stack traces or internal response bodies. Detailed diagnostics belong in logs.

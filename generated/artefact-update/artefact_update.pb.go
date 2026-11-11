@@ -546,6 +546,8 @@ type UpdateFailure struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
+	// UNKNOWN requires OUTCOME_NOT_CONFIRMED. FAILED requires a confirmed failure
+	// reason and must not use OUTCOME_NOT_CONFIRMED.
 	Reason FailureReason `protobuf:"varint,1,opt,name=reason,proto3,enum=siemens.industrialassethub.artefact_update.v1.FailureReason" json:"reason,omitempty"`
 	// Optional user-safe explanation, maximum 512 bytes. Never include credentials,
 	// stack traces or internal response bodies. Detailed diagnostics belong in logs.
