@@ -14,8 +14,8 @@ permissions:
 
 env:
   GOPRIVATE: github.com/industrial-asset-hub
-  GO_MINIMAL_VERSION: 1.26.7
-  GO_LINT_VERSION: v2.13.0
+  GO_MINIMAL_VERSION: 1.27.4
+  GO_LINT_VERSION: v2.15.0
   TEST_PROJECT: cookiecutter-test
   TEST_PROJECT_NAME: test-asset-link
   TEMPLATE_PATH: "cookiecutter-project-template/{{ cookiecutter.al_project }}"
@@ -52,6 +52,9 @@ jobs:
       - uses: actions/checkout@v7
       - name: Prepare Environment
         uses: ./.github/actions/prepare
+        with:
+          # Keep the toolchain compatible with the pinned golangci-lint release.
+          go-version: ${{ env.GO_MINIMAL_VERSION }}
       - name: Lint
         uses: golangci/golangci-lint-action@v9
         with:
@@ -122,7 +125,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        go-version: ["1.26.7", "stable"]
+        go-version: ["1.27.4", "stable"]
     steps:
       - uses: actions/checkout@v7
       - name: Prepare Environment
@@ -159,6 +162,7 @@ jobs:
           cd $TEST_PROJECT/$TEST_PROJECT_NAME/
           go test -v ./...
       - name: Lint Asset Link
+        if: matrix.go-version == env.GO_MINIMAL_VERSION
         uses: golangci/golangci-lint-action@v9
         with:
           version: ${{ env.GO_LINT_VERSION }}
