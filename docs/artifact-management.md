@@ -18,6 +18,10 @@ preparation.
 | **Activate** | Install the prepared update and verify that it succeeded. |
 | **Cancel** | If supported, discard the prepared update and clean up temporary files and device-side preparations. |
 
+`Cancel` only discards a prepared update before `Activate` starts. Once
+`Activate` is in progress, let the update finish. Force-cancel is reserved for
+stuck jobs; it does not guarantee that the device stops or rolls back the update.
+
 Want to try these operations without implementing a handler first? Follow the
 [simulator quickstart](cmd.md#quickstart-update-a-simulated-device).
 
