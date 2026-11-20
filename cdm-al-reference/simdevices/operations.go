@@ -14,6 +14,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
 )
 
@@ -113,7 +114,7 @@ func (d *simulatedDeviceInfo) PrepareFirmware(firmwareFilename string) (Prepared
 	if err := d.validateFirmware(fwFile); err != nil {
 		return PreparedFirmware{}, err
 	}
-	return PreparedFirmware{file: fwFile}, nil
+	return PreparedFirmware{file: fwFile, id: uuid.New()}, nil
 }
 
 func (d *simulatedDeviceInfo) validateFirmware(fwFile firmwareFile) error {
@@ -135,10 +136,6 @@ func (d *simulatedDeviceInfo) validateFirmware(fwFile firmwareFile) error {
 		return errors.New("firmware version is required")
 	}
 
-	//nolint:gocritic
-	if fwFile.FirmwareVersion == d.InstalledFirmwareVersion && fwFile.FirmwareVersion == d.ActiveFirmwareVersion {
-		return errors.New("firmware version is already installed")
-	}
 	return nil
 }
 
@@ -154,6 +151,7 @@ func (d *simulatedDeviceInfo) installFirmware(ctx context.Context, firmware Prep
 	}
 	return d.runFirmwareStep(ctx, StateUpdating, delay, func() {
 		d.InstalledFirmwareVersion = firmware.Version()
+		d.installedPreparationID = firmware.id
 	})
 }
 

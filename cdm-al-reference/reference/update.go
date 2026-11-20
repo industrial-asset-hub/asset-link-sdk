@@ -173,8 +173,9 @@ func installationFailure(err error) *artifact.Result {
 }
 
 func installFirmware(ctx context.Context, device simdevices.SimulatedDevice, firmware simdevices.PreparedFirmware) error {
-	// A previous attempt can have installed the firmware without rebooting.
-	if device.GetInstalledFirmwareVersion() == firmware.Version() {
+	// Resume only if this preparation was installed. An equal version could
+	// have been installed by an earlier job and says nothing about this one.
+	if device.HasInstalledPreparation(firmware) {
 		return nil
 	}
 	return device.InstallFirmware(ctx, firmware)

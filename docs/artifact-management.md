@@ -18,6 +18,9 @@ preparation.
 | **Activate** | Install the prepared update and verify that it succeeded. |
 | **Cancel** | If supported, discard the prepared update and clean up temporary files and device-side preparations. |
 
+Want to try these operations without implementing a handler first? Follow the
+[simulator quickstart](cmd.md#quickstart-update-a-simulated-device).
+
 ### Prerequisite: discover the target device
 
 During discovery, populate each device's `DiscoveredDevice.ConnectionParameterSet`
@@ -80,6 +83,10 @@ publishes each simulator address during discovery. `Prepare` downloads and
 validates one simulated firmware file without changing the device. `Activate`
 installs it, reboots the simulator and checks the active version. `Cancel`
 discards the preparation; it does not roll back firmware.
+
+A new job can reinstall the same firmware version. On retry, the simulator
+only skips installation if it can confirm that this preparation, not just
+the same version, was already installed.
 
 The example accepts one prepared job at a time and keeps it in memory, so a
 restart discards it. Run it in a test environment with a trusted OCI registry

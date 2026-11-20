@@ -67,6 +67,26 @@ func TestReferenceArtifactUpdate(t *testing.T) {
 	contracttest.Check(t, ctx, request, driver.HandleActivateUpdate, updateFailed)
 }
 
+func TestReferenceUpdateReinstallsSameFirmwareVersion(t *testing.T) {
+	simdevices.StartSimulatedDevices("")
+	driver := new(ReferenceAssetLink)
+	device, err := simdevices.ConnectToDevice(updateDeviceAddress, nil)
+	require.NoError(t, err)
+	request := updateRequest(t)
+	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	defer cancel()
+
+	for _, job := range []string{"first-install", "same-version-reinstall"} {
+		request.JobId = job
+		contracttest.Check(t, ctx, request, driver.HandlePrepareUpdate, updateSucceeded)
+		firmware := driver.prepared.firmware
+		require.False(t, device.HasInstalledPreparation(firmware), "a new job has not installed its firmware yet")
+		contracttest.Check(t, ctx, request, driver.HandleActivateUpdate, updateSucceeded)
+		require.True(t, device.HasInstalledPreparation(firmware), "activation must actually install the firmware for this job")
+		require.Equal(t, "2.0.0", device.GetActiveFirmwareVersion())
+	}
+}
+
 func TestReferenceUpdateRejectsWrongTarget(t *testing.T) {
 	simdevices.StartSimulatedDevices("")
 	driver := new(ReferenceAssetLink)
@@ -142,7 +162,9 @@ func TestReferenceUpdateWithDeviceConnectionLoss(t *testing.T) {
 	require.Equal(t, "2.0.0", device.GetInstalledFirmwareVersion())
 	require.Equal(t, "1.0.0", device.GetActiveFirmwareVersion(), "must not reboot after losing the device connection")
 
-	contracttest.Check(t, ctx, request, driver.HandleActivateUpdate, updateSucceeded)
+	// The wrapper loses every install reply; success on retry proves that the
+	// handler recognized this preparation and went directly to reboot.
+	contracttest.Check(t, ctx, request, disconnected, updateSucceeded)
 	require.Equal(t, "2.0.0", device.GetActiveFirmwareVersion())
 }
 

@@ -81,6 +81,7 @@ type SimulatedDevice interface {
 	UpdateFirmware(artefactFilename string) error
 	PrepareFirmware(firmwareFilename string) (PreparedFirmware, error)
 	InstallFirmware(ctx context.Context, firmware PreparedFirmware) error
+	HasInstalledPreparation(firmware PreparedFirmware) bool
 	RebootDevice() error
 	RebootDeviceContext(ctx context.Context) error
 
@@ -122,6 +123,7 @@ type simulatedDeviceInfo struct {
 	ParentDevice             *simulatedDeviceInfo        `json:"-"` // parent device is not serialized
 	adminCredentials         *SimulatedDeviceCredentials `json:"-"` // credentials are not serialized
 	readCredentials          *SimulatedDeviceCredentials `json:"-"` // credentials are not serialized
+	installedPreparationID   uuid.UUID
 }
 
 type firmwareFile struct {
@@ -131,9 +133,10 @@ type firmwareFile struct {
 	FirmwareVersion    string `json:"firmware_version"`
 }
 
-// PreparedFirmware holds the parsed simulator artifact without changing the device.
+// PreparedFirmware holds the parsed artifact and identifies this preparation.
 type PreparedFirmware struct {
 	file firmwareFile
+	id   uuid.UUID
 }
 
 func (f PreparedFirmware) Version() string { return f.file.FirmwareVersion }
@@ -351,6 +354,14 @@ func (d *simulatedDeviceInfo) GetInstalledFirmwareVersion() string {
 	defer simLock.Unlock()
 
 	return d.InstalledFirmwareVersion
+}
+
+// HasInstalledPreparation reports whether this exact preparation is installed,
+// even if a different preparation contained the same firmware version.
+func (d *simulatedDeviceInfo) HasInstalledPreparation(firmware PreparedFirmware) bool {
+	simLock.Lock()
+	defer simLock.Unlock()
+	return firmware.id != uuid.Nil && d.installedPreparationID == firmware.id
 }
 
 func (d *simulatedDeviceInfo) IsUpdateSupported() bool {
