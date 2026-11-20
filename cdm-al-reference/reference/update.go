@@ -32,6 +32,9 @@ type preparedUpdate struct {
 }
 
 func parseUpdateTarget(metadata *artifact.ArtifactMetaData) (updateTarget, error) {
+	if err := artifact.ValidateMetaData(metadata); err != nil {
+		return updateTarget{}, err
+	}
 	parameters := metadata.GetConnectionParameterSet()
 	if parameters.GetSchemaUri() != simulatedAddressSchema {
 		return updateTarget{}, errors.New("unexpected simulated address schema")
@@ -54,7 +57,7 @@ func parseUpdateTarget(metadata *artifact.ArtifactMetaData) (updateTarget, error
 func (m *ReferenceAssetLink) HandlePrepareUpdate(metadata *artifact.ArtifactMetaData, reporter artifact.ProgressReporter) (*artifact.Result, error) {
 	target, err := parseUpdateTarget(metadata)
 	if err != nil {
-		return artifact.Failed(artifact.InvalidRequest, "Expected a simulated device address from discovery"), err
+		return artifact.Failed(artifact.InvalidRequest, "Invalid update metadata"), err
 	}
 	if !m.updateLock.TryLock() {
 		return artifact.Failed(artifact.OperationFailed, "Another simulated update operation is running"), nil
@@ -197,7 +200,7 @@ func (m *ReferenceAssetLink) HandleCancelUpdate(metadata *artifact.ArtifactMetaD
 func (m *ReferenceAssetLink) checkPreparation(metadata *artifact.ArtifactMetaData) (*artifact.Result, error) {
 	target, err := parseUpdateTarget(metadata)
 	if err != nil {
-		return artifact.Failed(artifact.InvalidRequest, "Expected a simulated device address from discovery"), err
+		return artifact.Failed(artifact.InvalidRequest, "Invalid update metadata"), err
 	}
 	if m.prepared == nil || m.prepared.target != target {
 		return artifact.Failed(artifact.InvalidRequest, "No matching prepared update"), nil

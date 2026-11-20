@@ -87,6 +87,41 @@ func TestReferenceUpdateReinstallsSameFirmwareVersion(t *testing.T) {
 	}
 }
 
+func TestReferenceUpdateRejectsMissingMetadata(t *testing.T) {
+	base := updateRequest(t)
+	noJob := proto.CloneOf(base)
+	noJob.JobId = " "
+	noConnection := proto.CloneOf(base)
+	noConnection.ConnectionParameterSet = nil
+	noReference := proto.CloneOf(base)
+	noReference.OciReference = nil
+	noDigest := proto.CloneOf(base)
+	noDigest.OciReference.ManifestDigest = ""
+
+	for _, tc := range []struct {
+		name     string
+		metadata *artifact.ArtifactMetaData
+		want     string
+	}{
+		{"nil metadata", nil, "job_id is required"},
+		{"blank job ID", noJob, "job_id is required"},
+		{"missing connection parameters", noConnection, "JSON connection parameters are required"},
+		{"missing OCI reference", noReference, "oci_reference is required"},
+		{"missing manifest digest", noDigest, "digest"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			driver := new(ReferenceAssetLink)
+			for _, handle := range []func(*artifact.ArtifactMetaData, artifact.ProgressReporter) (*artifact.Result, error){
+				driver.HandlePrepareUpdate, driver.HandleActivateUpdate, driver.HandleCancelUpdate,
+			} {
+				result, err := handle(tc.metadata, nil)
+				require.ErrorContains(t, err, tc.want)
+				require.Equal(t, artifact.InvalidRequest, result.GetFailure().GetReason())
+			}
+		})
+	}
+}
+
 func TestReferenceUpdateRejectsWrongTarget(t *testing.T) {
 	simdevices.StartSimulatedDevices("")
 	driver := new(ReferenceAssetLink)
