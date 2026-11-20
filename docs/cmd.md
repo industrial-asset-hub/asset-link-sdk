@@ -32,6 +32,116 @@ $ al-ctl --help
 
 Below are the detailed description of some important commands:
 
+## Artifact updates
+
+Use `al-ctl update` to call the [artifact update API](artifact-management.md)
+directly on an Asset Link. **Prepare** stages the artifact without installing
+it. **Activate** installs it. **Cancel** discards it instead. The CLI sends an
+OCI reference, not the firmware file.
+
+### Quickstart: update a simulated device
+
+This walkthrough updates simulated device **A0** from `1.0.0` to `2.0.0` on a
+fresh simulator. No physical device or full Asset Gateway is needed. Use a
+local SDK checkout, the Go toolchain required by the repo, Docker, and
+[ORAS](https://oras.land/docs/installation/). Run the commands from the
+`asset-link-sdk/` directory in both terminals.
+
+#### 1. Start the demo (terminal 1)
+
+The gRPC registry on port `50051` is the Asset Link's service directory. The
+OCI registry on port `5000` stores the sample firmware. Skip either `docker run`
+if you already have the corresponding registry running on that port.
+
+```bash
+docker run --rm -d --name asset-link-reference-registry \
+  -p 127.0.0.1:50051:50051 \
+  ghcr.io/industrial-asset-hub/iah/grpc-server-registry:0.1.14
+docker run --rm -d --name asset-link-demo-oci \
+  -p 127.0.0.1:5000:5000 registry:3
+
+go run ./cdm-al-reference -grpc-registry-address=localhost:50051
+```
+
+Leave this terminal running. Open the [simulator UI](http://localhost:8083/)
+and click **+** next to **Simulated Device A0**. Before continuing, check that
+**Installed Firmware Version** and **Active Firmware Version** both show
+`1.0.0` and that **Device State** is `active`. If you reused a simulator that
+has already been updated, restart the reference Asset Link to reset the
+simulated devices. You don't need to restart the registry containers.
+
+Port `8081` is the gRPC API used by `al-ctl`; it is not a web page.
+
+#### 2. Publish the firmware and create a request (terminal 2)
+
+This block publishes the sample and puts the **manifest digest** into the
+request automatically. Run the push from `misc/` as shown so that the OCI
+layer name contains only the filename, not a path.
+
+```bash
+digest=$(
+  cd misc &&
+  oras push --plain-http localhost:5000/reference-firmware:2.0.0 \
+    simulated_device_firmware_2.0.0.fwu | awk '/^Digest:/ {print $2}'
+)
+printf 'Manifest digest: %s\n' "$digest"
+
+request=$(mktemp)
+cat > "$request" <<EOF
+{
+  "jobId": "reference-update-$(date +%s)",
+  "connectionParameterSet": {
+    "schemaUri": "urn:siemens:cdm:al:reference:simulated-address:v1",
+    "parameterJson": "{\"alNic\":\"eth0\",\"ipAddress\":\"192.168.0.10\",\"subDeviceID\":-1}"
+  },
+  "ociReference": {
+    "registryUrl": "http://localhost:5000",
+    "repository": "reference-firmware",
+    "manifestDigest": "$digest"
+  }
+}
+EOF
+```
+
+If the printed digest is empty, check that the OCI registry is running and
+the ORAS push succeeded before continuing.
+
+#### 3. Prepare, then activate or cancel (terminal 2)
+
+```bash
+go run ./cmd/al-ctl update prepare --endpoint localhost:8081 --request "$request" --timeout 20
+```
+
+Look for `Progress: "download"` and `SUCCEEDED`. Both firmware fields for A0
+should still show `1.0.0`. After Prepare succeeds, use the **same request
+file** to activate:
+
+```bash
+go run ./cmd/al-ctl update activate --endpoint localhost:8081 --request "$request" --timeout 20
+```
+
+Watch A0 in the UI: it should show `updating` and `booting` before returning
+to `active`. Both firmware fields should now show `2.0.0`. If you want to
+test Cancel instead, run this **in place of Activate**:
+
+```bash
+go run ./cmd/al-ctl update cancel --endpoint localhost:8081 --request "$request" --timeout 20
+```
+
+Cancel should return `SUCCEEDED` without changing the firmware version. To
+repeat the demo, create a request with a new job ID. A new job can reinstall
+the same version, so the version number may stay the same.
+
+Progress and the result appear in **terminal 2**, not in the gRPC registry's
+logs. `SUCCEEDED` and exit status 0 confirm success. `FAILED` and `UNKNOWN`
+return a nonzero status. If the outcome is unknown, check the device before
+retrying.
+
+When done, press `Ctrl+C` in terminal 1. If you started both registry containers
+for this walkthrough, stop them with
+`docker stop asset-link-reference-registry asset-link-demo-oci`. If you reused
+a registry, leave it running.
+
 ## Command: 'assets'
 
 ```bash

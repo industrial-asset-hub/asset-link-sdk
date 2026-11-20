@@ -10,6 +10,10 @@
 
 package main
 
+// Artifact Update Interface
+//go:generate protoc --proto_path=specs --go_out ./generated --go_opt=Martifact_update.proto=./artifact-update --go_opt=Mcommon_address.proto=github.com/industrial-asset-hub/asset-link-sdk/v4/generated/iah-discovery artifact_update.proto
+//go:generate protoc --proto_path=specs --go-grpc_out ./generated --go-grpc_opt=Martifact_update.proto=./artifact-update --go-grpc_opt=Mcommon_address.proto=github.com/industrial-asset-hub/asset-link-sdk/v4/generated/iah-discovery artifact_update.proto
+
 //go:generate protoc --proto_path=specs --go_out ./generated      --go_opt=Mconn_suite_registry.proto=./conn_suite_registry      specs/conn_suite_registry.proto
 //go:generate protoc --proto_path=specs --go-grpc_out ./generated --go-grpc_opt=Mconn_suite_registry.proto=./conn_suite_registry specs/conn_suite_registry.proto
 

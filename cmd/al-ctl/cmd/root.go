@@ -12,6 +12,7 @@ import (
 	"os"
 
 	"github.com/industrial-asset-hub/asset-link-sdk/v4/cmd/al-ctl/cmd/registry"
+	"github.com/industrial-asset-hub/asset-link-sdk/v4/cmd/al-ctl/cmd/update"
 	"github.com/industrial-asset-hub/asset-link-sdk/v4/cmd/al-ctl/internal/logging"
 
 	"github.com/industrial-asset-hub/asset-link-sdk/v4/cmd/al-ctl/cmd/test"
@@ -65,6 +66,7 @@ func init() {
 	rootCmd.AddCommand(info.InfoCmd)
 	rootCmd.AddCommand(registry.ListCmd)
 	rootCmd.AddCommand(test.TestCmd)
+	rootCmd.AddCommand(update.NewCommand())
 }
 
 func initHandlers() {

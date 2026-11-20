@@ -75,6 +75,7 @@ func main() {
 	}).
 		Discovery(myAssetLinkImplementation).
 		DeviceInfo(myAssetLinkImplementation).
+		Update(myAssetLinkImplementation).
 		Build()
 
 	// Signal handler for a proper shutdown

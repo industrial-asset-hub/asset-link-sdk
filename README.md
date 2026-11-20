@@ -25,6 +25,7 @@ The following documentation is available in [docs/](docs/):
 - [Command line tool](docs/cmd.md)
 - [Observability Webserver](docs/observability.md)
 - [Working with the Asset Model](docs/model.md)
+- [Artifact management](docs/artifact-management.md)
 - [Migration to v4.1.x](docs/migration-v3.7.4-to-v4.1.x.md)
 - [Troubleshooting](docs/troubleshooting.md)
 
