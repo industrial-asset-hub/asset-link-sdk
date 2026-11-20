@@ -8,6 +8,7 @@ package simdevices
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
 	"net"
@@ -44,6 +45,8 @@ var (
 	ErrDeviceNotFound    = errors.New("device not found")
 	ErrSubDeviceNotFound = errors.New("sub-device not found")
 	ErrUnauthenticated   = errors.New("invalid credentials")
+	// ErrFirmwareRejected means the simulator rejected the firmware before installation.
+	ErrFirmwareRejected = errors.New("firmware rejected")
 )
 
 type SimulatedDeviceInfo interface {
@@ -76,7 +79,10 @@ type SimulatedDevice interface {
 	SimulatedDeviceInfo
 
 	UpdateFirmware(artefactFilename string) error
+	PrepareFirmware(firmwareFilename string) (PreparedFirmware, error)
+	InstallFirmware(ctx context.Context, firmware PreparedFirmware) error
 	RebootDevice() error
+	RebootDeviceContext(ctx context.Context) error
 
 	GetConfig(configFilename string) error
 	SetConfig(configFilename string) error
@@ -124,6 +130,13 @@ type firmwareFile struct {
 	ProductDesignation string `json:"product_designation"`
 	FirmwareVersion    string `json:"firmware_version"`
 }
+
+// PreparedFirmware holds the parsed simulator artifact without changing the device.
+type PreparedFirmware struct {
+	file firmwareFile
+}
+
+func (f PreparedFirmware) Version() string { return f.file.FirmwareVersion }
 
 type configFile struct {
 	ArtefactType string `json:"artefact_type"`
@@ -508,16 +521,14 @@ func containsIpInRange(ipRange string, actualIPs []string) bool {
 }
 
 func simulateCostlyOperation(duration time.Duration) {
-	if testing.Testing() {
-		return
-	}
+	time.Sleep(simulationDelay(duration))
+}
 
-	ciValue, ciExists := os.LookupEnv("CI")
-	if ciExists && ciValue == "true" {
-		return
+func simulationDelay(duration time.Duration) time.Duration {
+	if testing.Testing() || os.Getenv("CI") == "true" {
+		return 0
 	}
-
-	time.Sleep(duration)
+	return duration
 }
 
 func connectToDevice(deviceAddress SimulatedDeviceAddress, credentials *SimulatedDeviceCredentials, readOnly bool) (*simulatedDeviceInfo, error) {

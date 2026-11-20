@@ -7,8 +7,10 @@
 package simdevices
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
 	"time"
 
@@ -88,24 +90,36 @@ func ConnectToDevice(deviceAddress SimulatedDeviceAddress, credentials *Simulate
 }
 
 func (d *simulatedDeviceInfo) UpdateFirmware(firmwareFilename string) error {
-	simLock.Lock()
-	defer simLock.Unlock()
-
-	if !d.UpdateSupport {
-		return errors.New("device does not support updates")
+	firmware, err := d.PrepareFirmware(firmwareFilename)
+	if err != nil {
+		return err
 	}
+	return d.InstallFirmware(context.Background(), firmware)
+}
 
-	firmwareData, fileErr := os.ReadFile(firmwareFilename)
-	if fileErr != nil {
-		return fileErr
+func (d *simulatedDeviceInfo) PrepareFirmware(firmwareFilename string) (PreparedFirmware, error) {
+	data, err := os.ReadFile(firmwareFilename)
+	if err != nil {
+		return PreparedFirmware{}, err
 	}
 
 	var fwFile firmwareFile
-	parseErr := json.Unmarshal(firmwareData, &fwFile)
-	if parseErr != nil {
-		return errors.New("invalid firmware artefact (overall file format)")
+	if err := json.Unmarshal(data, &fwFile); err != nil {
+		return PreparedFirmware{}, err
 	}
 
+	simLock.Lock()
+	defer simLock.Unlock()
+	if err := d.validateFirmware(fwFile); err != nil {
+		return PreparedFirmware{}, err
+	}
+	return PreparedFirmware{file: fwFile}, nil
+}
+
+func (d *simulatedDeviceInfo) validateFirmware(fwFile firmwareFile) error {
+	if !d.UpdateSupport {
+		return errors.New("device does not support updates")
+	}
 	if fwFile.ArtefactType != "firmware" {
 		return errors.New("artefact type mismatch")
 	}
@@ -117,38 +131,75 @@ func (d *simulatedDeviceInfo) UpdateFirmware(firmwareFilename string) error {
 	if fwFile.ProductDesignation != d.ProductDesignation {
 		return errors.New("product designation mismatch")
 	}
+	if fwFile.FirmwareVersion == "" {
+		return errors.New("firmware version is required")
+	}
 
 	//nolint:gocritic
 	if fwFile.FirmwareVersion == d.InstalledFirmwareVersion && fwFile.FirmwareVersion == d.ActiveFirmwareVersion {
 		return errors.New("firmware version is already installed")
 	}
-
-	d.DeviceState = StateUpdating
-	handleDeviceChanges()
-
-	simulateCostlyOperation(3 * time.Second) // simulate updating firmware
-
-	d.InstalledFirmwareVersion = fwFile.FirmwareVersion
-	d.DeviceState = StateActive
-	handleDeviceChanges()
-
 	return nil
 }
 
-func (d *simulatedDeviceInfo) RebootDevice() error {
+func (d *simulatedDeviceInfo) InstallFirmware(ctx context.Context, firmware PreparedFirmware) error {
+	return d.installFirmware(ctx, firmware, simulationDelay(3*time.Second))
+}
+
+func (d *simulatedDeviceInfo) installFirmware(ctx context.Context, firmware PreparedFirmware, delay time.Duration) error {
 	simLock.Lock()
 	defer simLock.Unlock()
+	if err := d.validateFirmware(firmware.file); err != nil {
+		return fmt.Errorf("%w: %w", ErrFirmwareRejected, err)
+	}
+	return d.runFirmwareStep(ctx, StateUpdating, delay, func() {
+		d.InstalledFirmwareVersion = firmware.Version()
+	})
+}
 
-	d.DeviceState = StateBooting
+func (d *simulatedDeviceInfo) RebootDevice() error {
+	return d.RebootDeviceContext(context.Background())
+}
+
+func (d *simulatedDeviceInfo) RebootDeviceContext(ctx context.Context) error {
+	return d.rebootDevice(ctx, simulationDelay(3*time.Second))
+}
+
+func (d *simulatedDeviceInfo) rebootDevice(ctx context.Context, delay time.Duration) error {
+	simLock.Lock()
+	defer simLock.Unlock()
+	return d.runFirmwareStep(ctx, StateBooting, delay, func() {
+		d.ActiveFirmwareVersion = d.InstalledFirmwareVersion
+	})
+}
+
+// runFirmwareStep is called with simLock held. The simulator applies the
+// change only once the step completes; real devices may continue on their own.
+func (d *simulatedDeviceInfo) runFirmwareStep(ctx context.Context, state SimulatedDeviceState, delay time.Duration, apply func()) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	d.DeviceState = state
 	handleDeviceChanges()
-
-	simulateCostlyOperation(3 * time.Second) // simulate reboot to activate firmware
-
-	d.ActiveFirmwareVersion = d.InstalledFirmwareVersion
-	d.DeviceState = StateActive
-	handleDeviceChanges()
-
+	defer func() {
+		d.DeviceState = StateActive
+		handleDeviceChanges()
+	}()
+	if err := waitForFirmwareStep(ctx, delay); err != nil {
+		return err
+	}
+	apply()
 	return nil
+}
+
+func waitForFirmwareStep(ctx context.Context, delay time.Duration) error {
+	timer := time.NewTimer(delay)
+	defer timer.Stop()
+	select {
+	case <-ctx.Done():
+	case <-timer.C:
+	}
+	return ctx.Err()
 }
 
 // Loads the specified file and stores the contained configuration on the device

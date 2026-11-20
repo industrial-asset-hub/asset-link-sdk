@@ -72,6 +72,29 @@ If you register manually through `registry.json`, add the identifier to
 
 If the operation is not supported, return `artifact.Failed(artifact.NotSupported, "..."), nil` from that method.
 
+### Working example with simulated devices
+
+The [reference Asset Link][reference-main] registers its
+[update handlers][reference-update] with the SDK. It
+publishes each simulator address during discovery. `Prepare` downloads and
+validates one simulated firmware file without changing the device. `Activate`
+installs it, reboots the simulator and checks the active version. `Cancel`
+discards the preparation; it does not roll back firmware.
+
+The example accepts one prepared job at a time and keeps it in memory, so a
+restart discards it. Run it in a test environment with a trusted OCI registry
+and a writable temporary directory. Target unprotected simulators such as A0
+or B0: the gateway update flow does not send device credentials. The
+[reference tests][reference-tests] serve a firmware fixture from a local OCI
+endpoint. They also show a lost device reply returning `Unknown` while the
+gateway stream stays open. Simulated install and reboot stop when the gateway
+context is cancelled. That does not undo an earlier step, and real devices
+may continue working after the gateway call ends.
+
+[reference-main]: https://github.com/industrial-asset-hub/asset-link-sdk/blob/main/cdm-al-reference/main.go
+[reference-update]: https://github.com/industrial-asset-hub/asset-link-sdk/blob/main/cdm-al-reference/reference/update.go
+[reference-tests]: https://github.com/industrial-asset-hub/asset-link-sdk/blob/main/cdm-al-reference/reference/update_test.go
+
 ### Request data
 
 Each method receives `ArtifactMetaData` describing the target device, update job
