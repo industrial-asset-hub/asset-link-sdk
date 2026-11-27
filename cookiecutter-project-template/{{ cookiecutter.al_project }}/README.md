@@ -21,7 +21,14 @@ $ go run -tags webserver main.go --grpc-server-address=$(hostname -i):8080 \
 [...]
 ```
 
-To create a release:
+{% if cookiecutter.artifact_update == "yes" %}## Artifact updates
+
+`handler/update.go` contains a working dummy implementation of Prepare,
+Activate and Cancel for the dummy device. Follow the
+[artifact update quick path](https://github.com/industrial-asset-hub/asset-link-sdk/blob/main/docs/artifact-management.md#quick-path)
+to replace it with your own logic.
+
+{% endif %}To create a release:
 
 ```bash
 $ goreleaser release --snapshot --clean

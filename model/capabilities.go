@@ -9,7 +9,7 @@ package model
 
 // AddCapabilities Add device capabilities to an asset
 //
-// Name can be for example firmware_update, backup or restore.
+// Name can be for example FirmwareUpdate, Backup or Restore.
 func (d *DeviceInfo) AddCapabilities(name string, enabled bool) error {
 	if err := validateField(name, "CapabilityName", "Capability name is empty", "", ""); err != nil {
 		return err

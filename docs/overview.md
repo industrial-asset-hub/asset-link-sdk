@@ -50,14 +50,15 @@ For discovery and device property retrieval, these clients need to be implemente
 To ease local development, a container image of a registry server is provided as part of the [Asset Gateway](https://github.com/industrial-asset-hub/asset-gateway).
 Additionally, a command line tool called [al-ctl](https://github.com/industrial-asset-hub/asset-link-sdk/tree/main/cmd/al-ctl/al-ctl.go) is provided to locally run and test the Asset Links.
 
-To run these components, use the following commands:
+Make sure the [`al-ctl` executable](cmd.md#command-line-tool-for-local-debugging)
+is on your `PATH`, then use the following commands:
 
 ```bash
 # to start the registry
 $ docker-compose -f registry/docker-compose.yml up
 
-# to start the al-ctl
-$ go run ./cmd/al-ctl/al-ctl.go
+# to run al-ctl
+$ al-ctl
 # or
-$ go run ./cmd/al-ctl/al-ctl.go  --help
+$ al-ctl --help
 ```

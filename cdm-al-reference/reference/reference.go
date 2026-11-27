@@ -24,10 +24,11 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// Implements both the Discovery and DeviceInfo interface/feature
-
+// ReferenceAssetLink implements discovery, device information, and artifact updates.
 type ReferenceAssetLink struct {
 	discoveryLock sync.Mutex
+	updateLock    sync.Mutex
+	prepared      *preparedUpdate
 }
 
 type parameterQuery struct {
@@ -118,6 +119,7 @@ func (m *ReferenceAssetLink) Discover(discoveryConfig config.DiscoveryConfig, de
 			continue
 		}
 		discoveredDevice := deviceInfo.ConvertToDiscoveredDevice()
+		discoveredDevice.ConnectionParameterSet = simulatedConnectionParameters(device.GetDeviceAddress())
 
 		err = devicePublisher.PublishDevice(discoveredDevice)
 		if err != nil {
@@ -128,6 +130,14 @@ func (m *ReferenceAssetLink) Discover(discoveryConfig config.DiscoveryConfig, de
 	}
 
 	return nil
+}
+
+func simulatedConnectionParameters(address simdevices.SimulatedDeviceAddress) *generated.ConnectionParameterSet {
+	parameters, _ := json.Marshal(address) // The address contains only strings and an integer.
+	return &generated.ConnectionParameterSet{
+		SchemaUri:     simulatedAddressSchema,
+		ParameterJson: string(parameters),
+	}
 }
 
 func (m *ReferenceAssetLink) GetSupportedOptions() []*generated.SupportedOption {

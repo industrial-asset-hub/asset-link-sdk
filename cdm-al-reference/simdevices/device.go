@@ -8,6 +8,7 @@ package simdevices
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
 	"net"
@@ -44,6 +45,8 @@ var (
 	ErrDeviceNotFound    = errors.New("device not found")
 	ErrSubDeviceNotFound = errors.New("sub-device not found")
 	ErrUnauthenticated   = errors.New("invalid credentials")
+	// ErrFirmwareRejected means the simulator rejected the firmware before installation.
+	ErrFirmwareRejected = errors.New("firmware rejected")
 )
 
 type SimulatedDeviceInfo interface {
@@ -76,7 +79,11 @@ type SimulatedDevice interface {
 	SimulatedDeviceInfo
 
 	UpdateFirmware(artefactFilename string) error
+	PrepareFirmware(firmwareFilename string) (PreparedFirmware, error)
+	InstallFirmware(ctx context.Context, firmware PreparedFirmware) error
+	HasInstalledPreparation(firmware PreparedFirmware) bool
 	RebootDevice() error
+	RebootDeviceContext(ctx context.Context) error
 
 	GetConfig(configFilename string) error
 	SetConfig(configFilename string) error
@@ -116,6 +123,7 @@ type simulatedDeviceInfo struct {
 	ParentDevice             *simulatedDeviceInfo        `json:"-"` // parent device is not serialized
 	adminCredentials         *SimulatedDeviceCredentials `json:"-"` // credentials are not serialized
 	readCredentials          *SimulatedDeviceCredentials `json:"-"` // credentials are not serialized
+	installedPreparationID   uuid.UUID
 }
 
 type firmwareFile struct {
@@ -124,6 +132,14 @@ type firmwareFile struct {
 	ProductDesignation string `json:"product_designation"`
 	FirmwareVersion    string `json:"firmware_version"`
 }
+
+// PreparedFirmware holds the parsed artifact and identifies this preparation.
+type PreparedFirmware struct {
+	file firmwareFile
+	id   uuid.UUID
+}
+
+func (f PreparedFirmware) Version() string { return f.file.FirmwareVersion }
 
 type configFile struct {
 	ArtefactType string `json:"artefact_type"`
@@ -340,6 +356,14 @@ func (d *simulatedDeviceInfo) GetInstalledFirmwareVersion() string {
 	return d.InstalledFirmwareVersion
 }
 
+// HasInstalledPreparation reports whether this exact preparation is installed,
+// even if a different preparation contained the same firmware version.
+func (d *simulatedDeviceInfo) HasInstalledPreparation(firmware PreparedFirmware) bool {
+	simLock.Lock()
+	defer simLock.Unlock()
+	return firmware.id != uuid.Nil && d.installedPreparationID == firmware.id
+}
+
 func (d *simulatedDeviceInfo) IsUpdateSupported() bool {
 	return d.UpdateSupport
 }
@@ -508,16 +532,14 @@ func containsIpInRange(ipRange string, actualIPs []string) bool {
 }
 
 func simulateCostlyOperation(duration time.Duration) {
-	if testing.Testing() {
-		return
-	}
+	time.Sleep(simulationDelay(duration))
+}
 
-	ciValue, ciExists := os.LookupEnv("CI")
-	if ciExists && ciValue == "true" {
-		return
+func simulationDelay(duration time.Duration) time.Duration {
+	if testing.Testing() || os.Getenv("CI") == "true" {
+		return 0
 	}
-
-	time.Sleep(duration)
+	return duration
 }
 
 func connectToDevice(deviceAddress SimulatedDeviceAddress, credentials *SimulatedDeviceCredentials, readOnly bool) (*simulatedDeviceInfo, error) {
